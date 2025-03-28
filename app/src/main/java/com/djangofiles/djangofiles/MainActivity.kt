@@ -18,6 +18,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -136,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         Toast.makeText(
                             this,
-                            this.getString(R.string.tst_error) + ": Unknown DeepLink",
+                            getString(R.string.tst_error) + ": Unknown DeepLink",
                             Toast.LENGTH_SHORT
                         ).show()
                         Log.d("handleIntent", "Unknown DeepLink!")
@@ -149,7 +150,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(
                     this,
-                    this.getString(R.string.tst_error) + ": Unknown Intent",
+                    getString(R.string.tst_error) + ": Unknown Intent",
                     Toast.LENGTH_SHORT
                 ).show()
                 Log.e("IntentDebug", "Unknown Intent!")
@@ -218,7 +219,16 @@ class MainActivity : AppCompatActivity() {
         val savedUrl = preferences.getString(URL_KEY, null)
         Log.d("showSettingsDialog", "savedUrl: $savedUrl")
 
+
+        // Inflate custom layout with padding
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(5, 0, 5, 120)
+
         val input = EditText(this)
+        input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+        input.maxLines = 1
+        layout.addView(input)
         input.hint = getString(R.string.settings_input_place)
         if (savedUrl != null) {
             input.setText(savedUrl)
@@ -228,43 +238,40 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             AlertDialog.Builder(this)
                 .setCancelable(false)
-                .setTitle(this.getString(R.string.settings_title))
-                .setMessage(this.getString(R.string.settings_message))
-                .setView(input)
-                .setNegativeButton(
-                    "Exit"
-                ) { dialog: DialogInterface?, which: Int -> finish() }
-                .setPositiveButton("OK") { dialog: DialogInterface, which: Int ->
-                    var url = input.text.toString().trim { it <= ' ' }
-                    Log.d("showSettingsDialog", "setPositiveButton: url: $url")
-                    if (url.isEmpty()) {
-                        // TODO: Need to add verification here and keep dialog open...
-                        Toast.makeText(
-                            this,
-                            getString(R.string.tst_invalid_url),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        finish()
-                        return@setPositiveButton
-                    }
-                    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                        url = "https://$url"
-                    }
-                    if (url.endsWith("/")) {
-                        url = url.substring(0, url.length - 1)
-                    }
-                    if (savedUrl != url) {
-                        Log.d("showSettingsDialog", "Saving New URL.")
-                        preferences.edit { putString(URL_KEY, url) }
-                        webView.loadUrl(url)
-                        dialog.dismiss()
-                    } else {
-                        Log.d("showSettingsDialog", "URL NOT Changed!")
-                        finish()
+                .setTitle(getString(R.string.settings_title))
+                .setMessage(getString(R.string.settings_message))
+                .setView(layout)
+                .setNegativeButton("Exit") { dialog: DialogInterface?, which: Int -> finish() }
+                .setPositiveButton("OK", null)
+                .show().apply {
+                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                        var url = input.text.toString().trim { it <= ' ' }
+                        Log.d("showSettingsDialog", "setPositiveButton: url: $url")
+
+                        if (url.isEmpty()) {
+                            input.error = "This field is required."
+                        } else {
+                            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                                url = "https://$url"
+                            }
+                            if (url.endsWith("/")) {
+                                url = url.substring(0, url.length - 1)
+                            }
+
+                            if (savedUrl != url) {
+                                Log.d("showSettingsDialog", "Saving New URL.")
+                                preferences.edit { putString(URL_KEY, url) }
+                                webView.loadUrl(url)
+                                dismiss()
+                            } else {
+                                Log.d("showSettingsDialog", "URL NOT Changed!")
+                                finish()
+                            }
+                        }
                     }
                 }
-                .show()
         }
+
     }
 
     private fun processSharedFile(fileUri: Uri) {
@@ -276,7 +283,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("processSharedFile", "authToken: $authToken")
         if (savedUrl == null || authToken == null) {
             // TODO: Show settings dialog here...
-            Toast.makeText(this, this.getString(R.string.tst_no_url), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.tst_no_url), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -294,7 +301,7 @@ class MainActivity : AppCompatActivity() {
         val contentType = URLConnection.guessContentTypeFromName(fileName)
         Log.d("processSharedFile", "contentType: $contentType")
 
-        Toast.makeText(this, this.getString(R.string.tst_uploading_file), Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.tst_uploading_file), Toast.LENGTH_SHORT).show()
 
         Thread {
             try {
@@ -419,9 +426,9 @@ class MainActivity : AppCompatActivity() {
         if (clipboard != null) {
             val clip = ClipData.newPlainText("URL", url)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, this.getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, this.getString(R.string.tst_no_clipboard), Toast.LENGTH_SHORT)
+            Toast.makeText(this, getString(R.string.tst_no_clipboard), Toast.LENGTH_SHORT)
                 .show()
         }
     }
