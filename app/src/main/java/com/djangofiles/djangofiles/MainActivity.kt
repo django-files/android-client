@@ -158,6 +158,20 @@ class MainActivity : AppCompatActivity() {
         } else if (Intent.ACTION_SEND == action && mimeType != null) {
             Log.d("handleIntent", "ACTION_SEND")
             if ("text/plain" == mimeType) {
+                val sharedText: String? = intent.getStringExtra(Intent.EXTRA_TEXT)
+                if (sharedText != null) {
+                    Log.d("handleIntent", "Received text/plain: $sharedText")
+                    if (sharedText.startsWith("content://")) {
+                        val fileUri = Uri.parse(sharedText)
+                        Log.d("handleIntent", "Received URI: $fileUri")
+                    } else {
+                        Log.d("handleIntent", "Received text/plain: $sharedText")
+                    }
+                }
+                val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                val savedUrl = preferences.getString(URL_KEY, null)
+                Log.d("handleIntent", "savedUrl: ${savedUrl}/paste/")
+                webView.loadUrl("${savedUrl}/paste/")
                 Toast.makeText(
                     this,
                     this.getString(R.string.tst_not_implemented),
