@@ -91,7 +91,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
-        // TODO: Need to do some serious debugging on intent handling...
         val uri = intent.data
         Log.d("handleIntent", "uri: $uri")
 
@@ -194,9 +193,11 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Log.w("handleIntent", "URI is NULL")
             }
+        } else {
+            Toast.makeText(this, "Unknown Intent!", Toast.LENGTH_SHORT).show()
+            Log.w("handleIntent", "All Intent Types Processed. No Match!")
         }
     }
-
 
     private fun showSettingsDialog() {
         val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
