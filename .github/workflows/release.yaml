@@ -1,0 +1,102 @@
+name: "Release"
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  debug: app/build/outputs/apk/debug/
+  release: app/build/outputs/apk/release/
+
+jobs:
+  release:
+    name: "Release"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Debug event.json"
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        run: |
+          cat "${GITHUB_EVENT_PATH}"
+
+      - name: "Update Version"
+        uses: chkfung/android-version-actions@v1.2.2
+        with:
+          gradlePath: app/build.gradle # or app/build.gradle.kts
+          versionCode: ${{ github.run_number }}
+          versionName: ${{ github.ref_name }}
+
+      - name: "Debug Version"
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        run: |
+          cat "app/build.gradle"
+
+      - name: "Setup Java"
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+          #cache: "gradle"
+
+      - name: "Set Gradle Executable"
+        run: chmod +x ./gradlew
+
+      - name: "Gradlew Build"
+        run: ./gradlew build
+
+      - name: "Gradlew Assemble"
+        run: ./gradlew assemble
+
+      - name: "Debug Build"
+        continue-on-error: true
+        run: |
+          echo "ref: ${{ github.ref }}"
+          echo "name: ${{ github.repository_owner }}-debug"
+          echo "dir: ${{ env.debug }}"
+          echo "glob: ${{ env.debug }}/*.apk"
+          ls -lAh ${{ env.debug }}
+
+      - name: "Upload Artifacts"
+        if: ${{ !github.event.act }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.repository_owner }}-debug
+          path: ${{ env.debug }}
+
+      - name: "Upload to Release"
+        if: ${{ github.event_name == 'release' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: ${{ env.debug }}/*.apk
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+
+      - name: "VirusTotal"
+        uses: cssnr/virustotal-action@v1
+        continue-on-error: true
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+
+      - name: 'Update Release Notes Action'
+        uses: smashedr/update-release-notes-action@master
+        continue-on-error: true
+
+      - name: "Send Failure Notification"
+        if: ${{ failure() && github.event_name == 'release' }}
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}

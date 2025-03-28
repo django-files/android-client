@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Django Files</string>
+
+    <string name="settings_title">App Settings</string>
+    <string name="settings_message">Set or Change the Django Files URL</string>
+    <string name="settings_input_place">your.django-files.com</string>
+    <string name="tst_invalid_url">Please enter a valid URL.</string>
+
+    <string name="tst_not_implemented">Not Implemented.</string>
+    <string name="tst_error">Error</string>
+    <string name="tst_error_uploading">Error Uploading File!</string>
+    <string name="tst_no_url">Django Files URL Not Set!</string>
+    <string name="tst_url_copied">URL Copied to Clipboard.</string>
+    <string name="tst_no_clipboard">Clipboard Not Available!</string>
+
+    <string name="tst_perm_failed">Unable to Grant Permissions!</string>
+    <string name="tst_uploading_file">Uploading File. Please Wait.</string>
+</resources>
