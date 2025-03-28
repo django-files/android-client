@@ -34,7 +34,7 @@ jobs:
       - name: "Update Version"
         uses: chkfung/android-version-actions@v1.2.2
         with:
-          gradlePath: app/build.gradle # or app/build.gradle.kts
+          gradlePath: app/build.gradle.kts
           versionCode: ${{ github.run_number }}
           versionName: ${{ github.ref_name }}
 
@@ -42,7 +42,7 @@ jobs:
         if: ${{ !github.event.act }}
         continue-on-error: true
         run: |
-          cat "app/build.gradle"
+          cat "app/build.gradle.kts"
 
       - name: "Setup Java"
         uses: actions/setup-java@v4
