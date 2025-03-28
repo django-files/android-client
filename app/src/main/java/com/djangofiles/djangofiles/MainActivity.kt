@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
@@ -164,18 +165,34 @@ class MainActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                // val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(Intent.EXTRA_STREAM)
+                }
                 if (fileUri != null) {
                     processSharedFile(fileUri)
+                } else {
+                    Log.w("handleIntent", "URI is NULL")
                 }
             }
         } else if (Intent.ACTION_SEND_MULTIPLE == action) {
             Log.d("handleIntent", "ACTION_SEND_MULTIPLE")
-            val fileUris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+            // val fileUris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+            val fileUris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM)
+            }
             if (fileUris != null) {
                 for (fileUri in fileUris) {
                     processSharedFile(fileUri)
                 }
+            } else {
+                Log.w("handleIntent", "URI is NULL")
             }
         }
     }

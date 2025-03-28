@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -23,12 +22,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Intent filter for single file sharing -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="*/*" />
             </intent-filter>
 
+            <!-- Intent filter for multiple file sharing -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+
+            <!-- Intent filter for view actions -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -38,6 +46,7 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
 
+            <!-- Intent filter for deep links -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
