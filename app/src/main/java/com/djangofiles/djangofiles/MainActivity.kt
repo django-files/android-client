@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        webView = findViewById(R.id.webview)
+        webView = binding.webview
         webView.settings.domStorageEnabled = true
         webView.settings.javaScriptEnabled = true
         webView.settings.userAgentString = "DjangoFiles Android"
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         webView.setWebViewClient(MyWebViewClient())
 
         ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.main)
+            binding.main
         ) { v: View, insets: WindowInsetsCompat ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
