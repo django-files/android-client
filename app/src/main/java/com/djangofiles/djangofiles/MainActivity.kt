@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
@@ -53,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        webView = findViewById(R.id.webview)
+        webView = binding.webview
         webView.settings.domStorageEnabled = true
         webView.settings.javaScriptEnabled = true
         webView.settings.userAgentString = "DjangoFiles Android"
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         webView.setWebViewClient(MyWebViewClient())
 
         ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.main)
+            binding.main
         ) { v: View, insets: WindowInsetsCompat ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -90,7 +91,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
-        // TODO: Need to do some serious debugging on intent handling...
         val uri = intent.data
         Log.d("handleIntent", "uri: $uri")
 
@@ -158,28 +158,60 @@ class MainActivity : AppCompatActivity() {
         } else if (Intent.ACTION_SEND == action && mimeType != null) {
             Log.d("handleIntent", "ACTION_SEND")
             if ("text/plain" == mimeType) {
+                val sharedText: String? = intent.getStringExtra(Intent.EXTRA_TEXT)
+                if (sharedText != null) {
+                    Log.d("handleIntent", "Received text/plain: $sharedText")
+                    if (sharedText.startsWith("content://")) {
+                        val fileUri = Uri.parse(sharedText)
+                        Log.d("handleIntent", "Received URI: $fileUri")
+                    } else {
+                        Log.d("handleIntent", "Received text/plain: $sharedText")
+                    }
+                }
+                val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                val savedUrl = preferences.getString(URL_KEY, null)
+                Log.d("handleIntent", "savedUrl: ${savedUrl}/paste/")
+                webView.loadUrl("${savedUrl}/paste/")
                 Toast.makeText(
                     this,
                     this.getString(R.string.tst_not_implemented),
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                // val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(Intent.EXTRA_STREAM)
+                }
                 if (fileUri != null) {
                     processSharedFile(fileUri)
+                } else {
+                    Log.w("handleIntent", "URI is NULL")
                 }
             }
         } else if (Intent.ACTION_SEND_MULTIPLE == action) {
             Log.d("handleIntent", "ACTION_SEND_MULTIPLE")
-            val fileUris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+            // val fileUris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+            val fileUris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM)
+            }
             if (fileUris != null) {
                 for (fileUri in fileUris) {
                     processSharedFile(fileUri)
                 }
+            } else {
+                Log.w("handleIntent", "URI is NULL")
             }
+        } else {
+            Toast.makeText(this, "Unknown Intent!", Toast.LENGTH_SHORT).show()
+            Log.w("handleIntent", "All Intent Types Processed. No Match!")
         }
     }
-
 
     private fun showSettingsDialog() {
         val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
