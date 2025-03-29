@@ -27,6 +27,12 @@ import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.DataOutputStream
@@ -46,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var webView: WebView
+    private val client = OkHttpClient()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -249,6 +256,7 @@ class MainActivity : AppCompatActivity() {
                         Log.d("showSettingsDialog", "setPositiveButton: url: $url")
 
                         if (url.isEmpty()) {
+                            Log.d("showSettingsDialog", "URL is Empty")
                             input.error = "This field is required."
                         } else {
                             if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -258,11 +266,29 @@ class MainActivity : AppCompatActivity() {
                                 url = url.substring(0, url.length - 1)
                             }
 
+                            Log.d("showSettingsDialog", "Processed URL: $url")
                             if (savedUrl != url) {
-                                Log.d("showSettingsDialog", "Saving New URL.")
-                                preferences.edit { putString(URL_KEY, url) }
-                                webView.loadUrl(url)
-                                dismiss()
+                                Log.d("showSettingsDialog", "Saving New URL...")
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val authUrl = "${url}/api/auth/methods/"
+                                    Log.d("showSettingsDialog", "Auth URL: $authUrl")
+                                    val response = checkUrl(authUrl)
+                                    Log.d("showSettingsDialog", "response: $response")
+                                    withContext(Dispatchers.Main) {
+                                        if (response) {
+                                            Log.d("showSettingsDialog", "SUCCESS")
+                                            preferences.edit { putString(URL_KEY, url) }
+                                            webView.loadUrl(url)
+                                            dismiss()
+                                        } else {
+                                            Log.d("showSettingsDialog", "FAILURE")
+                                            input.error = "Invalid URL"
+                                        }
+                                    }
+                                }
+                                //preferences.edit { putString(URL_KEY, url) }
+                                //webView.loadUrl(url)
+                                //dismiss()
                             } else {
                                 Log.d("showSettingsDialog", "URL NOT Changed!")
                                 finish()
@@ -271,7 +297,18 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
 
+    private fun checkUrl(url: String): Boolean {
+        Log.d("checkUrl", "url: $url")
+        // TODO: Change this to HEAD or use response data...
+        val request = Request.Builder().url(url).get().build()
+        return try {
+            val response = client.newCall(request).execute()
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun processSharedFile(fileUri: Uri) {
@@ -472,6 +509,8 @@ class MainActivity : AppCompatActivity() {
                 "HTTP error " + errorResponse.description,
                 Toast.LENGTH_LONG
             ).show()
+            // TODO: Verify this does not cause any issues...
+            showSettingsDialog()
         }
 
         override fun onReceivedHttpError(
@@ -485,6 +524,8 @@ class MainActivity : AppCompatActivity() {
                 "HTTP error " + errorResponse.reasonPhrase,
                 Toast.LENGTH_LONG
             ).show()
+            // TODO: Verify this does not cause any issues...
+            showSettingsDialog()
         }
     }
 }
