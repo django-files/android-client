@@ -45,6 +45,7 @@ import java.net.URLConnection
 
 class MainActivity : AppCompatActivity() {
     companion object {
+        const val USER_AGENT = "DjangoFiles Android"
         const val PREFS_NAME = "AppPreferences"
         const val URL_KEY = "saved_url"
         const val TOKEN_KEY = "auth_token"
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         webView = binding.webview
         webView.settings.domStorageEnabled = true
         webView.settings.javaScriptEnabled = true
-        webView.settings.userAgentString = "DjangoFiles Android"
+        webView.settings.userAgentString = USER_AGENT
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
         webView.setWebViewClient(MyWebViewClient())
 
