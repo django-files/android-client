@@ -45,7 +45,6 @@ import java.net.URLConnection
 
 class MainActivity : AppCompatActivity() {
     companion object {
-        const val USER_AGENT = "DjangoFiles Android"
         const val PREFS_NAME = "AppPreferences"
         const val URL_KEY = "saved_url"
         const val TOKEN_KEY = "auth_token"
@@ -66,7 +65,13 @@ class MainActivity : AppCompatActivity() {
         webView = binding.webview
         webView.settings.domStorageEnabled = true
         webView.settings.javaScriptEnabled = true
-        webView.settings.userAgentString = USER_AGENT
+
+        val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
+        Log.d("MY_APP_TAG", "versionName: ${packageInfo.versionName}")
+        val userAgent = "${webView.settings.userAgentString} DjangoFiles Android/${packageInfo.versionName}"
+        Log.d("onCreate", "UA: $userAgent")
+
+        webView.settings.userAgentString = userAgent
         webView.addJavascriptInterface(WebAppInterface(this), "Android")
         webView.setWebViewClient(MyWebViewClient())
 
@@ -79,9 +84,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Handle Intent
-        Log.d("onCreate", "getAction: " + intent.action)
-        Log.d("onCreate", "getData: " + intent.data)
-        Log.d("onCreate", "getExtras: " + intent.extras)
+        Log.d("onCreate", "getAction: ${intent.action}")
+        Log.d("onCreate", "getData: ${intent.data}")
+        Log.d("onCreate", "getExtras: ${intent.extras}")
         handleIntent(intent)
     }
 
@@ -510,8 +515,8 @@ class MainActivity : AppCompatActivity() {
                 "HTTP error " + errorResponse.description,
                 Toast.LENGTH_LONG
             ).show()
-            // TODO: Verify this does not cause any issues...
-            showSettingsDialog()
+            // TODO: Now that we verify the URL this should not be needed...
+            // showSettingsDialog()
         }
 
         override fun onReceivedHttpError(
@@ -525,8 +530,8 @@ class MainActivity : AppCompatActivity() {
                 "HTTP error " + errorResponse.reasonPhrase,
                 Toast.LENGTH_LONG
             ).show()
-            // TODO: Verify this does not cause any issues...
-            showSettingsDialog()
+            // TODO: Now that we verify the URL this should not be needed...
+            // showSettingsDialog()
         }
     }
 }
