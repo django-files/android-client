@@ -10,7 +10,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  debug: app/build/outputs/apk/debug/
   release: app/build/outputs/apk/release/
 
 jobs:
@@ -58,29 +57,40 @@ jobs:
         run: ./gradlew build
 
       - name: "Gradlew Assemble"
-        run: ./gradlew assemble
+        run: ./gradlew assembleRelease
 
       - name: "Debug Build"
         continue-on-error: true
         run: |
           echo "ref: ${{ github.ref }}"
-          echo "name: ${{ github.repository_owner }}-debug"
-          echo "dir: ${{ env.debug }}"
-          echo "glob: ${{ env.debug }}/*.apk"
-          ls -lAh ${{ env.debug }}
+          echo "name: ${{ github.repository_owner }}-release"
+          echo "dir: ${{ env.release }}"
+          echo "glob: ${{ env.release }}/*.apk"
+          ls -lAh ${{ env.release }}
+
+      - name: "Decode Keystore"
+        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > release.keystore
+
+      - name: "Sign APK"
+        run: |
+          jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 \
+            -keystore release.keystore \
+            -storepass "${{ secrets.ANDROID_KEYSTORE_PASS }}" \
+            -keypass "${{ secrets.ANDROID_KEYSTORE_PASS }}" \
+            app/build/outputs/apk/release/app-release-unsigned.apk my-key
 
       - name: "Upload Artifacts"
         if: ${{ !github.event.act }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.repository_owner }}-debug
-          path: ${{ env.debug }}
+          name: ${{ github.repository_owner }}-release
+          path: ${{ env.release }}
 
       - name: "Upload to Release"
         if: ${{ github.event_name == 'release' }}
         uses: svenstaro/upload-release-action@v2
         with:
-          file: ${{ env.debug }}/*.apk
+          file: ${{ env.release }}/*.apk
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
