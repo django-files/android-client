@@ -10,7 +10,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  release: app/build/outputs/apk/release/
+  file: app-release-unsigned.apk
+  path: app/build/outputs/apk/release
+  key_name: my-key
+  key_file: release.keystore
+  tools_path: /usr/local/lib/android/sdk/build-tools/36.0.0
 
 jobs:
   release:
@@ -29,6 +33,29 @@ jobs:
         continue-on-error: true
         run: |
           cat "${GITHUB_EVENT_PATH}"
+
+      - name: "Set Tools Path"
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        run: |
+          echo "${{ env.tools_path }}" >> "$GITHUB_PATH"
+
+      - name: "Debug Tools"
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        run: |
+          echo "::group::PATH"
+          echo ${PATH}
+          echo "::endgroup::"
+
+          echo "::group::ls env.tools_path"
+          ls -lAh ${{ env.tools_path }}/
+          echo "::endgroup::"
+
+          echo "--------------------"
+          which keytool
+          which zipalign
+          which apksigner
 
       - name: "Update Version"
         uses: chkfung/android-version-actions@v1.2.2
@@ -53,9 +80,6 @@ jobs:
       - name: "Set Gradle Executable"
         run: chmod +x ./gradlew
 
-      - name: "Gradlew Build"
-        run: ./gradlew build
-
       - name: "Gradlew Assemble"
         run: ./gradlew assembleRelease
 
@@ -64,33 +88,53 @@ jobs:
         run: |
           echo "ref: ${{ github.ref }}"
           echo "name: ${{ github.repository_owner }}-release"
-          echo "dir: ${{ env.release }}"
-          echo "glob: ${{ env.release }}/*.apk"
-          ls -lAh ${{ env.release }}
+          echo "dir: ${{ env.path }}"
+          echo "glob: ${{ env.path }}/*.apk"
+          ls -lAh ${{ env.path }}
+
+      - name: "Align APK"
+        run: |
+          mv "${{ env.path }}/${{ env.file }}" "${{ env.path }}/${{ env.file }}.original"
+          zipalign -v 4 "${{ env.path }}/${{ env.file }}.original" "${{ env.path }}/${{ env.file }}"
+          rm "${{ env.path }}/${{ env.file }}.original"
 
       - name: "Decode Keystore"
-        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > release.keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > ${{ env.key_file }}
+
+      - name: "Debug Keystore"
+        continue-on-error: true
+        run: |
+          ls -lAh ${{ env.path }}
+
+          stat ${{ env.key_file }}
+          keytool -list -keystore ${{ env.key_file }}
 
       - name: "Sign APK"
         run: |
-          jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 \
-            -keystore release.keystore \
-            -storepass "${{ secrets.ANDROID_KEYSTORE_PASS }}" \
-            -keypass "${{ secrets.ANDROID_KEYSTORE_PASS }}" \
-            app/build/outputs/apk/release/app-release-unsigned.apk my-key
+          apksigner sign --ks ${{ env.key_file }} \
+            --ks-pass pass:${{ secrets.ANDROID_KEYSTORE_PASS }} \
+            --ks-key-alias "${{ env.key_name }}" \
+            "${{ env.path }}/${{ env.file }}"
+
+      - name: "Verify Signature"
+        run: |
+          #jarsigner -verify ${{ env.path }}/${{ env.file }}
+          #apksigner verify --verbose "${{ env.path }}/${{ env.file }}"
+          apksigner verify --verbose "${{ env.path }}/${{ env.file }}"
 
       - name: "Upload Artifacts"
         if: ${{ !github.event.act }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.repository_owner }}-release
-          path: ${{ env.release }}
+          path: ${{ env.path }}
 
       - name: "Upload to Release"
         if: ${{ github.event_name == 'release' }}
         uses: svenstaro/upload-release-action@v2
         with:
-          file: ${{ env.release }}/*.apk
+          file: ${{ env.path }}/${{ env.path }}
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
