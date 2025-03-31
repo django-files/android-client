@@ -33,7 +33,7 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 | iOS App           | https://github.com/django-files/ios-client    |
 | Web Extension     | https://github.com/django-files/web-extension |
 
-> Django Files is now signed starting at version 0.0.3
+> Django Files Android App is now signed starting at version 0.0.3
 
 # Install
 
@@ -42,15 +42,18 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 >
 > - [Click Here to Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
-_Note: Until the app is published on the play store, you must allow installation of apps from unknown sources._
+_Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
+
+First try to [download and install the latest release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).  
+This should take you to the settings to allow installing the app. If not, try the steps below.
 
 1. Go to your device settings.
 2. Search for "Install unknown apps" or similar.
 3. Choose the app you will install the apk file from.
    - Select your web browser to install directly from it.
-   - Select your file manager to open it, locate the APK and install from there.
+   - Select your file manager to open it, locate the apk and install from there.
 4. Download the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
-5. Open the download APK in the app you selected in step #3.
+5. Open the download apk in the app you selected in step #3.
 6. Choose Install and Accept any Play Protect notifications.
 7. The app is now installed. Proceed to the [Setup](#Setup) below.
 
