@@ -45,7 +45,6 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 _Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
 
 **First try to download and install the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).**
-
 This should take you to the settings to allow installing the app. If not, try the steps below.
 
 1. Go to your device settings.
