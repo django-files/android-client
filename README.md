@@ -12,6 +12,8 @@
 
 - [Install](#Install)
   - [Setup](#Setup)
+- [Android Studio](#Android-Studio)
+- [Command Line](#Command-Line)
 - [Features](#Features)
   - [Planned](#Planned)
   - [Known Issues](#Known-Issues)
@@ -36,7 +38,7 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 - [Download Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 Until the app is published it must be loaded with [ADB](https://developer.android.com/tools/adb) or [Android Studio](https://developer.android.com/studio).  
-This requires using Android Studio or the command line interface.
+This requires using [Android Studio](#Android-Studio) or the [Command Line](#Command-Line) interface.
 
 <details><summary>▶️ Click Here to View Quick CLI Steps</summary>
 
@@ -64,70 +66,71 @@ See below for more details...
 
 </details>
 
-1. Download and Install Android Studio or the Android SDK Platform Tools.
-
-https://developer.android.com/studio  
-https://developer.android.com/tools/releases/platform-tools#downloads
-
-2. Ensure that usb or wifi debugging is enabled in the Android developer settings and verify.
-
-If using **Android Studio** your device should show up! Simply import the project, and press Play ▶️
-
-Otherwise, continue with the steps below...
-
-This assumes that `adb` is in your PATH. List and verify the device is connected with:
-
-```shell
-$ adb devices
-
-List of devices attached
-RF9M33Z1Q0M     device
-```
-
-3. Download  a release or build an apk (using gradle or Android Studio).
-
-https://github.com/django-files/android-client/releases
-
-```shell
-./gradlew assembleRelease
-```
-
-Note: Use `gradlew.bat` for Windows.
-
-4. Unzip the release and change into the directory.
-
-The built apk should be here: `app/build/outputs/apk/release`
-
-5. Then install the apk to your device with adb.
-
-```shell
-$ adb -s RF9M33Z1Q0M install app-debug.apk
-
-Performing Streamed Install
-Success
-```
-
-For more details, see the [ADB Documentation](https://developer.android.com/tools/adb#move).
-
-### Setup
+## Setup
 
 1. [Install](#Install) and open the app.
 2. Enter the URL to your Django Files server.
 3. Log in as you normally would on the website.
 4. Done! You can now share any file to your Django Files server...
 
-## Features
+## Android Studio
+
+1. Download and Install Android Studio.
+
+https://developer.android.com/studio  
+
+2. Ensure that usb or wifi debugging is enabled in the Android developer settings and verify.
+
+Simply import the project, run gradle sync, then press Play ▶️
+
+## Command Line
+
+1. Download and Install the Android SDK Platform Tools.
+
+https://developer.android.com/tools/releases/platform-tools#downloads
+
+Ensure that `adb` is in your PATH.
+
+2. List and verify the device is connected with:
+
+```shell
+$ adb devices
+List of devices attached
+RF9M33Z1Q0M     device
+```
+
+3. Build a debug apk.
+
+```shell
+./gradlew assemble
+```
+
+Note: Use `gradlew.bat` for Windows.
+
+4. Then install the apk to your device with adb.
+
+```shell
+$ cd app/build/outputs/apk/release
+
+$ adb -s RF9M33Z1Q0M install app-debug.apk
+Performing Streamed Install
+Success
+```
+
+For more details, see the [ADB Documentation](https://developer.android.com/tools/adb#move).
+
+# Features
 
 - Share or Open any file and automatically copy the URL to the clipboard.
 - Ability to manually change servers by entering a new URL from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
 
-### Planned
+## Planned
 
 - Ability to save multiple servers and switch between them automatically in the Server List menu.
 - Ability for the app to log you in if your session is expired or when switching servers.
 
-### Known Issues
+## Known Issues
 
 - If you enter an incorrect url, you must clear the apps data or reinstall the app.
 - The app gets logged out if the session expires; however, sharing continues to work.
