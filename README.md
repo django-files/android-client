@@ -40,7 +40,7 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 Until the app is published it must be loaded with [ADB](https://developer.android.com/tools/adb) or [Android Studio](https://developer.android.com/studio).  
 This requires using [Android Studio](#Android-Studio) or the [Command Line](#Command-Line) interface.
 
-<details><summary>▶️ Click Here to View Quick CLI Steps</summary>
+<details open><summary>Click Here to View Quick CLI Steps</summary>
 
 ```shell
 $ wget https://github.com/django-files/android-client/releases/latest/download/django-files.apk
@@ -77,11 +77,21 @@ See below for more details...
 
 1. Download and Install Android Studio.
 
-https://developer.android.com/studio  
+https://developer.android.com/studio
 
 2. Ensure that usb or wifi debugging is enabled in the Android developer settings and verify.
 
-Simply import the project, run gradle sync, then press Play ▶️
+3. Then build or run the app on your device.
+
+- Import the Project
+- Run Gradle Sync
+
+To run, select your device and press Play ▶️
+
+To build:
+
+- Select the Build Variant (debug or release)
+- Build > Generate App Bundles or APK > Generate APKs
 
 ## Command Line
 
@@ -99,23 +109,28 @@ List of devices attached
 RF9M33Z1Q0M     device
 ```
 
-3. Build a debug apk.
+3. Build a debug or release apk.
 
 ```shell
 ./gradlew assemble
+./gradlew assembleRelease
 ```
 
-Note: Use `gradlew.bat` for Windows.
+_Note: Use `gradlew.bat` for Windows._
 
 4. Then install the apk to your device with adb.
 
 ```shell
-$ cd app/build/outputs/apk/release
-
+$ cd app/build/outputs/apk/debug
 $ adb -s RF9M33Z1Q0M install app-debug.apk
-Performing Streamed Install
-Success
 ```
+
+```shell
+$ cd app/build/outputs/apk/release
+$ adb -s RF9M33Z1Q0M install app-release-unsigned.apk
+```
+
+_Note: you may have to uninstall before installing due to different certificate signatures._
 
 For more details, see the [ADB Documentation](https://developer.android.com/tools/adb#move).
 
