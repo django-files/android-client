@@ -1,7 +1,7 @@
 [![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=github)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/graphs/commit-activity)
 [![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/graphs/commit-activity)
 [![GitHub Repo Size](https://img.shields.io/github/repo-size/django-files/android-client?logo=bookstack&logoColor=white&label=repo%20size)](https://github.com/django-files/android-client)
 [![GitHub Discussions](https://img.shields.io/github/discussions/django-files/android-client)](https://github.com/django-files/android-client/discussions)
 [![GitHub Forks](https://img.shields.io/github/forks/django-files/android-client?style=flat&logo=github)](https://github.com/django-files/android-client/forks)
@@ -25,27 +25,33 @@
 Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
-| Resource | Resource&nbsp;Link                           |
-| -------- | :------------------------------------------- |
-| Website  | https://django-files.github.io/              |
-| GitHub   | https://github.com/django-files              |
-| Server   | https://github.com/django-files/django-files |
-| iOS App  | https://github.com/django-files/ios-client   |
-
-# Install
+| Django&nbsp;Files | Link                                          |
+| ----------------- | :-------------------------------------------- |
+| Website           | https://django-files.github.io/               |
+| GitHub            | https://github.com/django-files               |
+| Server            | https://github.com/django-files/django-files  |
+| iOS App           | https://github.com/django-files/ios-client    |
+| Web Extension     | https://github.com/django-files/web-extension |
 
 > Django Files is now signed starting at version 0.0.3
 
-- [Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+# Install
+
+> [!TIP]  
+> Download the latest release from GitHub and open the APK.
+>
+> - [Click Here to Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 _Until the app is published on the play store, you must allow installation of apps from unknown sources._
+
+If you get an error when installing and are not given an option to install to app, do the following:
 
 1. Go to your device settings.
 2. Search for "Install unknown apps" or similar.
 3. Choose the app you will install the apk file from.
    - Select your web browser to install directly from it.
    - Select your file manager to open it, locate the APK and install from there.
-4. [Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
+4. Download the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
 5. Open the download APK in the app you selected in step #3.
 6. Choose Install and Accept any Play Protect notifications.
 7. The app is now installed. Proceed to the [Setup](#Setup) below.
@@ -94,9 +100,9 @@ https://developer.android.com/studio
    - Import the Project
    - Run Gradle Sync
 
-To Run. Select your device and press Play ▶️
+To Run: Select your device and press Play ▶️
 
-To Build.
+To Build:
 
 - Select the Build Variant (debug or release)
 - Build > Generate App Bundles or APK > Generate APKs
@@ -194,3 +200,4 @@ You can also support other related projects:
 - [Django Files Server](https://github.com/django-files/django-files)
 - [Django Files iOS App](https://github.com/django-files/ios-client)
 - [Django Files Android App](https://github.com/django-files/android-client)
+- [Django Files Web Extension](https://github.com/django-files/web-extension)
