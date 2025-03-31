@@ -16,10 +16,9 @@
 - [Features](#Features)
   - [Planned](#Planned)
   - [Known Issues](#Known-Issues)
-- [Building](#Building)
+- [Development](#Development)
   - [Android Studio](#Android-Studio)
   - [Command Line](#Command-Line)
-- [Development](#Development)
 - [Support](#Support)
 - [Contributing](#Contributing)
 
@@ -37,7 +36,7 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 > Django Files is now signed starting at version 0.0.3
 
-- [Download Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+- [Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 _Until the app is published on the play store, you must allow installation of apps from unknown sources._
 
@@ -47,20 +46,24 @@ _Until the app is published on the play store, you must allow installation of ap
    - Select your web browser to install directly from it.
    - Select your file manager to open it, locate the APK and install from there.
 4. [Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
-5. Open the download in the app you selected in step #3.
-6. Choose Install and Accept Play Protect notifications.
-7. The app is now installed, proceed to [Setup](#Setup).
+5. Open the download APK in the app you selected in step #3.
+6. Choose Install and Accept any Play Protect notifications.
+7. The app is now installed. Proceed to the [Setup](#Setup) below.
 
 ## Setup
 
-1. [Install](#Install) and open the app.
+1. [Install](#Install) and open the app on your device.
 2. Enter the URL to your Django Files server.
 3. Log in as you normally would on the website.
-4. Done! You can now share any file to your Django Files server...
+4. All Done! You can now share and open files with Django Files.
+
+To use, share or open any file and choose the Django Files app.
+The app will then be upload the file to your Django Files server.
+Additionally, the URL is copied to the clipboard and the preview is show in the app.
 
 # Features
 
-- Share or Open any file and automatically copy the URL to the clipboard.
+- Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
 - Ability to manually change servers by entering a new URL from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
 
@@ -75,9 +78,9 @@ _Until the app is published on the play store, you must allow installation of ap
 - Login with Google OAuth gives an error; however, if you wait ~30 seconds it will succeed.
 - The app gets logged out if the session expires; however, sharing continues to work.
 
-# Building
+# Development
 
-Covers Android Studio and Command Line.
+This section briefly covers [Android Studio](#Android-Studio) and [Command Line](#Command-Line) setup.
 
 ## Android Studio
 
@@ -100,9 +103,9 @@ To Build.
 
 ## Command Line
 
-You will need to have [ADB](https://developer.android.com/tools/adb) installed.
+_Note: This section is a WIP!_
 
-_Note: This section is a WIP and contains building instructions for the command line._
+You will need to have [ADB](https://developer.android.com/tools/adb) installed.
 
 <details><summary>Click Here to Download and Install a Release</summary>
 
@@ -168,12 +171,6 @@ $ adb -s RF9M33Z1Q0M install app-release-unsigned.apk
 _Note: you may have to uninstall before installing due to different certificate signatures._
 
 For more details, see the [ADB Documentation](https://developer.android.com/tools/adb#move).
-
-# Development
-
-Android Studio: https://developer.android.com/studio
-
-For now see [Install](#Install).
 
 # Support
 

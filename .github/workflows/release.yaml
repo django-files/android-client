@@ -47,12 +47,11 @@ jobs:
           echo "::group::PATH"
           echo ${PATH}
           echo "::endgroup::"
-
           echo "::group::ls env.tools_path"
           ls -lAh ${{ env.tools_path }}/
           echo "::endgroup::"
-
           echo "--------------------"
+          echo "tools_path: ${{ env.tools_path }}"
           which keytool
           which zipalign
           which apksigner
@@ -87,10 +86,11 @@ jobs:
         continue-on-error: true
         run: |
           echo "ref: ${{ github.ref }}"
-          echo "name: ${{ github.repository_owner }}-release"
-          echo "dir: ${{ env.path }}"
-          echo "glob: ${{ env.path }}/*.apk"
+          echo "path: ${{ env.path }}"
+          echo "path/name: ${{ env.path }}/${{ env.name }}"
+          echo "::group::ls env.path"
           ls -lAh ${{ env.path }}
+          echo "::endgroup::"
 
       - name: "Align APK"
         run: |
@@ -103,8 +103,6 @@ jobs:
       - name: "Debug Keystore"
         continue-on-error: true
         run: |
-          ls -lAh ${{ env.path }}
-
           stat ${{ env.key_file }}
           keytool -list -keystore ${{ env.key_file }}
 
