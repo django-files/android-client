@@ -33,7 +33,7 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 > The app is now signed with a saved certificate allowing for updates starting with 0.0.3
 
-- [Download Latest Release](https://github.com/django-files/android-client/releases/latest/download/app-release-unsigned.apk)
+- [Download Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 Until the app is published it must be loaded with [ADB](https://developer.android.com/tools/adb) or [Android Studio](https://developer.android.com/studio).  
 This requires using Android Studio or the command line interface.
@@ -41,9 +41,9 @@ This requires using Android Studio or the command line interface.
 <details><summary>▶️ Click Here to View Quick CLI Steps</summary>
 
 ```shell
-$ wget https://github.com/django-files/android-client/releases/latest/download/app-release-unsigned.apk
+$ wget https://github.com/django-files/android-client/releases/latest/download/django-files.apk
 $ ls
-app-release-unsigned.apk
+django-files.apk
 
 $ which adb
 C:\Users\Shane\Android\sdk\platform-tools\adb.EXE
@@ -52,7 +52,7 @@ $ adb devices
 List of devices attached
 RF9M33Z1Q0M     device
 
-$ adb -s RF9M33Z1Q0M install app-release-unsigned.apk
+$ adb -s RF9M33Z1Q0M install django-files.apk
 Performing Incremental Install
 Serving...
 All files should be loaded. Notifying the device.

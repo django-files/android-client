@@ -11,6 +11,7 @@ concurrency:
 
 env:
   file: app-release-unsigned.apk
+  name: ${{ github.repository_owner }}.apk
   path: app/build/outputs/apk/release
   key_name: my-key
   key_file: release.keystore
@@ -93,9 +94,7 @@ jobs:
 
       - name: "Align APK"
         run: |
-          mv "${{ env.path }}/${{ env.file }}" "${{ env.path }}/${{ env.file }}.original"
-          zipalign -v 4 "${{ env.path }}/${{ env.file }}.original" "${{ env.path }}/${{ env.file }}"
-          rm "${{ env.path }}/${{ env.file }}.original"
+          zipalign -v 4 "${{ env.path }}/${{ env.file }}" "${{ env.path }}/${{ env.name }}"
 
       - name: "Decode Keystore"
         run: |
@@ -114,11 +113,11 @@ jobs:
           apksigner sign --ks ${{ env.key_file }} \
             --ks-pass pass:${{ secrets.ANDROID_KEYSTORE_PASS }} \
             --ks-key-alias "${{ env.key_name }}" \
-            "${{ env.path }}/${{ env.file }}"
+            "${{ env.path }}/${{ env.name }}"
 
       - name: "Verify Signature"
         run: |
-          apksigner verify --verbose "${{ env.path }}/${{ env.file }}"
+          apksigner verify --verbose "${{ env.path }}/${{ env.name }}"
 
       - name: "Upload Artifacts"
         if: ${{ !github.event.act }}
@@ -131,7 +130,7 @@ jobs:
         if: ${{ github.event_name == 'release' }}
         uses: svenstaro/upload-release-action@v2
         with:
-          file: ${{ env.path }}/${{ env.path }}
+          file: ${{ env.path }}/${{ env.name }}
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
