@@ -38,13 +38,11 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 # Install
 
 > [!TIP]  
-> Download the latest release from GitHub and open the APK.
+> To Install, download the latest release from GitHub and open it.
 >
 > - [Click Here to Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
-_Until the app is published on the play store, you must allow installation of apps from unknown sources._
-
-If you get an error when installing and are not given an option to install to app, do the following:
+_Note: Until the app is published on the play store, you must allow installation of apps from unknown sources._
 
 1. Go to your device settings.
 2. Search for "Install unknown apps" or similar.
