@@ -44,14 +44,14 @@ jobs:
         if: ${{ !github.event.act }}
         continue-on-error: true
         run: |
+          echo "tools_path: ${{ env.tools_path }}"
           echo "::group::PATH"
-          echo ${PATH}
+          echo "${PATH}"
           echo "::endgroup::"
           echo "::group::ls env.tools_path"
-          ls -lAh ${{ env.tools_path }}/
+          ls -lAh "${{ env.tools_path }}/"
           echo "::endgroup::"
           echo "--------------------"
-          echo "tools_path: ${{ env.tools_path }}"
           which keytool
           which zipalign
           which apksigner
@@ -110,7 +110,7 @@ jobs:
         run: |
           apksigner sign --ks ${{ env.key_file }} \
             --ks-pass pass:${{ secrets.ANDROID_KEYSTORE_PASS }} \
-            --ks-key-alias "${{ env.key_name }}" \
+            --ks-key-alias ${{ env.key_name }} \
             "${{ env.path }}/${{ env.name }}"
 
       - name: "Verify Signature"
@@ -134,12 +134,14 @@ jobs:
           file_glob: true
 
       - name: "VirusTotal"
+        if: ${{ github.event_name == 'release' }}
         uses: cssnr/virustotal-action@v1
         continue-on-error: true
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
 
       - name: "Update Release Notes Action"
+        if: ${{ github.event_name == 'release' }}
         uses: smashedr/update-release-notes-action@master
         continue-on-error: true
 
@@ -148,3 +150,16 @@ jobs:
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
+
+      - name: "Job Summary"
+        if: ${{ !github.event.act }}
+        continue-on-error: true
+        run: |
+          echo -e "## Android Release\n\n" >> $GITHUB_STEP_SUMMARY
+          echo -e "Release: \`${{ env.name }}\`\n\n" >> $GITHUB_STEP_SUMMARY
+          if [ -f "${{ env.path }}/output-metadata.json" ];then
+            echo -e "<details><summary>output-metadata.json</summary>\n\n" >> $GITHUB_STEP_SUMMARY
+            echo -e "\`\`\`json\n$(cat ${{ env.path }}/output-metadata.json)\n\`\`\`\n\n" >> $GITHUB_STEP_SUMMARY
+            echo -e "</details>\n\n" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo -e "\n\n---" >> $GITHUB_STEP_SUMMARY
