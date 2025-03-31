@@ -44,8 +44,8 @@ _Until the app is published on the play store, you must allow installation of ap
 1. Go to your device settings.
 2. Search for "Install unknown apps" or similar.
 3. Choose the app you will install the apk file from.
-  - Select your web browser to install directly from it.
-  - Select your file manager to open it, locate the APK and install from there.
+   - Select your web browser to install directly from it.
+   - Select your file manager to open it, locate the APK and install from there.
 4. [Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
 5. Open the download in the app you selected in step #3.
 6. Choose Install and Accept Play Protect notifications.
@@ -88,8 +88,8 @@ https://developer.android.com/studio
 2. Ensure that usb or wifi debugging is enabled in the Android developer settings and verify.
 
 3. Then build or run the app on your device.
-  - Import the Project
-  - Run Gradle Sync
+   - Import the Project
+   - Run Gradle Sync
 
 To Run. Select your device and press Play ▶️
 
