@@ -45,12 +45,15 @@ jobs:
         continue-on-error: true
         run: |
           echo "tools_path: ${{ env.tools_path }}"
+
           echo "::group::PATH"
           echo "${PATH}"
           echo "::endgroup::"
+
           echo "::group::ls env.tools_path"
           ls -lAh "${{ env.tools_path }}/"
           echo "::endgroup::"
+
           echo "--------------------"
           which keytool
           which zipalign
@@ -88,6 +91,7 @@ jobs:
           echo "ref: ${{ github.ref }}"
           echo "path: ${{ env.path }}"
           echo "path/name: ${{ env.path }}/${{ env.name }}"
+
           echo "::group::ls env.path"
           ls -lAh ${{ env.path }}
           echo "::endgroup::"
@@ -156,10 +160,17 @@ jobs:
         continue-on-error: true
         run: |
           echo -e "## Android Release\n\n" >> $GITHUB_STEP_SUMMARY
-          echo -e "Release: \`${{ env.name }}\`\n\n" >> $GITHUB_STEP_SUMMARY
+
+          echo -e "Signed APK: \`${{ env.name }}\`\n\n" >> $GITHUB_STEP_SUMMARY
+
+          echo -e "<details><summary>Build Artifacts</summary>\n\n" >> $GITHUB_STEP_SUMMARY
+          echo -e "\`\`\`text\n$(ls -lAh ${{ env.path }})\n\`\`\`\n\n" >> $GITHUB_STEP_SUMMARY
+          echo -e "</details>\n\n" >> $GITHUB_STEP_SUMMARY
+
           if [ -f "${{ env.path }}/output-metadata.json" ];then
-            echo -e "<details><summary>output-metadata.json</summary>\n\n" >> $GITHUB_STEP_SUMMARY
+            echo -e "<details><summary>File: output-metadata.json</summary>\n\n" >> $GITHUB_STEP_SUMMARY
             echo -e "\`\`\`json\n$(cat ${{ env.path }}/output-metadata.json)\n\`\`\`\n\n" >> $GITHUB_STEP_SUMMARY
             echo -e "</details>\n\n" >> $GITHUB_STEP_SUMMARY
           fi
+
           echo -e "\n\n---" >> $GITHUB_STEP_SUMMARY
