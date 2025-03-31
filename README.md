@@ -31,12 +31,20 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 ## Install
 
+> The app is now signed with a saved certificate allowing for updates starting with 0.0.3
+
+- [Download Latest Release](https://github.com/django-files/android-client/releases/latest/download/app-release-unsigned.apk)
+
 Until the app is published it must be loaded with [ADB](https://developer.android.com/tools/adb) or [Android Studio](https://developer.android.com/studio).  
 This requires using Android Studio or the command line interface.
 
 <details><summary>▶️ Click Here to View Quick CLI Steps</summary>
 
 ```shell
+$ wget https://github.com/django-files/android-client/releases/latest/download/app-release-unsigned.apk
+$ ls
+app-release-unsigned.apk
+
 $ which adb
 C:\Users\Shane\Android\sdk\platform-tools\adb.EXE
 
@@ -44,14 +52,12 @@ $ adb devices
 List of devices attached
 RF9M33Z1Q0M     device
 
-$ wget https://github.com/django-files/android-client/releases/latest/download/app-debug.apk
-
-$ ls
-app-debug.apk
-
-$ adb -s RF9M33Z1Q0M install app-debug.apk
-Performing Streamed Install
+$ adb -s RF9M33Z1Q0M install app-release-unsigned.apk
+Performing Incremental Install
+Serving...
+All files should be loaded. Notifying the device.
 Success
+Install command complete in 917 ms
 ```
 
 See below for more details...
@@ -78,20 +84,19 @@ List of devices attached
 RF9M33Z1Q0M     device
 ```
 
-3. Download or build a debug apk (use gradle or Android Studio).
+3. Download  a release or build an apk (using gradle or Android Studio).
 
 https://github.com/django-files/android-client/releases
 
 ```shell
-./gradlew build
-./gradlew assemble
+./gradlew assembleRelease
 ```
 
 Note: Use `gradlew.bat` for Windows.
 
 4. Unzip the release and change into the directory.
 
-The built apk should be here: `app/build/outputs/apk/debug`
+The built apk should be here: `app/build/outputs/apk/release`
 
 5. Then install the apk to your device with adb.
 

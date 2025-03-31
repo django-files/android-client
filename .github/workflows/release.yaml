@@ -36,7 +36,6 @@ jobs:
 
       - name: "Set Tools Path"
         if: ${{ !github.event.act }}
-        continue-on-error: true
         run: |
           echo "${{ env.tools_path }}" >> "$GITHUB_PATH"
 
@@ -119,8 +118,6 @@ jobs:
 
       - name: "Verify Signature"
         run: |
-          #jarsigner -verify ${{ env.path }}/${{ env.file }}
-          #apksigner verify --verbose "${{ env.path }}/${{ env.file }}"
           apksigner verify --verbose "${{ env.path }}/${{ env.file }}"
 
       - name: "Upload Artifacts"
