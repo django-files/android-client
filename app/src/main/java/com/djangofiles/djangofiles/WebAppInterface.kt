@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.Toast
+import androidx.core.content.edit
 
 class WebAppInterface
 internal constructor(private var context: Context) {
@@ -25,7 +26,7 @@ internal constructor(private var context: Context) {
         val currentToken = preferences.getString(TOKEN_KEY, null)
 
         if (currentToken != authToken) {
-            preferences.edit().putString(TOKEN_KEY, authToken).apply()
+            preferences.edit { putString(TOKEN_KEY, authToken) }
             Log.d("receiveAuthToken", "Auth Token Updated.")
         } else {
             Log.d("receiveAuthToken", "Auth Token Not Changes.")

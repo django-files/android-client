@@ -24,6 +24,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
@@ -68,7 +69,8 @@ class MainActivity : AppCompatActivity() {
 
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         Log.d("MY_APP_TAG", "versionName: ${packageInfo.versionName}")
-        val userAgent = "${webView.settings.userAgentString} DjangoFiles Android/${packageInfo.versionName}"
+        val userAgent =
+            "${webView.settings.userAgentString} DjangoFiles Android/${packageInfo.versionName}"
         Log.d("onCreate", "UA: $userAgent")
 
         webView.settings.userAgentString = userAgent
@@ -108,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         val uri = intent.data
         Log.d("handleIntent", "uri: $uri")
 
-        // String mimeType = getContentResolver().getType(uri);
+        //String mimeType = getContentResolver().getType(uri);
         val mimeType = intent.type
         Log.d("handleIntent", "mimeType: $mimeType")
 
@@ -176,7 +178,7 @@ class MainActivity : AppCompatActivity() {
                 if (sharedText != null) {
                     Log.d("handleIntent", "Received text/plain: $sharedText")
                     if (sharedText.startsWith("content://")) {
-                        val fileUri = Uri.parse(sharedText)
+                        val fileUri = sharedText.toUri()
                         Log.d("handleIntent", "Received URI: $fileUri")
                     } else {
                         Log.d("handleIntent", "Received text/plain: $sharedText")
@@ -192,7 +194,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                // val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                //val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
                 val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
                 } else {
@@ -207,7 +209,7 @@ class MainActivity : AppCompatActivity() {
             }
         } else if (Intent.ACTION_SEND_MULTIPLE == action) {
             Log.d("handleIntent", "ACTION_SEND_MULTIPLE")
-            // val fileUris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+            //val fileUris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
             val fileUris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)
             } else {
@@ -466,14 +468,9 @@ class MainActivity : AppCompatActivity() {
     private fun copyToClipboard(url: String) {
         webView.loadUrl(url)
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        if (clipboard != null) {
-            val clip = ClipData.newPlainText("URL", url)
-            clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, getString(R.string.tst_no_clipboard), Toast.LENGTH_SHORT)
-                .show()
-        }
+        val clip = ClipData.newPlainText("URL", url)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(this, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
     }
 
     inner class MyWebViewClient : WebViewClient() {
@@ -498,7 +495,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("shouldOverrideUrlLoading", "FALSE - in app")
                 return false
             }
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             view.context.startActivity(intent)
             Log.d("shouldOverrideUrlLoading", "TRUE - in browser")
             return true
@@ -510,13 +507,14 @@ class MainActivity : AppCompatActivity() {
             errorResponse: WebResourceError
         ) {
             Log.d("onReceivedError", "ERROR: " + errorResponse.errorCode)
-            Toast.makeText(
-                view.context,
-                "HTTP error " + errorResponse.description,
-                Toast.LENGTH_LONG
-            ).show()
+            // TODO: This does not seem to be helpful...
+            //Toast.makeText(
+            //    view.context,
+            //    "HTTP error " + errorResponse.description,
+            //    Toast.LENGTH_LONG
+            //).show()
             // TODO: Now that we verify the URL this should not be needed...
-            // showSettingsDialog()
+            //showSettingsDialog()
         }
 
         override fun onReceivedHttpError(
@@ -525,13 +523,14 @@ class MainActivity : AppCompatActivity() {
             errorResponse: WebResourceResponse
         ) {
             Log.d("onReceivedHttpError", "ERROR: " + errorResponse.statusCode)
-            Toast.makeText(
-                view.context,
-                "HTTP error " + errorResponse.reasonPhrase,
-                Toast.LENGTH_LONG
-            ).show()
+            // TODO: This does not seem to be helpful...
+            //Toast.makeText(
+            //    view.context,
+            //    "HTTP error " + errorResponse.reasonPhrase,
+            //    Toast.LENGTH_LONG
+            //).show()
             // TODO: Now that we verify the URL this should not be needed...
-            // showSettingsDialog()
+            //showSettingsDialog()
         }
     }
 }

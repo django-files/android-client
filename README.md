@@ -1,7 +1,7 @@
 [![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=github)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/graphs/commit-activity)
 [![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/graphs/commit-activity)
 [![GitHub Repo Size](https://img.shields.io/github/repo-size/django-files/android-client?logo=bookstack&logoColor=white&label=repo%20size)](https://github.com/django-files/android-client)
 [![GitHub Discussions](https://img.shields.io/github/discussions/django-files/android-client)](https://github.com/django-files/android-client/discussions)
 [![GitHub Forks](https://img.shields.io/github/forks/django-files/android-client?style=flat&logo=github)](https://github.com/django-files/android-client/forks)
@@ -16,51 +16,61 @@
 - [Features](#Features)
   - [Planned](#Planned)
   - [Known Issues](#Known-Issues)
-- [Building](#Building)
+- [Development](#Development)
   - [Android Studio](#Android-Studio)
   - [Command Line](#Command-Line)
-- [Development](#Development)
 - [Support](#Support)
 - [Contributing](#Contributing)
 
 Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
-| Resource | Resource&nbsp;Link                           |
-| -------- | :------------------------------------------- |
-| Website  | https://django-files.github.io/              |
-| GitHub   | https://github.com/django-files              |
-| Server   | https://github.com/django-files/django-files |
-| iOS App  | https://github.com/django-files/ios-client   |
+| Django&nbsp;Files | Link                                          |
+| ----------------- | :-------------------------------------------- |
+| Website           | https://django-files.github.io/               |
+| GitHub            | https://github.com/django-files               |
+| Server            | https://github.com/django-files/django-files  |
+| iOS App           | https://github.com/django-files/ios-client    |
+| Web Extension     | https://github.com/django-files/web-extension |
+
+> Django Files Android App is now signed starting at version 0.0.3
 
 # Install
 
-> Django Files is now signed starting at version 0.0.3
+> [!TIP]  
+> To Install, download the latest release from GitHub and open it.
+>
+> - [Click Here to Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
-- [Download Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+_Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
 
-_Until the app is published on the play store, you must allow installation of apps from unknown sources._
+**First try to download and install the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).**
+This should take you to the settings to allow installing the app. If not, try the steps below.
 
 1. Go to your device settings.
 2. Search for "Install unknown apps" or similar.
 3. Choose the app you will install the apk file from.
    - Select your web browser to install directly from it.
-   - Select your file manager to open it, locate the APK and install from there.
-4. [Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
-5. Open the download in the app you selected in step #3.
-6. Choose Install and Accept Play Protect notifications.
-7. The app is now installed, proceed to [Setup](#Setup).
+   - Select your file manager to open it, locate the apk and install from there.
+4. Download the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
+5. Open the download apk in the app you selected in step #3.
+6. Choose Install and Accept any Play Protect notifications.
+7. The app is now installed. Proceed to the [Setup](#Setup) section below.
 
 ## Setup
 
-1. [Install](#Install) and open the app.
+1. [Install](#Install) and open the app on your device.
 2. Enter the URL to your Django Files server.
 3. Log in as you normally would on the website.
-4. Done! You can now share any file to your Django Files server...
+4. All Done! You can now share and open files with Django Files.
+
+To use, share or open any file and choose the Django Files app.
+The app will then be upload the file to your Django Files server.
+Additionally, the URL is copied to the clipboard and the preview is show in the app.
 
 # Features
 
-- Share or Open any file and automatically copy the URL to the clipboard.
+- Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
 - Ability to manually change servers by entering a new URL from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
 
@@ -75,9 +85,9 @@ _Until the app is published on the play store, you must allow installation of ap
 - Login with Google OAuth gives an error; however, if you wait ~30 seconds it will succeed.
 - The app gets logged out if the session expires; however, sharing continues to work.
 
-# Building
+# Development
 
-Covers Android Studio and Command Line.
+This section briefly covers [Android Studio](#Android-Studio) and [Command Line](#Command-Line) setup.
 
 ## Android Studio
 
@@ -91,18 +101,18 @@ https://developer.android.com/studio
    - Import the Project
    - Run Gradle Sync
 
-To Run. Select your device and press Play ▶️
+To Run: Select your device and press Play ▶️
 
-To Build.
+To Build:
 
 - Select the Build Variant (debug or release)
 - Build > Generate App Bundles or APK > Generate APKs
 
 ## Command Line
 
-You will need to have [ADB](https://developer.android.com/tools/adb) installed.
+_Note: This section is a WIP!_
 
-_Note: This section is a WIP and contains building instructions for the command line._
+You will need to have [ADB](https://developer.android.com/tools/adb) installed.
 
 <details><summary>Click Here to Download and Install a Release</summary>
 
@@ -169,12 +179,6 @@ _Note: you may have to uninstall before installing due to different certificate 
 
 For more details, see the [ADB Documentation](https://developer.android.com/tools/adb#move).
 
-# Development
-
-Android Studio: https://developer.android.com/studio
-
-For now see [Install](#Install).
-
 # Support
 
 For general help or to request a feature, see:
@@ -197,3 +201,4 @@ You can also support other related projects:
 - [Django Files Server](https://github.com/django-files/django-files)
 - [Django Files iOS App](https://github.com/django-files/ios-client)
 - [Django Files Android App](https://github.com/django-files/android-client)
+- [Django Files Web Extension](https://github.com/django-files/web-extension)
