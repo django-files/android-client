@@ -1,3 +1,4 @@
+[![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=github)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/graphs/commit-activity)
 [![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
@@ -12,11 +13,12 @@
 
 - [Install](#Install)
   - [Setup](#Setup)
-- [Android Studio](#Android-Studio)
-- [Command Line](#Command-Line)
 - [Features](#Features)
   - [Planned](#Planned)
   - [Known Issues](#Known-Issues)
+- [Building](#Building)
+  - [Android Studio](#Android-Studio)
+  - [Command Line](#Command-Line)
 - [Development](#Development)
 - [Support](#Support)
 - [Contributing](#Contributing)
@@ -31,16 +33,78 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 | Server   | https://github.com/django-files/django-files |
 | iOS App  | https://github.com/django-files/ios-client   |
 
-## Install
+# Install
 
-> The app is now signed with a saved certificate allowing for updates starting with 0.0.3
+> Django Files is now signed starting at version 0.0.3
 
 - [Download Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
-Until the app is published it must be loaded with [ADB](https://developer.android.com/tools/adb) or [Android Studio](https://developer.android.com/studio).  
-This requires using [Android Studio](#Android-Studio) or the [Command Line](#Command-Line) interface.
+_Until the app is published on the play store, you must allow installation of apps from unknown sources._
 
-<details open><summary>Click Here to View Quick CLI Steps</summary>
+1. Go to your device settings.
+2. Search for "Install unknown apps" or similar.
+3. Choose the app you will install the apk file from.
+  - Select your web browser to install directly from it.
+  - Select your file manager to open it, locate the APK and install from there.
+4. [Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
+5. Open the download in the app you selected in step #3.
+6. Choose Install and Accept Play Protect notifications.
+7. The app is now installed, proceed to [Setup](#Setup).
+
+## Setup
+
+1. [Install](#Install) and open the app.
+2. Enter the URL to your Django Files server.
+3. Log in as you normally would on the website.
+4. Done! You can now share any file to your Django Files server...
+
+# Features
+
+- Share or Open any file and automatically copy the URL to the clipboard.
+- Ability to manually change servers by entering a new URL from the Server List menu.
+- Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
+
+## Planned
+
+- Ability to save multiple servers and switch between them automatically in the Server List menu.
+- Ability for the app to log you in if your session is expired or when switching servers.
+
+## Known Issues
+
+- Login with Discord OAuth passkeys does not work.
+- Login with Google OAuth gives an error; however, if you wait ~30 seconds it will succeed.
+- The app gets logged out if the session expires; however, sharing continues to work.
+
+# Building
+
+Covers Android Studio and Command Line.
+
+## Android Studio
+
+1. Download and Install Android Studio.
+
+https://developer.android.com/studio
+
+2. Ensure that usb or wifi debugging is enabled in the Android developer settings and verify.
+
+3. Then build or run the app on your device.
+  - Import the Project
+  - Run Gradle Sync
+
+To Run. Select your device and press Play ▶️
+
+To Build.
+
+- Select the Build Variant (debug or release)
+- Build > Generate App Bundles or APK > Generate APKs
+
+## Command Line
+
+You will need to have [ADB](https://developer.android.com/tools/adb) installed.
+
+_Note: This section is a WIP and contains building instructions for the command line._
+
+<details><summary>Click Here to Download and Install a Release</summary>
 
 ```shell
 $ wget https://github.com/django-files/android-client/releases/latest/download/django-files.apk
@@ -65,35 +129,6 @@ Install command complete in 917 ms
 See below for more details...
 
 </details>
-
-## Setup
-
-1. [Install](#Install) and open the app.
-2. Enter the URL to your Django Files server.
-3. Log in as you normally would on the website.
-4. Done! You can now share any file to your Django Files server...
-
-## Android Studio
-
-1. Download and Install Android Studio.
-
-https://developer.android.com/studio
-
-2. Ensure that usb or wifi debugging is enabled in the Android developer settings and verify.
-
-3. Then build or run the app on your device.
-
-- Import the Project
-- Run Gradle Sync
-
-To run, select your device and press Play ▶️
-
-To build:
-
-- Select the Build Variant (debug or release)
-- Build > Generate App Bundles or APK > Generate APKs
-
-## Command Line
 
 1. Download and Install the Android SDK Platform Tools.
 
@@ -134,24 +169,6 @@ _Note: you may have to uninstall before installing due to different certificate 
 
 For more details, see the [ADB Documentation](https://developer.android.com/tools/adb#move).
 
-# Features
-
-- Share or Open any file and automatically copy the URL to the clipboard.
-- Ability to manually change servers by entering a new URL from the Server List menu.
-- Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
-
-## Planned
-
-- Ability to save multiple servers and switch between them automatically in the Server List menu.
-- Ability for the app to log you in if your session is expired or when switching servers.
-
-## Known Issues
-
-- If you enter an incorrect url, you must clear the apps data or reinstall the app.
-- The app gets logged out if the session expires; however, sharing continues to work.
-- Login with Google OAuth gives an error; however, if you wait ~15 seconds it will succeed.
-- Login with Discord OAuth passkeys does not work.
-
 # Development
 
 Android Studio: https://developer.android.com/studio
@@ -179,4 +196,4 @@ You can also support other related projects:
 
 - [Django Files Server](https://github.com/django-files/django-files)
 - [Django Files iOS App](https://github.com/django-files/ios-client)
-- [Django Files Android App](https://github.com/django-files/django-files)
+- [Django Files Android App](https://github.com/django-files/android-client)
