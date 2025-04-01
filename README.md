@@ -37,10 +37,10 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 > Django Files Android App is now signed starting at version 0.0.3
 
-# Install
+## Install
 
 > [!TIP]  
-> To install, download and open the [apk]((https://github.com/django-files/android-client/releases/latest/download/django-files.apk)) file.
+> To install, download and open the [latest release](https://github.com/django-files/android-client/releases/latest).
 >
 > [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
@@ -63,7 +63,7 @@ should take you to the settings area to allow installation if not already enable
 
 </details>
 
-## Setup
+### Setup
 
 1. [Install](#Install) and open the app on your device.
 2. Enter the URL to your Django Files server.
@@ -74,27 +74,27 @@ To use, share or open any file and choose the Django Files app.
 The app will then be upload the file to your Django Files server.
 Additionally, the URL is copied to the clipboard and the preview is show in the app.
 
-# Features
+## Features
 
 - Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
 - Ability to manually change servers by entering a new URL from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
 
-## Planned
+### Planned
 
 - Ability to save multiple servers and switch between them automatically in the Server List menu.
 - Ability for the app to log you in if your session is expired or when switching servers.
 
-## Known Issues
+### Known Issues
 
 - Login with Discord OAuth passkeys does not work.
 - Login with Google OAuth gives an error; however, if you wait ~30 seconds it will succeed.
 - The app gets logged out if the session expires; however, sharing continues to work.
-  - Upon logging back in, you may need to leave the app open (in the background) for ~30 seconds to save the cookie.
+  - Upon logging back in, you may need to leave the app open (in the background) for ~30 seconds to allow the cookie to be saved.
 
 # Development
 
-This section briefly covers [Android Studio](#Android-Studio) and [Command Line](#Command-Line) setup.
+This section briefly covers building in [Android Studio](#Android-Studio) and on the [Command Line](#Command-Line).
 
 ## Android Studio
 
