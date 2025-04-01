@@ -11,6 +11,8 @@
 
 # Django Files Android App
 
+[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+
 - [Install](#Install)
   - [Setup](#Setup)
 - [Features](#Features)
@@ -25,8 +27,6 @@
 Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
-[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
-
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
 | Website           | https://django-files.github.io/               |
@@ -40,9 +40,7 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 # Install
 
 > [!TIP]  
-> To Install, downloaded the latest apk:
->
-> - [Click Here to Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+> To install, download and open the [apk]((https://github.com/django-files/android-client/releases/latest/download/django-files.apk)) file.
 >
 > [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
