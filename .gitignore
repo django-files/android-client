@@ -4,5 +4,6 @@ local.properties
 
 **/build/
 .gradle/
+.kotlin/
 captures/
 *.keystore

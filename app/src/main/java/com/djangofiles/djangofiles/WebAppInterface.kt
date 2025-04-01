@@ -2,6 +2,7 @@ package com.djangofiles.djangofiles
 
 import android.content.Context
 import android.util.Log
+import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.widget.Toast
 import androidx.core.content.edit
@@ -28,9 +29,11 @@ internal constructor(private var context: Context) {
         if (currentToken != authToken) {
             preferences.edit { putString(TOKEN_KEY, authToken) }
             Log.d("receiveAuthToken", "Auth Token Updated.")
+            val cookieManager = CookieManager.getInstance()
+            cookieManager.flush()
+            Log.d("receiveAuthToken", "Cookies Flushed (saved to disk).")
         } else {
             Log.d("receiveAuthToken", "Auth Token Not Changes.")
         }
     }
-
 }

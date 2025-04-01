@@ -11,6 +11,8 @@
 
 # Django Files Android App
 
+[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Latest%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+
 - [Install](#Install)
   - [Setup](#Setup)
 - [Features](#Features)
@@ -35,17 +37,19 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 > Django Files Android App is now signed starting at version 0.0.3
 
-# Install
+## Install
 
 > [!TIP]  
-> To Install, download the latest release from GitHub and open it.
+> To install, download and open the [latest release](https://github.com/django-files/android-client/releases/latest).
 >
-> - [Click Here to Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+> [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Latest%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 _Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
 
-**First try to download and install the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).**
-This should take you to the settings to allow installing the app. If not, try the steps below.
+Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+should take you to the settings area to allow installation if not already enabled.
+
+<details><summary>View Manual Steps to Install from Unknown Sources</summary>
 
 1. Go to your device settings.
 2. Search for "Install unknown apps" or similar.
@@ -57,7 +61,9 @@ This should take you to the settings to allow installing the app. If not, try th
 6. Choose Install and Accept any Play Protect notifications.
 7. The app is now installed. Proceed to the [Setup](#Setup) section below.
 
-## Setup
+</details>
+
+### Setup
 
 1. [Install](#Install) and open the app on your device.
 2. Enter the URL to your Django Files server.
@@ -68,26 +74,27 @@ To use, share or open any file and choose the Django Files app.
 The app will then be upload the file to your Django Files server.
 Additionally, the URL is copied to the clipboard and the preview is show in the app.
 
-# Features
+## Features
 
 - Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
 - Ability to manually change servers by entering a new URL from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
 
-## Planned
+### Planned
 
 - Ability to save multiple servers and switch between them automatically in the Server List menu.
 - Ability for the app to log you in if your session is expired or when switching servers.
 
-## Known Issues
+### Known Issues
 
 - Login with Discord OAuth passkeys does not work.
 - Login with Google OAuth gives an error; however, if you wait ~30 seconds it will succeed.
 - The app gets logged out if the session expires; however, sharing continues to work.
+  - Upon logging back in, you may need to leave the app open (in the background) for ~30 seconds to allow the cookie to be saved.
 
 # Development
 
-This section briefly covers [Android Studio](#Android-Studio) and [Command Line](#Command-Line) setup.
+This section briefly covers running and building in [Android Studio](#Android-Studio) and the [Command Line](#Command-Line).
 
 ## Android Studio
 
