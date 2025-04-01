@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.webkit.WebResourceError
@@ -19,6 +20,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -55,6 +57,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private val client = OkHttpClient()
 
+    private var versionName: String? = null
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,9 +72,10 @@ class MainActivity : AppCompatActivity() {
         webView.settings.javaScriptEnabled = true
 
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
-        Log.d("MY_APP_TAG", "versionName: ${packageInfo.versionName}")
+        versionName = packageInfo.versionName
+        Log.d("MY_APP_TAG", "versionName: $versionName")
         val userAgent =
-            "${webView.settings.userAgentString} DjangoFiles Android/${packageInfo.versionName}"
+            "${webView.settings.userAgentString} DjangoFiles Android/${versionName}"
         Log.d("onCreate", "UA: $userAgent")
 
         webView.settings.userAgentString = userAgent
@@ -238,7 +243,7 @@ class MainActivity : AppCompatActivity() {
         // Inflate custom layout with padding
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
-        layout.setPadding(5, 0, 5, 120)
+        layout.setPadding(5, 0, 5, 80)
 
         val input = EditText(this)
         input.inputType = android.text.InputType.TYPE_CLASS_TEXT
@@ -248,12 +253,19 @@ class MainActivity : AppCompatActivity() {
         if (savedUrl != null) {
             input.setText(savedUrl)
         }
+
+        val text = TextView(this)
+        text.text = getString(R.string.settings_requires)
+        text.gravity = Gravity.CENTER_HORIZONTAL
+        text.setPadding(0, 20, 0, 0)
+        layout.addView(text)
+
         input.requestFocus()
 
         runOnUiThread {
             AlertDialog.Builder(this)
                 .setCancelable(false)
-                .setTitle(getString(R.string.settings_title))
+                .setTitle("${getString(R.string.app_name)} v$versionName")
                 .setMessage(getString(R.string.settings_message))
                 .setView(layout)
                 .setNegativeButton("Exit") { dialog: DialogInterface?, which: Int -> finish() }

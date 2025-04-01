@@ -10,9 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  file: app-release-unsigned.apk
-  name: ${{ github.repository_owner }}.apk
-  path: app/build/outputs/apk/release
+  file: app-release-unsigned.apk # Generated APK Name
+  path: app/build/outputs/apk/release # Generated APK Path
+  name: ${{ github.repository_owner }}.apk # Signed APK Name
   key_name: my-key
   key_file: release.keystore
   tools_path: /usr/local/lib/android/sdk/build-tools/36.0.0
@@ -29,11 +29,16 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
 
-      - name: "Debug event.json"
+      - name: "Debug Event"
         if: ${{ !github.event.act }}
         continue-on-error: true
         run: |
+          echo "ref: ${{ github.ref }}"
+          echo "event_name: ${{ github.event_name }}"
+
+          echo "::group::cat event.json"
           cat "${GITHUB_EVENT_PATH}"
+          echo "::endgroup::"
 
       - name: "Set Tools Path"
         if: ${{ !github.event.act }}
@@ -45,19 +50,16 @@ jobs:
         continue-on-error: true
         run: |
           echo "tools_path: ${{ env.tools_path }}"
+          which keytool
+          which zipalign
+          which apksigner
 
           echo "::group::PATH"
           echo "${PATH}"
           echo "::endgroup::"
-
-          echo "::group::ls env.tools_path"
-          ls -lAh "${{ env.tools_path }}/"
+          echo "::group::ls tools_path"
+          ls -lAh "${{ env.tools_path }}"
           echo "::endgroup::"
-
-          echo "--------------------"
-          which keytool
-          which zipalign
-          which apksigner
 
       - name: "Update Version"
         uses: chkfung/android-version-actions@v1.2.2
@@ -70,7 +72,12 @@ jobs:
         if: ${{ !github.event.act }}
         continue-on-error: true
         run: |
-          cat "app/build.gradle.kts"
+          echo "versionCode: ${{ github.run_number }}"
+          echo "versionName: ${{ github.ref_name }}"
+
+          echo "::group::cat app/build.gradle.kts"
+          cat app/build.gradle.kts
+          echo "::endgroup::"
 
       - name: "Setup Java"
         uses: actions/setup-java@v4
@@ -82,13 +89,12 @@ jobs:
       - name: "Set Gradle Executable"
         run: chmod +x ./gradlew
 
-      - name: "Gradlew Assemble"
+      - name: "Gradle Assemble"
         run: ./gradlew assembleRelease
 
       - name: "Debug Build"
         continue-on-error: true
         run: |
-          echo "ref: ${{ github.ref }}"
           echo "path: ${{ env.path }}"
           echo "path/name: ${{ env.path }}/${{ env.name }}"
 
@@ -98,7 +104,11 @@ jobs:
 
       - name: "Align APK"
         run: |
-          zipalign -v 4 "${{ env.path }}/${{ env.file }}" "${{ env.path }}/${{ env.name }}"
+          zipalign -f -P 16 -v 4 "${{ env.path }}/${{ env.file }}" "${{ env.path }}/${{ env.name }}"
+
+      - name: "Verify Alignment"
+        run: |
+          zipalign -c -P 16 -v 4 existing.apk "${{ env.path }}/${{ env.name }}"
 
       - name: "Decode Keystore"
         run: |
@@ -107,8 +117,8 @@ jobs:
       - name: "Debug Keystore"
         continue-on-error: true
         run: |
-          stat ${{ env.key_file }}
-          keytool -list -keystore ${{ env.key_file }}
+          echo ${{ secrets.ANDROID_KEYSTORE_PASS }} |\
+            keytool -list -keystore ${{ env.key_file }}
 
       - name: "Sign APK"
         run: |
@@ -149,12 +159,6 @@ jobs:
         uses: smashedr/update-release-notes-action@master
         continue-on-error: true
 
-      - name: "Send Failure Notification"
-        if: ${{ failure() && github.event_name == 'release' }}
-        uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-
       - name: "Job Summary"
         if: ${{ !github.event.act }}
         continue-on-error: true
@@ -174,3 +178,9 @@ jobs:
           fi
 
           echo -e "\n\n---" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Send Failure Notification"
+        if: ${{ failure() && github.event_name == 'release' }}
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
