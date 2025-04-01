@@ -104,11 +104,11 @@ jobs:
 
       - name: "Align APK"
         run: |
-          zipalign -f -P 16 -v 4 "${{ env.path }}/${{ env.file }}" "${{ env.path }}/${{ env.name }}"
+          zipalign -P 16 -f -v 4 "${{ env.path }}/${{ env.file }}" "${{ env.path }}/${{ env.name }}"
 
       - name: "Verify Alignment"
         run: |
-          zipalign -c -P 16 -v 4 existing.apk "${{ env.path }}/${{ env.name }}"
+          zipalign -c -P 16 -v 4 "${{ env.path }}/${{ env.name }}"
 
       - name: "Decode Keystore"
         run: |
