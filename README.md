@@ -46,8 +46,10 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 _Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
 
-**First try to download and install the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).**
-This should take you to the settings to allow installing the app. If not, try the steps below.
+Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+should take you to the settings area to allow installation if not already enabled.
+
+<details><summary>View Manual Steps to Install from Unknown Sources</summary>
 
 1. Go to your device settings.
 2. Search for "Install unknown apps" or similar.
@@ -58,6 +60,8 @@ This should take you to the settings to allow installing the app. If not, try th
 5. Open the download apk in the app you selected in step #3.
 6. Choose Install and Accept any Play Protect notifications.
 7. The app is now installed. Proceed to the [Setup](#Setup) section below.
+
+</details>
 
 ## Setup
 
