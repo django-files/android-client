@@ -25,6 +25,8 @@
 Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
+[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
 | Website           | https://django-files.github.io/               |
@@ -38,9 +40,11 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 # Install
 
 > [!TIP]  
-> To Install, download the latest release from GitHub and open it.
+> To Install, downloaded the latest apk:
 >
 > - [Click Here to Download the Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+>
+> [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 _Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
 
@@ -84,6 +88,7 @@ Additionally, the URL is copied to the clipboard and the preview is show in the 
 - Login with Discord OAuth passkeys does not work.
 - Login with Google OAuth gives an error; however, if you wait ~30 seconds it will succeed.
 - The app gets logged out if the session expires; however, sharing continues to work.
+  - Upon logging back in, you may need to leave the app open (in the background) for ~30 seconds to save the cookie.
 
 # Development
 
