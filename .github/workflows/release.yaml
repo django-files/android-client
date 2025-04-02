@@ -16,6 +16,7 @@ env:
   key_name: my-key
   key_file: release.keystore
   tools_path: /usr/local/lib/android/sdk/build-tools/36.0.0
+  cmdline_tools: /usr/local/lib/android/sdk/cmdline-tools/latest/bin
 
 jobs:
   release:
@@ -44,12 +45,11 @@ jobs:
         if: ${{ !github.event.act }}
         run: |
           echo "${{ env.tools_path }}" >> "$GITHUB_PATH"
+          echo "${{ env.cmdline_tools }}" >> "$GITHUB_PATH"
 
-      - name: "Debug Tools"
+      - name: "Verify Tools"
         if: ${{ !github.event.act }}
-        continue-on-error: true
         run: |
-          echo "tools_path: ${{ env.tools_path }}"
           which keytool
           which zipalign
           which apksigner
