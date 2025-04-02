@@ -53,6 +53,7 @@ jobs:
           which keytool
           which zipalign
           which apksigner
+          which apkanalyzer
 
           echo "::group::PATH"
           echo "${PATH}"
@@ -92,15 +93,17 @@ jobs:
       - name: "Gradle Assemble"
         run: ./gradlew assembleRelease
 
-      - name: "Debug Build"
-        continue-on-error: true
+      - name: "Verify Build"
+        #continue-on-error: true
         run: |
           echo "path: ${{ env.path }}"
-          echo "path/name: ${{ env.path }}/${{ env.name }}"
-
+          echo "output: ${{ env.file }}"
+          
           echo "::group::ls env.path"
           ls -lAh ${{ env.path }}
           echo "::endgroup::"
+          
+          apkanalyzer -h apk summary "${{ env.path }}/${{ env.file }}"
 
       - name: "Align APK"
         run: |
@@ -117,8 +120,7 @@ jobs:
       - name: "Debug Keystore"
         continue-on-error: true
         run: |
-          echo ${{ secrets.ANDROID_KEYSTORE_PASS }} |\
-            keytool -list -keystore ${{ env.key_file }}
+          echo ${{ secrets.ANDROID_KEYSTORE_PASS }} | keytool -list -keystore ${{ env.key_file }}
 
       - name: "Sign APK"
         run: |
