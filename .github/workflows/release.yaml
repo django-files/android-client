@@ -10,9 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  file: app-release-unsigned.apk # Generated APK Name
-  path: app/build/outputs/apk/release # Generated APK Path
-  name: ${{ github.repository_owner }}.apk # Signed APK Name
+  path: app/build/outputs/apk/release # Output Path
+  output: app-release-unsigned.apk # Output File Name
+  name: ${{ github.repository_owner }}.apk # Final APK Name
   key_name: my-key
   key_file: release.keystore
   tools_path: /usr/local/lib/android/sdk/build-tools/36.0.0
@@ -94,20 +94,16 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: "Verify Build"
-        #continue-on-error: true
         run: |
-          echo "path: ${{ env.path }}"
-          echo "output: ${{ env.file }}"
+          apkanalyzer -h apk summary "${{ env.path }}/${{ env.output }}"
           
           echo "::group::ls env.path"
           ls -lAh ${{ env.path }}
           echo "::endgroup::"
-          
-          apkanalyzer -h apk summary "${{ env.path }}/${{ env.file }}"
 
       - name: "Align APK"
         run: |
-          zipalign -P 16 -f -v 4 "${{ env.path }}/${{ env.file }}" "${{ env.path }}/${{ env.name }}"
+          zipalign -P 16 -f -v 4 "${{ env.path }}/${{ env.output }}" "${{ env.path }}/${{ env.name }}"
 
       - name: "Verify Alignment"
         run: |
@@ -161,13 +157,13 @@ jobs:
         uses: smashedr/update-release-notes-action@master
         continue-on-error: true
 
-      - name: "Job Summary"
+      - name: "Write Job Summary"
         if: ${{ !github.event.act }}
         continue-on-error: true
         run: |
           echo -e "## Android Release\n\n" >> $GITHUB_STEP_SUMMARY
 
-          echo -e "Signed APK: \`${{ env.name }}\`\n\n" >> $GITHUB_STEP_SUMMARY
+          echo -e "Final APK: \`${{ env.name }}\`\n\n" >> $GITHUB_STEP_SUMMARY
 
           echo -e "<details><summary>Build Artifacts</summary>\n\n" >> $GITHUB_STEP_SUMMARY
           echo -e "\`\`\`text\n$(ls -lAh ${{ env.path }})\n\`\`\`\n\n" >> $GITHUB_STEP_SUMMARY
