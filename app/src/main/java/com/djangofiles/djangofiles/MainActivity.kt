@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private val client = OkHttpClient()
 
+    private var userAgent: String = "DjangoFiles Android"
     private var versionName: String? = null
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -74,8 +75,7 @@ class MainActivity : AppCompatActivity() {
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         versionName = packageInfo.versionName
         Log.d("MY_APP_TAG", "versionName: $versionName")
-        val userAgent =
-            "${webView.settings.userAgentString} DjangoFiles Android/${versionName}"
+        userAgent = "${webView.settings.userAgentString} DjangoFiles Android/$versionName"
         Log.d("onCreate", "UA: $userAgent")
 
         webView.settings.userAgentString = userAgent
@@ -322,7 +322,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkUrl(url: String): Boolean {
         Log.d("checkUrl", "url: $url")
         // TODO: Change this to HEAD or use response data...
-        val request = Request.Builder().url(url).get().build()
+        val request = Request.Builder().header("User-Agent", userAgent).url(url).get().build()
         return try {
             val response = client.newCall(request).execute()
             response.isSuccessful
