@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_item_one"
-        android:title="Item 1"
-        android:icon="@android:drawable/ic_menu_info_details" />
+        android:id="@+id/nav_item_home"
+        android:title="Home"
+        android:icon="@drawable/ic_launcher_foreground" />
     <item
-        android:id="@+id/nav_item_two"
-        android:title="Item 2"
-        android:icon="@android:drawable/ic_menu_preferences" />
+        android:id="@+id/nav_item_upload"
+        android:title="Upload Files"
+        android:icon="@android:drawable/sym_contact_card" />
     <item
-        android:id="@+id/nav_item_three"
-        android:title="Item 3"
-        android:icon="@android:drawable/ic_menu_preferences" />
+        android:id="@+id/nav_item_files"
+        android:title="Files"
+        android:icon="@android:drawable/ic_menu_gallery" />
     <item
-        android:id="@+id/nav_item_four"
-        android:title="Item 4"
-        android:icon="@android:drawable/ic_menu_preferences" />
+        android:id="@+id/nav_item_albums"
+        android:title="Albums"
+        android:icon="@android:drawable/checkbox_off_background" />
+    <item
+        android:id="@+id/nav_item_shorts"
+        android:title="Shorts"
+        android:icon="@android:drawable/ic_menu_share" />
 </menu>

@@ -10,8 +10,10 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
+import android.view.GestureDetector
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -27,6 +29,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -53,7 +57,9 @@ class MainActivity : AppCompatActivity() {
         const val PREFS_NAME = "AppPreferences"
         const val URL_KEY = "saved_url"
         const val TOKEN_KEY = "auth_token"
+        const val DEBUG_TAG = "DEBUG"
     }
+
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var webView: WebView
@@ -64,6 +70,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
+
+    private lateinit var mDetector: GestureDetectorCompat
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,24 +115,80 @@ class MainActivity : AppCompatActivity() {
         // Handle Navigation Item Clicks
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_item_one -> {
-                    Log.d("Drawer", "Item 1 Clicked")
+                R.id.nav_item_home -> {
+                    Log.d("Drawer", "nav_item_home")
                 }
-                R.id.nav_item_two -> {
-                    Log.d("Drawer", "Item 2 Clicked")
+                R.id.nav_item_files -> {
+                    Log.d("Drawer", "nav_item_files")
                 }
-                R.id.nav_item_three -> {
-                    Log.d("Drawer", "Item 2 Clicked")
+                R.id.nav_item_upload -> {
+                    Log.d("Drawer", "nav_item_upload")
                 }
-                R.id.nav_item_four -> {
-                    Log.d("Drawer", "Item 2 Clicked")
+                R.id.nav_item_albums -> {
+                    Log.d("Drawer", "nav_item_albums")
+                }
+                R.id.nav_item_shorts -> {
+                    Log.d("Drawer", "nav_item_shorts")
                 }
             }
             drawerLayout.closeDrawers()
             true
         }
 
+        mDetector = GestureDetectorCompat(this, MyGestureListener())
+
+        drawerLayout.openDrawer(GravityCompat.START)
+
+
     }
+
+    private class MyGestureListener : GestureDetector.SimpleOnGestureListener() {
+        override fun onDown(event: MotionEvent): Boolean {
+            Log.d(DEBUG_TAG, "onDown: $event")
+            return true
+        }
+
+        override fun onFling(
+            e1: MotionEvent?,
+            event1: MotionEvent,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
+            Log.d(DEBUG_TAG, "onFling: $e1 $event1")
+            return true
+        }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                Log.d(DEBUG_TAG, "Action was DOWN")
+                true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                Log.d(DEBUG_TAG, "Action was MOVE")
+                true
+            }
+            MotionEvent.ACTION_UP -> {
+                Log.d(DEBUG_TAG, "Action was UP")
+                true
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                Log.d(DEBUG_TAG, "Action was CANCEL")
+                true
+            }
+            MotionEvent.ACTION_OUTSIDE -> {
+                Log.d(DEBUG_TAG, "Movement occurred outside bounds of current screen element")
+                true
+            }
+            else -> super.onTouchEvent(event)
+        }
+    }
+
+//    override fun onTouchEvent(event: MotionEvent): Boolean {
+//        mDetector.onTouchEvent(event)
+//        return super.onTouchEvent(event)
+//    }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if ((keyCode == KeyEvent.KEYCODE_BACK) && webView.canGoBack()) {
