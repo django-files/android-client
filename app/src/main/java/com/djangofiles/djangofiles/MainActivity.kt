@@ -29,7 +29,9 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,6 +62,9 @@ class MainActivity : AppCompatActivity() {
     private var userAgent: String = "DjangoFiles Android"
     private var versionName: String? = null
 
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +72,9 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.navigation_view)
 
         webView = binding.webview
         webView.settings.domStorageEnabled = true
@@ -95,6 +103,27 @@ class MainActivity : AppCompatActivity() {
         Log.d("onCreate", "getData: ${intent.data}")
         Log.d("onCreate", "getExtras: ${intent.extras}")
         handleIntent(intent)
+
+        // Handle Navigation Item Clicks
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_item_one -> {
+                    Log.d("Drawer", "Item 1 Clicked")
+                }
+                R.id.nav_item_two -> {
+                    Log.d("Drawer", "Item 2 Clicked")
+                }
+                R.id.nav_item_three -> {
+                    Log.d("Drawer", "Item 2 Clicked")
+                }
+                R.id.nav_item_four -> {
+                    Log.d("Drawer", "Item 2 Clicked")
+                }
+            }
+            drawerLayout.closeDrawers()
+            true
+        }
+
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
