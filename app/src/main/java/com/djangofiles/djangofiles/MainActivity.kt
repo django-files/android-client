@@ -10,10 +10,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
-import android.view.GestureDetector
 import android.view.Gravity
 import android.view.KeyEvent
-import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -70,8 +68,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
-
-    private lateinit var mDetector: GestureDetectorCompat
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -135,60 +131,9 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        mDetector = GestureDetectorCompat(this, MyGestureListener())
-
         drawerLayout.openDrawer(GravityCompat.START)
 
-
     }
-
-    private class MyGestureListener : GestureDetector.SimpleOnGestureListener() {
-        override fun onDown(event: MotionEvent): Boolean {
-            Log.d(DEBUG_TAG, "onDown: $event")
-            return true
-        }
-
-        override fun onFling(
-            e1: MotionEvent?,
-            event1: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
-            Log.d(DEBUG_TAG, "onFling: $e1 $event1")
-            return true
-        }
-    }
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                Log.d(DEBUG_TAG, "Action was DOWN")
-                true
-            }
-            MotionEvent.ACTION_MOVE -> {
-                Log.d(DEBUG_TAG, "Action was MOVE")
-                true
-            }
-            MotionEvent.ACTION_UP -> {
-                Log.d(DEBUG_TAG, "Action was UP")
-                true
-            }
-            MotionEvent.ACTION_CANCEL -> {
-                Log.d(DEBUG_TAG, "Action was CANCEL")
-                true
-            }
-            MotionEvent.ACTION_OUTSIDE -> {
-                Log.d(DEBUG_TAG, "Movement occurred outside bounds of current screen element")
-                true
-            }
-            else -> super.onTouchEvent(event)
-        }
-    }
-
-//    override fun onTouchEvent(event: MotionEvent): Boolean {
-//        mDetector.onTouchEvent(event)
-//        return super.onTouchEvent(event)
-//    }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if ((keyCode == KeyEvent.KEYCODE_BACK) && webView.canGoBack()) {
