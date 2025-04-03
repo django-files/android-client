@@ -6,18 +6,26 @@
         android:icon="@drawable/ic_launcher_foreground" />
     <item
         android:id="@+id/nav_item_upload"
-        android:title="Upload Files"
-        android:icon="@android:drawable/sym_contact_card" />
+        android:title="Upload"
+        android:icon="@android:drawable/ic_menu_set_as" />
     <item
         android:id="@+id/nav_item_files"
         android:title="Files"
-        android:icon="@android:drawable/ic_menu_gallery" />
+        android:icon="@android:drawable/ic_menu_save" />
     <item
         android:id="@+id/nav_item_albums"
         android:title="Albums"
-        android:icon="@android:drawable/checkbox_off_background" />
+        android:icon="@android:drawable/ic_menu_gallery" />
     <item
         android:id="@+id/nav_item_shorts"
         android:title="Shorts"
         android:icon="@android:drawable/ic_menu_share" />
+    <item
+        android:id="@+id/nav_item_stats"
+        android:title="Stats"
+        android:icon="@android:drawable/ic_menu_sort_by_size" />
+    <item
+        android:id="@+id/nav_item_server_list"
+        android:title="Server List"
+        android:icon="@android:drawable/ic_menu_manage" />
 </menu>

@@ -126,6 +126,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_item_shorts -> {
                     Log.d("Drawer", "nav_item_shorts")
                 }
+                R.id.nav_item_server_list -> {
+                    Log.d("Drawer", "nav_item_server_list")
+                }
             }
             drawerLayout.closeDrawers()
             true
