@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/nav_header">
     <item
         android:id="@+id/nav_item_home"
+        android:checked="true"
         android:title="Home"
         android:icon="@drawable/ic_launcher_foreground" />
     <item
@@ -28,4 +30,12 @@
         android:id="@+id/nav_item_server_list"
         android:title="Server List"
         android:icon="@android:drawable/ic_menu_manage" />
+    </group>
+    <group android:id="@+id/nav_footer">
+        <item
+            android:id="@+id/footer_spacer_2"
+            android:checkable="false"
+            android:enabled="false"
+            android:title="Django Files v0.0.1" />
+    </group>
 </menu>
