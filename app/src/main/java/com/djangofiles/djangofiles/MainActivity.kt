@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity() {
         handleIntent(intent)
 
         //drawerLayout.openDrawer(GravityCompat.START)
-        startActivity(Intent(this, SettingsActivity::class.java))
+        //startActivity(Intent(this, SettingsActivity::class.java))
 
     }
 
