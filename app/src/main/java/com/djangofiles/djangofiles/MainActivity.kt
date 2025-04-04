@@ -32,6 +32,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.preference.PreferenceFragmentCompat
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
@@ -52,17 +53,61 @@ import java.net.URLConnection
 
 
 
+import androidx.preference.EditTextPreference
+import androidx.preference.PreferenceManager
+
+
 class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(android.R.id.content, SettingsFragment())
+            .commit()
     }
 }
 
-//class SettingsFragment : PreferenceFragmentCompat() {
-//    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-//        setPreferencesFromResource(R.xml.preferences, rootKey)
-//    }
-//}
+
+
+class SettingsFragment : PreferenceFragmentCompat() {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        // Log when the fragment is created
+        Log.d("SettingsFragment", "onCreatePreferences called")
+
+        setPreferencesFromResource(R.xml.preferences, rootKey)
+
+        val savedUrlPref = findPreference<EditTextPreference>("saved_url")
+
+        savedUrlPref?.let {
+            val savedUrl = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .getString("saved_url", "")
+
+            // Log the saved URL
+            Log.d("SettingsFragment", "Loaded saved URL: $savedUrl")
+
+            it.text = savedUrl
+        }
+
+        savedUrlPref?.setOnPreferenceChangeListener { _, newValue ->
+            val newUrl = newValue as String
+            // Log the updated URL
+            Log.d("SettingsFragment", "Updated saved URL: $newUrl")
+
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                .edit()
+                .putString("saved_url", newUrl)
+                .apply()
+
+            true
+        }
+    }
+}
+
+
+
+
+
 
 
 
