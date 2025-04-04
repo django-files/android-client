@@ -4,7 +4,7 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:icon="@drawable/fingerprint"
+            android:icon="@drawable/fa_fingerprint"
             android:key="enable_biometrics"
             android:title="Enable Biometrics" />
 

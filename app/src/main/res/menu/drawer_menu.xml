@@ -4,49 +4,49 @@
     <group android:id="@+id/nav_site">
         <item
             android:id="@+id/nav_item_home"
-            android:icon="@drawable/house_laptop"
+            android:icon="@drawable/fa_house_laptop"
             android:title="Home" />
         <item
             android:id="@+id/nav_item_upload_file"
-            android:icon="@drawable/upload"
+            android:icon="@drawable/fa_upload"
             android:title="Upload Files" />
         <item
             android:id="@+id/nav_item_upload_text"
-            android:icon="@drawable/file_lines"
+            android:icon="@drawable/fa_file_lines"
             android:title="Upload Text" />
         <item
             android:id="@+id/nav_item_files"
-            android:icon="@drawable/folder_open"
+            android:icon="@drawable/fa_folder_open"
             android:title="Files" />
         <item
             android:id="@+id/nav_item_albums"
-            android:icon="@drawable/image"
+            android:icon="@drawable/fa_image"
             android:title="Albums" />
         <item
             android:id="@+id/nav_item_shorts"
-            android:icon="@drawable/link"
+            android:icon="@drawable/fa_link"
             android:title="Shorts" />
         <item
             android:id="@+id/nav_item_stats"
-            android:icon="@drawable/chart_line"
+            android:icon="@drawable/fa_chart_line"
             android:title="Stats" />
     </group>
 
     <group android:id="@+id/nav_settings">
         <item
             android:id="@+id/nav_item_settings_user"
-            android:icon="@drawable/circle_user"
+            android:icon="@drawable/fa_circle_user"
             android:title="User Settings" />
         <item
             android:id="@+id/nav_item_settings_site"
-            android:icon="@drawable/gears"
+            android:icon="@drawable/fa_gears"
             android:title="Site Settings" />
 <!--    </group>-->
 
 <!--    <group android:id="@+id/nav_app">-->
         <item
             android:id="@+id/nav_item_server_list"
-            android:icon="@drawable/gear"
+            android:icon="@drawable/fa_gear"
             android:title="App Settings" />
     </group>
 

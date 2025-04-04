@@ -2,12 +2,16 @@ package com.djangofiles.djangofiles.settings
 
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 //import android.util.Patterns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.edit
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 //import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.MainActivity.Companion.PREFS_NAME
 import com.djangofiles.djangofiles.MainActivity.Companion.URL_KEY
@@ -57,6 +61,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
             //PreferenceManager.getDefaultSharedPreferences(requireContext())
             //    .edit { putString("saved_url", newUrl) }
+
         }
     }
 
