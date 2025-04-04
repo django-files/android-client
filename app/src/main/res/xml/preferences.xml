@@ -1,29 +1,24 @@
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
-        android:title="App Settings">
+    <PreferenceCategory android:title="App Settings">
 
-    <SwitchPreferenceCompat
-        android:key="enable_biometrics"
-        android:title="Enable Biometrics"
-        android:defaultValue="false"
-        android:icon="@android:drawable/ic_lock_idle_lock" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/fingerprint"
+            android:key="enable_biometrics"
+            android:title="Enable Biometrics" />
 
     </PreferenceCategory>
+    <PreferenceCategory android:title="Server Settings">
 
-    <PreferenceCategory
-        android:title="Server Settings">
-
-    <EditTextPreference
-        android:key="saved_url"
-        android:title="Add Server"
-        android:dialogTitle="Enter URL"
-        android:defaultValue=""
-        android:inputType="textUri"
-        android:summary=""
-        android:icon="@android:drawable/ic_input_add" />
+        <EditTextPreference
+            android:defaultValue=""
+            android:dialogTitle="Enter URL"
+            android:icon="@android:drawable/ic_input_add"
+            android:inputType="textUri"
+            android:key="saved_url"
+            android:summary=""
+            android:title="Add Server" />
 
     </PreferenceCategory>
 

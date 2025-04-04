@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:id="@+id/nav_header">
+    <group android:id="@+id/nav_site">
         <item
             android:id="@+id/nav_item_home"
-            android:checked="true"
             android:icon="@drawable/house_laptop"
             android:title="Home" />
         <item
-            android:id="@+id/nav_item_upload"
+            android:id="@+id/nav_item_upload_file"
             android:icon="@drawable/upload"
-            android:title="Upload" />
+            android:title="Upload Files" />
+        <item
+            android:id="@+id/nav_item_upload_text"
+            android:icon="@drawable/file_lines"
+            android:title="Upload Text" />
         <item
             android:id="@+id/nav_item_files"
             android:icon="@drawable/folder_open"
@@ -29,7 +32,18 @@
             android:title="Stats" />
     </group>
 
-    <group android:id="@+id/nav_footer">
+    <group android:id="@+id/nav_settings">
+        <item
+            android:id="@+id/nav_item_settings_user"
+            android:icon="@drawable/circle_user"
+            android:title="User Settings" />
+        <item
+            android:id="@+id/nav_item_settings_site"
+            android:icon="@drawable/gears"
+            android:title="Site Settings" />
+<!--    </group>-->
+
+<!--    <group android:id="@+id/nav_app">-->
         <item
             android:id="@+id/nav_item_server_list"
             android:icon="@drawable/gear"

@@ -104,17 +104,23 @@ class MainActivity : AppCompatActivity() {
 
         // Handle Navigation Item Clicks
         navigationView.setNavigationItemSelectedListener { menuItem ->
+            Log.d("setNavigationItemSelectedListener", "menuItem: $menuItem")
+            Log.d("setNavigationItemSelectedListener", "itemId: ${menuItem.itemId}")
             when (menuItem.itemId) {
                 R.id.nav_item_home -> {
                     Log.d("Drawer", "nav_item_home")
                 }
 
-                R.id.nav_item_files -> {
-                    Log.d("Drawer", "nav_item_files")
+                R.id.nav_item_upload_file -> {
+                    Log.d("Drawer", "nav_item_upload_file")
                 }
 
-                R.id.nav_item_upload -> {
-                    Log.d("Drawer", "nav_item_upload")
+                R.id.nav_item_upload_text -> {
+                    Log.d("Drawer", "nav_item_upload_text")
+                }
+
+                R.id.nav_item_files -> {
+                    Log.d("Drawer", "nav_item_files")
                 }
 
                 R.id.nav_item_albums -> {
@@ -125,6 +131,17 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Drawer", "nav_item_shorts")
                 }
 
+                // Site Settings
+
+                R.id.nav_item_settings_user -> {
+                    Log.d("Drawer", "nav_item_settings_user")
+                }
+
+                R.id.nav_item_settings_site -> {
+                    Log.d("Drawer", "nav_item_settings_site")
+                }
+
+                // App Settings
                 R.id.nav_item_server_list -> {
                     Log.d("Drawer", "nav_item_server_list")
                     startActivity(Intent(this, SettingsActivity::class.java))
@@ -134,13 +151,14 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        //drawerLayout.openDrawer(GravityCompat.START)
-
         // Handle Intent
         Log.d("onCreate", "getAction: ${intent.action}")
         Log.d("onCreate", "getData: ${intent.data}")
         Log.d("onCreate", "getExtras: ${intent.extras}")
         handleIntent(intent)
+
+        //drawerLayout.openDrawer(GravityCompat.START)
+        startActivity(Intent(this, SettingsActivity::class.java))
 
     }
 
