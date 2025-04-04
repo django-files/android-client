@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        drawerLayout.openDrawer(GravityCompat.START)
+        //drawerLayout.openDrawer(GravityCompat.START)
 
         // Handle Intent
         Log.d("onCreate", "getAction: ${intent.action}")
