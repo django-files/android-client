@@ -115,27 +115,35 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_item_home -> {
                     Log.d("Drawer", "nav_item_home")
                 }
+
                 R.id.nav_item_upload_file -> {
                     Log.d("Drawer", "nav_item_upload_file")
                 }
+
                 R.id.nav_item_upload_text -> {
                     Log.d("Drawer", "nav_item_upload_text")
                 }
+
                 R.id.nav_item_files -> {
                     Log.d("Drawer", "nav_item_files")
                 }
+
                 R.id.nav_item_albums -> {
                     Log.d("Drawer", "nav_item_albums")
                 }
+
                 R.id.nav_item_shorts -> {
                     Log.d("Drawer", "nav_item_shorts")
                 }
+
                 R.id.nav_item_settings_user -> {
                     Log.d("Drawer", "nav_item_settings_user")
                 }
+
                 R.id.nav_item_settings_site -> {
                     Log.d("Drawer", "nav_item_settings_site")
                 }
+
                 R.id.nav_item_server_list -> {
                     Log.d("Drawer", "nav_item_server_list")
                     startActivity(Intent(this, SettingsActivity::class.java))
