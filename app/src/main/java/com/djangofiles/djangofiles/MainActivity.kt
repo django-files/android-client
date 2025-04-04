@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles
 
+
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -27,12 +28,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
@@ -50,62 +52,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
-
-
-
-import androidx.preference.EditTextPreference
-import androidx.preference.PreferenceManager
-
-
-class SettingsActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        supportFragmentManager
-            .beginTransaction()
-            .replace(android.R.id.content, SettingsFragment())
-            .commit()
-    }
-}
-
-
-
-class SettingsFragment : PreferenceFragmentCompat() {
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        // Log when the fragment is created
-        Log.d("SettingsFragment", "onCreatePreferences called")
-
-        setPreferencesFromResource(R.xml.preferences, rootKey)
-
-        val savedUrlPref = findPreference<EditTextPreference>("saved_url")
-
-        savedUrlPref?.let {
-            val savedUrl = PreferenceManager.getDefaultSharedPreferences(requireContext())
-                .getString("saved_url", "")
-
-            // Log the saved URL
-            Log.d("SettingsFragment", "Loaded saved URL: $savedUrl")
-
-            it.text = savedUrl
-        }
-
-        savedUrlPref?.setOnPreferenceChangeListener { _, newValue ->
-            val newUrl = newValue as String
-            // Log the updated URL
-            Log.d("SettingsFragment", "Updated saved URL: $newUrl")
-
-            PreferenceManager.getDefaultSharedPreferences(requireContext())
-                .edit()
-                .putString("saved_url", newUrl)
-                .apply()
-
-            true
-        }
-    }
-}
-
-
-
+import com.djangofiles.djangofiles.settings.SettingsActivity
 
 
 
@@ -169,27 +116,33 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_item_home -> {
                     Log.d("Drawer", "nav_item_home")
                 }
+
                 R.id.nav_item_files -> {
                     Log.d("Drawer", "nav_item_files")
                 }
+
                 R.id.nav_item_upload -> {
                     Log.d("Drawer", "nav_item_upload")
                 }
+
                 R.id.nav_item_albums -> {
                     Log.d("Drawer", "nav_item_albums")
                 }
+
                 R.id.nav_item_shorts -> {
                     Log.d("Drawer", "nav_item_shorts")
                 }
+
                 R.id.nav_item_server_list -> {
                     Log.d("Drawer", "nav_item_server_list")
+                    startActivity(Intent(this, SettingsActivity::class.java))
                 }
             }
             drawerLayout.closeDrawers()
             true
         }
 
-        //drawerLayout.openDrawer(GravityCompat.START)
+        drawerLayout.openDrawer(GravityCompat.START)
 
         // Handle Intent
         Log.d("onCreate", "getAction: ${intent.action}")
@@ -197,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("onCreate", "getExtras: ${intent.extras}")
         handleIntent(intent)
 
-        startActivity(Intent(this, SettingsActivity::class.java))
+
 
     }
 
