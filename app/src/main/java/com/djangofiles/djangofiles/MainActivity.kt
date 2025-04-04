@@ -50,6 +50,22 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
 
+
+
+class SettingsActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+}
+
+//class SettingsFragment : PreferenceFragmentCompat() {
+//    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+//        setPreferencesFromResource(R.xml.preferences, rootKey)
+//    }
+//}
+
+
+
 class MainActivity : AppCompatActivity() {
     companion object {
         const val PREFS_NAME = "AppPreferences"
@@ -102,12 +118,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Handle Intent
-        Log.d("onCreate", "getAction: ${intent.action}")
-        Log.d("onCreate", "getData: ${intent.data}")
-        Log.d("onCreate", "getExtras: ${intent.extras}")
-        handleIntent(intent)
-
         // Handle Navigation Item Clicks
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -134,7 +144,15 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        drawerLayout.openDrawer(GravityCompat.START)
+        //drawerLayout.openDrawer(GravityCompat.START)
+
+        // Handle Intent
+        Log.d("onCreate", "getAction: ${intent.action}")
+        Log.d("onCreate", "getData: ${intent.data}")
+        Log.d("onCreate", "getExtras: ${intent.extras}")
+        handleIntent(intent)
+
+        startActivity(Intent(this, SettingsActivity::class.java))
 
     }
 

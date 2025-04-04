@@ -1,0 +1,6 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:key="example_switch"
+        android:title="Example Setting"
+        android:defaultValue="false" />
+</PreferenceScreen>
