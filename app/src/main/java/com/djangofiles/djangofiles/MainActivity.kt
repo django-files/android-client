@@ -6,6 +6,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -64,10 +65,12 @@ class MainActivity : AppCompatActivity() {
     private val client = OkHttpClient()
 
     private var userAgent: String = "DjangoFiles Android"
+    private var currentUrl: String? = null
     private var versionName: String? = null
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
+    private lateinit var sharedPreferences: SharedPreferences
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,13 +83,15 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation_view)
 
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+
         webView = binding.webview
         webView.settings.domStorageEnabled = true
         webView.settings.javaScriptEnabled = true
 
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         versionName = packageInfo.versionName
-        Log.d("MY_APP_TAG", "versionName: $versionName")
+        Log.d("onCreate", "versionName: $versionName")
         userAgent = "${webView.settings.userAgentString} DjangoFiles Android/$versionName"
         Log.d("onCreate", "UA: $userAgent")
 
@@ -110,38 +115,27 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_item_home -> {
                     Log.d("Drawer", "nav_item_home")
                 }
-
                 R.id.nav_item_upload_file -> {
                     Log.d("Drawer", "nav_item_upload_file")
                 }
-
                 R.id.nav_item_upload_text -> {
                     Log.d("Drawer", "nav_item_upload_text")
                 }
-
                 R.id.nav_item_files -> {
                     Log.d("Drawer", "nav_item_files")
                 }
-
                 R.id.nav_item_albums -> {
                     Log.d("Drawer", "nav_item_albums")
                 }
-
                 R.id.nav_item_shorts -> {
                     Log.d("Drawer", "nav_item_shorts")
                 }
-
-                // Site Settings
-
                 R.id.nav_item_settings_user -> {
                     Log.d("Drawer", "nav_item_settings_user")
                 }
-
                 R.id.nav_item_settings_site -> {
                     Log.d("Drawer", "nav_item_settings_site")
                 }
-
-                // App Settings
                 R.id.nav_item_server_list -> {
                     Log.d("Drawer", "nav_item_server_list")
                     startActivity(Intent(this, SettingsActivity::class.java))
@@ -160,6 +154,22 @@ class MainActivity : AppCompatActivity() {
         //drawerLayout.openDrawer(GravityCompat.START)
         //startActivity(Intent(this, SettingsActivity::class.java))
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val savedUrl = sharedPreferences.getString(URL_KEY, null)
+        Log.d("onResume", "savedUrl: $savedUrl")
+        Log.d("onResume", "currentUrl: $currentUrl")
+        if (!savedUrl.isNullOrEmpty() && savedUrl != currentUrl) {
+            Log.d("onResume", "webView.loadUrl: $savedUrl")
+            currentUrl = savedUrl
+            webView.loadUrl(savedUrl)
+        } else {
+            Log.d("onResume", "DO NOTHING")
+            Toast.makeText(this, "No Saved URL!", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -189,19 +199,21 @@ class MainActivity : AppCompatActivity() {
 
         if (Intent.ACTION_MAIN == action) {
             Log.d("handleIntent", "ACTION_MAIN")
-            val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            val savedUrl = preferences.getString(URL_KEY, null)
+            //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            val savedUrl = sharedPreferences.getString(URL_KEY, null)
             Log.d("handleIntent", "savedUrl: $savedUrl")
-            val authToken = preferences.getString(TOKEN_KEY, null)
+            currentUrl = savedUrl
+            val authToken = sharedPreferences.getString(TOKEN_KEY, null)
             Log.d("handleIntent", "authToken: $authToken")
 
-            val currentUrl = webView.url
-            Log.d("handleIntent", "currentUrl: $currentUrl")
+            val webViewUrl = webView.url
+            Log.d("handleIntent", "webViewUrl: $webViewUrl")
 
             if (savedUrl.isNullOrEmpty()) {
-                showSettingsDialog()
+                //showSettingsDialog()
+                startActivity(Intent(this, SettingsActivity::class.java))
             } else {
-                if (currentUrl == null) {
+                if (webViewUrl == null) {
                     Log.d("handleIntent", "webView.loadUrl")
                     webView.loadUrl(savedUrl)
                 } else {
@@ -218,7 +230,8 @@ class MainActivity : AppCompatActivity() {
                 if ("djangofiles" == scheme) {
                     if ("serverlist" == host) {
                         Log.d("handleIntent", "djangofiles://serverlist")
-                        showSettingsDialog()
+                        //showSettingsDialog()
+                        startActivity(Intent(this, SettingsActivity::class.java))
                     } else {
                         Toast.makeText(
                             this,
@@ -254,8 +267,8 @@ class MainActivity : AppCompatActivity() {
                         Log.d("handleIntent", "Received text/plain: $sharedText")
                     }
                 }
-                val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                val savedUrl = preferences.getString(URL_KEY, null)
+                //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                val savedUrl = sharedPreferences.getString(URL_KEY, null)
                 Log.d("handleIntent", "savedUrl: ${savedUrl}/paste/")
                 webView.loadUrl("${savedUrl}/paste/")
                 Toast.makeText(
@@ -300,8 +313,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSettingsDialog() {
-        val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val savedUrl = preferences.getString(URL_KEY, null)
+        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUrl = sharedPreferences.getString(URL_KEY, null)
         Log.d("showSettingsDialog", "savedUrl: $savedUrl")
 
 
@@ -362,7 +375,7 @@ class MainActivity : AppCompatActivity() {
                                     withContext(Dispatchers.Main) {
                                         if (response) {
                                             Log.d("showSettingsDialog", "SUCCESS")
-                                            preferences.edit { putString(URL_KEY, url) }
+                                            sharedPreferences.edit { putString(URL_KEY, url) }
                                             webView.loadUrl(url)
                                             dismiss()
                                         } else {
@@ -398,10 +411,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun processSharedFile(fileUri: Uri) {
         Log.d("processSharedFile", "fileUri: $fileUri")
-        val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val savedUrl = preferences.getString(URL_KEY, null)
+        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUrl = sharedPreferences.getString(URL_KEY, null)
         Log.d("processSharedFile", "savedUrl: $savedUrl")
-        val authToken = preferences.getString(TOKEN_KEY, null)
+        val authToken = sharedPreferences.getString(TOKEN_KEY, null)
         Log.d("processSharedFile", "authToken: $authToken")
         if (savedUrl == null || authToken == null) {
             // TODO: Show settings dialog here...
@@ -555,8 +568,8 @@ class MainActivity : AppCompatActivity() {
             val url = request.url.toString()
             Log.d("shouldOverrideUrlLoading", "url: $url")
 
-            val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            val savedUrl = preferences.getString(URL_KEY, null)
+            //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            val savedUrl = sharedPreferences.getString(URL_KEY, null)
             Log.d("shouldOverrideUrlLoading", "savedUrl: $savedUrl")
 
             if ((savedUrl != null &&
