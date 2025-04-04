@@ -109,8 +109,8 @@ class MainActivity : AppCompatActivity() {
 
         // Handle Navigation Item Clicks
         navigationView.setNavigationItemSelectedListener { menuItem ->
-            Log.d("setNavigationItemSelectedListener", "menuItem: $menuItem")
-            Log.d("setNavigationItemSelectedListener", "itemId: ${menuItem.itemId}")
+            Log.d("Drawer", "menuItem: $menuItem")
+            Log.d("Drawer", "itemId: ${menuItem.itemId}")
             when (menuItem.itemId) {
                 R.id.nav_item_home -> {
                     Log.d("Drawer", "nav_item_home")
@@ -161,15 +161,25 @@ class MainActivity : AppCompatActivity() {
         val savedUrl = sharedPreferences.getString(URL_KEY, null)
         Log.d("onResume", "savedUrl: $savedUrl")
         Log.d("onResume", "currentUrl: $currentUrl")
-        if (!savedUrl.isNullOrEmpty() && savedUrl != currentUrl) {
+        if (savedUrl.isNullOrEmpty()) {
+            Log.d("onResume", "Empty - Show Settings")
+            startActivity(Intent(this, SettingsActivity::class.java))
+        } else if (savedUrl != currentUrl) {
             Log.d("onResume", "webView.loadUrl: $savedUrl")
             currentUrl = savedUrl
             webView.loadUrl(savedUrl)
         } else {
             Log.d("onResume", "DO NOTHING")
-            Toast.makeText(this, "No Saved URL!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, SettingsActivity::class.java))
         }
+//        if (!savedUrl.isNullOrEmpty() && savedUrl != currentUrl) {
+//            Log.d("onResume", "webView.loadUrl: $savedUrl")
+//            currentUrl = savedUrl
+//            webView.loadUrl(savedUrl)
+//        } else {
+//            Log.d("onResume", "DO NOTHING")
+//            Toast.makeText(this, "No Saved URL!", Toast.LENGTH_SHORT).show()
+//            startActivity(Intent(this, SettingsActivity::class.java))
+//        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
