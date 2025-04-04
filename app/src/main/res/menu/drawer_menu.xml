@@ -26,12 +26,12 @@
         android:id="@+id/nav_item_stats"
         android:title="Stats"
         android:icon="@android:drawable/ic_menu_sort_by_size" />
-    <item
-        android:id="@+id/nav_item_server_list"
-        android:title="Server List"
-        android:icon="@android:drawable/ic_menu_manage" />
     </group>
     <group android:id="@+id/nav_footer">
+        <item
+            android:id="@+id/nav_item_server_list"
+            android:title="App Settings"
+            android:icon="@drawable/baseline_app_settings_alt_24" />
         <item
             android:id="@+id/footer_spacer_2"
             android:checkable="false"
