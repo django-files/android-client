@@ -1,41 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <group android:id="@+id/nav_header">
-    <item
-        android:id="@+id/nav_item_home"
-        android:checked="true"
-        android:title="Home"
-        android:icon="@drawable/house_laptop" />
-    <item
-        android:id="@+id/nav_item_upload"
-        android:title="Upload"
-        android:icon="@drawable/upload" />
-    <item
-        android:id="@+id/nav_item_files"
-        android:title="Files"
-        android:icon="@drawable/folder_open" />
-    <item
-        android:id="@+id/nav_item_albums"
-        android:title="Albums"
-        android:icon="@drawable/image" />
-    <item
-        android:id="@+id/nav_item_shorts"
-        android:title="Shorts"
-        android:icon="@drawable/link" />
-    <item
-        android:id="@+id/nav_item_stats"
-        android:title="Stats"
-        android:icon="@drawable/chart_line" />
+        <item
+            android:id="@+id/nav_item_home"
+            android:checked="true"
+            android:icon="@drawable/house_laptop"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_item_upload"
+            android:icon="@drawable/upload"
+            android:title="Upload" />
+        <item
+            android:id="@+id/nav_item_files"
+            android:icon="@drawable/folder_open"
+            android:title="Files" />
+        <item
+            android:id="@+id/nav_item_albums"
+            android:icon="@drawable/image"
+            android:title="Albums" />
+        <item
+            android:id="@+id/nav_item_shorts"
+            android:icon="@drawable/link"
+            android:title="Shorts" />
+        <item
+            android:id="@+id/nav_item_stats"
+            android:icon="@drawable/chart_line"
+            android:title="Stats" />
     </group>
+
     <group android:id="@+id/nav_footer">
         <item
             android:id="@+id/nav_item_server_list"
-            android:title="App Settings"
-            android:icon="@drawable/gear" />
-        <item
-            android:id="@+id/footer_spacer_2"
-            android:checkable="false"
-            android:enabled="false"
-            android:title="Django Files v0.0.1" />
+            android:icon="@drawable/gear"
+            android:title="App Settings" />
     </group>
+
 </menu>

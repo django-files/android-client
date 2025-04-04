@@ -28,14 +28,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.preference.EditTextPreference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
+import com.djangofiles.djangofiles.settings.SettingsActivity
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,10 +49,6 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
-import com.djangofiles.djangofiles.settings.SettingsActivity
-
-
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -65,7 +58,6 @@ class MainActivity : AppCompatActivity() {
         const val TOKEN_KEY = "auth_token"
         const val DEBUG_TAG = "DEBUG"
     }
-
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var webView: WebView
@@ -149,8 +141,6 @@ class MainActivity : AppCompatActivity() {
         Log.d("onCreate", "getData: ${intent.data}")
         Log.d("onCreate", "getExtras: ${intent.extras}")
         handleIntent(intent)
-
-
 
     }
 

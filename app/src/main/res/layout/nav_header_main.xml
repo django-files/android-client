@@ -26,11 +26,12 @@
         android:paddingTop="8dp"
         android:text="Django Files"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textSize="22sp"/>
+        android:textSize="22sp" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Shane" />
+        android:text="v0.0.1" />
+
 </LinearLayout>
