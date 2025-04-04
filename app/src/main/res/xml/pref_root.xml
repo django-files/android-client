@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="App Settings">
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/fa_fingerprint"
+            android:key="enable_biometrics"
+            android:title="Enable Biometrics" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Server Settings">
+        <Preference
+            android:key="add_server"
+            android:title="Add Server"
+            android:icon="@android:drawable/ic_input_add" />
+        <PreferenceCategory
+            android:key="server_list"
+            android:title="Saved Servers" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
