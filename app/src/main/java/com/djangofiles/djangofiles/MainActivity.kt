@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity() {
         handleIntent(intent)
 
         //drawerLayout.openDrawer(GravityCompat.START)
-        //startActivity(Intent(this, SettingsActivity::class.java))
+        startActivity(Intent(this, SettingsActivity::class.java))
 
     }
 
@@ -171,7 +171,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("onResume", "currentUrl: $currentUrl")
         if (savedUrl.isNullOrEmpty()) {
             Log.d("onResume", "Empty - Show Settings")
-            startActivity(Intent(this, SettingsActivity::class.java))
+            //startActivity(Intent(this, SettingsActivity::class.java))
         } else if (savedUrl != currentUrl) {
             Log.d("onResume", "webView.loadUrl: $savedUrl")
             currentUrl = savedUrl
@@ -228,8 +228,8 @@ class MainActivity : AppCompatActivity() {
             Log.d("handleIntent", "webViewUrl: $webViewUrl")
 
             if (savedUrl.isNullOrEmpty()) {
-                //showSettingsDialog()
-                startActivity(Intent(this, SettingsActivity::class.java))
+                showSettingsDialog()
+                //startActivity(Intent(this, SettingsActivity::class.java))
             } else {
                 if (webViewUrl == null) {
                     Log.d("handleIntent", "webView.loadUrl")

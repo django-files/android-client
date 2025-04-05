@@ -23,6 +23,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import com.djangofiles.djangofiles.ServerPreference
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -68,34 +69,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun buildServerList() {
         val category = findPreference<PreferenceCategory>("server_list") ?: return
-        Log.d("buildServerList", "category: $category")
         category.removeAll()
 
         val servers = loadServers()
-        Log.d("buildServerList", "servers: $servers")
 
         servers.forEachIndexed { index, entry ->
-            Log.d("buildServerList", "index: $index - entry: $entry")
-            val pref = Preference(requireContext()).apply {
-                title = entry.url
-                icon = ContextCompat.getDrawable(requireContext(), R.drawable.fa_pen_to_square)
-                setOnPreferenceClickListener {
-                    showEditDialog(index, entry)
-                    //showDeleteDialog(index)
-                    true
-                }
-                //setOnPreferenceLongClickListener {
-                //    showDeleteDialog(index)
-                //    true
-                //}
-            }
+            val pref = ServerPreference(
+                requireContext(),
+                index,
+                entry,
+                onEdit = { i, e -> showEditDialog(i, e) },
+                onDelete = { i -> showDeleteDialog(i) }
+            )
             category.addPreference(pref)
         }
     }
 
-    //private fun setOnPreferenceLongClickListener(listener: (Preference) -> Boolean) {
-    //    listener(preference)
-    //}
 
     private fun showEditDialog(index: Int, entry: ServerEntry) {
         val editText = EditText(requireContext()).apply {
@@ -162,7 +151,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         preferenceManager.sharedPreferences?.edit() { putString(serverKey, array.toString()) }
     }
 
-    private data class ServerEntry(val url: String, val token: String)
+    data class ServerEntry(val url: String, val token: String)
 
 //    private fun Preference.setOnPreferenceLongClickListener(listener: (Preference) -> Boolean) {
 //        this.viewLifecycleOwnerLiveData.observe(viewLifecycleOwner) { viewLifecycleOwner ->
