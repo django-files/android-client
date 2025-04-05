@@ -595,7 +595,7 @@ class MainActivity : AppCompatActivity() {
                     "$savedUrl/raw/"
                 )) ||
                 url.startsWith("https://discord.com/oauth2") ||
-                url.startsWith("https://github.com/sessions/two-factor/app") ||
+                url.startsWith("https://github.com/sessions/two-factor/") ||
                 url.startsWith("https://github.com/login") ||
                 url.startsWith("https://accounts.google.com/v3/signin") ||
                 url.startsWith("https://accounts.google.com/o/oauth2/v2/auth")
