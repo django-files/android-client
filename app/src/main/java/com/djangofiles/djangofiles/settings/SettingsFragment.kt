@@ -68,11 +68,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun buildServerList() {
         val category = findPreference<PreferenceCategory>("server_list") ?: return
+        Log.d("buildServerList", "category: $category")
         category.removeAll()
 
         val servers = loadServers()
+        Log.d("buildServerList", "servers: $servers")
 
         servers.forEachIndexed { index, entry ->
+            Log.d("buildServerList", "index: $index - entry: $entry")
             val pref = Preference(requireContext()).apply {
                 title = entry.url
                 icon = ContextCompat.getDrawable(requireContext(), R.drawable.fa_pen_to_square)
