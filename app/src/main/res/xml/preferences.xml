@@ -4,6 +4,12 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
+            android:icon="@drawable/fa_upload"
+            android:key="show_upload_options"
+            android:title="Show Upload Options" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
             android:icon="@drawable/fa_fingerprint"
             android:key="enable_biometrics"
             android:title="Enable Biometrics" />
