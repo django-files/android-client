@@ -78,21 +78,21 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 icon = ContextCompat.getDrawable(requireContext(), R.drawable.fa_pen_to_square)
                 setOnPreferenceClickListener {
                     showEditDialog(index, entry)
+                    //showDeleteDialog(index)
                     true
                 }
-//                setOnPreferenceLongClickListener {
-//                    showDeleteDialog(index)
-//                    true
-//                }
+                //setOnPreferenceLongClickListener {
+                //    showDeleteDialog(index)
+                //    true
+                //}
             }
             category.addPreference(pref)
         }
     }
 
-//    private fun setOnPreferenceLongClickListener(listener: (Preference) -> Boolean) {
-//        listener(preference)
-//
-//    }
+    //private fun setOnPreferenceLongClickListener(listener: (Preference) -> Boolean) {
+    //    listener(preference)
+    //}
 
     private fun showEditDialog(index: Int, entry: ServerEntry) {
         val editText = EditText(requireContext()).apply {
@@ -161,15 +161,29 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private data class ServerEntry(val url: String, val token: String)
 
+//    private fun Preference.setOnPreferenceLongClickListener(listener: (Preference) -> Boolean) {
+//        this.viewLifecycleOwnerLiveData.observe(viewLifecycleOwner) { viewLifecycleOwner ->
+//            if (viewLifecycleOwner != null) {
+//                this.setOnPreferenceClickListener(null)
+//                this.setOnPreferenceClickListener {
+//                    false
+//                }
+//                this.preferenceView?.setOnLongClickListener {
+//                    listener(this)
+//                }
+//            }
+//        }
+//    }
+
 //    private fun setOnPreferenceLongClickListener(preference: Preference, listener: (Preference) -> Boolean) {
 //        preference.setOnLongClickListener {
 //            listener(preference)
 //        }
 //    }
 
-
 //    private val Preference.preferenceView: View?
 //        get() = (listView?.findViewHolderForAdapterPosition(preferenceScreen.indexOfPreference(this)) as? PreferenceViewHolder)?.itemView
+
 }
 
 
