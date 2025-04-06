@@ -6,9 +6,6 @@ import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.widget.Toast
 import androidx.core.content.edit
-//import com.djangofiles.djangofiles.settings.SettingsFragment.ServerEntry
-import org.json.JSONArray
-import org.json.JSONObject
 
 
 class WebAppInterface

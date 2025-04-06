@@ -32,7 +32,11 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.room.Room
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
+import com.djangofiles.djangofiles.settings.Server
+import com.djangofiles.djangofiles.settings.ServerDao
+import com.djangofiles.djangofiles.settings.ServerDatabase
 import com.djangofiles.djangofiles.settings.SettingsActivity
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
@@ -337,12 +341,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSettingsDialog() {
-        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-//        val savedUrl = sharedPreferences.getString(URL_KEY, null)
-//        Log.d("showSettingsDialog", "savedUrl: $savedUrl")
-
-
-        // Inflate custom layout with padding
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         layout.setPadding(5, 0, 5, 80)
@@ -350,19 +348,15 @@ class MainActivity : AppCompatActivity() {
         val input = EditText(this)
         input.inputType = android.text.InputType.TYPE_CLASS_TEXT
         input.maxLines = 1
-        layout.addView(input)
         input.hint = getString(R.string.settings_input_place)
-//        if (savedUrl != null) {
-//            input.setText(savedUrl)
-//        }
+        layout.addView(input)
+        input.requestFocus()
 
         val text = TextView(this)
         text.text = getString(R.string.settings_requires)
         text.gravity = Gravity.CENTER_HORIZONTAL
         text.setPadding(0, 20, 0, 0)
         layout.addView(text)
-
-        input.requestFocus()
 
         runOnUiThread {
             AlertDialog.Builder(this)
@@ -411,28 +405,6 @@ class MainActivity : AppCompatActivity() {
                                     }
                                 }
                             }
-//                            CoroutineScope(Dispatchers.IO).launch {
-//                                val authUrl = "${url}/api/auth/methods/"
-//                                Log.d("showSettingsDialog", "Auth URL: $authUrl")
-//                                val response = checkUrl(authUrl)
-//                                Log.d("showSettingsDialog", "response: $response")
-//                                withContext(Dispatchers.Main) {
-//                                    if (response) {
-//                                        Log.d("showSettingsDialog", "SUCCESS")
-//                                        sharedPreferences.edit { putString(URL_KEY, url) }
-//
-//                                        val servers = loadServers().toMutableList()
-//                                        servers.add(ServerEntry(url = url, token = ""))
-//                                        saveServers(servers)
-//
-//                                        webView.loadUrl(url)
-//                                        dismiss()
-//                                    } else {
-//                                        Log.d("showSettingsDialog", "FAILURE")
-//                                        input.error = "Invalid URL"
-//                                    }
-//                                }
-//                            }
                         }
                     }
                 }
@@ -441,49 +413,28 @@ class MainActivity : AppCompatActivity() {
 
     // TODO: Duplication - SettingsFragment
     private fun checkUrl(url: String): Boolean {
-        Log.d("checkUrl", "url: $url")
+        Log.d("checkUrl", "checkUrl URL: $url")
+
+        val authUrl = "${url}/api/auth/methods/"
+        Log.d("showSettingsDialog", "Auth URL: $authUrl")
+
         // TODO: Change this to HEAD or use response data...
-        val request = Request.Builder().header("User-Agent", userAgent).url(url).get().build()
+        val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
         return try {
             val response = client.newCall(request).execute()
+            Log.d("checkUrl", "Success: Remote OK.")
+
+            val db =
+                Room.databaseBuilder(this, ServerDatabase::class.java, "server-database")
+                    .build()
+            val dao: ServerDao = db.serverDao()
+            dao.add(Server(url = url))
             response.isSuccessful
         } catch (e: Exception) {
+            Log.d("checkUrl", "Error: Remote Failed!")
             false
         }
     }
-
-//    // TODO: Duplication - SettingsFragment
-//    private fun loadServers(): List<ServerEntry> {
-//        val preferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-//        val json = preferences?.getString("servers", "[]") ?: "[]"
-//        return try {
-//            JSONArray(json).let { array ->
-//                List(array.length()) {
-//                    val obj = array.getJSONObject(it)
-//                    ServerEntry(
-//                        url = obj.getString("url"),
-//                        token = obj.optString("token", "")
-//                    )
-//                }
-//            }
-//        } catch (_: Exception) {
-//            emptyList()
-//        }
-//    }
-//
-//    // TODO: Duplication - SettingsFragment
-//    private fun saveServers(list: List<ServerEntry>) {
-//        val preferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-//        val array = JSONArray().apply {
-//            list.forEach {
-//                put(JSONObject().apply {
-//                    put("url", it.url)
-//                    put("token", it.token)
-//                })
-//            }
-//        }
-//        preferences?.edit() { putString("servers", array.toString()) }
-//    }
 
     private fun processSharedFile(fileUri: Uri) {
         Log.d("processSharedFile", "fileUri: $fileUri")
