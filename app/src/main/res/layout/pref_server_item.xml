@@ -24,7 +24,5 @@
         android:layout_height="32dp"
         android:layout_gravity="end|center_vertical"
         android:src="@drawable/fa_trash_can"
-        android:backgroundTint="@android:color/holo_red_dark"
-        android:padding="4dp"
         android:contentDescription="Delete" />
 </FrameLayout>

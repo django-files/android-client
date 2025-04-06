@@ -33,7 +33,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private val serverKey = "servers"
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        preferenceManager.sharedPreferencesName = "app_preferences"
+        preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.pref_root, rootKey)
         buildServerList()
         setupAddServer()
@@ -73,13 +73,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val servers = loadServers()
 
+        val savedUrl = preferenceManager.sharedPreferences?.getString("saved_url", "")
+        Log.d("buildServerList", "savedUrl: $savedUrl")
+
         servers.forEachIndexed { index, entry ->
             val pref = ServerPreference(
                 requireContext(),
                 index,
                 entry,
                 onEdit = { i, e -> showEditDialog(i, e) },
-                onDelete = { i -> showDeleteDialog(i) }
+                onDelete = { i -> showDeleteDialog(i) },
+                savedUrl = savedUrl
             )
             category.addPreference(pref)
         }
