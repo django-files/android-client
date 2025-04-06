@@ -86,33 +86,39 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
                             Log.d("showSettingsDialog", "Processed URL: $url")
                             Log.d("showSettingsDialog", "Saving New URL...")
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val authUrl = "${url}/api/auth/methods/"
-                                Log.d("showSettingsDialog", "Auth URL: $authUrl")
-                                val response = checkUrl(authUrl)
-                                Log.d("showSettingsDialog", "response: $response")
-                                withContext(Dispatchers.Main) {
-                                    if (response) {
-                                        Log.d("showSettingsDialog", "SUCCESS")
 
-                                        val servers = loadServers().toMutableList()
+                            val servers = loadServers().toMutableList()
+                            if (servers.any { it.url == url }) {
+                                editText.error = "Server Exists"
+                            } else {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val authUrl = "${url}/api/auth/methods/"
+                                    Log.d("showSettingsDialog", "Auth URL: $authUrl")
+                                    val response = checkUrl(authUrl)
+                                    Log.d("showSettingsDialog", "response: $response")
+                                    withContext(Dispatchers.Main) {
+                                        if (response) {
+                                            Log.d("showSettingsDialog", "SUCCESS")
+
+                                            //val servers = loadServers().toMutableList()
 //                                servers[index] = servers[index].copy(url = url)
 //                                saveServers(servers)
 //                                buildServerList()
 //                                dialog?.dismiss()
-                                        servers.add(ServerEntry(url, ""))
-                                        saveServers(servers)
-                                        buildServerList()
-                                        cancel()
-                                    } else {
-                                        Log.d("showSettingsDialog", "FAILURE")
-                                        editText.error = "Invalid URL"
+                                            servers.add(ServerEntry(url, ""))
+                                            saveServers(servers)
+                                            buildServerList()
+                                            cancel()
+                                        } else {
+                                            Log.d("showSettingsDialog", "FAILURE")
+                                            editText.error = "Invalid URL"
+                                        }
                                     }
                                 }
+                                //preferences.edit { putString(URL_KEY, url) }
+                                //webView.loadUrl(url)
+                                //dismiss()
                             }
-                            //preferences.edit { putString(URL_KEY, url) }
-                            //webView.loadUrl(url)
-                            //dismiss()
                         }
                     }
                 }
