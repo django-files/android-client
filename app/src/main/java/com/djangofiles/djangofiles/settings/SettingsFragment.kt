@@ -9,7 +9,6 @@ import androidx.core.content.edit
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
@@ -36,6 +35,8 @@ import org.json.JSONObject
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
+    private lateinit var dao: ServerDao
+
     private val client = OkHttpClient()
 
     private val serverKey = "servers"
@@ -46,29 +47,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
         buildServerList()
         setupAddServer()
 
-        val db = Room.databaseBuilder(requireContext(), AppDatabase::class.java, "server-database")
+        val db = Room.databaseBuilder(requireContext(), ServerDatabase::class.java, "server-database")
             .build()
-
-        val serverDao = db.serverDao()
+        dao = db.serverDao()
 
         CoroutineScope(Dispatchers.IO).launch {
-            val serverList = serverDao.getAll() // Fetch data in background
+            val serverList = dao.getAll() // Fetch data in background
             Log.d("onCreatePreferences", "serverList: $serverList")
             withContext(Dispatchers.Main) {
                 // Update the UI on the main thread
                 Log.d("onCreatePreferences", "IM ON THE UI BABY")
             }
         }
-
-//        Thread {
-//            val serverList = serverDao.getAll() // Get all servers
-//            runOnUiThread {
-//                // Update UI with the list of servers
-//                // For example, display it in a RecyclerView
-//            }
-//        }.start()
-
-
     }
 
     private fun setupAddServer() {
@@ -83,31 +73,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 .setView(editText)
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Add", null)
-//                .setPositiveButton("Add") { _, _ ->
-//                    val url = editText.text.toString().trim()
-//                    if (url.isNotEmpty()) {
-//                        val servers = loadServers().toMutableList()
-//                        if (servers.none { it.url == url }) {
-//                            servers.add(ServerEntry(url, ""))
-//                            saveServers(servers)
-//                            buildServerList()
-//                        }
-//                    }
-//                }
                 .show().apply {
                     getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                         var url = editText.text.toString().trim()
-
-//                        if (url.isNotEmpty()) {
-//                            val servers = loadServers().toMutableList()
-//                            if (servers.none { it.url == url }) {
-//                                servers.add(ServerEntry(url, ""))
-//                                saveServers(servers)
-//                                buildServerList()
-//                            }
-//                        }
-
-                        Log.d("showSettingsDialog", "setPositiveButton: url: $url")
+                        Log.d("showSettingsDialog", "setPositiveButton URL: $url")
                         if (url.isEmpty()) {
                             Log.d("showSettingsDialog", "URL is Empty")
                             editText.error = "This field is required."
@@ -119,28 +88,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                 url = url.substring(0, url.length - 1)
                             }
 
-                            Log.d("showSettingsDialog", "Processed URL: $url")
-                            Log.d("showSettingsDialog", "Saving New URL...")
-
                             val servers = loadServers().toMutableList()
-                            if (servers.any { it.url == url }) {
-                                editText.error = "Server Exists"
-                            } else {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    val authUrl = "${url}/api/auth/methods/"
-                                    Log.d("showSettingsDialog", "Auth URL: $authUrl")
-                                    val response = checkUrl(authUrl)
+                            Log.d("showSettingsDialog", "servers: $servers")
+
+                            CoroutineScope(Dispatchers.IO).launch {
+                                    val response = checkUrl(url)
                                     Log.d("showSettingsDialog", "response: $response")
                                     withContext(Dispatchers.Main) {
                                         if (response) {
                                             Log.d("showSettingsDialog", "SUCCESS")
-
-                                            //val servers = loadServers().toMutableList()
-//                                servers[index] = servers[index].copy(url = url)
-//                                saveServers(servers)
-//                                buildServerList()
-//                                dialog?.dismiss()
-                                            servers.add(ServerEntry(url, ""))
                                             saveServers(servers)
                                             buildServerList()
                                             cancel()
@@ -149,10 +105,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                             editText.error = "Invalid URL"
                                         }
                                     }
-                                }
-                                //preferences.edit { putString(URL_KEY, url) }
-                                //webView.loadUrl(url)
-                                //dismiss()
                             }
                         }
                     }
@@ -163,13 +115,25 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun checkUrl(url: String): Boolean {
-        Log.d("checkUrl", "url: $url")
+        Log.d("checkUrl", "checkUrl URL: $url")
+        val existingServer = dao.getByUrl(url)
+        Log.d("checkUrl", "existingServer: $existingServer")
+        if (existingServer != null) {
+            Log.d("checkUrl", "Error: Server Exists!")
+            return false
+        }
+
+        val authUrl = "${url}/api/auth/methods/"
+        Log.d("showSettingsDialog", "Auth URL: $authUrl")
+
         // TODO: Change this to HEAD or use response data...
-        val request = Request.Builder().header("User-Agent", "DF").url(url).get().build()
+        val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
         return try {
             val response = client.newCall(request).execute()
+            Log.d("checkUrl", "Success: Remote OK.")
             response.isSuccessful
         } catch (e: Exception) {
+            Log.d("checkUrl", "Error: Remote Failed!")
             false
         }
     }
@@ -404,6 +368,9 @@ interface ServerDao {
     @Query("SELECT * FROM server WHERE active = 1 LIMIT 1")
     fun getActive(): Server?
 
+    @Query("SELECT * FROM server WHERE url = :url LIMIT 1")
+    fun getByUrl(url: String): Server?
+
     @Insert
     fun add(server: Server)
 
@@ -413,7 +380,6 @@ interface ServerDao {
     //@Insert
     //fun insertAll(vararg servers: Server)
 
-
 //    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
 //    fun loadAllByIds(userIds: IntArray): List<User>
 //
@@ -422,6 +388,6 @@ interface ServerDao {
 }
 
 @Database(entities = [Server::class], version = 1)
-abstract class AppDatabase : RoomDatabase() {
+abstract class ServerDatabase : RoomDatabase() {
     abstract fun serverDao(): ServerDao
 }
