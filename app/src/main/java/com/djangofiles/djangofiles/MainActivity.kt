@@ -32,7 +32,9 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.room.Room
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
+import com.djangofiles.djangofiles.settings.AppDatabase
 import com.djangofiles.djangofiles.settings.SettingsActivity
 import com.djangofiles.djangofiles.settings.SettingsFragment.ServerEntry
 import com.google.android.material.navigation.NavigationView
@@ -163,6 +165,12 @@ class MainActivity : AppCompatActivity() {
 
         //drawerLayout.openDrawer(GravityCompat.START)
         //startActivity(Intent(this, SettingsActivity::class.java))
+
+
+        val db = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java, "database-name"
+        ).build()
 
     }
 

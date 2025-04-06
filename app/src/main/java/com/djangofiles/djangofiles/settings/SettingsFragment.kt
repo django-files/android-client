@@ -9,6 +9,16 @@ import androidx.core.content.edit
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerPreference
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +29,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
+
 
 //import android.util.Patterns
 //import androidx.preference.PreferenceManager
@@ -34,6 +45,30 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.pref_root, rootKey)
         buildServerList()
         setupAddServer()
+
+        val db = Room.databaseBuilder(requireContext(), AppDatabase::class.java, "server-database")
+            .build()
+
+        val serverDao = db.serverDao()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val serverList = serverDao.getAll() // Fetch data in background
+            Log.d("onCreatePreferences", "serverList: $serverList")
+            withContext(Dispatchers.Main) {
+                // Update the UI on the main thread
+                Log.d("onCreatePreferences", "IM ON THE UI BABY")
+            }
+        }
+
+//        Thread {
+//            val serverList = serverDao.getAll() // Get all servers
+//            runOnUiThread {
+//                // Update UI with the list of servers
+//                // For example, display it in a RecyclerView
+//            }
+//        }.start()
+
+
     }
 
     private fun setupAddServer() {
@@ -344,3 +379,49 @@ class SettingsFragment : PreferenceFragmentCompat() {
 //        return url
 //    }
 //}
+
+
+//@Entity
+//data class User(
+//    @PrimaryKey val uid: Int,
+//    @ColumnInfo(name = "first_name") val firstName: String?,
+//    @ColumnInfo(name = "last_name") val lastName: String?
+//)
+
+@Entity
+data class Server(
+    @PrimaryKey val url: String,
+    val token: String = "",
+    val active: Boolean = false
+)
+
+
+@Dao
+interface ServerDao {
+    @Query("SELECT * FROM server")
+    fun getAll(): List<Server>
+
+    @Query("SELECT * FROM server WHERE active = 1 LIMIT 1")
+    fun getActive(): Server?
+
+    @Insert
+    fun add(server: Server)
+
+    @Delete
+    fun delete(server: Server)
+
+    //@Insert
+    //fun insertAll(vararg servers: Server)
+
+
+//    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
+//    fun loadAllByIds(userIds: IntArray): List<User>
+//
+//    @Query("SELECT * FROM server WHERE first_name LIKE :first AND last_name LIKE :last LIMIT 1")
+//    fun findByName(first: String, last: String): User
+}
+
+@Database(entities = [Server::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun serverDao(): ServerDao
+}
