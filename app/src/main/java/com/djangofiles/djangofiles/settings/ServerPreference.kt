@@ -9,6 +9,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.djangofiles.djangofiles.R
 
+
 class ServerPreference(
     context: Context,
     private val server: Server,

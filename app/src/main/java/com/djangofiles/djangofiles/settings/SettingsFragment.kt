@@ -30,6 +30,7 @@ import okhttp3.Request
 //import android.util.Patterns
 //import androidx.preference.PreferenceManager
 
+
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var dao: ServerDao
