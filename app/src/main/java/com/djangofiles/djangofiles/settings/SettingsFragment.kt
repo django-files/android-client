@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles.settings
 
+import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -37,16 +38,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private val client = OkHttpClient()
 
-    //private val serverKey = "servers"
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.pref_root, rootKey)
 
-        val db =
-            Room.databaseBuilder(requireContext(), ServerDatabase::class.java, "server-database")
-                .build()
-        dao = db.serverDao()
+//        val db =
+//            Room.databaseBuilder(requireContext(), ServerDatabase::class.java, "server-database")
+//                .build()
+//        dao = db.serverDao()
+        dao = ServerDatabase.getInstance(requireContext()).serverDao()
 
         buildServerList()
         setupAddServer()
@@ -388,4 +388,17 @@ interface ServerDao {
 @Database(entities = [Server::class], version = 1)
 abstract class ServerDatabase : RoomDatabase() {
     abstract fun serverDao(): ServerDao
+
+    companion object {
+        @Volatile private var instance: ServerDatabase? = null
+
+        fun getInstance(context: Context): ServerDatabase =
+            instance ?: synchronized(this) {
+                instance ?: Room.databaseBuilder(
+                    context.applicationContext,
+                    ServerDatabase::class.java,
+                    "server-database"
+                ).build().also { instance = it }
+            }
+    }
 }

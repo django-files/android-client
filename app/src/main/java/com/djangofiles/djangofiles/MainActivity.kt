@@ -165,12 +165,6 @@ class MainActivity : AppCompatActivity() {
         //drawerLayout.openDrawer(GravityCompat.START)
         //startActivity(Intent(this, SettingsActivity::class.java))
 
-
-        //val db = Room.databaseBuilder(
-        //    this,
-        //    ServerDatabase::class.java, "database-name"
-        //).build()
-
     }
 
     override fun onResume() {
@@ -623,14 +617,6 @@ class MainActivity : AppCompatActivity() {
             errorResponse: WebResourceError
         ) {
             Log.d("onReceivedError", "ERROR: " + errorResponse.errorCode)
-            // TODO: This does not seem to be helpful...
-            //Toast.makeText(
-            //    view.context,
-            //    "HTTP error " + errorResponse.description,
-            //    Toast.LENGTH_LONG
-            //).show()
-            // TODO: Now that we verify the URL this should not be needed...
-            //showSettingsDialog()
         }
 
         override fun onReceivedHttpError(
@@ -639,14 +625,6 @@ class MainActivity : AppCompatActivity() {
             errorResponse: WebResourceResponse
         ) {
             Log.d("onReceivedHttpError", "ERROR: " + errorResponse.statusCode)
-            // TODO: This does not seem to be helpful...
-            //Toast.makeText(
-            //    view.context,
-            //    "HTTP error " + errorResponse.reasonPhrase,
-            //    Toast.LENGTH_LONG
-            //).show()
-            // TODO: Now that we verify the URL this should not be needed...
-            //showSettingsDialog()
         }
     }
 }
