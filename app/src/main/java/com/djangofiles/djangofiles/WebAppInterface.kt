@@ -43,9 +43,9 @@ internal constructor(private var context: Context) {
 
             val index = servers.indexOfFirst { it.url == currentUrl }
             if (index != -1) {
-                servers[index] = servers[index].copy(token = currentToken)
+                servers[index] = servers[index].copy(token = authToken)
             } else {
-                servers.add(ServerEntry(url = currentUrl, token = currentToken))
+                servers.add(ServerEntry(url = currentUrl, token = authToken))
             }
             saveServers(servers)
 

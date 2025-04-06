@@ -2,7 +2,7 @@
     <string name="app_name">Django Files</string>
 
     <string name="settings_title">App Settings</string>
-    <string name="settings_message">Set or Change the Django Files URL</string>
+    <string name="settings_message">Set the Initial Django Files URL</string>
     <string name="settings_input_place">your.django-files.com</string>
     <string name="settings_requires">Requires server version 0.16.0-b7 or greater.</string>
     <string name="tst_invalid_url">Please enter a valid URL.</string>
