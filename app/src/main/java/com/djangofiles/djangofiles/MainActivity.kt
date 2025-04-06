@@ -32,11 +32,8 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.room.Room
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
-import com.djangofiles.djangofiles.settings.ServerDatabase
 import com.djangofiles.djangofiles.settings.SettingsActivity
-import com.djangofiles.djangofiles.settings.SettingsFragment.ServerEntry
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +41,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.DataOutputStream
@@ -342,8 +338,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSettingsDialog() {
         //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString(URL_KEY, null)
-        Log.d("showSettingsDialog", "savedUrl: $savedUrl")
+//        val savedUrl = sharedPreferences.getString(URL_KEY, null)
+//        Log.d("showSettingsDialog", "savedUrl: $savedUrl")
 
 
         // Inflate custom layout with padding
@@ -356,9 +352,9 @@ class MainActivity : AppCompatActivity() {
         input.maxLines = 1
         layout.addView(input)
         input.hint = getString(R.string.settings_input_place)
-        if (savedUrl != null) {
-            input.setText(savedUrl)
-        }
+//        if (savedUrl != null) {
+//            input.setText(savedUrl)
+//        }
 
         val text = TextView(this)
         text.text = getString(R.string.settings_requires)
@@ -381,6 +377,7 @@ class MainActivity : AppCompatActivity() {
                         var url = input.text.toString().trim { it <= ' ' }
                         Log.d("showSettingsDialog", "setPositiveButton: url: $url")
 
+                        // TODO: Duplicate - SettingsFragment - make this a function
                         if (url.isEmpty()) {
                             Log.d("showSettingsDialog", "URL is Empty")
                             input.error = "This field is required."
@@ -393,37 +390,49 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             Log.d("showSettingsDialog", "Processed URL: $url")
-                            if (savedUrl != url) {
-                                Log.d("showSettingsDialog", "Saving New URL...")
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    val authUrl = "${url}/api/auth/methods/"
-                                    Log.d("showSettingsDialog", "Auth URL: $authUrl")
-                                    val response = checkUrl(authUrl)
-                                    Log.d("showSettingsDialog", "response: $response")
-                                    withContext(Dispatchers.Main) {
-                                        if (response) {
-                                            Log.d("showSettingsDialog", "SUCCESS")
-                                            sharedPreferences.edit { putString(URL_KEY, url) }
-
-                                            val servers = loadServers().toMutableList()
-                                            servers.add(ServerEntry(url = url, token = ""))
-                                            saveServers(servers)
-
-                                            webView.loadUrl(url)
-                                            dismiss()
-                                        } else {
-                                            Log.d("showSettingsDialog", "FAILURE")
-                                            input.error = "Invalid URL"
-                                        }
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val response = checkUrl(url)
+                                Log.d("showSettingsDialog", "response: $response")
+                                withContext(Dispatchers.Main) {
+                                    if (response) {
+                                        Log.d("showSettingsDialog", "SUCCESS")
+                                        sharedPreferences.edit {
+                                            putString(
+                                                URL_KEY,
+                                                url
+                                            )
+                                        } // TODO: Remove
+                                        currentUrl = url
+                                        webView.loadUrl(url)
+                                        dismiss()
+                                    } else {
+                                        Log.d("showSettingsDialog", "FAILURE")
+                                        input.error = "Invalid URL"
                                     }
                                 }
-                                //preferences.edit { putString(URL_KEY, url) }
-                                //webView.loadUrl(url)
-                                //dismiss()
-                            } else {
-                                Log.d("showSettingsDialog", "URL NOT Changed!")
-                                finish()
                             }
+//                            CoroutineScope(Dispatchers.IO).launch {
+//                                val authUrl = "${url}/api/auth/methods/"
+//                                Log.d("showSettingsDialog", "Auth URL: $authUrl")
+//                                val response = checkUrl(authUrl)
+//                                Log.d("showSettingsDialog", "response: $response")
+//                                withContext(Dispatchers.Main) {
+//                                    if (response) {
+//                                        Log.d("showSettingsDialog", "SUCCESS")
+//                                        sharedPreferences.edit { putString(URL_KEY, url) }
+//
+//                                        val servers = loadServers().toMutableList()
+//                                        servers.add(ServerEntry(url = url, token = ""))
+//                                        saveServers(servers)
+//
+//                                        webView.loadUrl(url)
+//                                        dismiss()
+//                                    } else {
+//                                        Log.d("showSettingsDialog", "FAILURE")
+//                                        input.error = "Invalid URL"
+//                                    }
+//                                }
+//                            }
                         }
                     }
                 }
@@ -443,38 +452,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Duplication - SettingsFragment
-    private fun loadServers(): List<ServerEntry> {
-        val preferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val json = preferences?.getString("servers", "[]") ?: "[]"
-        return try {
-            JSONArray(json).let { array ->
-                List(array.length()) {
-                    val obj = array.getJSONObject(it)
-                    ServerEntry(
-                        url = obj.getString("url"),
-                        token = obj.optString("token", "")
-                    )
-                }
-            }
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
-
-    // TODO: Duplication - SettingsFragment
-    private fun saveServers(list: List<ServerEntry>) {
-        val preferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val array = JSONArray().apply {
-            list.forEach {
-                put(JSONObject().apply {
-                    put("url", it.url)
-                    put("token", it.token)
-                })
-            }
-        }
-        preferences?.edit() { putString("servers", array.toString()) }
-    }
+//    // TODO: Duplication - SettingsFragment
+//    private fun loadServers(): List<ServerEntry> {
+//        val preferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+//        val json = preferences?.getString("servers", "[]") ?: "[]"
+//        return try {
+//            JSONArray(json).let { array ->
+//                List(array.length()) {
+//                    val obj = array.getJSONObject(it)
+//                    ServerEntry(
+//                        url = obj.getString("url"),
+//                        token = obj.optString("token", "")
+//                    )
+//                }
+//            }
+//        } catch (_: Exception) {
+//            emptyList()
+//        }
+//    }
+//
+//    // TODO: Duplication - SettingsFragment
+//    private fun saveServers(list: List<ServerEntry>) {
+//        val preferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+//        val array = JSONArray().apply {
+//            list.forEach {
+//                put(JSONObject().apply {
+//                    put("url", it.url)
+//                    put("token", it.token)
+//                })
+//            }
+//        }
+//        preferences?.edit() { putString("servers", array.toString()) }
+//    }
 
     private fun processSharedFile(fileUri: Uri) {
         Log.d("processSharedFile", "fileUri: $fileUri")

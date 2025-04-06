@@ -5,7 +5,6 @@ import android.text.InputType
 import android.util.Log
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
@@ -26,10 +25,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
-import org.json.JSONObject
 
-
+//import org.json.JSONArray
 //import android.util.Patterns
 //import androidx.preference.PreferenceManager
 
@@ -39,14 +36,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private val client = OkHttpClient()
 
-    private val serverKey = "servers"
+    //private val serverKey = "servers"
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.pref_root, rootKey)
 
-        val db = Room.databaseBuilder(requireContext(), ServerDatabase::class.java, "server-database")
-            .build()
+        val db =
+            Room.databaseBuilder(requireContext(), ServerDatabase::class.java, "server-database")
+                .build()
         dao = db.serverDao()
 
         buildServerList()
@@ -78,6 +76,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                         var url = editText.text.toString().trim()
                         Log.d("showSettingsDialog", "setPositiveButton URL: $url")
+
+                        // TODO: Duplicate - MainActivity - make this a function
                         if (url.isEmpty()) {
                             Log.d("showSettingsDialog", "URL is Empty")
                             editText.error = "This field is required."
@@ -89,23 +89,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                 url = url.substring(0, url.length - 1)
                             }
 
-                            val servers = loadServers().toMutableList()
-                            Log.d("showSettingsDialog", "servers: $servers")
+                            //val servers = loadServers().toMutableList()
+                            //Log.d("showSettingsDialog", "servers: $servers")
 
                             CoroutineScope(Dispatchers.IO).launch {
-                                    val response = checkUrl(url)
-                                    Log.d("showSettingsDialog", "response: $response")
-                                    withContext(Dispatchers.Main) {
-                                        if (response) {
-                                            Log.d("showSettingsDialog", "SUCCESS")
-                                            //saveServers(servers)
-                                            buildServerList()
-                                            cancel()
-                                        } else {
-                                            Log.d("showSettingsDialog", "FAILURE")
-                                            editText.error = "Invalid URL"
-                                        }
+                                val response = checkUrl(url)
+                                Log.d("showSettingsDialog", "response: $response")
+                                withContext(Dispatchers.Main) {
+                                    if (response) {
+                                        Log.d("showSettingsDialog", "SUCCESS")
+                                        buildServerList()
+                                        cancel()
+                                    } else {
+                                        Log.d("showSettingsDialog", "FAILURE")
+                                        editText.error = "Invalid URL"
                                     }
+                                }
                             }
                         }
                     }
@@ -166,8 +165,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-
-
     private fun showEditDialog(server: Server, savedUrl: String?) {
         //val editText = EditText(requireContext()).apply {
         //    inputType = InputType.TYPE_TEXT_VARIATION_URI
@@ -187,7 +184,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             putString("saved_url", server.url)
             putString("auth_token", server.token)
             apply()
-        }
+        } // TODO: Remove
         buildServerList()
 
         //val servers = loadServers().toMutableList()
@@ -228,22 +225,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
             .show()
     }
 
-    private fun loadServers(): List<ServerEntry> {
-        val json = preferenceManager.sharedPreferences?.getString(serverKey, "[]") ?: "[]"
-        return try {
-            JSONArray(json).let { array ->
-                List(array.length()) {
-                    val obj = array.getJSONObject(it)
-                    ServerEntry(
-                        url = obj.getString("url"),
-                        token = obj.optString("token", "")
-                    )
-                }
-            }
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
+    //private fun loadServers(): List<ServerEntry> {
+    //    val json = preferenceManager.sharedPreferences?.getString(serverKey, "[]") ?: "[]"
+    //    return try {
+    //        JSONArray(json).let { array ->
+    //            List(array.length()) {
+    //                val obj = array.getJSONObject(it)
+    //                ServerEntry(
+    //                    url = obj.getString("url"),
+    //                    token = obj.optString("token", "")
+    //                )
+    //            }
+    //        }
+    //    } catch (_: Exception) {
+    //        emptyList()
+    //    }
+    //}
 
 //    private fun saveServers(list: List<ServerEntry>) {
 //        val array = JSONArray().apply {
@@ -257,7 +254,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 //        preferenceManager.sharedPreferences?.edit() { putString(serverKey, array.toString()) }
 //    }
 
-    data class ServerEntry(val url: String, val token: String)
+    //data class ServerEntry(val url: String, val token: String)
 
 //    private fun Preference.setOnPreferenceLongClickListener(listener: (Preference) -> Boolean) {
 //        this.viewLifecycleOwnerLiveData.observe(viewLifecycleOwner) { viewLifecycleOwner ->
