@@ -1,34 +1,31 @@
 package com.djangofiles.djangofiles.settings
 
-import android.util.Log
 //import android.util.Patterns
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
-import androidx.core.content.edit
-import androidx.preference.EditTextPreference
-import androidx.preference.PreferenceViewHolder
 //import androidx.preference.PreferenceManager
-import com.djangofiles.djangofiles.MainActivity.Companion.PREFS_NAME
-import com.djangofiles.djangofiles.MainActivity.Companion.URL_KEY
-import com.djangofiles.djangofiles.R
 
 import android.os.Bundle
 import android.text.InputType
-import android.view.View
+import android.util.Log
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
-
+import androidx.core.content.edit
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
+import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerPreference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
 
-
 class SettingsFragment : PreferenceFragmentCompat() {
+
+    private val client = OkHttpClient()
 
     private val serverKey = "servers"
 
@@ -49,21 +46,90 @@ class SettingsFragment : PreferenceFragmentCompat() {
             AlertDialog.Builder(requireContext())
                 .setTitle("Add Server")
                 .setView(editText)
-                .setPositiveButton("Add") { _, _ ->
-                    val url = editText.text.toString().trim()
-                    if (url.isNotEmpty()) {
-                        val servers = loadServers().toMutableList()
-                        if (servers.none { it.url == url }) {
-                            servers.add(ServerEntry(url, ""))
-                            saveServers(servers)
-                            buildServerList()
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Add", null)
+//                .setPositiveButton("Add") { _, _ ->
+//                    val url = editText.text.toString().trim()
+//                    if (url.isNotEmpty()) {
+//                        val servers = loadServers().toMutableList()
+//                        if (servers.none { it.url == url }) {
+//                            servers.add(ServerEntry(url, ""))
+//                            saveServers(servers)
+//                            buildServerList()
+//                        }
+//                    }
+//                }
+                .show().apply {
+                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                        var url = editText.text.toString().trim()
+
+//                        if (url.isNotEmpty()) {
+//                            val servers = loadServers().toMutableList()
+//                            if (servers.none { it.url == url }) {
+//                                servers.add(ServerEntry(url, ""))
+//                                saveServers(servers)
+//                                buildServerList()
+//                            }
+//                        }
+
+                        Log.d("showSettingsDialog", "setPositiveButton: url: $url")
+                        if (url.isEmpty()) {
+                            Log.d("showSettingsDialog", "URL is Empty")
+                            editText.error = "This field is required."
+                        } else {
+                            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                                url = "https://$url"
+                            }
+                            if (url.endsWith("/")) {
+                                url = url.substring(0, url.length - 1)
+                            }
+
+                            Log.d("showSettingsDialog", "Processed URL: $url")
+                            Log.d("showSettingsDialog", "Saving New URL...")
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val authUrl = "${url}/api/auth/methods/"
+                                Log.d("showSettingsDialog", "Auth URL: $authUrl")
+                                val response = checkUrl(authUrl)
+                                Log.d("showSettingsDialog", "response: $response")
+                                withContext(Dispatchers.Main) {
+                                    if (response) {
+                                        Log.d("showSettingsDialog", "SUCCESS")
+
+                                        val servers = loadServers().toMutableList()
+//                                servers[index] = servers[index].copy(url = url)
+//                                saveServers(servers)
+//                                buildServerList()
+//                                dialog?.dismiss()
+                                        servers.add(ServerEntry(url, ""))
+                                        saveServers(servers)
+                                        buildServerList()
+                                        cancel()
+                                    } else {
+                                        Log.d("showSettingsDialog", "FAILURE")
+                                        editText.error = "Invalid URL"
+                                    }
+                                }
+                            }
+                            //preferences.edit { putString(URL_KEY, url) }
+                            //webView.loadUrl(url)
+                            //dismiss()
                         }
                     }
                 }
-                .setNegativeButton("Cancel", null)
-                .show()
 
             true
+        }
+    }
+
+    private fun checkUrl(url: String): Boolean {
+        Log.d("checkUrl", "url: $url")
+        // TODO: Change this to HEAD or use response data...
+        val request = Request.Builder().header("User-Agent", "DF").url(url).get().build()
+        return try {
+            val response = client.newCall(request).execute()
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
         }
     }
 
@@ -181,7 +247,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 //        get() = (listView?.findViewHolderForAdapterPosition(preferenceScreen.indexOfPreference(this)) as? PreferenceViewHolder)?.itemView
 
 }
-
 
 
 //class SettingsFragment : PreferenceFragmentCompat() {
