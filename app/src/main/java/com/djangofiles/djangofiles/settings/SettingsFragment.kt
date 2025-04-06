@@ -42,10 +42,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.pref_root, rootKey)
 
-//        val db =
-//            Room.databaseBuilder(requireContext(), ServerDatabase::class.java, "server-database")
-//                .build()
-//        dao = db.serverDao()
         dao = ServerDatabase.getInstance(requireContext()).serverDao()
 
         buildServerList()
@@ -60,6 +56,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
     }
+
+    //override fun onPause() {
+    //    super.onPause()
+    //    Log.d("SettingsFragment", "onPause")
+    //}
+
+    //override fun onResume() {
+    //    super.onResume()
+    //    Log.d("SettingsFragment", "onResume")
+    //}
 
     private fun setupAddServer() {
         findPreference<Preference>("add_server")?.setOnPreferenceClickListener {

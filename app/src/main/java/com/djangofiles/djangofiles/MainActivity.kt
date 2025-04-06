@@ -31,7 +31,6 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.room.Room
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.settings.Server
 import com.djangofiles.djangofiles.settings.ServerDao
@@ -173,7 +172,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("onResume", "savedUrl: $savedUrl")
         Log.d("onResume", "currentUrl: $currentUrl")
         if (savedUrl.isNullOrEmpty()) {
-            Log.d("onResume", "Empty - Show Settings")
+            Log.d("onResume", "FATAL: REPORT AS BUG - savedUrl.isNullOrEmpty")
             //startActivity(Intent(this, SettingsActivity::class.java))
         } else if (savedUrl != currentUrl) {
             Log.d("onResume", "webView.loadUrl: $savedUrl")
@@ -182,15 +181,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             Log.d("onResume", "DO NOTHING")
         }
-//        if (!savedUrl.isNullOrEmpty() && savedUrl != currentUrl) {
-//            Log.d("onResume", "webView.loadUrl: $savedUrl")
-//            currentUrl = savedUrl
-//            webView.loadUrl(savedUrl)
-//        } else {
-//            Log.d("onResume", "DO NOTHING")
-//            Toast.makeText(this, "No Saved URL!", Toast.LENGTH_SHORT).show()
-//            startActivity(Intent(this, SettingsActivity::class.java))
-//        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -416,11 +406,7 @@ class MainActivity : AppCompatActivity() {
         return try {
             val response = client.newCall(request).execute()
             Log.d("checkUrl", "Success: Remote OK.")
-
-            val db =
-                Room.databaseBuilder(this, ServerDatabase::class.java, "server-database")
-                    .build()
-            val dao: ServerDao = db.serverDao()
+            val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
             dao.add(Server(url = url))
             response.isSuccessful
         } catch (e: Exception) {

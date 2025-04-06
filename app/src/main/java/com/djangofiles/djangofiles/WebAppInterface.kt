@@ -6,7 +6,6 @@ import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.widget.Toast
 import androidx.core.content.edit
-import androidx.room.Room
 import com.djangofiles.djangofiles.settings.ServerDao
 import com.djangofiles.djangofiles.settings.ServerDatabase
 
@@ -35,10 +34,7 @@ internal constructor(private var context: Context) {
         Log.d("receiveAuthToken", "currentUrl: $currentUrl")
 
         if (currentToken != authToken) {
-            val db =
-                Room.databaseBuilder(context, ServerDatabase::class.java, "server-database")
-                    .build()
-            val dao: ServerDao = db.serverDao()
+            val dao: ServerDao = ServerDatabase.getInstance(context).serverDao()
             dao.setToken(currentUrl, authToken)
             Log.d("receiveAuthToken", "dao.setToken: $authToken")
 
