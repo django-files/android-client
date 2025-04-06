@@ -64,7 +64,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("add_server")?.setOnPreferenceClickListener {
             val editText = EditText(requireContext()).apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_URI
-                hint = "https://example.com"
+                hint = getString(R.string.settings_input_place)
+                maxLines = 1
+                requestFocus()
             }
 
             AlertDialog.Builder(requireContext())
@@ -184,7 +186,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             putString("saved_url", server.url)
             putString("auth_token", server.token)
             apply()
-        } // TODO: Remove
+        }
         buildServerList()
 
         //val servers = loadServers().toMutableList()
@@ -352,13 +354,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 //}
 
 
-//@Entity
-//data class User(
-//    @PrimaryKey val uid: Int,
-//    @ColumnInfo(name = "first_name") val firstName: String?,
-//    @ColumnInfo(name = "last_name") val lastName: String?
-//)
-
 @Entity
 data class Server(
     @PrimaryKey val url: String,
@@ -378,21 +373,16 @@ interface ServerDao {
     @Query("SELECT * FROM server WHERE url = :url LIMIT 1")
     fun getByUrl(url: String): Server?
 
+    @Query("UPDATE server SET token = :token WHERE url = :url")
+    fun setToken(url: String, token: String)
+
     @Insert
     fun add(server: Server)
 
     @Delete
     fun delete(server: Server)
-
-    //@Insert
-    //fun insertAll(vararg servers: Server)
-
-//    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
-//    fun loadAllByIds(userIds: IntArray): List<User>
-//
-//    @Query("SELECT * FROM server WHERE first_name LIKE :first AND last_name LIKE :last LIMIT 1")
-//    fun findByName(first: String, last: String): User
 }
+
 
 @Database(entities = [Server::class], version = 1)
 abstract class ServerDatabase : RoomDatabase() {

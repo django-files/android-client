@@ -395,7 +395,7 @@ class MainActivity : AppCompatActivity() {
                                                 URL_KEY,
                                                 url
                                             )
-                                        } // TODO: Remove
+                                        }
                                         currentUrl = url
                                         webView.loadUrl(url)
                                         dismiss()
