@@ -153,7 +153,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 requireContext(),
                 index,
                 entry,
-                onEdit = { i, e -> showEditDialog(i, e) },
+                onEdit = { i, e -> showEditDialog(i, e, savedUrl) },
                 onDelete = { i -> showDeleteDialog(i) },
                 savedUrl = savedUrl
             )
@@ -162,7 +162,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
 
-    private fun showEditDialog(index: Int, entry: ServerEntry) {
+    private fun showEditDialog(index: Int, entry: ServerEntry, savedUrl: String?) {
         //val editText = EditText(requireContext()).apply {
         //    inputType = InputType.TYPE_TEXT_VARIATION_URI
         //    setText(entry.url)
@@ -170,6 +170,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         Log.d("showEditDialog", "entry.url: ${entry.url}")
         Log.d("showEditDialog", "entry.token: ${entry.token}")
+
+        if (entry.url == savedUrl) {
+            Log.d("showEditDialog", "ENTRY ALREADY ACTIVE - RETURN")
+            return
+        }
 
         val sharedPreferences = preferenceManager.sharedPreferences
         sharedPreferences?.edit()?.apply {
