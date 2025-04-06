@@ -1,8 +1,5 @@
 package com.djangofiles.djangofiles.settings
 
-//import android.util.Patterns
-//import androidx.preference.PreferenceManager
-
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -22,6 +19,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
+
+//import android.util.Patterns
+//import androidx.preference.PreferenceManager
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -163,25 +163,41 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
 
     private fun showEditDialog(index: Int, entry: ServerEntry) {
-        val editText = EditText(requireContext()).apply {
-            inputType = InputType.TYPE_TEXT_VARIATION_URI
-            setText(entry.url)
-        }
+        //val editText = EditText(requireContext()).apply {
+        //    inputType = InputType.TYPE_TEXT_VARIATION_URI
+        //    setText(entry.url)
+        //}
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Edit Server")
-            .setView(editText)
-            .setPositiveButton("Save") { _, _ ->
-                val newUrl = editText.text.toString().trim()
-                if (newUrl.isNotEmpty()) {
-                    val servers = loadServers().toMutableList()
-                    servers[index] = servers[index].copy(url = newUrl)
-                    saveServers(servers)
-                    buildServerList()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        Log.d("showEditDialog", "entry.url: ${entry.url}")
+        Log.d("showEditDialog", "entry.token: ${entry.token}")
+
+        val sharedPreferences = preferenceManager.sharedPreferences
+        sharedPreferences?.edit()?.apply {
+            putString("saved_url", entry.url)
+            putString("auth_token", entry.token)
+            apply()
+        }
+        buildServerList()
+
+        //val servers = loadServers().toMutableList()
+        //val token = servers.find { it.url == entry.url }?.token ?: ""
+        //Log.d("showEditDialog", "token: $token")
+
+
+        //AlertDialog.Builder(requireContext())
+        //    .setTitle("Edit Server")
+        //    .setView(editText)
+        //    .setPositiveButton("Save") { _, _ ->
+        //        val newUrl = editText.text.toString().trim()
+        //        if (newUrl.isNotEmpty()) {
+        //            val servers = loadServers().toMutableList()
+        //            servers[index] = servers[index].copy(url = newUrl)
+        //            saveServers(servers)
+        //            buildServerList()
+        //        }
+        //    }
+        //    .setNegativeButton("Cancel", null)
+        //    .show()
     }
 
     private fun showDeleteDialog(index: Int) {
