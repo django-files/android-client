@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -19,7 +20,6 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.ServerPreference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,12 +44,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.pref_root, rootKey)
-        buildServerList()
-        setupAddServer()
 
         val db = Room.databaseBuilder(requireContext(), ServerDatabase::class.java, "server-database")
             .build()
         dao = db.serverDao()
+
+        buildServerList()
+        setupAddServer()
 
         CoroutineScope(Dispatchers.IO).launch {
             val serverList = dao.getAll() // Fetch data in background
@@ -97,7 +98,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                     withContext(Dispatchers.Main) {
                                         if (response) {
                                             Log.d("showSettingsDialog", "SUCCESS")
-                                            saveServers(servers)
+                                            //saveServers(servers)
                                             buildServerList()
                                             cancel()
                                         } else {
@@ -131,6 +132,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         return try {
             val response = client.newCall(request).execute()
             Log.d("checkUrl", "Success: Remote OK.")
+            dao.add(Server(url = url))
             response.isSuccessful
         } catch (e: Exception) {
             Log.d("checkUrl", "Error: Remote Failed!")
@@ -139,46 +141,51 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun buildServerList() {
-        val category = findPreference<PreferenceCategory>("server_list") ?: return
-        category.removeAll()
+        lifecycleScope.launch {
+            val servers = withContext(Dispatchers.IO) {
+                dao.getAll()
+            }
+            Log.d("buildServerList", "servers: $servers")
 
-        val servers = loadServers()
+            val category = findPreference<PreferenceCategory>("server_list") ?: return@launch
+            category.removeAll()
 
-        val savedUrl = preferenceManager.sharedPreferences?.getString("saved_url", "")
-        Log.d("buildServerList", "savedUrl: $savedUrl")
+            val savedUrl = preferenceManager.sharedPreferences?.getString("saved_url", "")
+            Log.d("buildServerList", "savedUrl: $savedUrl")
 
-        servers.forEachIndexed { index, entry ->
-            val pref = ServerPreference(
-                requireContext(),
-                index,
-                entry,
-                onEdit = { i, e -> showEditDialog(i, e, savedUrl) },
-                onDelete = { i -> showDeleteDialog(i) },
-                savedUrl = savedUrl
-            )
-            category.addPreference(pref)
+            servers.forEach { server ->
+                val pref = ServerPreference(
+                    requireContext(),
+                    server = server,
+                    onEdit = { s -> showEditDialog(s, savedUrl) },
+                    onDelete = { s -> showDeleteDialog(s) },
+                    savedUrl = savedUrl
+                )
+                category.addPreference(pref)
+            }
         }
     }
 
 
-    private fun showEditDialog(index: Int, entry: ServerEntry, savedUrl: String?) {
+
+    private fun showEditDialog(server: Server, savedUrl: String?) {
         //val editText = EditText(requireContext()).apply {
         //    inputType = InputType.TYPE_TEXT_VARIATION_URI
         //    setText(entry.url)
         //}
 
-        Log.d("showEditDialog", "entry.url: ${entry.url}")
-        Log.d("showEditDialog", "entry.token: ${entry.token}")
+        Log.d("showEditDialog", "server.url: ${server.url}")
+        Log.d("showEditDialog", "server.token: ${server.token}")
 
-        if (entry.url == savedUrl) {
-            Log.d("showEditDialog", "ENTRY ALREADY ACTIVE - RETURN")
+        if (server.url == savedUrl) {
+            Log.d("showEditDialog", "server ALREADY ACTIVE - RETURN")
             return
         }
 
         val sharedPreferences = preferenceManager.sharedPreferences
         sharedPreferences?.edit()?.apply {
-            putString("saved_url", entry.url)
-            putString("auth_token", entry.token)
+            putString("saved_url", server.url)
+            putString("auth_token", server.token)
             apply()
         }
         buildServerList()
@@ -204,14 +211,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         //    .show()
     }
 
-    private fun showDeleteDialog(index: Int) {
+    private fun showDeleteDialog(server: Server) {
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Server?")
             .setMessage("Are you sure you want to delete this server?")
             .setPositiveButton("Delete") { _, _ ->
-                val servers = loadServers().toMutableList()
-                servers.removeAt(index)
-                saveServers(servers)
+                //val servers = loadServers().toMutableList()
+                //servers.removeAt(index)
+                //saveServers(servers)
+                CoroutineScope(Dispatchers.IO).launch {
+                    dao.delete(server)
+                }
                 buildServerList()
             }
             .setNegativeButton("Cancel", null)
@@ -235,17 +245,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun saveServers(list: List<ServerEntry>) {
-        val array = JSONArray().apply {
-            list.forEach {
-                put(JSONObject().apply {
-                    put("url", it.url)
-                    put("token", it.token)
-                })
-            }
-        }
-        preferenceManager.sharedPreferences?.edit() { putString(serverKey, array.toString()) }
-    }
+//    private fun saveServers(list: List<ServerEntry>) {
+//        val array = JSONArray().apply {
+//            list.forEach {
+//                put(JSONObject().apply {
+//                    put("url", it.url)
+//                    put("token", it.token)
+//                })
+//            }
+//        }
+//        preferenceManager.sharedPreferences?.edit() { putString(serverKey, array.toString()) }
+//    }
 
     data class ServerEntry(val url: String, val token: String)
 
