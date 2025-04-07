@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var sharedPreferences: SharedPreferences
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.enableEdgeToEdge()
@@ -109,6 +109,10 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        val headerView = navigationView.getHeaderView(0)
+        val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
+        versionTextView.text = "v${versionName}"
+
         val itemPathMap = mapOf(
             R.id.nav_item_home to "",
             //R.id.nav_item_upload_file to "uppy/",
@@ -138,7 +142,11 @@ class MainActivity : AppCompatActivity() {
                 Log.d("Drawer", "currentUrl: $currentUrl")
                 val url = "${currentUrl}/${path}"
                 Log.d("Drawer", "Click URL: $url")
-                webView.loadUrl(url)
+                Log.d("Drawer", "webView.url: ${webView.url}")
+                if (webView.url != url) {
+                    Log.d("Drawer", "webView.loadUrl")
+                    webView.loadUrl(url)
+                }
             }
             drawerLayout.closeDrawers()
             true

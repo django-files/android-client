@@ -16,4 +16,5 @@
 
     <string name="tst_perm_failed">Unable to Grant Permissions!</string>
     <string name="tst_uploading_file">Uploading File. Please Wait.</string>
+    <string name="django_files">Django Files</string>
 </resources>
