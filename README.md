@@ -61,7 +61,7 @@ should take you to the settings area to allow installation if not already enable
 
 </details>
 
-> [!TIP]  
+> [!NOTE]  
 > Swipe from the left to access the Android menu.
 
 ### Setup
