@@ -27,6 +27,8 @@
 Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
+- Supports Android 8 (API 26) 2017 or Newer.
+
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
 | Website           | https://django-files.github.io/               |
@@ -34,8 +36,6 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 | Server            | https://github.com/django-files/django-files  |
 | iOS App           | https://github.com/django-files/ios-client    |
 | Web Extension     | https://github.com/django-files/web-extension |
-
-> Django Files Android App is now signed starting at version 0.0.3
 
 ## Install
 
@@ -63,15 +63,15 @@ should take you to the settings area to allow installation if not already enable
 
 </details>
 
+> [!NOTE]  
+> Swipe from the left to access the Android menu.
+
 ### Setup
 
 1. [Install](#Install) and open the app on your device.
 2. Enter the URL to your Django Files server.
 3. Log in as you normally would on the website.
 4. All Done! You can now share and open files with Django Files.
-
-> [!TIP]
-> Swipe from the left to access the Android menu.
 
 To use, share or open any file and choose the Django Files app.
 The app will then be upload the file to your Django Files server.
@@ -83,20 +83,22 @@ Additionally, the URL is copied to the clipboard and the preview is show in the 
 ## Features
 
 - Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
-- Ability to manually change servers by entering a new URL from the Server List menu.
+- Ability to add multiple servers and switch on the fly from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
+- Native Android Navigation Drawer from Server List or Swipe from Left.
 
 ### Planned
 
-- Ability to save multiple servers and switch between them automatically in the Server List menu.
 - Ability for the app to log you in if your session is expired or when switching servers.
 
 ### Known Issues
 
 - Login with Discord OAuth passkeys does not work.
-- Login with Google OAuth gives an error; however, if you wait ~30 seconds it will succeed.
+- Login with Google OAuth gives an error; however, may succeed if you wait ~30 seconds.
 - The app gets logged out if the session expires; however, sharing continues to work.
   - Upon logging back in, you may need to leave the app open (in the background) for ~30 seconds to allow the cookie to be saved.
+- Deleting the active server does not deactivate it and it remains active until selecting another server.
+- Uploading from the website (Uppy) in the app does not work due to a permissions issue.
 
 # Development
 
@@ -123,7 +125,7 @@ To Build:
 
 ## Command Line
 
-_Note: This section is a WIP!_
+_Note: This section is a WIP! For more details see the [release.yaml](.github/workflows/release.yaml)._
 
 You will need to have [ADB](https://developer.android.com/tools/adb) installed.
 

@@ -402,10 +402,14 @@ class MainActivity : AppCompatActivity() {
         // TODO: Change this to HEAD or use response data...
         val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
         return try {
-            val response = client.newCall(request).execute()
-            Log.d("checkUrl", "Success: Remote OK.")
             val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
-            dao.add(Server(url = url))
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                Log.d("checkUrl", "Success: Remote OK.")
+                dao.add(Server(url = url))
+            } else {
+                Log.d("checkUrl", "Error: Remote code: ${response.code}")
+            }
             response.isSuccessful
         } catch (e: Exception) {
             Log.d("checkUrl", "Error: Remote Failed!")
