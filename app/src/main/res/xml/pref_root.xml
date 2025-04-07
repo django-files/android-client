@@ -2,21 +2,20 @@
 
     <PreferenceCategory android:title="App Settings">
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:icon="@drawable/fa_upload"
-            android:key="show_upload_options"
-            android:title="Show Upload Options" />
+<!--        <SwitchPreferenceCompat-->
+<!--            android:defaultValue="false"-->
+<!--            android:icon="@drawable/fa_upload"-->
+<!--            android:key="show_upload_options"-->
+<!--            android:title="Show Upload Options" />-->
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:icon="@drawable/fa_fingerprint"
-            android:key="enable_biometrics"
-            android:title="Enable Biometrics" />
+<!--        <SwitchPreferenceCompat-->
+<!--            android:defaultValue="false"-->
+<!--            android:icon="@drawable/fa_fingerprint"-->
+<!--            android:key="enable_biometrics"-->
+<!--            android:title="Enable Biometrics" />-->
 
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Server Settings">
+<!--    </PreferenceCategory>-->
+<!--    <PreferenceCategory android:title="Server Settings">-->
 
         <Preference
             android:icon="@android:drawable/ic_input_add"
