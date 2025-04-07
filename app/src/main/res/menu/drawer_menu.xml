@@ -6,14 +6,14 @@
             android:id="@+id/nav_item_home"
             android:icon="@drawable/fa_house_laptop"
             android:title="Home" />
-        <item
-            android:id="@+id/nav_item_upload_file"
-            android:icon="@drawable/fa_upload"
-            android:title="Upload Files" />
-        <item
-            android:id="@+id/nav_item_upload_text"
-            android:icon="@drawable/fa_file_lines"
-            android:title="Upload Text" />
+<!--        <item-->
+<!--            android:id="@+id/nav_item_upload_file"-->
+<!--            android:icon="@drawable/fa_upload"-->
+<!--            android:title="Upload Files" />-->
+<!--        <item-->
+<!--            android:id="@+id/nav_item_upload_text"-->
+<!--            android:icon="@drawable/fa_file_lines"-->
+<!--            android:title="Upload Text" />-->
         <item
             android:id="@+id/nav_item_files"
             android:icon="@drawable/fa_folder_open"
@@ -41,9 +41,9 @@
             android:id="@+id/nav_item_settings_site"
             android:icon="@drawable/fa_gears"
             android:title="Site Settings" />
-<!--    </group>-->
+    </group>
 
-<!--    <group android:id="@+id/nav_app">-->
+    <group android:id="@+id/nav_app">
         <item
             android:id="@+id/nav_item_server_list"
             android:icon="@drawable/fa_gear"

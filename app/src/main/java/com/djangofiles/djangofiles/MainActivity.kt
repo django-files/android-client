@@ -109,47 +109,36 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        val itemPathMap = mapOf(
+            R.id.nav_item_home to "",
+            //R.id.nav_item_upload_file to "uppy/",
+            //R.id.nav_item_upload_text to "paste/",
+            R.id.nav_item_files to "files/",
+            R.id.nav_item_albums to "albums/",
+            R.id.nav_item_shorts to "shorts/",
+            R.id.nav_item_stats to "stats/",
+            R.id.nav_item_settings_user to "settings/user/",
+            R.id.nav_item_settings_site to "settings/site/",
+            R.id.nav_item_server_list to "server_list",
+        )
+
         // Handle Navigation Item Clicks
         navigationView.setNavigationItemSelectedListener { menuItem ->
             Log.d("Drawer", "menuItem: $menuItem")
             Log.d("Drawer", "itemId: ${menuItem.itemId}")
-            when (menuItem.itemId) {
-                R.id.nav_item_home -> {
-                    Log.d("Drawer", "nav_item_home")
-                }
 
-                R.id.nav_item_upload_file -> {
-                    Log.d("Drawer", "nav_item_upload_file")
-                }
+            val path = itemPathMap[menuItem.itemId]
+            Log.d("Drawer", "path: $path")
 
-                R.id.nav_item_upload_text -> {
-                    Log.d("Drawer", "nav_item_upload_text")
-                }
-
-                R.id.nav_item_files -> {
-                    Log.d("Drawer", "nav_item_files")
-                }
-
-                R.id.nav_item_albums -> {
-                    Log.d("Drawer", "nav_item_albums")
-                }
-
-                R.id.nav_item_shorts -> {
-                    Log.d("Drawer", "nav_item_shorts")
-                }
-
-                R.id.nav_item_settings_user -> {
-                    Log.d("Drawer", "nav_item_settings_user")
-                }
-
-                R.id.nav_item_settings_site -> {
-                    Log.d("Drawer", "nav_item_settings_site")
-                }
-
-                R.id.nav_item_server_list -> {
-                    Log.d("Drawer", "nav_item_server_list")
-                    startActivity(Intent(this, SettingsActivity::class.java))
-                }
+            if (path == null) {
+                Toast.makeText(this, "Unknown Menu Item!", Toast.LENGTH_SHORT).show()
+            } else if (path == "server_list") {
+                startActivity(Intent(this, SettingsActivity::class.java))
+            } else {
+                Log.d("Drawer", "currentUrl: $currentUrl")
+                val url = "${currentUrl}/${path}"
+                Log.d("Drawer", "Click URL: $url")
+                webView.loadUrl(url)
             }
             drawerLayout.closeDrawers()
             true
