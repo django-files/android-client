@@ -1,0 +1,31 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="App Settings">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/fa_upload"
+            android:key="show_upload_options"
+            android:title="Show Upload Options" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/fa_fingerprint"
+            android:key="enable_biometrics"
+            android:title="Enable Biometrics" />
+
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Server Settings">
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:dialogTitle="Enter URL"
+            android:icon="@android:drawable/ic_input_add"
+            android:inputType="textUri"
+            android:key="saved_url"
+            android:summary=""
+            android:title="Add Server" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

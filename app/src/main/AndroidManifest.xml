@@ -57,6 +57,8 @@
             </intent-filter>
 
         </activity>
+        <activity android:name=".settings.SettingsActivity" />
+
 
     </application>
 

@@ -6,12 +6,16 @@ import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.widget.Toast
 import androidx.core.content.edit
+import com.djangofiles.djangofiles.settings.ServerDao
+import com.djangofiles.djangofiles.settings.ServerDatabase
+
 
 class WebAppInterface
 internal constructor(private var context: Context) {
     companion object {
         private const val PREFS_NAME = "AppPreferences"
         private const val TOKEN_KEY = "auth_token"
+        private const val URL_KEY = "saved_url"
     }
 
     @JavascriptInterface
@@ -24,11 +28,17 @@ internal constructor(private var context: Context) {
         Log.d("receiveAuthToken", "Received auth token: $authToken")
 
         val preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val currentToken = preferences.getString(TOKEN_KEY, null)
+        val currentToken = preferences.getString(TOKEN_KEY, null) ?: ""
+        Log.d("receiveAuthToken", "currentToken: $currentToken")
+        val currentUrl = preferences.getString(URL_KEY, null) ?: ""
+        Log.d("receiveAuthToken", "currentUrl: $currentUrl")
 
         if (currentToken != authToken) {
+            val dao: ServerDao = ServerDatabase.getInstance(context).serverDao()
+            dao.setToken(currentUrl, authToken)
+            Log.d("receiveAuthToken", "dao.setToken: $authToken")
+
             preferences.edit { putString(TOKEN_KEY, authToken) }
-            Log.d("receiveAuthToken", "Auth Token Updated.")
             val cookieManager = CookieManager.getInstance()
             cookieManager.flush()
             Log.d("receiveAuthToken", "Cookies Flushed (saved to disk).")

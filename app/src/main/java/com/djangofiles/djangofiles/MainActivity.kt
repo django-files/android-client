@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -29,7 +30,13 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
+import com.djangofiles.djangofiles.settings.Server
+import com.djangofiles.djangofiles.settings.ServerDao
+import com.djangofiles.djangofiles.settings.ServerDatabase
+import com.djangofiles.djangofiles.settings.SettingsActivity
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,20 +53,28 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
 
+
 class MainActivity : AppCompatActivity() {
     companion object {
         const val PREFS_NAME = "AppPreferences"
         const val URL_KEY = "saved_url"
         const val TOKEN_KEY = "auth_token"
+        const val DEBUG_TAG = "DEBUG"
     }
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var webView: WebView
     private val client = OkHttpClient()
 
+    private var userAgent: String = "DjangoFiles Android"
+    private var currentUrl: String? = null
     private var versionName: String? = null
 
-    @SuppressLint("SetJavaScriptEnabled")
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var sharedPreferences: SharedPreferences
+
+    @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.enableEdgeToEdge()
@@ -67,15 +82,19 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navigationView = findViewById(R.id.navigation_view)
+
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+
         webView = binding.webview
         webView.settings.domStorageEnabled = true
         webView.settings.javaScriptEnabled = true
 
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         versionName = packageInfo.versionName
-        Log.d("MY_APP_TAG", "versionName: $versionName")
-        val userAgent =
-            "${webView.settings.userAgentString} DjangoFiles Android/${versionName}"
+        Log.d("onCreate", "versionName: $versionName")
+        userAgent = "${webView.settings.userAgentString} DjangoFiles Android/$versionName"
         Log.d("onCreate", "UA: $userAgent")
 
         webView.settings.userAgentString = userAgent
@@ -90,11 +109,75 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        val headerView = navigationView.getHeaderView(0)
+        val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
+        versionTextView.text = "v${versionName}"
+
+        val itemPathMap = mapOf(
+            R.id.nav_item_home to "",
+            //R.id.nav_item_upload_file to "uppy/",
+            //R.id.nav_item_upload_text to "paste/",
+            R.id.nav_item_files to "files/",
+            R.id.nav_item_albums to "albums/",
+            R.id.nav_item_shorts to "shorts/",
+            R.id.nav_item_stats to "stats/",
+            R.id.nav_item_settings_user to "settings/user/",
+            R.id.nav_item_settings_site to "settings/site/",
+            R.id.nav_item_server_list to "server_list",
+        )
+
+        // Handle Navigation Item Clicks
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            Log.d("Drawer", "menuItem: $menuItem")
+            Log.d("Drawer", "itemId: ${menuItem.itemId}")
+
+            val path = itemPathMap[menuItem.itemId]
+            Log.d("Drawer", "path: $path")
+
+            if (path == null) {
+                Toast.makeText(this, "Unknown Menu Item!", Toast.LENGTH_SHORT).show()
+            } else if (path == "server_list") {
+                startActivity(Intent(this, SettingsActivity::class.java))
+            } else {
+                Log.d("Drawer", "currentUrl: $currentUrl")
+                val url = "${currentUrl}/${path}"
+                Log.d("Drawer", "Click URL: $url")
+                Log.d("Drawer", "webView.url: ${webView.url}")
+                if (webView.url != url) {
+                    Log.d("Drawer", "webView.loadUrl")
+                    webView.loadUrl(url)
+                }
+            }
+            drawerLayout.closeDrawers()
+            true
+        }
+
         // Handle Intent
         Log.d("onCreate", "getAction: ${intent.action}")
         Log.d("onCreate", "getData: ${intent.data}")
         Log.d("onCreate", "getExtras: ${intent.extras}")
         handleIntent(intent)
+
+        //drawerLayout.openDrawer(GravityCompat.START)
+        //startActivity(Intent(this, SettingsActivity::class.java))
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val savedUrl = sharedPreferences.getString(URL_KEY, null)
+        Log.d("onResume", "savedUrl: $savedUrl")
+        Log.d("onResume", "currentUrl: $currentUrl")
+        if (savedUrl.isNullOrEmpty()) {
+            Log.d("onResume", "FATAL: REPORT AS BUG - savedUrl.isNullOrEmpty")
+            //startActivity(Intent(this, SettingsActivity::class.java))
+        } else if (savedUrl != currentUrl) {
+            Log.d("onResume", "webView.loadUrl: $savedUrl")
+            currentUrl = savedUrl
+            webView.loadUrl(savedUrl)
+        } else {
+            Log.d("onResume", "DO NOTHING")
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -124,19 +207,21 @@ class MainActivity : AppCompatActivity() {
 
         if (Intent.ACTION_MAIN == action) {
             Log.d("handleIntent", "ACTION_MAIN")
-            val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            val savedUrl = preferences.getString(URL_KEY, null)
+            //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            val savedUrl = sharedPreferences.getString(URL_KEY, null)
             Log.d("handleIntent", "savedUrl: $savedUrl")
-            val authToken = preferences.getString(TOKEN_KEY, null)
+            currentUrl = savedUrl
+            val authToken = sharedPreferences.getString(TOKEN_KEY, null)
             Log.d("handleIntent", "authToken: $authToken")
 
-            val currentUrl = webView.url
-            Log.d("handleIntent", "currentUrl: $currentUrl")
+            val webViewUrl = webView.url
+            Log.d("handleIntent", "webViewUrl: $webViewUrl")
 
             if (savedUrl.isNullOrEmpty()) {
                 showSettingsDialog()
+                //startActivity(Intent(this, SettingsActivity::class.java))
             } else {
-                if (currentUrl == null) {
+                if (webViewUrl == null) {
                     Log.d("handleIntent", "webView.loadUrl")
                     webView.loadUrl(savedUrl)
                 } else {
@@ -153,7 +238,8 @@ class MainActivity : AppCompatActivity() {
                 if ("djangofiles" == scheme) {
                     if ("serverlist" == host) {
                         Log.d("handleIntent", "djangofiles://serverlist")
-                        showSettingsDialog()
+                        //showSettingsDialog()
+                        startActivity(Intent(this, SettingsActivity::class.java))
                     } else {
                         Toast.makeText(
                             this,
@@ -189,8 +275,8 @@ class MainActivity : AppCompatActivity() {
                         Log.d("handleIntent", "Received text/plain: $sharedText")
                     }
                 }
-                val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                val savedUrl = preferences.getString(URL_KEY, null)
+                //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                val savedUrl = sharedPreferences.getString(URL_KEY, null)
                 Log.d("handleIntent", "savedUrl: ${savedUrl}/paste/")
                 webView.loadUrl("${savedUrl}/paste/")
                 Toast.makeText(
@@ -235,12 +321,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSettingsDialog() {
-        val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val savedUrl = preferences.getString(URL_KEY, null)
-        Log.d("showSettingsDialog", "savedUrl: $savedUrl")
-
-
-        // Inflate custom layout with padding
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         layout.setPadding(5, 0, 5, 80)
@@ -248,19 +328,15 @@ class MainActivity : AppCompatActivity() {
         val input = EditText(this)
         input.inputType = android.text.InputType.TYPE_CLASS_TEXT
         input.maxLines = 1
-        layout.addView(input)
         input.hint = getString(R.string.settings_input_place)
-        if (savedUrl != null) {
-            input.setText(savedUrl)
-        }
+        layout.addView(input)
+        input.requestFocus()
 
         val text = TextView(this)
         text.text = getString(R.string.settings_requires)
         text.gravity = Gravity.CENTER_HORIZONTAL
         text.setPadding(0, 20, 0, 0)
         layout.addView(text)
-
-        input.requestFocus()
 
         runOnUiThread {
             AlertDialog.Builder(this)
@@ -275,6 +351,7 @@ class MainActivity : AppCompatActivity() {
                         var url = input.text.toString().trim { it <= ' ' }
                         Log.d("showSettingsDialog", "setPositiveButton: url: $url")
 
+                        // TODO: Duplicate - SettingsFragment - make this a function
                         if (url.isEmpty()) {
                             Log.d("showSettingsDialog", "URL is Empty")
                             input.error = "This field is required."
@@ -287,31 +364,26 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             Log.d("showSettingsDialog", "Processed URL: $url")
-                            if (savedUrl != url) {
-                                Log.d("showSettingsDialog", "Saving New URL...")
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    val authUrl = "${url}/api/auth/methods/"
-                                    Log.d("showSettingsDialog", "Auth URL: $authUrl")
-                                    val response = checkUrl(authUrl)
-                                    Log.d("showSettingsDialog", "response: $response")
-                                    withContext(Dispatchers.Main) {
-                                        if (response) {
-                                            Log.d("showSettingsDialog", "SUCCESS")
-                                            preferences.edit { putString(URL_KEY, url) }
-                                            webView.loadUrl(url)
-                                            dismiss()
-                                        } else {
-                                            Log.d("showSettingsDialog", "FAILURE")
-                                            input.error = "Invalid URL"
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val response = checkUrl(url)
+                                Log.d("showSettingsDialog", "response: $response")
+                                withContext(Dispatchers.Main) {
+                                    if (response) {
+                                        Log.d("showSettingsDialog", "SUCCESS")
+                                        sharedPreferences.edit {
+                                            putString(
+                                                URL_KEY,
+                                                url
+                                            )
                                         }
+                                        currentUrl = url
+                                        webView.loadUrl(url)
+                                        dismiss()
+                                    } else {
+                                        Log.d("showSettingsDialog", "FAILURE")
+                                        input.error = "Invalid URL"
                                     }
                                 }
-                                //preferences.edit { putString(URL_KEY, url) }
-                                //webView.loadUrl(url)
-                                //dismiss()
-                            } else {
-                                Log.d("showSettingsDialog", "URL NOT Changed!")
-                                finish()
                             }
                         }
                     }
@@ -319,24 +391,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // TODO: Duplication - SettingsFragment
     private fun checkUrl(url: String): Boolean {
-        Log.d("checkUrl", "url: $url")
+        Log.d("checkUrl", "checkUrl URL: $url")
+
+        val authUrl = "${url}/api/auth/methods/"
+        Log.d("showSettingsDialog", "Auth URL: $authUrl")
+
         // TODO: Change this to HEAD or use response data...
-        val request = Request.Builder().url(url).get().build()
+        val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
         return try {
             val response = client.newCall(request).execute()
+            Log.d("checkUrl", "Success: Remote OK.")
+            val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
+            dao.add(Server(url = url))
             response.isSuccessful
         } catch (e: Exception) {
+            Log.d("checkUrl", "Error: Remote Failed!")
             false
         }
     }
 
     private fun processSharedFile(fileUri: Uri) {
         Log.d("processSharedFile", "fileUri: $fileUri")
-        val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val savedUrl = preferences.getString(URL_KEY, null)
+        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUrl = sharedPreferences.getString(URL_KEY, null)
         Log.d("processSharedFile", "savedUrl: $savedUrl")
-        val authToken = preferences.getString(TOKEN_KEY, null)
+        val authToken = sharedPreferences.getString(TOKEN_KEY, null)
         Log.d("processSharedFile", "authToken: $authToken")
         if (savedUrl == null || authToken == null) {
             // TODO: Show settings dialog here...
@@ -490,8 +571,8 @@ class MainActivity : AppCompatActivity() {
             val url = request.url.toString()
             Log.d("shouldOverrideUrlLoading", "url: $url")
 
-            val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            val savedUrl = preferences.getString(URL_KEY, null)
+            //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            val savedUrl = sharedPreferences.getString(URL_KEY, null)
             Log.d("shouldOverrideUrlLoading", "savedUrl: $savedUrl")
 
             if ((savedUrl != null &&
@@ -499,7 +580,7 @@ class MainActivity : AppCompatActivity() {
                     "$savedUrl/raw/"
                 )) ||
                 url.startsWith("https://discord.com/oauth2") ||
-                url.startsWith("https://github.com/sessions/two-factor/app") ||
+                url.startsWith("https://github.com/sessions/two-factor/") ||
                 url.startsWith("https://github.com/login") ||
                 url.startsWith("https://accounts.google.com/v3/signin") ||
                 url.startsWith("https://accounts.google.com/o/oauth2/v2/auth")
@@ -519,14 +600,6 @@ class MainActivity : AppCompatActivity() {
             errorResponse: WebResourceError
         ) {
             Log.d("onReceivedError", "ERROR: " + errorResponse.errorCode)
-            // TODO: This does not seem to be helpful...
-            //Toast.makeText(
-            //    view.context,
-            //    "HTTP error " + errorResponse.description,
-            //    Toast.LENGTH_LONG
-            //).show()
-            // TODO: Now that we verify the URL this should not be needed...
-            //showSettingsDialog()
         }
 
         override fun onReceivedHttpError(
@@ -535,14 +608,6 @@ class MainActivity : AppCompatActivity() {
             errorResponse: WebResourceResponse
         ) {
             Log.d("onReceivedHttpError", "ERROR: " + errorResponse.statusCode)
-            // TODO: This does not seem to be helpful...
-            //Toast.makeText(
-            //    view.context,
-            //    "HTTP error " + errorResponse.reasonPhrase,
-            //    Toast.LENGTH_LONG
-            //).show()
-            // TODO: Now that we verify the URL this should not be needed...
-            //showSettingsDialog()
         }
     }
 }

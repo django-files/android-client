@@ -70,9 +70,15 @@ should take you to the settings area to allow installation if not already enable
 3. Log in as you normally would on the website.
 4. All Done! You can now share and open files with Django Files.
 
+> [!TIP]
+> Swipe from the left to access the Android menu.
+
 To use, share or open any file and choose the Django Files app.
 The app will then be upload the file to your Django Files server.
 Additionally, the URL is copied to the clipboard and the preview is show in the app.
+
+> [!IMPORTANT]  
+> If you use 2Factor, Local or GitHub OAuth is recommended.
 
 ## Features
 
