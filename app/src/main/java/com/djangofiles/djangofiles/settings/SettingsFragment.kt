@@ -139,8 +139,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
         return try {
             val response = client.newCall(request).execute()
-            Log.d("checkUrl", "Success: Remote OK.")
-            dao.add(Server(url = url))
+            if (response.isSuccessful) {
+                Log.d("checkUrl", "Success: Remote OK.")
+                dao.add(Server(url = url))
+            } else {
+                Log.d("checkUrl", "Error: Remote code: ${response.code}")
+            }
             response.isSuccessful
         } catch (e: Exception) {
             Log.d("checkUrl", "Error: Remote Failed!")
@@ -395,7 +399,8 @@ abstract class ServerDatabase : RoomDatabase() {
     abstract fun serverDao(): ServerDao
 
     companion object {
-        @Volatile private var instance: ServerDatabase? = null
+        @Volatile
+        private var instance: ServerDatabase? = null
 
         fun getInstance(context: Context): ServerDatabase =
             instance ?: synchronized(this) {

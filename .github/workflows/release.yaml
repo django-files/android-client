@@ -96,7 +96,7 @@ jobs:
       - name: "Verify Build"
         run: |
           apkanalyzer -h apk summary "${{ env.path }}/${{ env.output }}"
-          
+
           echo "::group::ls env.path"
           ls -lAh ${{ env.path }}
           echo "::endgroup::"
