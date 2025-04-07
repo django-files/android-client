@@ -188,8 +188,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             return
         }
 
-        val sharedPreferences = preferenceManager.sharedPreferences
-        sharedPreferences?.edit()?.apply {
+        preferenceManager.sharedPreferences?.edit()?.apply {
             putString("saved_url", server.url)
             putString("auth_token", server.token)
             apply()
