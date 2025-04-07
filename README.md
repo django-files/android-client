@@ -27,7 +27,7 @@
 Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
-- Supports Android 8 (API 26) 2017 or Newer [view table](https://apilevels.com/).
+- Supports Android 8 (API 26) 2017 or Newer.
 
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
