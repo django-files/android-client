@@ -118,6 +118,7 @@ class MainActivity : AppCompatActivity() {
             //R.id.nav_item_upload_file to "uppy/",
             //R.id.nav_item_upload_text to "paste/",
             R.id.nav_item_files to "files/",
+            R.id.nav_item_gallery to "gallery/",
             R.id.nav_item_albums to "albums/",
             R.id.nav_item_shorts to "shorts/",
             R.id.nav_item_stats to "stats/",
