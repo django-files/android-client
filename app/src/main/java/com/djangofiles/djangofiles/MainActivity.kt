@@ -59,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         const val PREFS_NAME = "AppPreferences"
         const val URL_KEY = "saved_url"
         const val TOKEN_KEY = "auth_token"
-        const val DEBUG_TAG = "DEBUG"
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -406,7 +405,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("checkUrl", "checkUrl URL: $url")
 
         val authUrl = "${url}/api/auth/methods/"
-        Log.d("showSettingsDialog", "Auth URL: $authUrl")
+        Log.d("checkUrl", "Auth URL: $authUrl")
 
         // TODO: Change this to HEAD or use response data...
         val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
@@ -421,7 +420,7 @@ class MainActivity : AppCompatActivity() {
             }
             response.isSuccessful
         } catch (e: Exception) {
-            Log.d("checkUrl", "Error: Remote Failed!")
+            Log.d("checkUrl", "Exception: $e")
             false
         }
     }
@@ -525,6 +524,7 @@ class MainActivity : AppCompatActivity() {
         return try {
             contentResolver.openInputStream(uri)
         } catch (e: IOException) {
+            Log.d("getInputStreamFromUri", "Error: $e")
             null
         }
     }
