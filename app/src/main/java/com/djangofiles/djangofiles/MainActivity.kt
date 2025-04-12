@@ -164,8 +164,19 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onPause() {
+        Log.d("onPause", "ON PAUSE")
+        super.onPause()
+        webView.onPause()
+        webView.pauseTimers()
+    }
+
     override fun onResume() {
+        Log.d("onResume", "ON RESUME")
         super.onResume()
+        webView.onResume()
+        webView.resumeTimers()
+        // TODO: Move this to settings
         val savedUrl = sharedPreferences.getString(URL_KEY, null)
         Log.d("onResume", "savedUrl: $savedUrl")
         Log.d("onResume", "currentUrl: $currentUrl")
@@ -176,8 +187,6 @@ class MainActivity : AppCompatActivity() {
             Log.d("onResume", "webView.loadUrl: $savedUrl")
             currentUrl = savedUrl
             webView.loadUrl(savedUrl)
-        } else {
-            Log.d("onResume", "DO NOTHING")
         }
     }
 
