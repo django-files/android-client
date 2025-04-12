@@ -15,7 +15,7 @@ env:
   name: ${{ github.repository_owner }}.apk # Final APK Name
   key_name: my-key
   key_file: release.keystore
-  tools_path: /usr/local/lib/android/sdk/build-tools/36.0.0
+  tools_path: /usr/local/lib/android/sdk/build-tools/35.0.0
   cmdline_tools: /usr/local/lib/android/sdk/cmdline-tools/latest/bin
 
 jobs:
@@ -36,6 +36,7 @@ jobs:
         run: |
           echo "ref: ${{ github.ref }}"
           echo "event_name: ${{ github.event_name }}"
+          echo "github.event.repository.name: ${{ github.event.repository.name }}"
 
           echo "::group::cat event.json"
           cat "${GITHUB_EVENT_PATH}"
