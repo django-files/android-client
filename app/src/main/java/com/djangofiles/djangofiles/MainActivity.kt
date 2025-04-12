@@ -76,6 +76,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("onCreate", "savedInstanceState: $savedInstanceState")
         enableEdgeToEdge()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -160,8 +161,17 @@ class MainActivity : AppCompatActivity() {
 
         //drawerLayout.openDrawer(GravityCompat.START)
         //startActivity(Intent(this, SettingsActivity::class.java))
-
     }
+
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        webView.saveState(outState)
+//    }
+//
+//    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+//        super.onRestoreInstanceState(savedInstanceState)
+//        webView.restoreState(savedInstanceState)
+//    }
 
     override fun onPause() {
         Log.d("onPause", "ON PAUSE")
