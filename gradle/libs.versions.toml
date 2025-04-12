@@ -12,6 +12,10 @@ okhttp = "4.12.0"
 preferenceKtx = "1.2.1"
 room = "2.6.1"
 ksp = "2.1.20-1.0.32"
+#roomRuntime = "2.6.1"
+#roomCompiler = "2.6.1"
+#comGoogleDevtoolsKspGradlePlugin = "2.1.20-1.0.32"
+#symbolProcessing = "2.1.20-1.0.32"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -26,6 +30,10 @@ androidx-preference-ktx = { group = "androidx.preference", name = "preference-kt
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+#androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }
+#androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+#com-google-devtools-ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "comGoogleDevtoolsKspGradlePlugin" }
+#symbol-processing = { group = "com.google.devtools.ksp", name = "symbol-processing", version.ref = "symbolProcessing" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
