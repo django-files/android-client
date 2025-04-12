@@ -90,16 +90,15 @@ class MainActivity : AppCompatActivity() {
         webView = binding.webview
         webView.settings.domStorageEnabled = true
         webView.settings.javaScriptEnabled = true
+        webView.addJavascriptInterface(WebAppInterface(this), "Android")
+        webView.setWebViewClient(MyWebViewClient())
 
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         versionName = packageInfo.versionName
         Log.d("onCreate", "versionName: $versionName")
         userAgent = "${webView.settings.userAgentString} DjangoFiles Android/$versionName"
         Log.d("onCreate", "UA: $userAgent")
-
         webView.settings.userAgentString = userAgent
-        webView.addJavascriptInterface(WebAppInterface(this), "Android")
-        webView.setWebViewClient(MyWebViewClient())
 
         ViewCompat.setOnApplyWindowInsetsListener(
             binding.main
@@ -145,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("Drawer", "Click URL: $url")
                 Log.d("Drawer", "webView.url: ${webView.url}")
                 if (webView.url != url) {
-                    Log.d("Drawer", "webView.loadUrl")
+                    Log.d("Drawer", "webView.loadUrl: $url")
                     webView.loadUrl(url)
                 }
             }
@@ -157,21 +156,24 @@ class MainActivity : AppCompatActivity() {
         Log.d("onCreate", "getAction: ${intent.action}")
         Log.d("onCreate", "getData: ${intent.data}")
         Log.d("onCreate", "getExtras: ${intent.extras}")
+
         handleIntent(intent)
 
         //drawerLayout.openDrawer(GravityCompat.START)
         //startActivity(Intent(this, SettingsActivity::class.java))
     }
 
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//        webView.saveState(outState)
-//    }
-//
-//    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-//        super.onRestoreInstanceState(savedInstanceState)
-//        webView.restoreState(savedInstanceState)
-//    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.d("onSaveInstanceState", "outState: $outState")
+        super.onSaveInstanceState(outState)
+        webView.saveState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        Log.d("onRestoreInstanceState", "savedInstanceState: $savedInstanceState")
+        super.onRestoreInstanceState(savedInstanceState)
+        webView.restoreState(savedInstanceState)
+    }
 
     override fun onPause() {
         Log.d("onPause", "ON PAUSE")
@@ -185,18 +187,18 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         webView.onResume()
         webView.resumeTimers()
-        // TODO: Move this to settings
-        val savedUrl = sharedPreferences.getString(URL_KEY, null)
-        Log.d("onResume", "savedUrl: $savedUrl")
-        Log.d("onResume", "currentUrl: $currentUrl")
-        if (savedUrl.isNullOrEmpty()) {
-            Log.d("onResume", "FATAL: REPORT AS BUG - savedUrl.isNullOrEmpty")
-            //startActivity(Intent(this, SettingsActivity::class.java))
-        } else if (savedUrl != currentUrl) {
-            Log.d("onResume", "webView.loadUrl: $savedUrl")
-            currentUrl = savedUrl
-            webView.loadUrl(savedUrl)
-        }
+//        // TODO: Move this to settings
+//        val savedUrl = sharedPreferences.getString(URL_KEY, null)
+//        Log.d("onResume", "savedUrl: $savedUrl")
+//        Log.d("onResume", "currentUrl: $currentUrl")
+//        if (savedUrl.isNullOrEmpty()) {
+//            Log.d("onResume", "FATAL: REPORT AS BUG - savedUrl.isNullOrEmpty")
+//            //startActivity(Intent(this, SettingsActivity::class.java))
+//        } else if (savedUrl != currentUrl) {
+//            Log.d("onResume", "webView.loadUrl: $savedUrl")
+//            currentUrl = savedUrl
+//            webView.loadUrl(savedUrl)
+//        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -296,7 +298,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 val savedUrl = sharedPreferences.getString(URL_KEY, null)
-                Log.d("handleIntent", "savedUrl: ${savedUrl}/paste/")
+                Log.d("handleIntent", "webView.loadUrl: ${savedUrl}/paste/")
                 webView.loadUrl("${savedUrl}/paste/")
                 Toast.makeText(
                     this,
@@ -396,6 +398,7 @@ class MainActivity : AppCompatActivity() {
                                             )
                                         }
                                         currentUrl = url
+                                        Log.d("showSettingsDialog", "webView.loadUrl: $url")
                                         webView.loadUrl(url)
                                         dismiss()
                                     } else {
@@ -583,6 +586,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun copyToClipboard(url: String) {
+        Log.d("copyToClipboard", "webView.loadUrl: $url")
         webView.loadUrl(url)
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("URL", url)
