@@ -30,7 +30,7 @@ jobs:
 
       - name: "Kotlin Lint"
         if: ${{ !cancelled() }}
-        continue-on-error: true  # TODO: Resolve KTLint Issues
+        continue-on-error: true # TODO: Resolve KTLint Issues
         env:
           klint: ${RUNNER_TEMP}/ktlint
         run: |
