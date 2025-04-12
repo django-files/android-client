@@ -1,5 +1,6 @@
 [![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=github)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
+[![Lint](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=github&logoColor=white&label=lint)](https://github.com/django-files/android-client/actions/workflows/lint.yaml)
 [![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/graphs/commit-activity)
 [![GitHub Repo Size](https://img.shields.io/github/repo-size/django-files/android-client?logo=bookstack&logoColor=white&label=repo%20size)](https://github.com/django-files/android-client)

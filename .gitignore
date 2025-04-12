@@ -1,9 +1,14 @@
-local.properties
-*.iml
+.DS_Store
+
 .idea/
+*.iml
 
 **/build/
 .gradle/
 .kotlin/
 captures/
+app/release
+
+local.properties
 *.keystore
+*.logcat

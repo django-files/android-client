@@ -10,8 +10,7 @@ import com.djangofiles.djangofiles.settings.ServerDao
 import com.djangofiles.djangofiles.settings.ServerDatabase
 
 
-class WebAppInterface
-internal constructor(private var context: Context) {
+class WebAppInterface(private var context: Context) {
     companion object {
         private const val PREFS_NAME = "AppPreferences"
         private const val TOKEN_KEY = "auth_token"

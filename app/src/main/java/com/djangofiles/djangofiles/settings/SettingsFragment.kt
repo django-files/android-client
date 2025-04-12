@@ -33,9 +33,7 @@ import okhttp3.Request
 
 
 class SettingsFragment : PreferenceFragmentCompat() {
-
     private lateinit var dao: ServerDao
-
     private val client = OkHttpClient()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -147,7 +145,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             response.isSuccessful
         } catch (e: Exception) {
-            Log.d("checkUrl", "Error: Remote Failed!")
+            Log.d("checkUrl", "Exception: $e")
             false
         }
     }
