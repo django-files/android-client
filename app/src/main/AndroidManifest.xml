@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,11 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.djangofiles"
         android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+        tools:targetApi="35">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.djangofiles">
+            android:windowSoftInputMode="adjustResize">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,29 +41,24 @@
             <!-- Intent filter for view actions -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:mimeType="*/*" />
             </intent-filter>
 
             <!-- Intent filter for deep links -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="djangofiles" />
             </intent-filter>
 
         </activity>
+
+        <!-- TODO: Remove SettingsActivity -->
         <activity android:name=".settings.SettingsActivity" />
 
-
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

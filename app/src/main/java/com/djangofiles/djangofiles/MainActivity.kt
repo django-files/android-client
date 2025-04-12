@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.enableEdgeToEdge()
+        enableEdgeToEdge()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
