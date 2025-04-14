@@ -164,27 +164,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        Log.d("onSaveInstanceState", "outState: $outState")
         super.onSaveInstanceState(outState)
+        Log.d("onSaveInstanceState", "outState: $outState")
         webView.saveState(outState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        Log.d("onRestoreInstanceState", "savedInstanceState: $savedInstanceState")
         super.onRestoreInstanceState(savedInstanceState)
+        Log.d("onRestoreInstanceState", "savedInstanceState: $savedInstanceState")
         webView.restoreState(savedInstanceState)
     }
 
     override fun onPause() {
-        Log.d("onPause", "ON PAUSE")
         super.onPause()
+        Log.d("onPause", "ON PAUSE")
         webView.onPause()
         webView.pauseTimers()
     }
 
     override fun onResume() {
-        Log.d("onResume", "ON RESUME")
         super.onResume()
+        Log.d("onResume", "ON RESUME")
         webView.onResume()
         webView.resumeTimers()
         // TODO: Move this to settings
@@ -342,6 +342,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSettingsDialog() {
+        Log.d("MainActivity", "showSettingsDialog")
         val layout = LinearLayout(this)
         layout.orientation = LinearLayout.VERTICAL
         layout.setPadding(5, 0, 5, 80)
@@ -415,10 +416,10 @@ class MainActivity : AppCompatActivity() {
 
     // TODO: Duplication - SettingsFragment
     private fun checkUrl(url: String): Boolean {
-        Log.d("checkUrl", "checkUrl URL: $url")
+        Log.d("MainActivity", "checkUrl url: $url")
 
         val authUrl = "${url}/api/auth/methods/"
-        Log.d("checkUrl", "Auth URL: $authUrl")
+        Log.d("MainActivity", "checkUrl authUrl: $authUrl")
 
         // TODO: Change this to HEAD or use response data...
         val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
@@ -426,14 +427,14 @@ class MainActivity : AppCompatActivity() {
             val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
-                Log.d("checkUrl", "Success: Remote OK.")
+                Log.d("MainActivity", "checkUrl Success: Remote OK.")
                 dao.add(Server(url = url))
             } else {
-                Log.d("checkUrl", "Error: Remote code: ${response.code}")
+                Log.d("MainActivity", "checkUrl Error: Remote code: ${response.code}")
             }
             response.isSuccessful
         } catch (e: Exception) {
-            Log.d("checkUrl", "Exception: $e")
+            Log.d("MainActivity", "checkUrl Exception: $e")
             false
         }
     }
@@ -575,8 +576,8 @@ class MainActivity : AppCompatActivity() {
             val url = jsonResponse.getString("url")
 
             Log.d("parseJsonResponse", "Name: $name")
-            Log.d("parseJsonResponse", "RAW: $raw")
-            Log.d("parseJsonResponse", "URL: $url")
+            Log.d("parseJsonResponse", "raw: $raw")
+            Log.d("parseJsonResponse", "url: $url")
 
             return url
         } catch (e: Exception) {
@@ -625,17 +626,19 @@ class MainActivity : AppCompatActivity() {
         override fun onReceivedError(
             view: WebView,
             request: WebResourceRequest,
-            errorResponse: WebResourceError
+            errorResponse: WebResourceError,
         ) {
-            Log.d("onReceivedError", "ERROR: " + errorResponse.errorCode)
+            Log.d("onReceivedError", "errorCode: ${errorResponse.errorCode}")
+            Log.d("onReceivedError", "description: ${errorResponse.description}")
         }
 
         override fun onReceivedHttpError(
             view: WebView,
             request: WebResourceRequest,
-            errorResponse: WebResourceResponse
+            errorResponse: WebResourceResponse,
         ) {
-            Log.d("onReceivedHttpError", "ERROR: " + errorResponse.statusCode)
+            Log.d("onReceivedHttpError", "statusCode: ${errorResponse.statusCode}")
+            Log.d("onReceivedHttpError", "reasonPhrase: ${errorResponse.reasonPhrase}")
         }
     }
 }
