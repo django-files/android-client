@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var sharedPreferences: SharedPreferences
 
-    @SuppressLint("SetTextI18n", "SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("onCreate", "savedInstanceState: ${savedInstanceState?.size()}")
@@ -627,26 +627,41 @@ class MainActivity : AppCompatActivity() {
             val url = request.url.toString()
             Log.d("shouldOverrideUrlLoading", "url: $url")
 
-            //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             val savedUrl = sharedPreferences.getString(URL_KEY, null)
             Log.d("shouldOverrideUrlLoading", "savedUrl: $savedUrl")
 
-            if ((savedUrl != null &&
-                        url.startsWith(savedUrl) && !url.startsWith("$savedUrl/r/") && !url.startsWith(
-                    "$savedUrl/raw/"
-                )) ||
+            // Null URL
+            if (savedUrl == null) {
+                Log.d("shouldOverrideUrlLoading", "APP - null saved url")
+                return false
+            }
+
+            // Saved URL
+            if (
+                url.startsWith(savedUrl) &&
+                !url.startsWith("$savedUrl/r/") &&
+                !url.startsWith("$savedUrl/raw/")
+            ) {
+                Log.d("shouldOverrideUrlLoading", "APP - saved url match")
+                return false
+            }
+
+            // OAuth URL
+            if (
                 url.startsWith("https://discord.com/oauth2") ||
                 url.startsWith("https://github.com/sessions/two-factor/") ||
                 url.startsWith("https://github.com/login") ||
                 url.startsWith("https://accounts.google.com/v3/signin") ||
                 url.startsWith("https://accounts.google.com/o/oauth2/v2/auth")
             ) {
-                Log.d("shouldOverrideUrlLoading", "FALSE - in app")
+                Log.d("shouldOverrideUrlLoading", "APP - oauth url match")
                 return false
             }
+
+            // Other URL
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             view.context.startActivity(intent)
-            Log.d("shouldOverrideUrlLoading", "TRUE - in browser")
+            Log.d("shouldOverrideUrlLoading", "BROWSER - unmatched url")
             return true
         }
 
