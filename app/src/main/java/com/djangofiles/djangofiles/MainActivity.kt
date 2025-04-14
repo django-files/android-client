@@ -265,10 +265,10 @@ class MainActivity : AppCompatActivity() {
                     Log.d("handleIntent", "binding.webview.apply")
                     //binding.webview.loadUrl(savedUrl)
                     if (savedInstanceState != null) {
-                        Log.d("webView.apply", "----- restoreState")
+                        Log.d("handleIntent", "----- restoreState: ${savedInstanceState.size()}")
                         binding.webview.restoreState(savedInstanceState)
                     } else {
-                        Log.d("webView.apply", "+++++ loadUrl: $savedUrl")
+                        Log.d("handleIntent", "+++++ loadUrl: $savedUrl")
                         binding.webview.loadUrl(savedUrl)
                     }
 
@@ -307,7 +307,7 @@ class MainActivity : AppCompatActivity() {
                     getString(R.string.tst_error) + ": Unknown Intent",
                     Toast.LENGTH_SHORT
                 ).show()
-                Log.e("IntentDebug", "Unknown Intent!")
+                Log.e("handleIntent", "Unknown Intent!")
                 finish()
             }
         } else if (Intent.ACTION_SEND == action && mimeType != null) {
@@ -671,7 +671,7 @@ class MainActivity : AppCompatActivity() {
         override fun onPageFinished(view: WebView?, url: String?) {
             Log.d("onPageFinished", "url: $url")
             if (clearHistory == true) {
-                Log.d("onPageFinished", "clearHistory: $url")
+                Log.d("onPageFinished", "binding.webview.clearHistory()")
                 clearHistory = false
                 binding.webview.clearHistory()
             }
