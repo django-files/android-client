@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("onDestroy", "binding.webview.apply: KILL WITH FIRE")
+        Log.d("onDestroy", "binding.webview.destroy()")
         binding.webview.apply {
             loadUrl("about:blank")
             stopLoading()
@@ -204,7 +204,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "onResume")
         binding.webview.onResume()
         binding.webview.resumeTimers()
-        // TODO: Move this to settings
+        // TODO: Determine how to better handle this...
         val savedUrl = sharedPreferences.getString(URL_KEY, null)
         Log.d("onResume", "savedUrl: $savedUrl")
         Log.d("onResume", "currentUrl: $currentUrl")
