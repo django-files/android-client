@@ -13,7 +13,6 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
-import android.view.View
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -28,8 +27,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.settings.Server
@@ -106,13 +103,14 @@ class MainActivity : AppCompatActivity() {
         Log.d("onCreate", "UA: $userAgent")
         binding.webview.settings.userAgentString = userAgent
 
-        ViewCompat.setOnApplyWindowInsetsListener(
-            binding.main
-        ) { v: View, insets: WindowInsetsCompat ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        //ViewCompat.setOnApplyWindowInsetsListener(
+        //    binding.main
+        //) { v: View, insets: WindowInsetsCompat ->
+        //    val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        //    Log.d("systemBars", "systemBars: $systemBars")
+        //    v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+        //    insets
+        //}
 
         val headerView = navigationView.getHeaderView(0)
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
