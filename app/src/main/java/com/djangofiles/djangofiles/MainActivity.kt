@@ -64,6 +64,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val client = OkHttpClient()
 
+    private var clearHistory = false
+
     private var userAgent: String = "DjangoFiles Android"
     private var currentUrl: String? = null
     private var versionName: String? = null
@@ -212,6 +214,7 @@ class MainActivity : AppCompatActivity() {
         } else if (savedUrl != currentUrl) {
             Log.d("onResume", "binding.webview.loadUrl: $savedUrl")
             currentUrl = savedUrl
+            clearHistory = true
             binding.webview.loadUrl(savedUrl)
         }
     }
@@ -663,6 +666,15 @@ class MainActivity : AppCompatActivity() {
         ) {
             Log.d("onReceivedHttpError", "statusCode: ${errorResponse.statusCode}")
             Log.d("onReceivedHttpError", "reasonPhrase: ${errorResponse.reasonPhrase}")
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            Log.d("onPageFinished", "url: $url")
+            if (clearHistory == true) {
+                Log.d("onPageFinished", "clearHistory: $url")
+                clearHistory = false
+                binding.webview.clearHistory()
+            }
         }
     }
 }
