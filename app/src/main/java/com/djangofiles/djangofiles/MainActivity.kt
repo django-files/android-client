@@ -783,8 +783,9 @@ class MainActivity : AppCompatActivity() {
         override fun onPermissionRequest(request: PermissionRequest) {
             Log.d("onPermissionRequest", "request: $request")
             runOnUiThread {
-                val resources = request.resources.toList()
+                val resources = request.resources
                 Log.d("onPermissionRequest", "resources: $resources")
+                request.grant(resources)
             }
         }
     }
