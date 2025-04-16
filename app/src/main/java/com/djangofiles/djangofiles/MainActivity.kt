@@ -768,9 +768,8 @@ class MainActivity : AppCompatActivity() {
         ): Boolean {
             filePathCallback?.onReceiveValue(null)
             filePathCallback = callback
-            Log.d("onShowFileChooser", "view: $view")
-            Log.d("onShowFileChooser", "params: $params")
             return try {
+                Log.d("onShowFileChooser", "fileChooserLauncher.launch")
                 fileChooserLauncher.launch(params.createIntent())
                 true
             } catch (e: Exception) {
@@ -782,11 +781,11 @@ class MainActivity : AppCompatActivity() {
 
         override fun onPermissionRequest(request: PermissionRequest) {
             Log.d("onPermissionRequest", "request: $request")
-            runOnUiThread {
-                val resources = request.resources
-                Log.d("onPermissionRequest", "resources: $resources")
-                request.grant(resources)
-            }
+            //runOnUiThread {
+            //    val resources = request.resources
+            //    Log.d("onPermissionRequest", "resources: $resources")
+            //    request.grant(resources)
+            //}
         }
     }
 }
