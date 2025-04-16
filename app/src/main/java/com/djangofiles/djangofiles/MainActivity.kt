@@ -13,6 +13,9 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
+import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -23,6 +26,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
@@ -71,6 +76,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var sharedPreferences: SharedPreferences
 
+    private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
+
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,10 +94,12 @@ class MainActivity : AppCompatActivity() {
 
         binding.webview.apply {
             webViewClient = MyWebViewClient()
+            webChromeClient = MyWebChromeClient()
             settings.domStorageEnabled = true
             settings.javaScriptEnabled = true
             settings.allowFileAccess = true // not sure if this is needed
             settings.allowContentAccess = true // not sure if this is needed
+            settings.mediaPlaybackRequiresUserGesture = true // not sure if this is needed
             //settings.loadWithOverviewMode = true // prevent loading images zoomed in
             //settings.useWideViewPort = true // prevent loading images zoomed in
             addJavascriptInterface(WebAppInterface(this@MainActivity), "Android")
@@ -116,13 +125,25 @@ class MainActivity : AppCompatActivity() {
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
 
+        filePickerLauncher =
+            registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                Log.d("filePickerLauncher", "uri: $uri")
+                if (uri != null) {
+                    val mimeType = contentResolver.getType(uri)
+                    Log.d("filePickerLauncher", "mimeType: $mimeType")
+                    processSharedFile(uri)
+                } else {
+                    Log.w("filePickerLauncher", "No File Selected!")
+                    Toast.makeText(this, "No File Selected!", Toast.LENGTH_SHORT).show()
+                }
+            }
+
         val itemPathMap = mapOf(
             R.id.nav_item_home to "",
             R.id.nav_item_files to "files/",
             R.id.nav_item_gallery to "gallery/",
             R.id.nav_item_albums to "albums/",
             R.id.nav_item_shorts to "shorts/",
-            R.id.nav_item_stats to "stats/",
             R.id.nav_item_settings_user to "settings/user/",
             R.id.nav_item_settings_site to "settings/site/",
             R.id.nav_item_server_list to "server_list",
@@ -136,10 +157,18 @@ class MainActivity : AppCompatActivity() {
             val path = itemPathMap[menuItem.itemId]
             Log.d("Drawer", "path: $path")
 
-            if (path == null) {
-                Toast.makeText(this, "Unknown Menu Item!", Toast.LENGTH_SHORT).show()
-            } else if (path == "server_list") {
+            if (menuItem.itemId == R.id.nav_item_upload) {
+                Log.d("Drawer", "nav_item_upload")
+                filePickerLauncher.launch(arrayOf("*/*"))
+
+            } else if (menuItem.itemId == R.id.nav_item_server_list) {
+                Log.d("Drawer", "nav_item_server_list")
                 startActivity(Intent(this, SettingsActivity::class.java))
+
+            } else if (path == null) {
+                Log.e("Drawer", "Unknown Menu Item!")
+                Toast.makeText(this, "Unknown Menu Item!", Toast.LENGTH_LONG).show()
+
             } else {
                 Log.d("Drawer", "currentUrl: $currentUrl")
                 val url = "${currentUrl}/${path}"
@@ -151,7 +180,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             drawerLayout.closeDrawers()
-            true
+            false
         }
 
         // Handle Intent
@@ -261,7 +290,6 @@ class MainActivity : AppCompatActivity() {
                 if (webViewUrl == null) {
                     Log.d("handleIntent", "binding.webview.url: ${binding.webview.url}")
                     Log.d("handleIntent", "binding.webview.apply")
-                    //binding.webview.loadUrl(savedUrl)
                     if (savedInstanceState != null) {
                         Log.d("handleIntent", "----- restoreState: ${savedInstanceState.size()}")
                         binding.webview.restoreState(savedInstanceState)
@@ -688,6 +716,51 @@ class MainActivity : AppCompatActivity() {
                 clearHistory = false
                 binding.webview.clearHistory()
             }
+        }
+    }
+
+    inner class MyWebChromeClient : WebChromeClient() {
+        private var filePathCallback: ValueCallback<Array<Uri>>? = null
+
+        private val fileChooserLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                val clipData = result.data?.clipData
+                val dataUri = result.data?.data
+                val uris = when {
+                    clipData != null -> Array(clipData.itemCount) { i -> clipData.getItemAt(i).uri }
+                    dataUri != null -> arrayOf(dataUri)
+                    else -> null
+                }
+                Log.d("fileChooserLauncher", "uris: ${uris?.contentToString()}")
+                filePathCallback?.onReceiveValue(uris)
+                filePathCallback = null
+            }
+
+        override fun onShowFileChooser(
+            view: WebView,
+            callback: ValueCallback<Array<Uri>>,
+            params: FileChooserParams
+        ): Boolean {
+            filePathCallback?.onReceiveValue(null)
+            filePathCallback = callback
+            return try {
+                Log.d("onShowFileChooser", "fileChooserLauncher.launch")
+                fileChooserLauncher.launch(params.createIntent())
+                true
+            } catch (e: Exception) {
+                Log.w("onShowFileChooser", "Exception: $e")
+                filePathCallback = null
+                false
+            }
+        }
+
+        override fun onPermissionRequest(request: PermissionRequest) {
+            Log.d("onPermissionRequest", "request: $request")
+            //runOnUiThread {
+            //    val resources = request.resources
+            //    Log.d("onPermissionRequest", "resources: $resources")
+            //    request.grant(resources)
+            //}
         }
     }
 }

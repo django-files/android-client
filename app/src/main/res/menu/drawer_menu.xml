@@ -22,10 +22,13 @@
             android:id="@+id/nav_item_shorts"
             android:icon="@drawable/fa_link"
             android:title="Shorts" />
+    </group>
+
+    <group android:id="@+id/nav_utilities">
         <item
-            android:id="@+id/nav_item_stats"
-            android:icon="@drawable/fa_chart_line"
-            android:title="Stats" />
+            android:id="@+id/nav_item_upload"
+            android:icon="@drawable/fa_upload"
+            android:title="Upload File" />
     </group>
 
     <group android:id="@+id/nav_settings">
