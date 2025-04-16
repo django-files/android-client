@@ -746,29 +746,38 @@ class MainActivity : AppCompatActivity() {
 
     inner class MyWebChromeClient : WebChromeClient() {
         private var filePathCallback: ValueCallback<Array<Uri>>? = null
+
         private val fileChooserLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                val result = if (it.resultCode == RESULT_OK) it.data?.data else null
-                filePathCallback?.onReceiveValue(result?.let { arrayOf(it) })
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                val clipData = result.data?.clipData
+                val dataUri = result.data?.data
+                val uris = when {
+                    clipData != null -> Array(clipData.itemCount) { i -> clipData.getItemAt(i).uri }
+                    dataUri != null -> arrayOf(dataUri)
+                    else -> null
+                }
+                Log.d("fileChooserLauncher", "uris: ${uris?.contentToString()}")
+                filePathCallback?.onReceiveValue(uris)
                 filePathCallback = null
             }
 
         override fun onShowFileChooser(
             view: WebView,
-            filePathCallback: ValueCallback<Array<Uri>>,
-            fileChooserParams: FileChooserParams
+            callback: ValueCallback<Array<Uri>>,
+            params: FileChooserParams
         ): Boolean {
-            this.filePathCallback?.onReceiveValue(null)
-            this.filePathCallback = filePathCallback
+            filePathCallback?.onReceiveValue(null)
+            filePathCallback = callback
             Log.d("onShowFileChooser", "view: $view")
-            Log.d("onShowFileChooser", "filePathCallback: $filePathCallback")
-            Log.d("onShowFileChooser", "fileChooserParams: $fileChooserParams")
-
-            val intent = fileChooserParams.createIntent()
-            Log.d("onShowFileChooser", "intent: $intent")
-            //filePickerLauncher.launch(arrayOf("*/*"))
-            fileChooserLauncher.launch(intent)
-            return true
+            Log.d("onShowFileChooser", "params: $params")
+            return try {
+                fileChooserLauncher.launch(params.createIntent())
+                true
+            } catch (e: Exception) {
+                Log.w("onShowFileChooser", "Exception: $e")
+                filePathCallback = null
+                false
+            }
         }
 
         override fun onPermissionRequest(request: PermissionRequest) {
