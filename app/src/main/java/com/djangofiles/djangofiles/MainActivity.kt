@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
                     processSharedFile(uri)
                 } else {
                     Log.w("filePickerLauncher", "No File Selected!")
-                    Toast.makeText(this, "No File Selected!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "No File Selected!", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -290,7 +290,6 @@ class MainActivity : AppCompatActivity() {
                 if (webViewUrl == null) {
                     Log.d("handleIntent", "binding.webview.url: ${binding.webview.url}")
                     Log.d("handleIntent", "binding.webview.apply")
-                    //binding.webview.loadUrl(savedUrl)
                     if (savedInstanceState != null) {
                         Log.d("handleIntent", "----- restoreState: ${savedInstanceState.size()}")
                         binding.webview.restoreState(savedInstanceState)
