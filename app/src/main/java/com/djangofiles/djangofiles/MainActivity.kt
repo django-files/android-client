@@ -1,6 +1,5 @@
 package com.djangofiles.djangofiles
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -77,7 +76,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var sharedPreferences: SharedPreferences
 
-    private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
 
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
