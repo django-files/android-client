@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -23,6 +24,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
@@ -71,6 +74,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var sharedPreferences: SharedPreferences
 
+    private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
+
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,13 +122,37 @@ class MainActivity : AppCompatActivity() {
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
 
+        permissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+                val allGranted = permissions.all { it.value }
+                Log.d("permissionLauncher", "allGranted: $allGranted")
+                if (allGranted) {
+                    filePickerLauncher.launch(arrayOf("*/*"))
+                } else {
+                    Log.w("permissionLauncher", "Permission Denied!")
+                    Toast.makeText(this, "Permission Denied!", Toast.LENGTH_LONG).show()
+                }
+            }
+
+        filePickerLauncher =
+            registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                Log.d("filePickerLauncher", "uri: $uri")
+                if (uri != null) {
+                    val mimeType = contentResolver.getType(uri)
+                    Log.d("filePickerLauncher", "mimeType: $mimeType")
+                    processSharedFile(uri)
+                } else {
+                    Log.w("filePickerLauncher", "No File Selected!")
+                    Toast.makeText(this, "No File Selected!", Toast.LENGTH_LONG).show()
+                }
+            }
+
         val itemPathMap = mapOf(
             R.id.nav_item_home to "",
             R.id.nav_item_files to "files/",
             R.id.nav_item_gallery to "gallery/",
             R.id.nav_item_albums to "albums/",
             R.id.nav_item_shorts to "shorts/",
-            R.id.nav_item_stats to "stats/",
             R.id.nav_item_settings_user to "settings/user/",
             R.id.nav_item_settings_site to "settings/site/",
             R.id.nav_item_server_list to "server_list",
@@ -136,10 +166,28 @@ class MainActivity : AppCompatActivity() {
             val path = itemPathMap[menuItem.itemId]
             Log.d("Drawer", "path: $path")
 
-            if (path == null) {
-                Toast.makeText(this, "Unknown Menu Item!", Toast.LENGTH_SHORT).show()
-            } else if (path == "server_list") {
+            if (menuItem.itemId == R.id.nav_item_upload) {
+                Log.d("Drawer", "nav_item_upload")
+                val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    arrayOf(
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO,
+                        Manifest.permission.READ_MEDIA_AUDIO
+                    )
+                } else {
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+                Log.d("Drawer", "permissions: $permissions")
+                permissionLauncher.launch(permissions)
+                binding.drawerLayout.closeDrawers()
+
+            } else if (menuItem.itemId == R.id.nav_item_server_list) {
+                Log.d("Drawer", "nav_item_server_list")
                 startActivity(Intent(this, SettingsActivity::class.java))
+
+            } else if (path == null) {
+                Toast.makeText(this, "Unknown Menu Item!", Toast.LENGTH_SHORT).show()
+
             } else {
                 Log.d("Drawer", "currentUrl: $currentUrl")
                 val url = "${currentUrl}/${path}"
@@ -151,7 +199,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             drawerLayout.closeDrawers()
-            true
+            false
         }
 
         // Handle Intent
