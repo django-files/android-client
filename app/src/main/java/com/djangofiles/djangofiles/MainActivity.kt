@@ -127,18 +127,6 @@ class MainActivity : AppCompatActivity() {
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
 
-        permissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-                val allGranted = permissions.all { it.value }
-                Log.d("permissionLauncher", "allGranted: $allGranted")
-                if (allGranted) {
-                    filePickerLauncher.launch(arrayOf("*/*"))
-                } else {
-                    Log.w("permissionLauncher", "Permission Denied!")
-                    Toast.makeText(this, "Permission Denied!", Toast.LENGTH_LONG).show()
-                }
-            }
-
         filePickerLauncher =
             registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
                 Log.d("filePickerLauncher", "uri: $uri")
@@ -173,25 +161,15 @@ class MainActivity : AppCompatActivity() {
 
             if (menuItem.itemId == R.id.nav_item_upload) {
                 Log.d("Drawer", "nav_item_upload")
-                val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    arrayOf(
-                        Manifest.permission.READ_MEDIA_IMAGES,
-                        Manifest.permission.READ_MEDIA_VIDEO,
-                        Manifest.permission.READ_MEDIA_AUDIO
-                    )
-                } else {
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-                Log.d("Drawer", "permissions: $permissions")
-                permissionLauncher.launch(permissions)
-                binding.drawerLayout.closeDrawers()
+                filePickerLauncher.launch(arrayOf("*/*"))
 
             } else if (menuItem.itemId == R.id.nav_item_server_list) {
                 Log.d("Drawer", "nav_item_server_list")
                 startActivity(Intent(this, SettingsActivity::class.java))
 
             } else if (path == null) {
-                Toast.makeText(this, "Unknown Menu Item!", Toast.LENGTH_SHORT).show()
+                Log.e("Drawer", "Unknown Menu Item!")
+                Toast.makeText(this, "Unknown Menu Item!", Toast.LENGTH_LONG).show()
 
             } else {
                 Log.d("Drawer", "currentUrl: $currentUrl")
