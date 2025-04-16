@@ -14,6 +14,9 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
+import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -93,10 +96,12 @@ class MainActivity : AppCompatActivity() {
 
         binding.webview.apply {
             webViewClient = MyWebViewClient()
+            webChromeClient = MyWebChromeClient()
             settings.domStorageEnabled = true
             settings.javaScriptEnabled = true
             settings.allowFileAccess = true // not sure if this is needed
             settings.allowContentAccess = true // not sure if this is needed
+            settings.mediaPlaybackRequiresUserGesture = true // not sure if this is needed
             //settings.loadWithOverviewMode = true // prevent loading images zoomed in
             //settings.useWideViewPort = true // prevent loading images zoomed in
             addJavascriptInterface(WebAppInterface(this@MainActivity), "Android")
@@ -735,6 +740,42 @@ class MainActivity : AppCompatActivity() {
                 Log.d("onPageFinished", "binding.webview.clearHistory()")
                 clearHistory = false
                 binding.webview.clearHistory()
+            }
+        }
+    }
+
+    inner class MyWebChromeClient : WebChromeClient() {
+        private var filePathCallback: ValueCallback<Array<Uri>>? = null
+        private val fileChooserLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                val result = if (it.resultCode == RESULT_OK) it.data?.data else null
+                filePathCallback?.onReceiveValue(result?.let { arrayOf(it) })
+                filePathCallback = null
+            }
+
+        override fun onShowFileChooser(
+            view: WebView,
+            filePathCallback: ValueCallback<Array<Uri>>,
+            fileChooserParams: FileChooserParams
+        ): Boolean {
+            this.filePathCallback?.onReceiveValue(null)
+            this.filePathCallback = filePathCallback
+            Log.d("onShowFileChooser", "view: $view")
+            Log.d("onShowFileChooser", "filePathCallback: $filePathCallback")
+            Log.d("onShowFileChooser", "fileChooserParams: $fileChooserParams")
+
+            val intent = fileChooserParams.createIntent()
+            Log.d("onShowFileChooser", "intent: $intent")
+            //filePickerLauncher.launch(arrayOf("*/*"))
+            fileChooserLauncher.launch(intent)
+            return true
+        }
+
+        override fun onPermissionRequest(request: PermissionRequest) {
+            Log.d("onPermissionRequest", "request: $request")
+            runOnUiThread {
+                val resources = request.resources.toList()
+                Log.d("onPermissionRequest", "resources: $resources")
             }
         }
     }
