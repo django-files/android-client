@@ -33,6 +33,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.drawerlayout.widget.DrawerLayout
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.settings.Server
 import com.djangofiles.djangofiles.settings.ServerDao
@@ -83,6 +84,9 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+        drawer.setStatusBarBackgroundColor(Color.TRANSPARENT)
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
