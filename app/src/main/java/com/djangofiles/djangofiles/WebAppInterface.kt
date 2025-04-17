@@ -10,6 +10,7 @@ import com.djangofiles.djangofiles.settings.ServerDao
 import com.djangofiles.djangofiles.settings.ServerDatabase
 
 
+@Suppress("unused")
 class WebAppInterface(private var context: Context) {
     companion object {
         private const val PREFS_NAME = "AppPreferences"

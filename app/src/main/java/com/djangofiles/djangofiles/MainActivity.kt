@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
-        binding.webview.apply {
+        binding.webView.apply {
             webViewClient = MyWebViewClient()
             webChromeClient = MyWebChromeClient()
             settings.domStorageEnabled = true
@@ -108,9 +108,9 @@ class MainActivity : AppCompatActivity() {
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         versionName = packageInfo.versionName
         Log.d("onCreate", "versionName: $versionName")
-        userAgent = "${binding.webview.settings.userAgentString} DjangoFiles Android/$versionName"
+        userAgent = "${binding.webView.settings.userAgentString} DjangoFiles Android/$versionName"
         Log.d("onCreate", "UA: $userAgent")
-        binding.webview.settings.userAgentString = userAgent
+        binding.webView.settings.userAgentString = userAgent
 
         //ViewCompat.setOnApplyWindowInsetsListener(
         //    binding.main
@@ -173,10 +173,10 @@ class MainActivity : AppCompatActivity() {
                 Log.d("Drawer", "currentUrl: $currentUrl")
                 val url = "${currentUrl}/${path}"
                 Log.d("Drawer", "Click URL: $url")
-                Log.d("Drawer", "webView.url: ${binding.webview.url}")
-                if (binding.webview.url != url) {
-                    Log.d("Drawer", "binding.webview.loadUrl: $url")
-                    binding.webview.loadUrl(url)
+                Log.d("Drawer", "webView.url: ${binding.webView.url}")
+                if (binding.webView.url != url) {
+                    Log.d("Drawer", "binding.webView.loadUrl: $url")
+                    binding.webView.loadUrl(url)
                 }
             }
             drawerLayout.closeDrawers()
@@ -196,8 +196,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("onDestroy", "binding.webview.destroy()")
-        binding.webview.apply {
+        Log.d("onDestroy", "binding.webView.destroy()")
+        binding.webView.apply {
             loadUrl("about:blank")
             stopLoading()
             clearHistory()
@@ -209,28 +209,28 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.d("onSaveInstanceState", "outState1: ${outState.size()}")
-        binding.webview.saveState(outState)
+        binding.webView.saveState(outState)
         Log.d("onSaveInstanceState", "outState2: ${outState.size()}")
     }
 
     //override fun onRestoreInstanceState(savedInstanceState: Bundle) {
     //    super.onRestoreInstanceState(savedInstanceState)
-    //    Log.d("onRestoreInstanceState", "binding.webview.url: ${binding.webview.url}")
+    //    Log.d("onRestoreInstanceState", "binding.webView.url: ${binding.webView.url}")
     //    Log.d("onRestoreInstanceState", "savedInstanceState: ${savedInstanceState.size()}")
     //}
 
     override fun onPause() {
         super.onPause()
         Log.d("MainActivity", "onPause")
-        binding.webview.onPause()
-        binding.webview.pauseTimers()
+        binding.webView.onPause()
+        binding.webView.pauseTimers()
     }
 
     override fun onResume() {
         super.onResume()
         Log.d("MainActivity", "onResume")
-        binding.webview.onResume()
-        binding.webview.resumeTimers()
+        binding.webView.onResume()
+        binding.webView.resumeTimers()
         // TODO: Determine how to better handle this...
         val savedUrl = sharedPreferences.getString(URL_KEY, null)
         Log.d("onResume", "savedUrl: $savedUrl")
@@ -239,16 +239,16 @@ class MainActivity : AppCompatActivity() {
             Log.d("onResume", "No savedUrl - First Run Detected.")
             //startActivity(Intent(this, SettingsActivity::class.java))
         } else if (savedUrl != currentUrl) {
-            Log.d("onResume", "binding.webview.loadUrl: $savedUrl")
+            Log.d("onResume", "binding.webView.loadUrl: $savedUrl")
             currentUrl = savedUrl
             clearHistory = true
-            binding.webview.loadUrl(savedUrl)
+            binding.webView.loadUrl(savedUrl)
         }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && binding.webview.canGoBack()) {
-            binding.webview.goBack()
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && binding.webView.canGoBack()) {
+            binding.webView.goBack()
             return true
         }
         return super.onKeyDown(keyCode, event)
@@ -280,7 +280,7 @@ class MainActivity : AppCompatActivity() {
             val authToken = sharedPreferences.getString(TOKEN_KEY, null)
             Log.d("handleIntent", "authToken: $authToken")
 
-            val webViewUrl = binding.webview.url
+            val webViewUrl = binding.webView.url
             Log.d("handleIntent", "webViewUrl: $webViewUrl")
 
             if (savedUrl.isNullOrEmpty()) {
@@ -288,18 +288,18 @@ class MainActivity : AppCompatActivity() {
                 //startActivity(Intent(this, SettingsActivity::class.java))
             } else {
                 if (webViewUrl == null) {
-                    Log.d("handleIntent", "binding.webview.url: ${binding.webview.url}")
-                    Log.d("handleIntent", "binding.webview.apply")
+                    Log.d("handleIntent", "binding.webView.url: ${binding.webView.url}")
+                    Log.d("handleIntent", "binding.webView.apply")
                     if (savedInstanceState != null) {
                         Log.d("handleIntent", "----- restoreState: ${savedInstanceState.size()}")
-                        binding.webview.restoreState(savedInstanceState)
+                        binding.webView.restoreState(savedInstanceState)
                     } else {
                         Log.d("handleIntent", "+++++ loadUrl: $savedUrl")
-                        binding.webview.loadUrl(savedUrl)
+                        binding.webView.loadUrl(savedUrl)
                     }
 
                 } else {
-                    Log.d("handleIntent", "SKIPPING  binding.webview.loadUrl")
+                    Log.d("handleIntent", "SKIPPING  binding.webView.loadUrl")
                 }
             }
         } else if (Intent.ACTION_VIEW == action) {
@@ -351,8 +351,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                 val savedUrl = sharedPreferences.getString(URL_KEY, null)
-                Log.d("handleIntent", "binding.webview.loadUrl: ${savedUrl}/paste/")
-                binding.webview.loadUrl("${savedUrl}/paste/")
+                Log.d("handleIntent", "binding.webView.loadUrl: ${savedUrl}/paste/")
+                binding.webView.loadUrl("${savedUrl}/paste/")
                 Toast.makeText(
                     this,
                     this.getString(R.string.tst_not_implemented),
@@ -452,8 +452,8 @@ class MainActivity : AppCompatActivity() {
                                             )
                                         }
                                         currentUrl = url
-                                        Log.d("showSettingsDialog", "binding.webview.loadUrl: $url")
-                                        binding.webview.loadUrl(url)
+                                        Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
+                                        binding.webView.loadUrl(url)
                                         dismiss()
                                     } else {
                                         Log.d("showSettingsDialog", "FAILURE")
@@ -640,8 +640,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun copyToClipboard(url: String) {
-        Log.d("copyToClipboard", "binding.webview.loadUrl: $url")
-        binding.webview.loadUrl(url)
+        Log.d("copyToClipboard", "binding.webView.loadUrl: $url")
+        binding.webView.loadUrl(url)
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("URL", url)
         clipboard.setPrimaryClip(clip)
@@ -712,9 +712,9 @@ class MainActivity : AppCompatActivity() {
         override fun onPageFinished(view: WebView?, url: String?) {
             Log.d("onPageFinished", "url: $url")
             if (clearHistory == true) {
-                Log.d("onPageFinished", "binding.webview.clearHistory()")
+                Log.d("onPageFinished", "binding.webView.clearHistory()")
                 clearHistory = false
-                binding.webview.clearHistory()
+                binding.webView.clearHistory()
             }
         }
     }
