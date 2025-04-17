@@ -40,16 +40,16 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 ## Install
 
+> [!TIP]  
+> To install, download and open the [latest release](https://github.com/django-files/android-client/releases/latest).
+>
+> [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+
 <details><summary>View QR Code</summary>
 
 [![QR Code](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android-client/django-files-android-client-download.png)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 </details>
-
-> [!TIP]  
-> To install, download and open the [latest release](https://github.com/django-files/android-client/releases/latest).
->
-> [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 _Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
 
