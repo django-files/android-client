@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles
 
+import android.graphics.Color
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -32,13 +33,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.drawerlayout.widget.DrawerLayout
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.settings.Server
 import com.djangofiles.djangofiles.settings.ServerDao
 import com.djangofiles.djangofiles.settings.ServerDatabase
 import com.djangofiles.djangofiles.settings.SettingsActivity
-import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,8 +71,6 @@ class MainActivity : AppCompatActivity() {
     private var currentUrl: String? = null
     private var versionName: String? = null
 
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
     private lateinit var sharedPreferences: SharedPreferences
 
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
@@ -86,9 +83,6 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        drawerLayout = findViewById(R.id.drawer_layout)
-        navigationView = findViewById(R.id.navigation_view)
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
@@ -121,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         //    insets
         //}
 
-        val headerView = navigationView.getHeaderView(0)
+        val headerView = binding.navigationView.getHeaderView(0)
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
 
@@ -150,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         // Handle Navigation Item Clicks
-        navigationView.setNavigationItemSelectedListener { menuItem ->
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             Log.d("Drawer", "menuItem: $menuItem")
             Log.d("Drawer", "itemId: ${menuItem.itemId}")
 
@@ -179,7 +173,7 @@ class MainActivity : AppCompatActivity() {
                     binding.webView.loadUrl(url)
                 }
             }
-            drawerLayout.closeDrawers()
+            binding.drawerLayout.closeDrawers()
             false
         }
 
@@ -190,7 +184,7 @@ class MainActivity : AppCompatActivity() {
 
         handleIntent(intent, savedInstanceState)
 
-        //drawerLayout.openDrawer(GravityCompat.START)
+        //binding.drawerLayout.openDrawer(GravityCompat.START)
         //startActivity(Intent(this, SettingsActivity::class.java))
     }
 
