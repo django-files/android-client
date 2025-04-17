@@ -554,13 +554,18 @@ class MainActivity : AppCompatActivity() {
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     val jsonURL = parseJsonResponse(connection)
-                    runOnUiThread { copyToClipboard(jsonURL!!) }
+                    Log.d("processSharedFile", "jsonURL: $jsonURL")
+                    clearHistory = true
+                    runOnUiThread {
+                        copyToClipboard(jsonURL!!)
+                        binding.webView.loadUrl(jsonURL)
+                    }
                 } else {
                     runOnUiThread {
                         Toast.makeText(
                             this@MainActivity,
                             getString(R.string.tst_error) + ": " + responseMessage,
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -570,7 +575,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(
                         this@MainActivity,
                         getString(R.string.tst_error_uploading),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -631,7 +636,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun copyToClipboard(url: String) {
         Log.d("copyToClipboard", "binding.webView.loadUrl: $url")
-        binding.webView.loadUrl(url)
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("URL", url)
         clipboard.setPrimaryClip(clip)
