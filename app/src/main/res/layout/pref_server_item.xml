@@ -25,6 +25,6 @@
         android:layout_gravity="end|center_vertical"
         android:padding="12dp"
         android:src="@drawable/fa_trash_can"
-        android:contentDescription="Delete" />
+        android:contentDescription="@string/delete" />
 
 </FrameLayout>
