@@ -1,12 +1,12 @@
 package com.djangofiles.djangofiles
 
-import android.graphics.Color
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -309,7 +309,7 @@ class MainActivity : AppCompatActivity() {
                     //showSettingsDialog()
                     startActivity(Intent(this, SettingsActivity::class.java))
                 } else {
-                    Toast.makeText(this,"Unknown DeepLink!",Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
                     Log.w("handleIntent", "Unknown DeepLink!")
                     finish()
                 }
@@ -317,7 +317,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("handleIntent", "processSharedFile: ${intent.data}")
                 processSharedFile(intent.data!!)
             } else {
-                Toast.makeText(this,"Unknown DeepLink!",Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
                 Log.w("handleIntent", "Unknown DeepLink!")
                 finish()
             }
@@ -338,16 +338,16 @@ class MainActivity : AppCompatActivity() {
                 //if (extraText.lowercase().startsWith("http")) {
                 if (Patterns.WEB_URL.matcher(extraText).matches()) {
                     Log.d("handleIntent", "URL TEXT DETECTED: $extraText")
-                    Toast.makeText(this,"Not Yet Implemented!",Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
                 } else {
                     Log.d("handleIntent", "NON-URL TEXT DETECTED: $extraText")
-                    Toast.makeText(this,"Not Yet Implemented!",Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
                 }
             }
             if (fileUri != null) {
                 processSharedFile(fileUri)
             } else {
-                Toast.makeText(this,"Unknown Content!",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Unknown Content!", Toast.LENGTH_SHORT).show()
                 Log.w("handleIntent", "Unknown Content!")
             }
 
