@@ -295,6 +295,13 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Log.i("handleIntent", "SKIPPING binding.webView.loadUrl")
                 }
+
+                val fromShortcut = intent.getStringExtra("fromShortcut")
+                Log.d("handleIntent", "fromShortcut: $fromShortcut")
+                if (fromShortcut == "upload") {
+                    Log.d("handleIntent", "filePickerLauncher.launch")
+                    filePickerLauncher.launch(arrayOf("*/*"))
+                }
             }
 
         } else if (Intent.ACTION_VIEW == intent.action) {

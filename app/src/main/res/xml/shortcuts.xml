@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="upload"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher_round"
+        android:shortcutShortLabel="@string/upload_short"
+        android:shortcutLongLabel="@string/upload_long">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.djangofiles.djangofiles"
+            android:targetClass="com.djangofiles.djangofiles.MainActivity">
+            <extra
+                android:name="fromShortcut"
+                android:value="upload" />
+        </intent>
+    </shortcut>
+</shortcuts>
