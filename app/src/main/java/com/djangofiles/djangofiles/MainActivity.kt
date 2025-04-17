@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
+import android.util.Patterns
 import android.view.Gravity
 import android.view.KeyEvent
 import android.webkit.PermissionRequest
@@ -63,17 +64,16 @@ class MainActivity : AppCompatActivity() {
         const val TOKEN_KEY = "auth_token"
     }
 
-    private lateinit var binding: ActivityMainBinding
     private val client = OkHttpClient()
-
-    private var clearHistory = false
 
     private var userAgent: String = "DjangoFiles Android"
     private var currentUrl: String? = null
     private var versionName: String? = null
+    private var clearHistory = false
+
+    private lateinit var binding: ActivityMainBinding
 
     private lateinit var sharedPreferences: SharedPreferences
-
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
 
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
@@ -263,27 +263,29 @@ class MainActivity : AppCompatActivity() {
         Log.d("handleIntent", "intent.type: ${intent.type}")
         Log.d("handleIntent", "intent.action: ${intent.action}")
 
+        val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
+        Log.d("handleIntent", "extraText: $extraText")
+
+        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUrl = sharedPreferences.getString(URL_KEY, null)
+        Log.d("handleIntent", "savedUrl: $savedUrl")
+        val authToken = sharedPreferences.getString(TOKEN_KEY, null)
+        Log.d("handleIntent", "authToken: $authToken")
+        val webViewUrl = binding.webView.url
+        Log.d("handleIntent", "webViewUrl: $webViewUrl")
+
         if (Intent.ACTION_MAIN == intent.action) {
             Log.d("handleIntent", "ACTION_MAIN")
 
-            //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            val savedUrl = sharedPreferences.getString(URL_KEY, null)
-            Log.d("handleIntent", "savedUrl: $savedUrl")
-            val authToken = sharedPreferences.getString(TOKEN_KEY, null)
-            Log.d("handleIntent", "authToken: $authToken")
-            val webViewUrl = binding.webView.url
-            Log.d("handleIntent", "webViewUrl: $webViewUrl")
-
             if (savedUrl.isNullOrEmpty()) {
+                Log.d("handleIntent", "No Saved URL!")
                 showSettingsDialog()
                 //startActivity(Intent(this, SettingsActivity::class.java))
             } else {
                 if (webViewUrl == null) {
-                    Log.d("handleIntent", "binding.webView.url: ${binding.webView.url}")
-                    Log.d("handleIntent", "binding.webView.apply")
                     if (savedInstanceState != null) {
                         Log.d("handleIntent", "----- restoreState: ${savedInstanceState.size()}")
-                        currentUrl = binding.webView.url
+                        currentUrl = webViewUrl
                         binding.webView.restoreState(savedInstanceState)
                     } else {
                         Log.d("handleIntent", "+++++ loadUrl: $savedUrl")
@@ -291,7 +293,7 @@ class MainActivity : AppCompatActivity() {
                         binding.webView.loadUrl(savedUrl)
                     }
                 } else {
-                    Log.d("handleIntent", "SKIPPING binding.webView.loadUrl")
+                    Log.i("handleIntent", "SKIPPING binding.webView.loadUrl")
                 }
             }
 
@@ -302,71 +304,51 @@ class MainActivity : AppCompatActivity() {
                 Log.d("handleIntent", "scheme: ${intent.data?.scheme}")
                 val host = intent.data?.host
                 Log.d("handleIntent", "host: $host")
-                if ("djangofiles" == intent.data?.scheme) {
-                    if ("serverlist" == host) {
-                        Log.d("handleIntent", "djangofiles://serverlist")
-                        //showSettingsDialog()
-                        startActivity(Intent(this, SettingsActivity::class.java))
-                    } else {
-                        Toast.makeText(
-                            this,
-                            getString(R.string.tst_error) + ": Unknown DeepLink",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        Log.d("handleIntent", "Unknown DeepLink!")
-                        finish()
-                    }
+                if ("serverlist" == host) {
+                    Log.d("handleIntent", "djangofiles://serverlist")
+                    //showSettingsDialog()
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                } else {
+                    Toast.makeText(this,"Unknown DeepLink!",Toast.LENGTH_LONG).show()
+                    Log.w("handleIntent", "Unknown DeepLink!")
+                    finish()
                 }
             } else if (intent.data != null) {
                 Log.d("handleIntent", "processSharedFile: ${intent.data}")
                 processSharedFile(intent.data!!)
             } else {
-                Log.e("handleIntent", "Unknown Intent!")
-                Toast.makeText(
-                    this,
-                    getString(R.string.tst_error) + ": Unknown Intent",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this,"Unknown DeepLink!",Toast.LENGTH_LONG).show()
+                Log.w("handleIntent", "Unknown DeepLink!")
                 finish()
             }
 
         } else if (Intent.ACTION_SEND == intent.action && intent.type != null) {
             Log.d("handleIntent", "ACTION_SEND")
 
-            if ("text/plain" == intent.type) {
-                val sharedText: String? = intent.getStringExtra(Intent.EXTRA_TEXT)
-                Log.d("handleIntent", "sharedText: $sharedText")
-                if (sharedText != null) {
-                    if (sharedText.startsWith("content://")) {
-                        val fileUri = sharedText.toUri()
-                        Log.d("handleIntent", "Received URI: $fileUri")
-                    } else {
-                        Log.d("handleIntent", "Received text/plain: $sharedText")
-                    }
-                }
-                //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                val savedUrl = sharedPreferences.getString(URL_KEY, null)
-                Log.d("handleIntent", "binding.webView.loadUrl: ${savedUrl}/paste/")
-                binding.webView.loadUrl("${savedUrl}/paste/")
-                Toast.makeText(
-                    this,
-                    this.getString(R.string.tst_not_implemented),
-                    Toast.LENGTH_SHORT
-                ).show()
+            val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
             } else {
-                //val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-                val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra(Intent.EXTRA_STREAM)
+            }
+            Log.d("handleIntent", "fileUri: $fileUri")
+
+            if (!extraText.isNullOrEmpty()) {
+                Log.d("handleIntent", "SEND TEXT: $extraText")
+                //if (extraText.lowercase().startsWith("http")) {
+                if (Patterns.WEB_URL.matcher(extraText).matches()) {
+                    Log.d("handleIntent", "URL TEXT DETECTED: $extraText")
+                    Toast.makeText(this,"Not Yet Implemented!",Toast.LENGTH_LONG).show()
                 } else {
-                    @Suppress("DEPRECATION")
-                    intent.getParcelableExtra(Intent.EXTRA_STREAM)
+                    Log.d("handleIntent", "NON-URL TEXT DETECTED: $extraText")
+                    Toast.makeText(this,"Not Yet Implemented!",Toast.LENGTH_LONG).show()
                 }
-                if (fileUri != null) {
-                    processSharedFile(fileUri)
-                } else {
-                    Toast.makeText(this, "Empty Content URI!", Toast.LENGTH_LONG).show()
-                    Log.w("handleIntent", "URI is NULL")
-                }
+            }
+            if (fileUri != null) {
+                processSharedFile(fileUri)
+            } else {
+                Toast.makeText(this,"Unknown Content!",Toast.LENGTH_SHORT).show()
+                Log.w("handleIntent", "Unknown Content!")
             }
 
         } else if (Intent.ACTION_SEND_MULTIPLE == intent.action) {
@@ -379,8 +361,10 @@ class MainActivity : AppCompatActivity() {
                 @Suppress("DEPRECATION")
                 intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM)
             }
+            Log.d("handleIntent", "fileUris: $fileUris")
             if (fileUris != null) {
                 for (fileUri in fileUris) {
+                    Log.d("handleIntent", "fileUri: $fileUri")
                     processSharedFile(fileUri)
                 }
             } else {
