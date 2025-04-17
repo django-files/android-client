@@ -12,7 +12,7 @@
 
 # Django Files Android App
 
-[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20for%20Android&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 - [Install](#Install)
   - [Setup](#Setup)
@@ -40,10 +40,16 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 ## Install
 
+<details><summary>View QR Code</summary>
+
+[![QR Code](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android-client/django-files-android-client-download.png)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+
+</details>
+
 > [!TIP]  
 > To install, download and open the [latest release](https://github.com/django-files/android-client/releases/latest).
 >
-> [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20for%20Android&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+> [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 _Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
 
@@ -75,8 +81,8 @@ should take you to the settings area to allow installation if not already enable
 4. All Done! You can now share and open files with Django Files.
 
 To use, share or open any file and choose the Django Files app.
-The app will then be upload the file to your Django Files server.
-Additionally, the URL is copied to the clipboard and the preview is show in the app.
+The app will then upload the file to your Django Files server.
+Additionally, the URL is copied to the clipboard and the preview show in the app.
 
 > [!IMPORTANT]  
 > If you use 2Factor, Local or GitHub OAuth is recommended.
@@ -86,11 +92,17 @@ Additionally, the URL is copied to the clipboard and the preview is show in the 
 - Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
 - Ability to add multiple servers and switch on the fly from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
-- Native Android Navigation Drawer from Server List or Swipe from Left.
+- Navigation Drawer on Swipe from Left with App Settings or Server List from the main menu.
+- Native Upload feature from Navigation Drawer and Upload Shortcut on Icon long press.
 
 ### Planned
 
-- Ability for the app to log you in if your session is expired or when switching servers.
+- Ability to Shorten URL's.
+- Widget with Stats and quick options.
+- Quick access to Recent uploads and URLs.
+- Option to Preview file(s) before uploading w/ server selector and upload options.
+- Native App Login to support Discord passkeys and Google App Authentication.
+- Ability to Authenticate if your session (cookie) is expired or invalidated.
 
 ### Known Issues
 
@@ -98,8 +110,8 @@ Additionally, the URL is copied to the clipboard and the preview is show in the 
 - Login with Google OAuth gives an error; however, may succeed if you wait ~30 seconds.
 - The app gets logged out if the session expires; however, sharing continues to work.
   - Upon logging back in, you may need to leave the app open (in the background) for ~30 seconds to allow the cookie to be saved.
-- Deleting the active server does not deactivate it and it remains active until selecting another server.
-- Uploading from the website (Uppy) in the app does not work due to a permissions issue.
+- Deleting the active server does not deactivate it, and it remains active until selecting another server.
+- Uploading files from the website works; however, taking picture and recording video and audio does not.
 
 # Development
 
