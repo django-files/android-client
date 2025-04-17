@@ -4,8 +4,8 @@
         android:shortcutId="upload"
         android:enabled="true"
         android:icon="@mipmap/ic_launcher_round"
-        android:shortcutShortLabel="@string/upload_short"
-        android:shortcutLongLabel="@string/upload_long">
+        android:shortcutShortLabel="@string/upload"
+        android:shortcutLongLabel="@string/upload_file">
         <intent
             android:action="android.intent.action.MAIN"
             android:targetPackage="com.djangofiles.djangofiles"

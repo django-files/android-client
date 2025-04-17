@@ -157,6 +157,8 @@ jobs:
         if: ${{ github.event_name == 'release' }}
         uses: smashedr/update-release-notes-action@master
         continue-on-error: true
+        with:
+          type: generic
 
       - name: "Write Job Summary"
         if: ${{ !github.event.act }}

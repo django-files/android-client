@@ -5,18 +5,19 @@
     <string name="settings_message">Set the Initial Django Files URL</string>
     <string name="settings_input_place">your.django-files.com</string>
     <string name="settings_requires">Requires server version 0.16.0-b7 or greater.</string>
-    <string name="tst_invalid_url">Please enter a valid URL.</string>
 
+    <string name="tst_invalid_url">Please enter a valid URL.</string>
     <string name="tst_not_implemented">Not Implemented.</string>
     <string name="tst_error">Error</string>
     <string name="tst_error_uploading">Error Uploading File!</string>
     <string name="tst_no_url">Django Files URL Not Set!</string>
     <string name="tst_url_copied">URL Copied to Clipboard.</string>
     <string name="tst_no_clipboard">Clipboard Not Available!</string>
-
     <string name="tst_perm_failed">Unable to Grant Permissions!</string>
     <string name="tst_uploading_file">Uploading File. Please Wait.</string>
-    <string name="django_files">Django Files</string>
-    <string name="upload_short">Upload</string>
-    <string name="upload_long">Upload File</string>
+
+    <string name="delete">Delete</string>
+
+    <string name="upload">Upload</string>
+    <string name="upload_file">Upload File</string>
 </resources>
