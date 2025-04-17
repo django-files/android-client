@@ -6,11 +6,13 @@ import android.content.ClipboardManager
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
+import android.util.Patterns
 import android.view.Gravity
 import android.view.KeyEvent
 import android.webkit.PermissionRequest
@@ -38,7 +40,6 @@ import com.djangofiles.djangofiles.settings.Server
 import com.djangofiles.djangofiles.settings.ServerDao
 import com.djangofiles.djangofiles.settings.ServerDatabase
 import com.djangofiles.djangofiles.settings.SettingsActivity
-import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -63,19 +64,16 @@ class MainActivity : AppCompatActivity() {
         const val TOKEN_KEY = "auth_token"
     }
 
-    private lateinit var binding: ActivityMainBinding
     private val client = OkHttpClient()
-
-    private var clearHistory = false
 
     private var userAgent: String = "DjangoFiles Android"
     private var currentUrl: String? = null
     private var versionName: String? = null
+    private var clearHistory = false
 
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
+    private lateinit var binding: ActivityMainBinding
+
     private lateinit var sharedPreferences: SharedPreferences
-
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
 
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
@@ -87,12 +85,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        drawerLayout = findViewById(R.id.drawer_layout)
-        navigationView = findViewById(R.id.navigation_view)
+        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+        drawer.setStatusBarBackgroundColor(Color.TRANSPARENT)
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
-        binding.webview.apply {
+        binding.webView.apply {
             webViewClient = MyWebViewClient()
             webChromeClient = MyWebChromeClient()
             settings.domStorageEnabled = true
@@ -108,9 +106,9 @@ class MainActivity : AppCompatActivity() {
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         versionName = packageInfo.versionName
         Log.d("onCreate", "versionName: $versionName")
-        userAgent = "${binding.webview.settings.userAgentString} DjangoFiles Android/$versionName"
+        userAgent = "${binding.webView.settings.userAgentString} DjangoFiles Android/$versionName"
         Log.d("onCreate", "UA: $userAgent")
-        binding.webview.settings.userAgentString = userAgent
+        binding.webView.settings.userAgentString = userAgent
 
         //ViewCompat.setOnApplyWindowInsetsListener(
         //    binding.main
@@ -121,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         //    insets
         //}
 
-        val headerView = navigationView.getHeaderView(0)
+        val headerView = binding.navigationView.getHeaderView(0)
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
 
@@ -150,7 +148,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         // Handle Navigation Item Clicks
-        navigationView.setNavigationItemSelectedListener { menuItem ->
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             Log.d("Drawer", "menuItem: $menuItem")
             Log.d("Drawer", "itemId: ${menuItem.itemId}")
 
@@ -173,13 +171,13 @@ class MainActivity : AppCompatActivity() {
                 Log.d("Drawer", "currentUrl: $currentUrl")
                 val url = "${currentUrl}/${path}"
                 Log.d("Drawer", "Click URL: $url")
-                Log.d("Drawer", "webView.url: ${binding.webview.url}")
-                if (binding.webview.url != url) {
-                    Log.d("Drawer", "binding.webview.loadUrl: $url")
-                    binding.webview.loadUrl(url)
+                Log.d("Drawer", "webView.url: ${binding.webView.url}")
+                if (binding.webView.url != url) {
+                    Log.d("Drawer", "binding.webView.loadUrl: $url")
+                    binding.webView.loadUrl(url)
                 }
             }
-            drawerLayout.closeDrawers()
+            binding.drawerLayout.closeDrawers()
             false
         }
 
@@ -190,14 +188,14 @@ class MainActivity : AppCompatActivity() {
 
         handleIntent(intent, savedInstanceState)
 
-        //drawerLayout.openDrawer(GravityCompat.START)
+        //binding.drawerLayout.openDrawer(GravityCompat.START)
         //startActivity(Intent(this, SettingsActivity::class.java))
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("onDestroy", "binding.webview.destroy()")
-        binding.webview.apply {
+        Log.d("onDestroy", "binding.webView.destroy()")
+        binding.webView.apply {
             loadUrl("about:blank")
             stopLoading()
             clearHistory()
@@ -209,28 +207,28 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.d("onSaveInstanceState", "outState1: ${outState.size()}")
-        binding.webview.saveState(outState)
+        binding.webView.saveState(outState)
         Log.d("onSaveInstanceState", "outState2: ${outState.size()}")
     }
 
     //override fun onRestoreInstanceState(savedInstanceState: Bundle) {
     //    super.onRestoreInstanceState(savedInstanceState)
-    //    Log.d("onRestoreInstanceState", "binding.webview.url: ${binding.webview.url}")
+    //    Log.d("onRestoreInstanceState", "binding.webView.url: ${binding.webView.url}")
     //    Log.d("onRestoreInstanceState", "savedInstanceState: ${savedInstanceState.size()}")
     //}
 
     override fun onPause() {
         super.onPause()
         Log.d("MainActivity", "onPause")
-        binding.webview.onPause()
-        binding.webview.pauseTimers()
+        binding.webView.onPause()
+        binding.webView.pauseTimers()
     }
 
     override fun onResume() {
         super.onResume()
         Log.d("MainActivity", "onResume")
-        binding.webview.onResume()
-        binding.webview.resumeTimers()
+        binding.webView.onResume()
+        binding.webView.resumeTimers()
         // TODO: Determine how to better handle this...
         val savedUrl = sharedPreferences.getString(URL_KEY, null)
         Log.d("onResume", "savedUrl: $savedUrl")
@@ -239,16 +237,16 @@ class MainActivity : AppCompatActivity() {
             Log.d("onResume", "No savedUrl - First Run Detected.")
             //startActivity(Intent(this, SettingsActivity::class.java))
         } else if (savedUrl != currentUrl) {
-            Log.d("onResume", "binding.webview.loadUrl: $savedUrl")
+            Log.d("onResume", "binding.webView.loadUrl: $savedUrl")
             currentUrl = savedUrl
             clearHistory = true
-            binding.webview.loadUrl(savedUrl)
+            binding.webView.loadUrl(savedUrl)
         }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && binding.webview.canGoBack()) {
-            binding.webview.goBack()
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && binding.webView.canGoBack()) {
+            binding.webView.goBack()
             return true
         }
         return super.onKeyDown(keyCode, event)
@@ -261,119 +259,108 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleIntent(intent: Intent, savedInstanceState: Bundle?) {
-        val uri = intent.data
-        Log.d("handleIntent", "uri: $uri")
+        Log.d("handleIntent", "intent.data (uri): ${intent.data}")
+        Log.d("handleIntent", "intent.type: ${intent.type}")
+        Log.d("handleIntent", "intent.action: ${intent.action}")
 
-        //String mimeType = getContentResolver().getType(uri);
-        val mimeType = intent.type
-        Log.d("handleIntent", "mimeType: $mimeType")
+        val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
+        Log.d("handleIntent", "extraText: $extraText")
 
-        val action = intent.action
-        Log.d("handleIntent", "action: $action")
+        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUrl = sharedPreferences.getString(URL_KEY, null)
+        Log.d("handleIntent", "savedUrl: $savedUrl")
+        val authToken = sharedPreferences.getString(TOKEN_KEY, null)
+        Log.d("handleIntent", "authToken: $authToken")
+        val webViewUrl = binding.webView.url
+        Log.d("handleIntent", "webViewUrl: $webViewUrl")
 
-        if (Intent.ACTION_MAIN == action) {
+        if (Intent.ACTION_MAIN == intent.action) {
             Log.d("handleIntent", "ACTION_MAIN")
-            //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            val savedUrl = sharedPreferences.getString(URL_KEY, null)
-            Log.d("handleIntent", "savedUrl: $savedUrl")
-            currentUrl = savedUrl
-            val authToken = sharedPreferences.getString(TOKEN_KEY, null)
-            Log.d("handleIntent", "authToken: $authToken")
-
-            val webViewUrl = binding.webview.url
-            Log.d("handleIntent", "webViewUrl: $webViewUrl")
 
             if (savedUrl.isNullOrEmpty()) {
+                Log.d("handleIntent", "No Saved URL!")
                 showSettingsDialog()
                 //startActivity(Intent(this, SettingsActivity::class.java))
             } else {
                 if (webViewUrl == null) {
-                    Log.d("handleIntent", "binding.webview.url: ${binding.webview.url}")
-                    Log.d("handleIntent", "binding.webview.apply")
                     if (savedInstanceState != null) {
                         Log.d("handleIntent", "----- restoreState: ${savedInstanceState.size()}")
-                        binding.webview.restoreState(savedInstanceState)
+                        currentUrl = webViewUrl
+                        binding.webView.restoreState(savedInstanceState)
                     } else {
                         Log.d("handleIntent", "+++++ loadUrl: $savedUrl")
-                        binding.webview.loadUrl(savedUrl)
+                        currentUrl = savedUrl
+                        binding.webView.loadUrl(savedUrl)
                     }
-
                 } else {
-                    Log.d("handleIntent", "SKIPPING  binding.webview.loadUrl")
+                    Log.i("handleIntent", "SKIPPING binding.webView.loadUrl")
+                }
+
+                val fromShortcut = intent.getStringExtra("fromShortcut")
+                Log.d("handleIntent", "fromShortcut: $fromShortcut")
+                if (fromShortcut == "upload") {
+                    Log.d("handleIntent", "filePickerLauncher.launch")
+                    filePickerLauncher.launch(arrayOf("*/*"))
                 }
             }
-        } else if (Intent.ACTION_VIEW == action) {
+
+        } else if (Intent.ACTION_VIEW == intent.action) {
             Log.d("handleIntent", "ACTION_VIEW")
-            if (uri != null) {
-                val scheme = uri.scheme
-                Log.d("handleIntent", "scheme: $scheme")
-                val host = uri.host
+
+            if ("djangofiles" == intent.data?.scheme) {
+                Log.d("handleIntent", "scheme: ${intent.data?.scheme}")
+                val host = intent.data?.host
                 Log.d("handleIntent", "host: $host")
-                if ("djangofiles" == scheme) {
-                    if ("serverlist" == host) {
-                        Log.d("handleIntent", "djangofiles://serverlist")
-                        //showSettingsDialog()
-                        startActivity(Intent(this, SettingsActivity::class.java))
-                    } else {
-                        Toast.makeText(
-                            this,
-                            getString(R.string.tst_error) + ": Unknown DeepLink",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        Log.d("handleIntent", "Unknown DeepLink!")
-                        finish()
-                    }
+                if ("serverlist" == host) {
+                    Log.d("handleIntent", "djangofiles://serverlist")
+                    //showSettingsDialog()
+                    startActivity(Intent(this, SettingsActivity::class.java))
                 } else {
-                    Log.d("handleIntent", "processSharedFile: $uri")
-                    processSharedFile(uri)
+                    Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
+                    Log.w("handleIntent", "Unknown DeepLink!")
+                    finish()
                 }
+            } else if (intent.data != null) {
+                Log.d("handleIntent", "processSharedFile: ${intent.data}")
+                processSharedFile(intent.data!!)
             } else {
-                Toast.makeText(
-                    this,
-                    getString(R.string.tst_error) + ": Unknown Intent",
-                    Toast.LENGTH_SHORT
-                ).show()
-                Log.e("handleIntent", "Unknown Intent!")
+                Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
+                Log.w("handleIntent", "Unknown DeepLink!")
                 finish()
             }
-        } else if (Intent.ACTION_SEND == action && mimeType != null) {
+
+        } else if (Intent.ACTION_SEND == intent.action && intent.type != null) {
             Log.d("handleIntent", "ACTION_SEND")
-            if ("text/plain" == mimeType) {
-                val sharedText: String? = intent.getStringExtra(Intent.EXTRA_TEXT)
-                if (sharedText != null) {
-                    Log.d("handleIntent", "Received text/plain: $sharedText")
-                    if (sharedText.startsWith("content://")) {
-                        val fileUri = sharedText.toUri()
-                        Log.d("handleIntent", "Received URI: $fileUri")
-                    } else {
-                        Log.d("handleIntent", "Received text/plain: $sharedText")
-                    }
-                }
-                //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                val savedUrl = sharedPreferences.getString(URL_KEY, null)
-                Log.d("handleIntent", "binding.webview.loadUrl: ${savedUrl}/paste/")
-                binding.webview.loadUrl("${savedUrl}/paste/")
-                Toast.makeText(
-                    this,
-                    this.getString(R.string.tst_not_implemented),
-                    Toast.LENGTH_SHORT
-                ).show()
+
+            val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
             } else {
-                //val fileUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-                val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra(Intent.EXTRA_STREAM)
+            }
+            Log.d("handleIntent", "fileUri: $fileUri")
+
+            if (!extraText.isNullOrEmpty()) {
+                Log.d("handleIntent", "SEND TEXT: $extraText")
+                //if (extraText.lowercase().startsWith("http")) {
+                if (Patterns.WEB_URL.matcher(extraText).matches()) {
+                    Log.d("handleIntent", "URL TEXT DETECTED: $extraText")
+                    Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
                 } else {
-                    @Suppress("DEPRECATION")
-                    intent.getParcelableExtra(Intent.EXTRA_STREAM)
-                }
-                if (fileUri != null) {
-                    processSharedFile(fileUri)
-                } else {
-                    Log.w("handleIntent", "URI is NULL")
+                    Log.d("handleIntent", "NON-URL TEXT DETECTED: $extraText")
+                    Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
                 }
             }
-        } else if (Intent.ACTION_SEND_MULTIPLE == action) {
+            if (fileUri != null) {
+                processSharedFile(fileUri)
+            } else {
+                Toast.makeText(this, "Unknown Content!", Toast.LENGTH_SHORT).show()
+                Log.w("handleIntent", "Unknown Content!")
+            }
+
+        } else if (Intent.ACTION_SEND_MULTIPLE == intent.action) {
             Log.d("handleIntent", "ACTION_SEND_MULTIPLE")
+
             //val fileUris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
             val fileUris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)
@@ -381,15 +368,18 @@ class MainActivity : AppCompatActivity() {
                 @Suppress("DEPRECATION")
                 intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM)
             }
+            Log.d("handleIntent", "fileUris: $fileUris")
             if (fileUris != null) {
                 for (fileUri in fileUris) {
+                    Log.d("handleIntent", "fileUri: $fileUri")
                     processSharedFile(fileUri)
                 }
             } else {
+                Toast.makeText(this, "Empty Content URI!", Toast.LENGTH_LONG).show()
                 Log.w("handleIntent", "URI is NULL")
             }
         } else {
-            Toast.makeText(this, "Unknown Intent!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Unknown Intent!", Toast.LENGTH_LONG).show()
             Log.w("handleIntent", "All Intent Types Processed. No Match!")
         }
     }
@@ -452,8 +442,8 @@ class MainActivity : AppCompatActivity() {
                                             )
                                         }
                                         currentUrl = url
-                                        Log.d("showSettingsDialog", "binding.webview.loadUrl: $url")
-                                        binding.webview.loadUrl(url)
+                                        Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
+                                        binding.webView.loadUrl(url)
                                         dismiss()
                                     } else {
                                         Log.d("showSettingsDialog", "FAILURE")
@@ -564,13 +554,18 @@ class MainActivity : AppCompatActivity() {
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     val jsonURL = parseJsonResponse(connection)
-                    runOnUiThread { copyToClipboard(jsonURL!!) }
+                    Log.d("processSharedFile", "jsonURL: $jsonURL")
+                    clearHistory = true
+                    runOnUiThread {
+                        copyToClipboard(jsonURL!!)
+                        binding.webView.loadUrl(jsonURL)
+                    }
                 } else {
                     runOnUiThread {
                         Toast.makeText(
                             this@MainActivity,
                             getString(R.string.tst_error) + ": " + responseMessage,
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
@@ -580,7 +575,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(
                         this@MainActivity,
                         getString(R.string.tst_error_uploading),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     ).show()
                 }
             }
@@ -640,8 +635,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun copyToClipboard(url: String) {
-        Log.d("copyToClipboard", "binding.webview.loadUrl: $url")
-        binding.webview.loadUrl(url)
+        Log.d("copyToClipboard", "binding.webView.loadUrl: $url")
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("URL", url)
         clipboard.setPrimaryClip(clip)
@@ -712,9 +706,9 @@ class MainActivity : AppCompatActivity() {
         override fun onPageFinished(view: WebView?, url: String?) {
             Log.d("onPageFinished", "url: $url")
             if (clearHistory == true) {
-                Log.d("onPageFinished", "binding.webview.clearHistory()")
+                Log.d("onPageFinished", "binding.webView.clearHistory()")
                 clearHistory = false
-                binding.webview.clearHistory()
+                binding.webView.clearHistory()
             }
         }
     }
