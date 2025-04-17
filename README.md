@@ -129,7 +129,7 @@ https://developer.android.com/studio
    - Import the Project
    - Run Gradle Sync
 
-To Run: Select your device and press Play ▶️
+To Run: Select device and press Play ▶️
 
 To Build:
 
