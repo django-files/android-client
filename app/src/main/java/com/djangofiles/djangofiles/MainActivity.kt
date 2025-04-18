@@ -35,6 +35,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
+import com.djangofiles.djangofiles.api.ServerApi
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.settings.Server
 import com.djangofiles.djangofiles.settings.ServerDao
@@ -46,15 +48,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.DataOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLConnection
 
 
 class MainActivity : AppCompatActivity() {
@@ -494,101 +487,47 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val file = getInputStreamFromUri(fileUri)
-        if (file == null) {
-            Toast.makeText(this, "Unable To Process Content!", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val fileName = getFileNameFromUri(fileUri)
+        val fileName = getFileNameFromUri(fileUri) ?: "" // TODO: Handle empty fileName
         Log.d("processSharedFile", "fileName: $fileName")
 
-        val uploadUrl = "$savedUrl/api/upload"
-        Log.d("processSharedFile", "uploadUrl: $uploadUrl")
-        val contentType = URLConnection.guessContentTypeFromName(fileName)
-        Log.d("processSharedFile", "contentType: $contentType")
+        //val contentType = URLConnection.guessContentTypeFromName(fileName)
+        //Log.d("processSharedFile", "contentType: $contentType")
 
         Toast.makeText(this, getString(R.string.tst_uploading_file), Toast.LENGTH_SHORT).show()
 
-        Thread {
+        val api = ServerApi(this, savedUrl)
+        Log.d("processSharedFile", "api: $api")
+
+        lifecycleScope.launch {
             try {
-                val url = URL(uploadUrl)
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "POST"
-                connection.doOutput = true
-                connection.setRequestProperty("Authorization", authToken)
-                val boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW"
-                connection.setRequestProperty(
-                    "Content-Type",
-                    "multipart/form-data; boundary=$boundary"
-                )
-                connection.connect()
-
-                val outputStream = DataOutputStream(connection.outputStream)
-
-                // Write the boundary and the necessary headers
-                outputStream.writeBytes("--$boundary\r\n")
-                outputStream.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"$fileName\"\r\n")
-                outputStream.writeBytes("Content-Type: $contentType\r\n")
-                outputStream.writeBytes("Content-Transfer-Encoding: binary\r\n\r\n")
-
-                // Write the file content
-                val buffer = ByteArray(4096)
-                var bytesRead: Int
-                while ((file.read(buffer).also { bytesRead = it }) != -1) {
-                    outputStream.write(buffer, 0, bytesRead)
+                val response = api.upload(fileUri, fileName)
+                Log.d("processSharedFile", "response: $response")
+                if (response == null) {
+                    Toast.makeText(this@MainActivity, "Upload Error!", Toast.LENGTH_LONG).show()
+                    return@launch
                 }
-                file.close()
-
-                // End the multipart request
-                outputStream.writeBytes("\r\n--$boundary--\r\n")
-                outputStream.flush()
-                outputStream.close()
-
-                // Get the response code
-                val responseCode = connection.responseCode
-                Log.d("processSharedFile", "responseCode: $responseCode")
-                val responseMessage = connection.responseMessage
-                Log.d("processSharedFile", "responseMessage: $responseMessage")
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    val jsonURL = parseJsonResponse(connection)
-                    Log.d("processSharedFile", "jsonURL: $jsonURL")
-                    clearHistory = true
-                    runOnUiThread {
-                        copyToClipboard(jsonURL!!)
-                        binding.webView.loadUrl(jsonURL)
-                    }
-                } else {
-                    runOnUiThread {
-                        Toast.makeText(
-                            this@MainActivity,
-                            getString(R.string.tst_error) + ": " + responseMessage,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
+                Log.d("processSharedFile", "response.url: ${response.url}")
+                runOnUiThread {
+                    copyToClipboard(response.url)
+                    binding.webView.loadUrl(response.url)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(
-                        this@MainActivity,
-                        getString(R.string.tst_error_uploading),
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
                 }
             }
         }.start()
     }
 
-    private fun getInputStreamFromUri(uri: Uri): InputStream? {
-        return try {
-            contentResolver.openInputStream(uri)
-        } catch (e: IOException) {
-            Log.d("getInputStreamFromUri", "Error: $e")
-            null
-        }
-    }
+//    private fun getInputStreamFromUri(uri: Uri): InputStream? {
+//        return try {
+//            contentResolver.openInputStream(uri)
+//        } catch (e: IOException) {
+//            Log.d("getInputStreamFromUri", "Error: $e")
+//            null
+//        }
+//    }
 
     private fun getFileNameFromUri(uri: Uri): String? {
         var fileName: String? = null
@@ -603,35 +542,35 @@ class MainActivity : AppCompatActivity() {
         return fileName
     }
 
-    private fun parseJsonResponse(connection: HttpURLConnection): String? {
-        try {
-            Log.d("parseJsonResponse", "Begin.")
-            val `in` = BufferedReader(InputStreamReader(connection.inputStream))
-            val response = StringBuilder()
-            var inputLine: String?
-            while ((`in`.readLine().also { inputLine = it }) != null) {
-                response.append(inputLine)
-            }
-            `in`.close()
-
-            Log.d("parseJsonResponse", "response: $response")
-            val jsonResponse = JSONObject(response.toString())
-            Log.d("parseJsonResponse", "JSONObject: $jsonResponse")
-
-            val name = jsonResponse.getString("name")
-            val raw = jsonResponse.getString("raw")
-            val url = jsonResponse.getString("url")
-
-            Log.d("parseJsonResponse", "Name: $name")
-            Log.d("parseJsonResponse", "raw: $raw")
-            Log.d("parseJsonResponse", "url: $url")
-
-            return url
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return null
-        }
-    }
+//    private fun parseJsonResponse(connection: HttpURLConnection): String? {
+//        try {
+//            Log.d("parseJsonResponse", "Begin.")
+//            val `in` = BufferedReader(InputStreamReader(connection.inputStream))
+//            val response = StringBuilder()
+//            var inputLine: String?
+//            while ((`in`.readLine().also { inputLine = it }) != null) {
+//                response.append(inputLine)
+//            }
+//            `in`.close()
+//
+//            Log.d("parseJsonResponse", "response: $response")
+//            val jsonResponse = JSONObject(response.toString())
+//            Log.d("parseJsonResponse", "JSONObject: $jsonResponse")
+//
+//            val name = jsonResponse.getString("name")
+//            val raw = jsonResponse.getString("raw")
+//            val url = jsonResponse.getString("url")
+//
+//            Log.d("parseJsonResponse", "Name: $name")
+//            Log.d("parseJsonResponse", "raw: $raw")
+//            Log.d("parseJsonResponse", "url: $url")
+//
+//            return url
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            return null
+//        }
+//    }
 
     private fun copyToClipboard(url: String) {
         Log.d("copyToClipboard", "binding.webView.loadUrl: $url")
