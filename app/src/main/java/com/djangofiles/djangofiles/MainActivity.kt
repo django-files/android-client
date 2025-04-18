@@ -15,7 +15,6 @@ import android.util.Log
 import android.util.Patterns
 import android.view.Gravity
 import android.view.KeyEvent
-import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -518,7 +517,8 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         copyToClipboard(url)
                         binding.webView.loadUrl(url)
-                        Toast.makeText(this@MainActivity, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
+                        val msg = getString(R.string.tst_url_copied)
+                        Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     val code = response.code()
@@ -558,28 +558,20 @@ class MainActivity : AppCompatActivity() {
     inner class MyWebViewClient : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val url = request.url.toString()
-            Log.d("shouldOverrideUrlLoading", "url: $url")
-
+            Log.d("shouldOverrideUrl", "url: $url")
             val savedUrl = sharedPreferences.getString(URL_KEY, null)
             Log.d("shouldOverrideUrlLoading", "savedUrl: $savedUrl")
 
-            // Null URL
-            if (savedUrl == null) {
-                Log.d("shouldOverrideUrlLoading", "APP - null saved url")
-                return false
-            }
-
-            // Saved URL
             if (
-                url.startsWith(savedUrl) &&
-                !url.startsWith("$savedUrl/r/") &&
-                !url.startsWith("$savedUrl/raw/")
+                savedUrl.isNullOrEmpty() ||
+                (url.startsWith(savedUrl) &&
+                        !url.startsWith("$savedUrl/r/") &&
+                        !url.startsWith("$savedUrl/raw/"))
             ) {
-                Log.d("shouldOverrideUrlLoading", "APP - saved url match")
+                Log.d("shouldOverrideUrlLoading", "APP - App URL")
                 return false
             }
 
-            // OAuth URL
             if (
                 url.startsWith("https://discord.com/oauth2") ||
                 url.startsWith("https://github.com/sessions/two-factor/") ||
@@ -587,15 +579,18 @@ class MainActivity : AppCompatActivity() {
                 url.startsWith("https://accounts.google.com/v3/signin") ||
                 url.startsWith("https://accounts.google.com/o/oauth2/v2/auth")
             ) {
-                Log.d("shouldOverrideUrlLoading", "APP - oauth url match")
+                Log.d("shouldOverrideUrlLoading", "APP - OAuth URL")
                 return false
             }
 
-            // Other URL
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             view.context.startActivity(intent)
-            Log.d("shouldOverrideUrlLoading", "BROWSER - unmatched url")
+            Log.d("shouldOverrideUrlLoading", "BROWSER - Unmatched URL")
             return true
+        }
+
+        override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
+            Log.d("doUpdateVisitedHistory", "url: $url")
         }
 
         override fun onReceivedError(
@@ -659,15 +654,6 @@ class MainActivity : AppCompatActivity() {
                 filePathCallback = null
                 false
             }
-        }
-
-        override fun onPermissionRequest(request: PermissionRequest) {
-            Log.d("onPermissionRequest", "request: $request")
-            //runOnUiThread {
-            //    val resources = request.resources
-            //    Log.d("onPermissionRequest", "resources: $resources")
-            //    request.grant(resources)
-            //}
         }
     }
 }
