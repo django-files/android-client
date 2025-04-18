@@ -494,7 +494,7 @@ class MainActivity : AppCompatActivity() {
         //Log.d("processSharedFile", "contentType: $contentType")
 
         val inputStream = this@MainActivity.contentResolver.openInputStream(fileUri)
-        if (inputStream == null){
+        if (inputStream == null) {
             Log.w("processSharedFile", "inputStream is null")
             Toast.makeText(this, getString(R.string.tst_error_uploading), Toast.LENGTH_SHORT).show()
             return

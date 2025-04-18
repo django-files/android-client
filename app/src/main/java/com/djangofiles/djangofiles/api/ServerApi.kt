@@ -27,7 +27,8 @@ import java.net.URLConnection
 class ServerApi(context: Context, host: String) {
     val api: ApiService
     val authToken: String
-    val preferences: SharedPreferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+    val preferences: SharedPreferences =
+        context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
     private lateinit var cookieJar: SimpleCookieJar
     private lateinit var client: OkHttpClient
