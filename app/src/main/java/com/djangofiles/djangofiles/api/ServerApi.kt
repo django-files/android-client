@@ -14,9 +14,11 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -47,8 +49,14 @@ class ServerApi(context: Context, host: String) {
     }
 
     suspend fun shorten(url: String): Response<ShortResponse> {
-        Log.d("upload", "url: $url")
+        Log.d("shorten", "url: $url")
         return api.postShort(authToken, url)
+    }
+
+    // TODO: Use VersionResponse
+    suspend fun version(version: String): Response<ResponseBody> {
+        Log.d("version", "version: $version")
+        return api.postVersion(authToken, VersionRequest(version))
     }
 
     interface ApiService {
@@ -72,6 +80,13 @@ class ServerApi(context: Context, host: String) {
             @Header("Vanity") vanity: String? = null,
             @Header("Max-Views") maxViews: Number? = null,
         ): Response<ShortResponse>
+
+        // TODO: Use VersionResponse
+        @POST("version")
+        suspend fun postVersion(
+            @Header("Authorization") token: String,
+            @Body version: VersionRequest
+        ): Response<ResponseBody>
     }
 
     data class FileResponse(
@@ -85,6 +100,12 @@ class ServerApi(context: Context, host: String) {
         val url: String,
         val vanity: String,
         @SerializedName("max-views") val maxViews: Number,
+    )
+
+    data class VersionRequest(val version: String)
+    data class VersionResponse(
+        val version: String,
+        val valid: Boolean,
     )
 
     private suspend fun inputStreamToMultipart(

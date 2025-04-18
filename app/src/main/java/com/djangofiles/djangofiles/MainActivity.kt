@@ -46,7 +46,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
-import okhttp3.Request
 
 
 class MainActivity : AppCompatActivity() {
@@ -373,6 +372,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // TODO: Replace with Fragment or Activity...
     private fun showSettingsDialog() {
         Log.d("MainActivity", "showSettingsDialog")
         val layout = LinearLayout(this)
@@ -402,38 +402,50 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton("OK", null)
                 .show().apply {
                     getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                        var url = input.text.toString().trim { it <= ' ' }
-                        Log.d("showSettingsDialog", "setPositiveButton: url: $url")
-
-                        // TODO: Duplicate - SettingsFragment - make this a function
+                        // TODO: DUPLICATION: SettingsFragment
+                        var url = input.text.toString().trim()
+                        Log.d("showSettingsDialog", "setPositiveButton URL: $url")
+                        url = cleanUrl(url)
+                        Log.d("showSettingsDialog", "cleanUrl: $url")
                         if (url.isEmpty()) {
                             Log.d("showSettingsDialog", "URL is Empty")
                             input.error = "This field is required."
                         } else {
-                            if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                                url = "https://$url"
-                            }
-                            if (url.endsWith("/")) {
-                                url = url.substring(0, url.length - 1)
-                            }
-
-                            Log.d("showSettingsDialog", "Processed URL: $url")
+                            Log.d("showSettingsDialog", "Processing URL: $url")
+                            val api = ServerApi(this@MainActivity, url)
                             CoroutineScope(Dispatchers.IO).launch {
-                                val response = checkUrl(url)
+                                Log.d("showSettingsDialog", "versionName: $versionName")
+                                val response = api.version(versionName!!)
                                 Log.d("showSettingsDialog", "response: $response")
                                 withContext(Dispatchers.Main) {
-                                    if (response) {
+                                    if (response.isSuccessful) {
                                         Log.d("showSettingsDialog", "SUCCESS")
-                                        sharedPreferences.edit {
-                                            putString(
-                                                URL_KEY,
-                                                url
-                                            )
+                                        val dao: ServerDao =
+                                            ServerDatabase.getInstance(this@MainActivity)
+                                                .serverDao()
+                                        Log.d("showSettingsDialog", "dao.add Server url = $url")
+                                        withContext(Dispatchers.IO) {
+                                            dao.add(Server(url = url))
                                         }
+                                        sharedPreferences.edit { putString(URL_KEY, url) }
                                         currentUrl = url
                                         Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
                                         binding.webView.loadUrl(url)
                                         dismiss()
+                                        // TODO: I did this by creating a bad version endpoint...
+                                        //val versionResponse = response.body()
+                                        //Log.d("processShort", "versionResponse: $versionResponse")
+                                        //if (versionResponse != null && versionResponse.valid) {
+                                        //    Log.d("showSettingsDialog", "SUCCESS")
+                                        //    sharedPreferences.edit { putString(URL_KEY, url) }
+                                        //    currentUrl = url
+                                        //    Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
+                                        //    binding.webView.loadUrl(url)
+                                        //    dismiss()
+                                        //} else {
+                                        //    Log.d("showSettingsDialog", "FAILURE")
+                                        //    input.error = "Server Version Too Old"
+                                        //}
                                     } else {
                                         Log.d("showSettingsDialog", "FAILURE")
                                         input.error = "Invalid URL"
@@ -443,32 +455,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
-        }
-    }
-
-    // TODO: DUPLICATION: SettingsFragment
-    private fun checkUrl(url: String): Boolean {
-        Log.d("MainActivity", "checkUrl url: $url")
-
-        val authUrl = "${url}/api/auth/methods/"
-        Log.d("MainActivity", "checkUrl authUrl: $authUrl")
-
-        // TODO: Change this to HEAD or use response data...
-        val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
-        return try {
-            val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
-            val client = OkHttpClient()
-            val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                Log.d("MainActivity", "checkUrl Success: Remote OK.")
-                dao.add(Server(url = url))
-            } else {
-                Log.d("MainActivity", "checkUrl Error: Remote code: ${response.code}")
-            }
-            response.isSuccessful
-        } catch (e: Exception) {
-            Log.d("MainActivity", "checkUrl Exception: $e")
-            false
         }
     }
 
@@ -707,4 +693,25 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+}
+
+
+fun cleanUrl(urlString: String): String {
+    var url = urlString.trim()
+    if (url.isEmpty()) {
+        Log.i("cleanUrl", "url.isEmpty()")
+        return ""
+    }
+    if (!url.lowercase().startsWith("http")) {
+        url = "https://$url"
+    }
+    if (url.endsWith("/")) {
+        url = url.substring(0, url.length - 1)
+    }
+    Log.d("cleanUrl", "matching: $url")
+    if (!Patterns.WEB_URL.matcher(url).matches()) {
+        Log.i("cleanUrl", "Patterns.WEB_URL.matcher Failed")
+        return ""
+    }
+    return url
 }
