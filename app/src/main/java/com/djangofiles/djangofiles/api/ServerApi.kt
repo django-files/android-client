@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Cookie
 import okhttp3.CookieJar
-import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -30,13 +29,13 @@ class ServerApi(context: Context, host: String) {
     val authToken: String
     val preferences: SharedPreferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
+    private lateinit var cookieJar: SimpleCookieJar
+    private lateinit var client: OkHttpClient
+
     init {
         api = createRetrofit(host).create(ApiService::class.java)
         authToken = preferences.getString("auth_token", null) ?: ""
     }
-
-    private lateinit var cookieJar: SimpleCookieJar
-    private lateinit var client: OkHttpClient
 
     suspend fun upload(fileName: String, inputStream: InputStream): Response<FileResponse> {
         Log.d("upload", "fileName: $fileName")
@@ -103,9 +102,9 @@ class ServerApi(context: Context, host: String) {
             return cookieStore[url.host] ?: emptyList()
         }
 
-        fun setCookie(url: HttpUrl, rawCookie: String) {
-            val cookies = Cookie.parseAll(url, Headers.headersOf("Set-Cookie", rawCookie))
-            cookieStore[url.host] = cookies
-        }
+        //fun setCookie(url: HttpUrl, rawCookie: String) {
+        //    val cookies = Cookie.parseAll(url, Headers.headersOf("Set-Cookie", rawCookie))
+        //    cookieStore[url.host] = cookies
+        //}
     }
 }

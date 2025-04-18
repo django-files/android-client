@@ -3,7 +3,6 @@ package com.djangofiles.djangofiles
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
@@ -527,24 +526,13 @@ class MainActivity : AppCompatActivity() {
                     Log.w("processSharedFile", "Error: ${code}: $message")
                     Toast.makeText(this@MainActivity, "Error: $message", Toast.LENGTH_LONG).show()
                 }
-
-//                if (response == null) {
-//                    Toast.makeText(this@MainActivity, "Upload Error!", Toast.LENGTH_LONG).show()
-//                    return@launch
-//                }
-//                Log.d("processSharedFile", "response.url: ${response.url}")
-//                runOnUiThread {
-//                    copyToClipboard(response.url)
-//                    Toast.makeText(this@MainActivity, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
-//                    binding.webView.loadUrl(response.url)
-//                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
                 }
             }
-        }.start()
+        }
     }
 
     fun getFileNameFromUri(uri: Uri): String? {
