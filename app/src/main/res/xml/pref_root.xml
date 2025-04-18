@@ -2,6 +2,12 @@
 
     <PreferenceCategory android:title="App Settings">
 
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:icon="@drawable/fa_share_nodes"
+                android:key="share_after_short"
+                android:title="Share URL After Short Generation" />
+
 <!--        <SwitchPreferenceCompat-->
 <!--            android:defaultValue="false"-->
 <!--            android:icon="@drawable/fa_upload"-->

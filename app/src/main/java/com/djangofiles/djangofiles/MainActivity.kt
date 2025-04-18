@@ -489,6 +489,15 @@ class MainActivity : AppCompatActivity() {
                         copyToClipboard(url)
                         val msg = getString(R.string.tst_url_copied)
                         Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
+                        val shareUrl = sharedPreferences.getBoolean("share_after_short", true)
+                        Log.d("processSharedFile", "shareUrl: $shareUrl")
+                        if (shareUrl) {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, url)
+                            }
+                            startActivity(Intent.createChooser(shareIntent, null))
+                        }
                     }
                 } else {
                     val code = response.code()
