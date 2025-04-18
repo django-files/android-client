@@ -18,5 +18,4 @@
 
 - Server and Version Check
 - Authentication
-- URL Short
 - ❓ Server Settings

@@ -25,6 +25,7 @@ import java.io.InputStream
 import java.net.URLConnection
 
 
+// TODO: Pass preferences instead of context since context is not used
 class ServerApi(context: Context, host: String) {
     val api: ApiService
     val authToken: String
