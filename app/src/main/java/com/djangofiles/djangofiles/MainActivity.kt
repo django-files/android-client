@@ -64,8 +64,6 @@ class MainActivity : AppCompatActivity() {
         const val TOKEN_KEY = "auth_token"
     }
 
-    private val client = OkHttpClient()
-
     private var userAgent: String = "DjangoFiles Android"
     private var currentUrl: String? = null
     private var versionName: String? = null
@@ -468,6 +466,7 @@ class MainActivity : AppCompatActivity() {
         val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
         return try {
             val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
+            val client = OkHttpClient()
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
                 Log.d("MainActivity", "checkUrl Success: Remote OK.")
