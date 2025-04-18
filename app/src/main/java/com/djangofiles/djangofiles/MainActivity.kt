@@ -490,28 +490,54 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.tst_no_url), Toast.LENGTH_SHORT).show()
             return
         }
+
         //val contentType = URLConnection.guessContentTypeFromName(fileName)
         //Log.d("processSharedFile", "contentType: $contentType")
 
-        Toast.makeText(this, getString(R.string.tst_uploading_file), Toast.LENGTH_SHORT).show()
+        val inputStream = this@MainActivity.contentResolver.openInputStream(fileUri)
+        if (inputStream == null){
+            Log.w("processSharedFile", "inputStream is null")
+            Toast.makeText(this, getString(R.string.tst_error_uploading), Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val api = ServerApi(this, savedUrl)
         Log.d("processSharedFile", "api: $api")
 
+        Toast.makeText(this, getString(R.string.tst_uploading_file), Toast.LENGTH_SHORT).show()
+
         lifecycleScope.launch {
             try {
-                val response = api.upload(fileUri, fileName)
+                val response = api.upload(fileName, inputStream)
                 Log.d("processSharedFile", "response: $response")
-                if (response == null) {
-                    Toast.makeText(this@MainActivity, "Upload Error!", Toast.LENGTH_LONG).show()
-                    return@launch
+
+                if (response.isSuccessful) {
+                    val fileResponse = response.body()
+                    Log.d("processSharedFile", "fileResponse: $fileResponse")
+                    val url = fileResponse?.url ?: savedUrl
+                    Log.d("processSharedFile", "url: $url")
+                    runOnUiThread {
+                        copyToClipboard(url)
+                        binding.webView.loadUrl(url)
+                        Toast.makeText(this@MainActivity, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val code = response.code()
+                    val message = response.message()
+                    Log.w("processSharedFile", "Error: ${code}: $message")
+                    Toast.makeText(this@MainActivity, "Error: $message", Toast.LENGTH_LONG).show()
                 }
-                Log.d("processSharedFile", "response.url: ${response.url}")
-                runOnUiThread {
-                    copyToClipboard(response.url)
-                    Toast.makeText(this@MainActivity, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
-                    binding.webView.loadUrl(response.url)
-                }
+
+//                if (response == null) {
+//                    Toast.makeText(this@MainActivity, "Upload Error!", Toast.LENGTH_LONG).show()
+//                    return@launch
+//                }
+//                Log.d("processSharedFile", "response.url: ${response.url}")
+//                runOnUiThread {
+//                    copyToClipboard(response.url)
+//                    Toast.makeText(this@MainActivity, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
+//                    binding.webView.loadUrl(response.url)
+//                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {

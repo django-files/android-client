@@ -16,6 +16,7 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Header
@@ -28,45 +29,44 @@ import java.net.URLConnection
 
 class ServerApi(private val context: Context, host: String) {
     val api: ApiService
+    val preferences: SharedPreferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+    val authToken: String
 
     init {
         api = createRetrofit(host).create(ApiService::class.java)
+        authToken = preferences.getString("auth_token", null) ?: ""
     }
-
-    private val preferences: SharedPreferences =
-        context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
     private lateinit var cookieJar: SimpleCookieJar
     private lateinit var client: OkHttpClient
 
-    suspend fun upload(uri: Uri, fileName: String): FileResponse? {
-        Log.d("upload", "uri: $uri")
+    suspend fun upload(fileName: String, inputStream: InputStream): Response<FileResponse> {
+//        Log.d("upload", "uri: $uri")
         Log.d("upload", "fileName: $fileName")
-        val authToken = preferences.getString("auth_token", null)
-        Log.d("upload", "authToken: $authToken")
-        val inputStream = context.contentResolver.openInputStream(uri)
-        if (authToken == null || inputStream == null) {
-            Log.e("upload", "inputStream/ziplineToken is null")
-            return null
-        }
+        //val inputStream = context.contentResolver.openInputStream(uri)
+//        if (authToken == null || inputStream == null) {
+//            Log.e("upload", "inputStream/ziplineToken is null")
+//            return null
+//        }
         val multiPart: MultipartBody.Part = inputStreamToMultipart(inputStream, fileName)
-        return try {
-            val response: FileResponse = api.postUpload(authToken, multiPart)
-            Log.e("upload", "response: $response")
-            response
-        } catch (e: HttpException) {
-            Log.e("upload", "HttpException: ${e.message}")
-            val response = e.response()?.errorBody()?.string()
-            Log.d("upload", "e.response: $response")
-            Log.d("upload", "e.code: ${e.code()}")
-            if (e.code() == 401) {
-                Log.w("upload", "AUTH FAILED")
-            }
-            null
-        } catch (e: Exception) {
-            Log.e("upload", "Exception: ${e.message}")
-            null
-        }
+        return api.postUpload(authToken, multiPart)
+//        return try {
+//            val response: FileResponse = api.postUpload(authToken, multiPart)
+//            Log.e("upload", "response: $response")
+//            response
+//        } catch (e: HttpException) {
+//            Log.e("upload", "HttpException: ${e.message}")
+//            val response = e.response()?.errorBody()?.string()
+//            Log.d("upload", "e.response: $response")
+//            Log.d("upload", "e.code: ${e.code()}")
+//            if (e.code() == 401) {
+//                Log.w("upload", "AUTH FAILED")
+//            }
+//            null
+//        } catch (e: Exception) {
+//            Log.e("upload", "Exception: ${e.message}")
+//            null
+//        }
     }
 
     private suspend fun inputStreamToMultipart(
@@ -107,7 +107,7 @@ class ServerApi(private val context: Context, host: String) {
             @Header("Strip-EXIF") stripExif: String? = null,
             @Header("Private") private: String? = null,
             @Header("Password") password: String? = null,
-        ): FileResponse
+        ): Response<FileResponse>
     }
 
     data class FileResponse(
