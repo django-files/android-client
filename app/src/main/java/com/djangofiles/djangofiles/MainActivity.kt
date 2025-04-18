@@ -391,70 +391,68 @@ class MainActivity : AppCompatActivity() {
         text.setPadding(0, 20, 0, 0)
         layout.addView(text)
 
-        runOnUiThread {
-            AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setTitle("${getString(R.string.app_name)} v$versionName")
-                .setMessage(getString(R.string.settings_message))
-                .setView(layout)
-                .setNegativeButton("Exit") { dialog: DialogInterface?, which: Int -> finish() }
-                .setPositiveButton("OK", null)
-                .show().apply {
-                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                        // TODO: DUPLICATION: SettingsFragment
-                        var url = input.text.toString().trim()
-                        Log.d("showSettingsDialog", "setPositiveButton URL: $url")
-                        url = cleanUrl(url)
-                        Log.d("showSettingsDialog", "cleanUrl: $url")
-                        if (url.isEmpty()) {
-                            Log.d("showSettingsDialog", "URL is Empty")
-                            input.error = "This field is required."
-                        } else {
-                            Log.d("showSettingsDialog", "Processing URL: $url")
-                            val api = ServerApi(this@MainActivity, url)
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Log.d("showSettingsDialog", "versionName: $versionName")
-                                val response = api.version(versionName!!)
-                                Log.d("showSettingsDialog", "response: $response")
-                                withContext(Dispatchers.Main) {
-                                    if (response.isSuccessful) {
-                                        Log.d("showSettingsDialog", "SUCCESS")
-                                        val dao: ServerDao =
-                                            ServerDatabase.getInstance(this@MainActivity)
-                                                .serverDao()
-                                        Log.d("showSettingsDialog", "dao.add Server url = $url")
-                                        withContext(Dispatchers.IO) {
-                                            dao.add(Server(url = url))
-                                        }
-                                        sharedPreferences.edit { putString(URL_KEY, url) }
-                                        currentUrl = url
-                                        Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
-                                        binding.webView.loadUrl(url)
-                                        dismiss()
-                                        // TODO: I did this by creating a bad version endpoint...
-                                        //val versionResponse = response.body()
-                                        //Log.d("processShort", "versionResponse: $versionResponse")
-                                        //if (versionResponse != null && versionResponse.valid) {
-                                        //    Log.d("showSettingsDialog", "SUCCESS")
-                                        //    sharedPreferences.edit { putString(URL_KEY, url) }
-                                        //    currentUrl = url
-                                        //    Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
-                                        //    binding.webView.loadUrl(url)
-                                        //    dismiss()
-                                        //} else {
-                                        //    Log.d("showSettingsDialog", "FAILURE")
-                                        //    input.error = "Server Version Too Old"
-                                        //}
-                                    } else {
-                                        Log.d("showSettingsDialog", "FAILURE")
-                                        input.error = "Invalid URL"
+        AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setTitle("${getString(R.string.app_name)} v$versionName")
+            .setMessage(getString(R.string.settings_message))
+            .setView(layout)
+            .setNegativeButton("Exit") { dialog: DialogInterface?, which: Int -> finish() }
+            .setPositiveButton("OK", null)
+            .show().apply {
+                getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    // TODO: DUPLICATION: SettingsFragment
+                    var url = input.text.toString().trim()
+                    Log.d("showSettingsDialog", "setPositiveButton URL: $url")
+                    url = cleanUrl(url)
+                    Log.d("showSettingsDialog", "cleanUrl: $url")
+                    if (url.isEmpty()) {
+                        Log.d("showSettingsDialog", "URL is Empty")
+                        input.error = "This field is required."
+                    } else {
+                        Log.d("showSettingsDialog", "Processing URL: $url")
+                        val api = ServerApi(this@MainActivity, url)
+                        lifecycleScope.launch {
+                            Log.d("showSettingsDialog", "versionName: $versionName")
+                            val response = api.version(versionName!!)
+                            Log.d("showSettingsDialog", "response: $response")
+                            withContext(Dispatchers.Main) {
+                                if (response.isSuccessful) {
+                                    Log.d("showSettingsDialog", "SUCCESS")
+                                    val dao: ServerDao =
+                                        ServerDatabase.getInstance(this@MainActivity)
+                                            .serverDao()
+                                    Log.d("showSettingsDialog", "dao.add Server url = $url")
+                                    withContext(Dispatchers.IO) {
+                                        dao.add(Server(url = url))
                                     }
+                                    sharedPreferences.edit { putString(URL_KEY, url) }
+                                    currentUrl = url
+                                    Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
+                                    binding.webView.loadUrl(url)
+                                    dismiss()
+                                    // TODO: I did this by creating a bad version endpoint...
+                                    //val versionResponse = response.body()
+                                    //Log.d("processShort", "versionResponse: $versionResponse")
+                                    //if (versionResponse != null && versionResponse.valid) {
+                                    //    Log.d("showSettingsDialog", "SUCCESS")
+                                    //    sharedPreferences.edit { putString(URL_KEY, url) }
+                                    //    currentUrl = url
+                                    //    Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
+                                    //    binding.webView.loadUrl(url)
+                                    //    dismiss()
+                                    //} else {
+                                    //    Log.d("showSettingsDialog", "FAILURE")
+                                    //    input.error = "Server Version Too Old"
+                                    //}
+                                } else {
+                                    Log.d("showSettingsDialog", "FAILURE")
+                                    input.error = "Invalid URL"
                                 }
                             }
                         }
                     }
                 }
-        }
+            }
     }
 
     // TODO: DUPLICATION: processSharedFile
@@ -486,7 +484,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("processShort", "shortResponse: $shortResponse")
                     val url = shortResponse?.url ?: savedUrl // TODO: CLEAN UP AISLE 1
                     Log.d("processShort", "url: $url")
-                    runOnUiThread {
+                    withContext(Dispatchers.Main) {
                         Log.d("processShort", "loadUrl: ${savedUrl}/shorts/#shorts-table_wrapper")
                         binding.webView.loadUrl("${savedUrl}/shorts/#shorts-table_wrapper")
                         copyToClipboard(url)
@@ -501,7 +499,7 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                runOnUiThread {
+                withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
                 }
             }
@@ -550,7 +548,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("processSharedFile", "fileResponse: $fileResponse")
                     val url = fileResponse?.url ?: savedUrl // TODO: CLEAN UP AISLE 1
                     Log.d("processSharedFile", "url: $url")
-                    runOnUiThread {
+                    withContext(Dispatchers.Main) {
                         copyToClipboard(url)
                         binding.webView.loadUrl(url)
                         val msg = getString(R.string.tst_url_copied)
@@ -564,7 +562,7 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                runOnUiThread {
+                withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
                 }
             }

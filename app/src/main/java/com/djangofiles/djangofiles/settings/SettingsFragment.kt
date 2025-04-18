@@ -50,14 +50,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
         buildServerList()
         setupAddServer()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val serverList = dao.getAll() // Fetch data in background
-            Log.d("onCreatePreferences", "serverList: $serverList")
-            withContext(Dispatchers.Main) {
-                // Update the UI on the main thread
-                Log.d("onCreatePreferences", "IM ON THE UI BABY")
-            }
-        }
+//        lifecycleScope.launch {
+//            val serverList = withContext(Dispatchers.IO) {
+//                dao.getAll()
+//            }
+//            Log.d("onCreatePreferences", "serverList: $serverList")
+//            withContext(Dispatchers.Main) {
+//                // Update the UI on the main thread
+//                Log.d("onCreatePreferences", "IM ON THE UI BABY")
+//            }
+//        }
     }
 
     //override fun onPause() {
@@ -99,7 +101,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             //val servers = loadServers().toMutableList()
                             //Log.d("AddServer", "servers: $servers")
                             val api = ServerApi(requireContext(), url)
-                            CoroutineScope(Dispatchers.IO).launch {
+                            lifecycleScope.launch {
                                 val response = api.version(versionName)
                                 Log.d("AddServer", "response: $response")
                                 withContext(Dispatchers.Main) {
