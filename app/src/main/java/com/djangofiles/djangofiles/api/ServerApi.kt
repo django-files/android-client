@@ -3,7 +3,6 @@ package com.djangofiles.djangofiles.api
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.net.Uri
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,7 +14,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -27,10 +25,10 @@ import java.io.InputStream
 import java.net.URLConnection
 
 
-class ServerApi(private val context: Context, host: String) {
+class ServerApi(context: Context, host: String) {
     val api: ApiService
-    val preferences: SharedPreferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
     val authToken: String
+    val preferences: SharedPreferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
     init {
         api = createRetrofit(host).create(ApiService::class.java)
@@ -41,33 +39,32 @@ class ServerApi(private val context: Context, host: String) {
     private lateinit var client: OkHttpClient
 
     suspend fun upload(fileName: String, inputStream: InputStream): Response<FileResponse> {
-//        Log.d("upload", "uri: $uri")
         Log.d("upload", "fileName: $fileName")
-        //val inputStream = context.contentResolver.openInputStream(uri)
-//        if (authToken == null || inputStream == null) {
-//            Log.e("upload", "inputStream/ziplineToken is null")
-//            return null
-//        }
         val multiPart: MultipartBody.Part = inputStreamToMultipart(inputStream, fileName)
         return api.postUpload(authToken, multiPart)
-//        return try {
-//            val response: FileResponse = api.postUpload(authToken, multiPart)
-//            Log.e("upload", "response: $response")
-//            response
-//        } catch (e: HttpException) {
-//            Log.e("upload", "HttpException: ${e.message}")
-//            val response = e.response()?.errorBody()?.string()
-//            Log.d("upload", "e.response: $response")
-//            Log.d("upload", "e.code: ${e.code()}")
-//            if (e.code() == 401) {
-//                Log.w("upload", "AUTH FAILED")
-//            }
-//            null
-//        } catch (e: Exception) {
-//            Log.e("upload", "Exception: ${e.message}")
-//            null
-//        }
     }
+
+    interface ApiService {
+        @Multipart
+        @POST("upload")
+        suspend fun postUpload(
+            @Header("Authorization") token: String,
+            @Part file: MultipartBody.Part,
+            @Header("Format") format: String? = null,
+            @Header("Expires-At") expiresAt: String? = null,
+            @Header("Strip-GPS") stripGps: String? = null,
+            @Header("Strip-EXIF") stripExif: String? = null,
+            @Header("Private") private: String? = null,
+            @Header("Password") password: String? = null,
+        ): Response<FileResponse>
+    }
+
+    data class FileResponse(
+        val url: String,
+        val raw: String,
+        val name: String,
+        val size: Long
+    )
 
     private suspend fun inputStreamToMultipart(
         file: InputStream,
@@ -94,28 +91,6 @@ class ServerApi(private val context: Context, host: String) {
             .client(client)
             .build()
     }
-
-    interface ApiService {
-        @Multipart
-        @POST("upload")
-        suspend fun postUpload(
-            @Header("Authorization") token: String,
-            @Part file: MultipartBody.Part,
-            @Header("Format") format: String? = null,
-            @Header("Expires-At") expiresAt: String? = null,
-            @Header("Strip-GPS") stripGps: String? = null,
-            @Header("Strip-EXIF") stripExif: String? = null,
-            @Header("Private") private: String? = null,
-            @Header("Password") password: String? = null,
-        ): Response<FileResponse>
-    }
-
-    data class FileResponse(
-        val url: String,
-        val raw: String,
-        val name: String,
-        val size: Long
-    )
 
     inner class SimpleCookieJar : CookieJar {
         private val cookieStore = mutableMapOf<String, List<Cookie>>()
