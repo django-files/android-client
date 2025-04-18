@@ -9,15 +9,14 @@
     <string name="tst_invalid_url">Please enter a valid URL.</string>
     <string name="tst_not_implemented">Not Implemented.</string>
     <string name="tst_error">Error</string>
-    <string name="tst_error_uploading">Error Uploading File!</string>
-    <string name="tst_no_url">Django Files URL Not Set!</string>
-    <string name="tst_url_copied">URL Copied to Clipboard.</string>
+    <string name="tst_error_uploading">Error Uploading!</string>
+    <string name="tst_no_url">URL Not Set!</string>
+    <string name="tst_url_copied">Copied to Clipboard.</string>
     <string name="tst_no_clipboard">Clipboard Not Available!</string>
     <string name="tst_perm_failed">Unable to Grant Permissions!</string>
-    <string name="tst_uploading_file">Uploading File. Please Wait.</string>
+    <string name="tst_uploading_file">Uploading File…</string>
 
     <string name="delete">Delete</string>
-
     <string name="upload">Upload</string>
     <string name="upload_file">Upload File</string>
 </resources>

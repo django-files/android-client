@@ -3,6 +3,7 @@ package com.djangofiles.djangofiles
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
@@ -481,15 +482,14 @@ class MainActivity : AppCompatActivity() {
         Log.d("processSharedFile", "savedUrl: $savedUrl")
         val authToken = sharedPreferences.getString(TOKEN_KEY, null)
         Log.d("processSharedFile", "authToken: $authToken")
-        if (savedUrl == null || authToken == null) {
+        val fileName = getFileNameFromUri(fileUri)
+        Log.d("processSharedFile", "fileName: $fileName")
+        if (savedUrl == null || authToken == null || fileName == null) {
             // TODO: Show settings dialog here...
+            Log.w("processSharedFile", "Missing OR savedUrl/authToken/fileName")
             Toast.makeText(this, getString(R.string.tst_no_url), Toast.LENGTH_SHORT).show()
             return
         }
-
-        val fileName = getFileNameFromUri(fileUri) ?: "" // TODO: Handle empty fileName
-        Log.d("processSharedFile", "fileName: $fileName")
-
         //val contentType = URLConnection.guessContentTypeFromName(fileName)
         //Log.d("processSharedFile", "contentType: $contentType")
 
@@ -509,6 +509,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("processSharedFile", "response.url: ${response.url}")
                 runOnUiThread {
                     copyToClipboard(response.url)
+                    Toast.makeText(this@MainActivity, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
                     binding.webView.loadUrl(response.url)
                 }
             } catch (e: Exception) {
@@ -520,16 +521,7 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-//    private fun getInputStreamFromUri(uri: Uri): InputStream? {
-//        return try {
-//            contentResolver.openInputStream(uri)
-//        } catch (e: IOException) {
-//            Log.d("getInputStreamFromUri", "Error: $e")
-//            null
-//        }
-//    }
-
-    private fun getFileNameFromUri(uri: Uri): String? {
+    fun getFileNameFromUri(uri: Uri): String? {
         var fileName: String? = null
         contentResolver.query(uri, null, null, null, null).use { cursor ->
             if (cursor != null && cursor.moveToFirst()) {
@@ -542,42 +534,11 @@ class MainActivity : AppCompatActivity() {
         return fileName
     }
 
-//    private fun parseJsonResponse(connection: HttpURLConnection): String? {
-//        try {
-//            Log.d("parseJsonResponse", "Begin.")
-//            val `in` = BufferedReader(InputStreamReader(connection.inputStream))
-//            val response = StringBuilder()
-//            var inputLine: String?
-//            while ((`in`.readLine().also { inputLine = it }) != null) {
-//                response.append(inputLine)
-//            }
-//            `in`.close()
-//
-//            Log.d("parseJsonResponse", "response: $response")
-//            val jsonResponse = JSONObject(response.toString())
-//            Log.d("parseJsonResponse", "JSONObject: $jsonResponse")
-//
-//            val name = jsonResponse.getString("name")
-//            val raw = jsonResponse.getString("raw")
-//            val url = jsonResponse.getString("url")
-//
-//            Log.d("parseJsonResponse", "Name: $name")
-//            Log.d("parseJsonResponse", "raw: $raw")
-//            Log.d("parseJsonResponse", "url: $url")
-//
-//            return url
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            return null
-//        }
-//    }
-
     private fun copyToClipboard(url: String) {
-        Log.d("copyToClipboard", "binding.webView.loadUrl: $url")
+        Log.d("copyToClipboard", "URL: $url")
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("URL", url)
         clipboard.setPrimaryClip(clip)
-        Toast.makeText(this, getString(R.string.tst_url_copied), Toast.LENGTH_SHORT).show()
     }
 
     inner class MyWebViewClient : WebViewClient() {
