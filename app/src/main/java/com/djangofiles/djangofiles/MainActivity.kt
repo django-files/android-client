@@ -335,13 +335,12 @@ class MainActivity : AppCompatActivity() {
                 //if (extraText.lowercase().startsWith("http")) {
                 if (Patterns.WEB_URL.matcher(extraText).matches()) {
                     Log.d("handleIntent", "URL TEXT DETECTED: $extraText")
-                    Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
+                    processShort(extraText)
                 } else {
                     Log.d("handleIntent", "NON-URL TEXT DETECTED: $extraText")
                     Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
                 }
-            }
-            if (fileUri != null) {
+            } else if (fileUri != null) {
                 processSharedFile(fileUri)
             } else {
                 Toast.makeText(this, "Unknown Content!", Toast.LENGTH_SHORT).show()
@@ -447,7 +446,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Duplication - SettingsFragment
+    // TODO: DUPLICATION: SettingsFragment
     private fun checkUrl(url: String): Boolean {
         Log.d("MainActivity", "checkUrl url: $url")
 
@@ -473,6 +472,58 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // TODO: DUPLICATION: processSharedFile
+    private fun processShort(url: String) {
+        Log.d("processShort", "url: $url")
+        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        val savedUrl = sharedPreferences.getString(URL_KEY, null)
+        Log.d("processShort", "savedUrl: $savedUrl")
+        val authToken = sharedPreferences.getString(TOKEN_KEY, null)
+        Log.d("processShort", "authToken: $authToken")
+        if (savedUrl == null || authToken == null) {
+            // TODO: Show settings dialog here...
+            Log.w("processShort", "Missing OR savedUrl/authToken")
+            Toast.makeText(this, getString(R.string.tst_no_url), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val api = ServerApi(this, savedUrl)
+        Log.d("processShort", "api: $api")
+        Toast.makeText(this, "Shortening URL...", Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            try {
+                val response = api.shorten(url)
+                Log.d("processShort", "response: $response")
+
+                if (response.isSuccessful) {
+                    val shortResponse = response.body()
+                    Log.d("processShort", "shortResponse: $shortResponse")
+                    val url = shortResponse?.url ?: savedUrl // TODO: CLEAN UP AISLE 1
+                    Log.d("processShort", "url: $url")
+                    runOnUiThread {
+                        Log.d("processShort", "loadUrl: ${savedUrl}/shorts/#shorts-table_wrapper")
+                        binding.webView.loadUrl("${savedUrl}/shorts/#shorts-table_wrapper")
+                        copyToClipboard(url)
+                        val msg = getString(R.string.tst_url_copied)
+                        Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val code = response.code()
+                    val message = response.message()
+                    Log.w("processShort", "Error: ${code}: $message")
+                    Toast.makeText(this@MainActivity, "Error: $message", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    // TODO: DUPLICATION: processSharedFile
     private fun processSharedFile(fileUri: Uri) {
         Log.d("processSharedFile", "fileUri: $fileUri")
         //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
@@ -512,7 +563,7 @@ class MainActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val fileResponse = response.body()
                     Log.d("processSharedFile", "fileResponse: $fileResponse")
-                    val url = fileResponse?.url ?: savedUrl
+                    val url = fileResponse?.url ?: savedUrl // TODO: CLEAN UP AISLE 1
                     Log.d("processSharedFile", "url: $url")
                     runOnUiThread {
                         copyToClipboard(url)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.util.Log
+import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Cookie
@@ -44,6 +45,11 @@ class ServerApi(context: Context, host: String) {
         return api.postUpload(authToken, multiPart)
     }
 
+    suspend fun shorten(url: String): Response<ShortResponse> {
+        Log.d("upload", "url: $url")
+        return api.postShort(authToken, url)
+    }
+
     interface ApiService {
         @Multipart
         @POST("upload")
@@ -57,6 +63,14 @@ class ServerApi(context: Context, host: String) {
             @Header("Private") private: String? = null,
             @Header("Password") password: String? = null,
         ): Response<FileResponse>
+
+        @POST("shorten")
+        suspend fun postShort(
+            @Header("Authorization") token: String,
+            @Header("URL") url: String? = null,
+            @Header("Vanity") vanity: String? = null,
+            @Header("Max-Views") maxViews: Number? = null,
+        ): Response<ShortResponse>
     }
 
     data class FileResponse(
@@ -64,6 +78,12 @@ class ServerApi(context: Context, host: String) {
         val raw: String,
         val name: String,
         val size: Long
+    )
+
+    data class ShortResponse(
+        val url: String,
+        val vanity: String,
+        @SerializedName("max-views") val maxViews: Number,
     )
 
     private suspend fun inputStreamToMultipart(

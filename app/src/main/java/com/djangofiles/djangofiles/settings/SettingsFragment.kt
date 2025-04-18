@@ -121,6 +121,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    // TODO: DUPLICATION: MainActivity
     private fun checkUrl(url: String): Boolean {
         Log.d("checkUrl", "checkUrl URL: $url")
         val existingServer = dao.getByUrl(url)
