@@ -20,12 +20,12 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.djangofiles.djangofiles.R
+import com.djangofiles.djangofiles.api.ServerApi
+import com.djangofiles.djangofiles.cleanUrl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 
 //import org.json.JSONArray
 //import android.util.Patterns
@@ -34,25 +34,32 @@ import okhttp3.Request
 
 class SettingsFragment : PreferenceFragmentCompat() {
     private lateinit var dao: ServerDao
-    private val client = OkHttpClient()
+    private lateinit var versionName: String
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.pref_root, rootKey)
+
+        versionName = requireContext()
+            .packageManager
+            .getPackageInfo(requireContext().packageName, 0)
+            .versionName ?: "Invalid Version"
 
         dao = ServerDatabase.getInstance(requireContext()).serverDao()
 
         buildServerList()
         setupAddServer()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val serverList = dao.getAll() // Fetch data in background
-            Log.d("onCreatePreferences", "serverList: $serverList")
-            withContext(Dispatchers.Main) {
-                // Update the UI on the main thread
-                Log.d("onCreatePreferences", "IM ON THE UI BABY")
-            }
-        }
+//        lifecycleScope.launch {
+//            val serverList = withContext(Dispatchers.IO) {
+//                dao.getAll()
+//            }
+//            Log.d("onCreatePreferences", "serverList: $serverList")
+//            withContext(Dispatchers.Main) {
+//                // Update the UI on the main thread
+//                Log.d("onCreatePreferences", "IM ON THE UI BABY")
+//            }
+//        }
     }
 
     //override fun onPause() {
@@ -81,34 +88,35 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 .setPositiveButton("Add", null)
                 .show().apply {
                     getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                        // TODO: DUPLICATION: MainActivity
                         var url = editText.text.toString().trim()
-                        Log.d("showSettingsDialog", "setPositiveButton URL: $url")
-
-                        // TODO: Duplicate - MainActivity - make this a function
+                        Log.d("AddServer", "setPositiveButton URL: $url")
+                        url = cleanUrl(url)
+                        Log.d("AddServer", "cleanUrl: $url")
                         if (url.isEmpty()) {
-                            Log.d("showSettingsDialog", "URL is Empty")
+                            Log.i("AddServer", "URL is Empty")
                             editText.error = "This field is required."
                         } else {
-                            if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                                url = "https://$url"
-                            }
-                            if (url.endsWith("/")) {
-                                url = url.substring(0, url.length - 1)
-                            }
-
+                            Log.d("AddServer", "Processing URL: $url")
                             //val servers = loadServers().toMutableList()
-                            //Log.d("showSettingsDialog", "servers: $servers")
-
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val response = checkUrl(url)
-                                Log.d("showSettingsDialog", "response: $response")
+                            //Log.d("AddServer", "servers: $servers")
+                            val api = ServerApi(requireContext(), url)
+                            lifecycleScope.launch {
+                                val response = api.version(versionName)
+                                Log.d("AddServer", "response: $response")
                                 withContext(Dispatchers.Main) {
-                                    if (response) {
-                                        Log.d("showSettingsDialog", "SUCCESS")
+                                    if (response.isSuccessful) {
+                                        Log.d("AddServer", "SUCCESS")
+                                        val dao: ServerDao =
+                                            ServerDatabase.getInstance(requireContext()).serverDao()
+                                        Log.d("showSettingsDialog", "dao.add Server url = $url")
+                                        withContext(Dispatchers.IO) {
+                                            dao.add(Server(url = url))
+                                        }
                                         buildServerList()
                                         cancel()
                                     } else {
-                                        Log.d("showSettingsDialog", "FAILURE")
+                                        Log.d("AddServer", "FAILURE")
                                         editText.error = "Invalid URL"
                                     }
                                 }
@@ -116,37 +124,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         }
                     }
                 }
-
             true
-        }
-    }
-
-    private fun checkUrl(url: String): Boolean {
-        Log.d("checkUrl", "checkUrl URL: $url")
-        val existingServer = dao.getByUrl(url)
-        Log.d("checkUrl", "existingServer: $existingServer")
-        if (existingServer != null) {
-            Log.d("checkUrl", "Error: Server Exists!")
-            return false
-        }
-
-        val authUrl = "${url}/api/auth/methods/"
-        Log.d("showSettingsDialog", "Auth URL: $authUrl")
-
-        // TODO: Change this to HEAD or use response data...
-        val request = Request.Builder().header("User-Agent", "DF").url(authUrl).get().build()
-        return try {
-            val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                Log.d("checkUrl", "Success: Remote OK.")
-                dao.add(Server(url = url))
-            } else {
-                Log.d("checkUrl", "Error: Remote code: ${response.code}")
-            }
-            response.isSuccessful
-        } catch (e: Exception) {
-            Log.d("checkUrl", "Exception: $e")
-            false
         }
     }
 
