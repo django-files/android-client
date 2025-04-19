@@ -30,7 +30,7 @@
 }
 
 # Retrofit
--keep class com.djangofiles.djangofiles.api.ServerApi { *; }
+-keep class com.djangofiles.djangofiles.api.ServerApi$* { *; }
 
 -keepclassmembers class * {
     @com.google.gson.annotations.SerializedName <fields>;

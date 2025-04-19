@@ -550,28 +550,35 @@ class MainActivity : AppCompatActivity() {
             try {
                 val response = api.upload(fileName, inputStream)
                 Log.d("processSharedFile", "response: $response")
-
                 if (response.isSuccessful) {
                     val fileResponse = response.body()
                     Log.d("processSharedFile", "fileResponse: $fileResponse")
-                    val url = fileResponse?.url ?: savedUrl // TODO: CLEAN UP AISLE 1
-                    Log.d("processSharedFile", "url: $url")
                     withContext(Dispatchers.Main) {
-                        copyToClipboard(url)
-                        binding.webView.loadUrl(url)
-                        val msg = getString(R.string.tst_url_copied)
-                        Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
+                        if (fileResponse != null) {
+                            copyToClipboard(fileResponse.url)
+                            binding.webView.loadUrl(fileResponse.url)
+                            val msg = getString(R.string.tst_url_copied)
+                            Log.d("processSharedFile", "msg: $msg")
+                            Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
+                        } else {
+                            Log.w("processSharedFile", "fileResponse is null")
+                            val msg = "Unknown Response"
+                            Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
+                        }
                     }
                 } else {
-                    val code = response.code()
-                    val message = response.message()
-                    Log.w("processSharedFile", "Error: ${code}: $message")
-                    Toast.makeText(this@MainActivity, "Error: $message", Toast.LENGTH_LONG).show()
+                    val msg = "Error: ${response.code()}: ${response.message()}"
+                    Log.w("processSharedFile", "Error: $msg")
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                val msg = e.message ?: "Unknown Error!"
+                Log.i("processSharedFile", "msg")
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
                 }
             }
         }
