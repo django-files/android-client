@@ -468,35 +468,36 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.tst_no_url), Toast.LENGTH_SHORT).show()
             return
         }
-
         val api = ServerApi(this, savedUrl)
         Log.d("processShort", "api: $api")
-        Toast.makeText(this, "Shortening URL...", Toast.LENGTH_SHORT).show()
-
+        Toast.makeText(this, "Creating Short URL...", Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
             try {
                 val response = api.shorten(url)
                 Log.d("processShort", "response: $response")
-
                 if (response.isSuccessful) {
                     val shortResponse = response.body()
                     Log.d("processShort", "shortResponse: $shortResponse")
-                    val url = shortResponse?.url ?: savedUrl // TODO: CLEAN UP AISLE 1
-                    Log.d("processShort", "url: $url")
                     withContext(Dispatchers.Main) {
                         Log.d("processShort", "loadUrl: ${savedUrl}/shorts/#shorts-table_wrapper")
                         binding.webView.loadUrl("${savedUrl}/shorts/#shorts-table_wrapper")
-                        copyToClipboard(url)
-                        val msg = getString(R.string.tst_url_copied)
-                        Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
-                        val shareUrl = sharedPreferences.getBoolean("share_after_short", true)
-                        Log.d("processSharedFile", "shareUrl: $shareUrl")
-                        if (shareUrl) {
-                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, url)
+                        if (shortResponse != null) {
+                            copyToClipboard(shortResponse.url)
+                            val msg = getString(R.string.tst_url_copied)
+                            Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
+                            val shareUrl = sharedPreferences.getBoolean("share_after_short", true)
+                            Log.d("processShort", "shareUrl: $shareUrl")
+                            if (shareUrl) {
+                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, shortResponse.url)
+                                }
+                                startActivity(Intent.createChooser(shareIntent, null))
                             }
-                            startActivity(Intent.createChooser(shareIntent, null))
+                        } else {
+                            Log.w("processShort", "fileResponse is null")
+                            val msg = "Unknown Response!"
+                            Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
                         }
                     }
                 } else {
@@ -514,7 +515,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: DUPLICATION: processSharedFile
+    // TODO: DUPLICATION: processShort
     private fun processSharedFile(fileUri: Uri) {
         Log.d("processSharedFile", "fileUri: $fileUri")
         //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
@@ -530,22 +531,17 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.tst_no_url), Toast.LENGTH_SHORT).show()
             return
         }
-
         //val contentType = URLConnection.guessContentTypeFromName(fileName)
         //Log.d("processSharedFile", "contentType: $contentType")
-
         val inputStream = this@MainActivity.contentResolver.openInputStream(fileUri)
         if (inputStream == null) {
             Log.w("processSharedFile", "inputStream is null")
             Toast.makeText(this, getString(R.string.tst_error_uploading), Toast.LENGTH_SHORT).show()
             return
         }
-
         val api = ServerApi(this, savedUrl)
         Log.d("processSharedFile", "api: $api")
-
         Toast.makeText(this, getString(R.string.tst_uploading_file), Toast.LENGTH_SHORT).show()
-
         lifecycleScope.launch {
             try {
                 val response = api.upload(fileName, inputStream)
@@ -562,7 +558,7 @@ class MainActivity : AppCompatActivity() {
                             Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
                         } else {
                             Log.w("processSharedFile", "fileResponse is null")
-                            val msg = "Unknown Response"
+                            val msg = "Unknown Response!"
                             Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
                         }
                     }
