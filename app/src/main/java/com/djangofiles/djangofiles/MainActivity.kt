@@ -501,15 +501,18 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    val code = response.code()
-                    val message = response.message()
-                    Log.w("processShort", "Error: ${code}: $message")
-                    Toast.makeText(this@MainActivity, "Error: $message", Toast.LENGTH_LONG).show()
+                    val msg = "Error: ${response.code()}: ${response.message()}"
+                    Log.w("processSharedFile", "Error: $msg")
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                val msg = e.message ?: "Unknown Error!"
+                Log.i("processShort", "msg: $msg")
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -572,7 +575,7 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 val msg = e.message ?: "Unknown Error!"
-                Log.i("processSharedFile", "msg")
+                Log.i("processShort", "msg: $msg")
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
                 }
