@@ -150,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         //Log.d("handleIntent", "authToken: $authToken")
 
         if (savedUrl.isNullOrEmpty()) {
-            Log.w("handleIntent", "Missing Saved URL or Token...")
+            Log.i("handleIntent", "Missing Saved URL or Token...")
 
             navController.navigate(
                 R.id.nav_item_setup, null, NavOptions.Builder()
@@ -164,15 +164,14 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawers()
 
             // TODO: Cleanup the logic for handling MAIN intent...
-            val currentDestinationId = navController.currentDestination?.id
-            Log.d("handleIntent", "currentDestinationId: $currentDestinationId")
-            val launcherAction = sharedPreferences.getString("launcher_action", null)
-            Log.d("handleIntent", "launcherAction: $launcherAction")
-            val fromShortcut = intent.getStringExtra("fromShortcut")
-            Log.d("handleIntent", "fromShortcut: $fromShortcut")
+
+            //val currentDestinationId = navController.currentDestination?.id
+            //Log.d("handleIntent", "currentDestinationId: $currentDestinationId")
+            //val launcherAction = sharedPreferences.getString("launcher_action", null)
+            //Log.d("handleIntent", "launcherAction: $launcherAction")
+
             //Log.d("handleIntent", "nav_item_preview: ${R.id.nav_item_preview}")
             //Log.d("handleIntent", "nav_item_short: ${R.id.nav_item_short}")
-            //
             //if (currentDestinationId == R.id.nav_item_preview || currentDestinationId == R.id.nav_item_short) {
             //    Log.i("handleIntent", "ON PREVIEW/SHORT - Navigating to HomeFragment w/ setPopUpTo")
             //    // TODO: Determine the correct navigation call here...
@@ -186,11 +185,14 @@ class MainActivity : AppCompatActivity() {
             //    Log.i("handleIntent", "HOME SETTING SET - Navigating to HomeFragment")
             //    navController.navigate(R.id.nav_item_home)
             //}
-            //// TODO: Determine if this needs to be in the above if/else
-            //if (fromShortcut == "upload") {
-            //    Log.d("handleIntent", "filePickerLauncher.launch")
-            //    filePickerLauncher.launch(arrayOf("*/*"))
-            //}
+
+            // TODO: Determine if this needs to be in the above if/else
+            val fromShortcut = intent.getStringExtra("fromShortcut")
+            Log.d("handleIntent", "fromShortcut: $fromShortcut")
+            if (fromShortcut == "upload") {
+                Log.d("handleIntent", "filePickerLauncher.launch")
+                filePickerLauncher.launch(arrayOf("*/*"))
+            }
 
         } else if (Intent.ACTION_SEND == intent.action) {
             Log.d("handleIntent", "ACTION_SEND")

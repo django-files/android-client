@@ -3,7 +3,7 @@
     <shortcut
         android:shortcutId="upload"
         android:enabled="true"
-        android:icon="@mipmap/ic_launcher_round"
+        android:icon="@drawable/shortcut_upload"
         android:shortcutShortLabel="@string/upload"
         android:shortcutLongLabel="@string/upload_file">
         <intent
