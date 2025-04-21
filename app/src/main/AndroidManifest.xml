@@ -62,9 +62,6 @@
 
         </activity>
 
-        <!-- TODO: Remove SettingsActivity -->
-        <activity android:name=".settings.SettingsActivity" />
-
     </application>
 
 </manifest>

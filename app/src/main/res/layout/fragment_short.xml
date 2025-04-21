@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="8dp">
+
+        <EditText
+            android:id="@+id/url_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="URL to Shorten"
+            android:background="@drawable/edit_text_border"
+            android:ellipsize="end"
+            android:gravity="top|start"
+            android:inputType="textUri|textMultiLine"
+            android:maxLines="7"
+            android:minLines="7"
+            android:overScrollMode="ifContentScrolls"
+            android:padding="8dp"
+            android:scrollHorizontally="false"
+            android:scrollbars="vertical"
+            tools:text="https://github.com/django-files/android-client?tab=readme-ov-file#readme" />
+
+        <EditText
+            android:id="@+id/vanity_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:autofillHints="File Name"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:hint="@string/vanity"
+            android:inputType="textNoSuggestions"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:labelFor="@id/url_text" />
+
+        <Button
+            android:id="@+id/short_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:paddingEnd="36dp"
+            android:paddingStart="36dp"
+            android:text="@string/shorten_url"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:icon="@drawable/fa_link"
+            app:iconGravity="end"
+            app:iconPadding="-36dp"
+            app:iconSize="24dp" />
+
+        <Button
+            android:id="@+id/options_button"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:paddingEnd="36dp"
+            android:paddingStart="36dp"
+            android:text="@string/options"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            app:icon="@drawable/fa_gear"
+            app:iconGravity="end"
+            app:iconPadding="-36dp"
+            app:iconSize="24dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/share_button"
+                android:layout_width="140dp"
+                android:layout_height="match_parent"
+                android:text="@string/share"
+                app:icon="@drawable/fa_share_nodes"
+                app:iconGravity="textEnd"
+                app:iconSize="24dp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/open_button"
+                android:layout_width="140dp"
+                android:layout_height="match_parent"
+                android:text="@string/open"
+                app:icon="@drawable/fa_arrow_up_right_from_square"
+                app:iconGravity="textEnd"
+                app:iconSize="24dp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
+import android.util.Patterns
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -21,24 +22,19 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.api.ServerApi
-import com.djangofiles.djangofiles.cleanUrl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-//import org.json.JSONArray
-//import android.util.Patterns
-//import androidx.preference.PreferenceManager
-
-
 class SettingsFragment : PreferenceFragmentCompat() {
+
     private lateinit var dao: ServerDao
     private lateinit var versionName: String
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
-        setPreferencesFromResource(R.xml.pref_root, rootKey)
+        setPreferencesFromResource(R.xml.settings, rootKey)
 
         versionName = requireContext()
             .packageManager
@@ -76,7 +72,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("add_server")?.setOnPreferenceClickListener {
             val editText = EditText(requireContext()).apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_URI
-                hint = getString(R.string.settings_input_place)
+                hint = getString(R.string.setup_host_placeholder)
                 maxLines = 1
                 requestFocus()
             }
@@ -110,6 +106,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                         val dao: ServerDao =
                                             ServerDatabase.getInstance(requireContext()).serverDao()
                                         Log.d("showSettingsDialog", "dao.add Server url = $url")
+                                        // TODO: App Crash if url exists, need to check first...
                                         withContext(Dispatchers.IO) {
                                             dao.add(Server(url = url))
                                         }
@@ -267,6 +264,27 @@ class SettingsFragment : PreferenceFragmentCompat() {
 //    private val Preference.preferenceView: View?
 //        get() = (listView?.findViewHolderForAdapterPosition(preferenceScreen.indexOfPreference(this)) as? PreferenceViewHolder)?.itemView
 
+}
+
+// TODO: Moved from MainActivity. Move inside after cleanup...
+fun cleanUrl(urlString: String): String {
+    var url = urlString.trim()
+    if (url.isEmpty()) {
+        Log.i("cleanUrl", "url.isEmpty()")
+        return ""
+    }
+    if (!url.lowercase().startsWith("http")) {
+        url = "https://$url"
+    }
+    if (url.endsWith("/")) {
+        url = url.substring(0, url.length - 1)
+    }
+    Log.d("cleanUrl", "matching: $url")
+    if (!Patterns.WEB_URL.matcher(url).matches()) {
+        Log.i("cleanUrl", "Patterns.WEB_URL.matcher Failed")
+        return ""
+    }
+    return url
 }
 
 
