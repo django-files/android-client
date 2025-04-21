@@ -93,10 +93,10 @@ class SetupFragment : Fragment() {
             //Log.d("setOnClickListener", "Pass: $pass")
 
             var valid = true
-            if (host.isEmpty() || host == "https://") {
-                binding.loginHostname.error = "Required"
-                valid = false
-            }
+            //if (host.isEmpty() || host == "https://") {
+            //    binding.loginHostname.error = "Required"
+            //    valid = false
+            //}
             if (!isURL(host)) {
                 binding.loginHostname.error = "Invalid Hostname"
                 valid = false
@@ -162,14 +162,16 @@ class SetupFragment : Fragment() {
                         } else {
                             Log.d("showSettingsDialog", "FAILURE")
                             //input.error = "Invalid URL"
-                            binding.loginHostname.error = "Invalid URL"
+                            binding.loginHostname.error = "Validation Error"
                             Toast.makeText(context, "Invalid URL!", Toast.LENGTH_SHORT).show()
                         }
                     }
                 } catch (e: Exception) {
+                    Log.d("showSettingsDialog", "EXCEPTION")
                     e.printStackTrace()
-                    val msg = e.message ?: "Unknown Error!"
+                    val msg = e.message ?: "Unknown Error Validating Server."
                     Log.i("processUpload", "msg: $msg")
+                    binding.loginHostname.error = "Validation Error"
                     withContext(Dispatchers.Main) {
                         Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                     }
