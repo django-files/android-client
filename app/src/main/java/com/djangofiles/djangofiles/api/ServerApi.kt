@@ -40,23 +40,25 @@ class ServerApi(context: Context, host: String) {
     init {
         api = createRetrofit(host).create(ApiService::class.java)
         authToken = preferences.getString("auth_token", null) ?: ""
+        Log.d("ServerApi", "authToken: $authToken")
     }
 
     suspend fun upload(fileName: String, inputStream: InputStream): Response<FileResponse> {
-        Log.d("upload", "fileName: $fileName")
+        Log.d("Api[upload]", "fileName: $fileName")
         val multiPart: MultipartBody.Part = inputStreamToMultipart(inputStream, fileName)
         return api.postUpload(authToken, multiPart)
     }
 
-    suspend fun shorten(url: String): Response<ShortResponse> {
-        Log.d("shorten", "url: $url")
-        return api.postShort(authToken, url)
+    suspend fun shorten(url: String, vanity: String?): Response<ShortResponse> {
+        Log.d("Api[shorten]", "url: $url")
+        Log.d("Api[shorten]", "vanity: $vanity")
+        return api.postShort(authToken, url, vanity)
     }
 
     // TODO: Use VersionResponse
     suspend fun version(version: String): Response<ResponseBody> {
-        Log.d("version", "version: $version")
-        return api.postVersion(authToken, VersionRequest(version))
+        Log.d("Api[version]", "version: $version")
+        return api.postVersion(VersionRequest(version))
     }
 
     interface ApiService {
@@ -76,7 +78,7 @@ class ServerApi(context: Context, host: String) {
         @POST("shorten")
         suspend fun postShort(
             @Header("Authorization") token: String,
-            @Header("URL") url: String? = null,
+            @Header("URL") url: String,
             @Header("Vanity") vanity: String? = null,
             @Header("Max-Views") maxViews: Number? = null,
         ): Response<ShortResponse>
@@ -84,7 +86,6 @@ class ServerApi(context: Context, host: String) {
         // TODO: Use VersionResponse
         @POST("version")
         suspend fun postVersion(
-            @Header("Authorization") token: String,
             @Body version: VersionRequest
         ): Response<ResponseBody>
     }

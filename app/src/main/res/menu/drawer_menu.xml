@@ -1,52 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:id="@+id/nav_site">
         <item
             android:id="@+id/nav_item_home"
-            android:icon="@drawable/fa_house_laptop"
-            android:title="Home" />
-        <item
-            android:id="@+id/nav_item_files"
-            android:icon="@drawable/fa_folder_open"
-            android:title="Files" />
-        <item
-            android:id="@+id/nav_item_gallery"
-            android:icon="@drawable/fa_table_cells_large"
-            android:title="Gallery" />
-        <item
-            android:id="@+id/nav_item_albums"
-            android:icon="@drawable/fa_image"
-            android:title="Albums" />
-        <item
-            android:id="@+id/nav_item_shorts"
-            android:icon="@drawable/fa_link"
-            android:title="Shorts" />
-    </group>
-
-    <group android:id="@+id/nav_utilities">
+            android:icon="@drawable/ic_launcher_foreground"
+            android:title="Django Files"
+            android:checkable="true" />
         <item
             android:id="@+id/nav_item_upload"
             android:icon="@drawable/fa_upload"
             android:title="Upload File" />
-    </group>
-
-    <group android:id="@+id/nav_settings">
         <item
-            android:id="@+id/nav_item_settings_user"
-            android:icon="@drawable/fa_circle_user"
-            android:title="User Settings" />
-        <item
-            android:id="@+id/nav_item_settings_site"
-            android:icon="@drawable/fa_gears"
-            android:title="Site Settings" />
-    </group>
-
-    <group android:id="@+id/nav_app">
-        <item
-            android:id="@+id/nav_item_server_list"
+            android:id="@+id/nav_item_settings"
             android:icon="@drawable/fa_gear"
-            android:title="App Settings" />
-    </group>
+            android:title="App Settings"
+            android:checkable="true" />
+
+    <item android:title="Site Navigation">
+        <menu>
+            <item
+                android:id="@+id/nav_item_files"
+                android:icon="@drawable/fa_folder_open"
+                android:title="Files" />
+            <item
+                android:id="@+id/nav_item_gallery"
+                android:icon="@drawable/fa_table_cells_large"
+                android:title="Gallery" />
+            <item
+                android:id="@+id/nav_item_albums"
+                android:icon="@drawable/fa_image"
+                android:title="Albums" />
+            <item
+                android:id="@+id/nav_item_shorts"
+                android:icon="@drawable/fa_link"
+                android:title="Shorts" />
+
+            <item
+                android:id="@+id/nav_item_settings_user"
+                android:icon="@drawable/fa_circle_user"
+                android:title="User Settings" />
+            <item
+                android:id="@+id/nav_item_settings_site"
+                android:icon="@drawable/fa_gears"
+                android:title="Site Settings" />
+        </menu>
+    </item>
 
 </menu>
