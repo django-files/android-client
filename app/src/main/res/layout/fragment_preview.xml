@@ -17,16 +17,20 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp">
+            android:layout_height="168dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/image_preview"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:contentDescription="@string/preview"
-                android:scaleType="fitCenter"
-                app:contentPadding="8dp"
-                app:strokeWidth="2dp" />
+                android:padding="8dp"
+                android:background="@drawable/edit_text_border">
+                <ImageView
+                    android:id="@+id/image_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/preview"
+                    android:scaleType="fitCenter" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/image_overlay_text"

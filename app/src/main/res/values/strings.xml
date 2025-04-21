@@ -1,35 +1,22 @@
 <resources>
     <string name="app_name">Django Files</string>
 
-    <string name="settings_title">App Settings</string>
-    <string name="settings_message">Set the Initial Django Files URL</string>
-    <string name="settings_input_place">your.django-files.com</string>
-    <string name="settings_requires">Requires server version 0.16.0-b7 or greater.</string>
+    <string name="setup_host_placeholder">your.django-files.com</string>
 
-    <string name="tst_invalid_url">Please enter a valid URL.</string>
-    <string name="tst_not_implemented">Not Implemented.</string>
-    <string name="tst_error">Error</string>
-    <string name="tst_error_uploading">Error Uploading!</string>
+    <string name="tst_upload_error">Error Uploading!</string>
     <string name="tst_no_url">URL Not Set!</string>
-    <string name="tst_url_copied">Copied to Clipboard.</string>
-    <string name="tst_no_clipboard">Clipboard Not Available!</string>
-    <string name="tst_perm_failed">Unable to Grant Permissions!</string>
+    <string name="tst_copied_clipboard">Copied to Clipboard.</string>
     <string name="tst_uploading_file">Uploading File…</string>
 
-    <string name="delete">Delete</string>
     <string name="upload">Upload</string>
     <string name="upload_file">Upload File</string>
+    <string name="app_settings">App Settings</string>
 
-<!-- Copied from Zipline -->
-    <string name="hostname">Hostname</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
-    <string name="login">Login</string>
+    <string name="delete">Delete</string>
     <string name="preview">Preview</string>
     <string name="share">Share</string>
     <string name="open">Open</string>
     <string name="options">Options</string>
-    <string name="settings">Settings</string>
     <string name="vanity">Vanity</string>
     <string name="file_name">File Name</string>
     <string name="shorten_url">Shorten URL</string>

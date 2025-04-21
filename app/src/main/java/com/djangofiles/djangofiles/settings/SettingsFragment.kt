@@ -72,7 +72,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("add_server")?.setOnPreferenceClickListener {
             val editText = EditText(requireContext()).apply {
                 inputType = InputType.TYPE_TEXT_VARIATION_URI
-                hint = getString(R.string.settings_input_place)
+                hint = getString(R.string.setup_host_placeholder)
                 maxLines = 1
                 requestFocus()
             }

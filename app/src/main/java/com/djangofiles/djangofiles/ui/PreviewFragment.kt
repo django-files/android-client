@@ -107,13 +107,13 @@ class PreviewFragment : Fragment() {
             }
         }
 
-        val radius = resources.getDimension(R.dimen.image_radius)
-        binding.imagePreview.setShapeAppearanceModel(
-            binding.imagePreview.shapeAppearanceModel
-                .toBuilder()
-                .setAllCorners(CornerFamily.ROUNDED, radius)
-                .build()
-        )
+        //val radius = resources.getDimension(R.dimen.image_radius)
+        //binding.imagePreview.setShapeAppearanceModel(
+        //    binding.imagePreview.shapeAppearanceModel
+        //        .toBuilder()
+        //        .setAllCorners(CornerFamily.ROUNDED, radius)
+        //        .build()
+        //)
 
         val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences?.getString("saved_url", null)
@@ -188,7 +188,7 @@ class PreviewFragment : Fragment() {
         val inputStream = requireContext().contentResolver.openInputStream(fileUri)
         if (inputStream == null) {
             Log.w("processUpload", "inputStream is null")
-            val msg = getString(R.string.tst_error_uploading)
+            val msg = getString(R.string.tst_upload_error)
             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
             return
         }
@@ -206,7 +206,7 @@ class PreviewFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         if (fileResponse != null) {
                             copyToClipboard(requireContext(), fileResponse.url)
-                            val msg = getString(R.string.tst_url_copied)
+                            val msg = getString(R.string.tst_copied_clipboard)
                             Log.d("processUpload", "msg: $msg")
                             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                             navController.navigate(

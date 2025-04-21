@@ -29,7 +29,7 @@
             android:layout_height="48dp"
             android:padding="10dp"
             android:autofillHints="url"
-            android:hint="@string/settings_input_place"
+            android:hint="@string/setup_host_placeholder"
             android:inputType="textUri" />
 
 <!--        <EditText-->
