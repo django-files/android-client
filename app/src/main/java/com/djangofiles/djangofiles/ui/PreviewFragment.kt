@@ -64,10 +64,8 @@ class PreviewFragment : Fragment() {
         //val uri = arguments?.getString("uri")?.toUri()
         val uri = requireArguments().getString("uri")?.toUri()
         Log.d("onViewCreated", "uri: $uri")
-
         val type = arguments?.getString("type")
         Log.d("onViewCreated", "type: $type")
-
         //val text = arguments?.getString("text")
         //Log.d("onViewCreated", "text: $text")
 
@@ -80,7 +78,6 @@ class PreviewFragment : Fragment() {
 
         val fileName = getFileNameFromUri(requireContext(), uri)
         Log.d("onViewCreated", "fileName: $fileName")
-        //binding.fileName.text = fileName
         binding.fileName.setText(fileName)
 
         if (type?.startsWith("image/") == true) {
@@ -100,13 +97,13 @@ class PreviewFragment : Fragment() {
             // Set Icon Based on Type
             // TODO: Create Mapping...
             if (type?.startsWith("text/") == true) {
-                binding.imagePreview.setImageResource(R.drawable.baseline_text_snippet_24)
+                binding.imagePreview.setImageResource(R.drawable.fa_file_lines)
             } else if (type?.startsWith("video/") == true) {
-                binding.imagePreview.setImageResource(R.drawable.baseline_video_file_24)
+                binding.imagePreview.setImageResource(R.drawable.fa_file_video)
             } else if (type?.startsWith("audio/") == true) {
-                binding.imagePreview.setImageResource(R.drawable.baseline_audio_file_24)
+                binding.imagePreview.setImageResource(R.drawable.fa_file_audio)
             } else {
-                binding.imagePreview.setImageResource(R.drawable.baseline_insert_drive_file_24)
+                binding.imagePreview.setImageResource(R.drawable.fa_file_circle_question)
             }
         }
 
@@ -242,36 +239,6 @@ class PreviewFragment : Fragment() {
             }
         }
     }
-
-//    private fun processUpload(uri: Uri, fileName: String, ziplineUrl: String) {
-//        // TODO: Cleanup to work with multiple files...
-//        Log.d("processUpload", "File URI: $uri")
-//        val api = ZiplineApi(requireContext())
-//        lifecycleScope.launch {
-//            val response = api.upload(uri, fileName, ziplineUrl)
-//            Log.d("processUpload", "response: $response")
-//            val result = response?.files?.firstOrNull()
-//            Log.d("processUpload", "result: $result")
-//            if (result != null) {
-//                Log.d("processUpload", "result.url: ${result.url}")
-//                copyToClipboard(result.url)
-//                navController.navigate(
-//                    R.id.nav_item_home,
-//                    bundleOf("url" to result.url),
-//                    NavOptions.Builder()
-//                        .setPopUpTo(R.id.nav_graph, inclusive = true)
-//                        .build()
-//                )
-//                Log.d("processUpload", "DONE")
-//            } else {
-//                Log.e("processUpload", "uploadedFile is null")
-//                withContext(Dispatchers.Main) {
-//                    Toast.makeText(requireContext(), "File Upload Failed!", Toast.LENGTH_LONG)
-//                        .show()
-//                }
-//            }
-//        }
-//    }
 
     // TODO: This was originally in ZiplineApi but being refactored in DF
     private fun getFileNameFromUri(context: Context, uri: Uri): String? {

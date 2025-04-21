@@ -25,8 +25,6 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavOptions
-import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.HomeViewModel
 import com.djangofiles.djangofiles.databinding.FragmentHomeBinding
 import com.djangofiles.djangofiles.settings.ServerDao
