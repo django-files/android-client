@@ -212,9 +212,9 @@ class HomeFragment : Fragment() {
             //
             //    val sharedPreferences =
             //        view.context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            //    Log.d("doUpdateVisitedHistory", "REMOVE: ziplineToken")
-            //    //sharedPreferences.edit { putString("ziplineToken", "") }
-            //    sharedPreferences.edit { remove("ziplineToken") }
+            //    Log.d("doUpdateVisitedHistory", "REMOVE: authToken")
+            //    //sharedPreferences.edit { putString("auth_token", "") }
+            //    sharedPreferences.edit { remove("auth_token") }
             //
             //    Log.d("doUpdateVisitedHistory", "view.loadUrl: about:blank")
             //    view.loadUrl("about:blank")

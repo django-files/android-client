@@ -143,13 +143,13 @@ class MainActivity : AppCompatActivity() {
         Log.d("handleIntent", "extraText: $extraText")
 
         val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val ziplineUrl = sharedPreferences.getString("saved_url", null)
-        val ziplineToken = sharedPreferences.getString("auth_token", null)
-        Log.d("handleIntent", "ziplineUrl: $ziplineUrl")
-        Log.d("handleIntent", "ziplineToken: $ziplineToken")
+        val savedUrl = sharedPreferences.getString("saved_url", null)
+        Log.d("handleIntent", "savedUrl: $savedUrl")
+        //val authToken = sharedPreferences.getString("auth_token", null)
+        //Log.d("handleIntent", "authToken: $authToken")
 
-        if (ziplineUrl.isNullOrEmpty()) {
-            Log.w("handleIntent", "Missing Zipline URL or Token...")
+        if (savedUrl.isNullOrEmpty()) {
+            Log.w("handleIntent", "Missing Saved URL or Token...")
 
             navController.navigate(
                 R.id.nav_item_setup, null, NavOptions.Builder()

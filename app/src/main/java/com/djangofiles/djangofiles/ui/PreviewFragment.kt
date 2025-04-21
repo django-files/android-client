@@ -56,28 +56,28 @@ class PreviewFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d("onViewCreated", "savedInstanceState: $savedInstanceState")
-        Log.d("onViewCreated", "arguments: $arguments")
+        Log.d("Prev[onViewCreated]", "savedInstanceState: $savedInstanceState")
+        Log.d("Prev[onViewCreated]", "arguments: $arguments")
 
         navController = findNavController()
 
         //val uri = arguments?.getString("uri")?.toUri()
         val uri = requireArguments().getString("uri")?.toUri()
-        Log.d("onViewCreated", "uri: $uri")
+        Log.d("Prev[onViewCreated]", "uri: $uri")
         val type = arguments?.getString("type")
-        Log.d("onViewCreated", "type: $type")
+        Log.d("Prev[onViewCreated]", "type: $type")
         //val text = arguments?.getString("text")
-        //Log.d("onViewCreated", "text: $text")
+        //Log.d("Prev[onViewCreated]", "text: $text")
 
         if (uri == null) {
             // TODO: Better Handle this Error
-            Log.e("onViewCreated", "URI is null")
+            Log.e("Prev[onViewCreated]", "URI is null")
             Toast.makeText(requireContext(), "No URI to Process!", Toast.LENGTH_LONG).show()
             return
         }
 
         val fileName = getFileNameFromUri(requireContext(), uri)
-        Log.d("onViewCreated", "fileName: $fileName")
+        Log.d("Prev[onViewCreated]", "fileName: $fileName")
         binding.fileName.setText(fileName)
 
         if (type?.startsWith("image/") == true) {
@@ -116,13 +116,13 @@ class PreviewFragment : Fragment() {
         )
 
         val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val ziplineUrl = sharedPreferences?.getString("saved_url", null)
-        val ziplineToken = sharedPreferences?.getString("auth_token", null)
-        Log.d("onViewCreated", "ziplineUrl: $ziplineUrl")
-        Log.d("onViewCreated", "ziplineToken: $ziplineToken")
+        val savedUrl = sharedPreferences?.getString("saved_url", null)
+        Log.d("Prev[onViewCreated]", "savedUrl: $savedUrl")
+        //val authToken = sharedPreferences?.getString("auth_token", null)
+        //Log.d("Prev[onViewCreated]", "authToken: $authToken")
 
-        if (ziplineUrl == null) {
-            Log.e("onViewCreated", "ziplineUrl is null")
+        if (savedUrl == null) {
+            Log.e("Prev[onViewCreated]", "savedUrl is null")
             Toast.makeText(requireContext(), "Missing URL!", Toast.LENGTH_LONG)
                 .show()
             navController.navigate(

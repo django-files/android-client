@@ -114,7 +114,7 @@ class SetupFragment : Fragment() {
             val sharedPreferences =
                 requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
             //sharedPreferences?.edit { putString("saved_url", host) }
-            //Log.d("getSharedPreferences", "ziplineUrl: $host")
+            //Log.d("getSharedPreferences", "saved_url: $host")
             //findNavController().navigate(R.id.nav_item_home, null, NavOptions.Builder()
             //    .setPopUpTo(R.id.nav_item_setup, true)
             //    .build())
@@ -187,10 +187,10 @@ class SetupFragment : Fragment() {
             //        Log.d("lifecycleScope.launch", "LOGIN SUCCESS")
             //        val sharedPreferences =
             //            context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            //        sharedPreferences?.edit { putString("ziplineUrl", host) }
-            //        Log.d("getSharedPreferences", "ziplineUrl: $host")
-            //        sharedPreferences?.edit { putString("ziplineToken", token) }
-            //        Log.d("getSharedPreferences", "ziplineToken: $token")
+            //        sharedPreferences?.edit { putString("saved_url", host) }
+            //        Log.d("getSharedPreferences", "saved_url: $host")
+            //        sharedPreferences?.edit { putString("auth_token", token) }
+            //        Log.d("getSharedPreferences", "auth_token: $token")
             //        findNavController().navigate(R.id.nav_item_home, null, NavOptions.Builder()
             //            .setPopUpTo(R.id.nav_item_setup, true)
             //            .build())

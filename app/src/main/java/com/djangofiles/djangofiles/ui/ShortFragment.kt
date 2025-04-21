@@ -64,13 +64,13 @@ class ShortFragment : Fragment() {
         }
 
         val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val ziplineUrl = sharedPreferences?.getString("saved_url", null)
-        val ziplineToken = sharedPreferences?.getString("auth_token", null)
-        Log.d("Short[onViewCreated]", "ziplineUrl: $ziplineUrl")
-        Log.d("Short[onViewCreated]", "ziplineToken: $ziplineToken")
+        val savedUrl = sharedPreferences?.getString("saved_url", null)
+        Log.d("Short[onViewCreated]", "savedUrl: $savedUrl")
+        //val authToken = sharedPreferences?.getString("auth_token", null)
+        //Log.d("Short[onViewCreated]", "authToken: $authToken")
 
-        if (ziplineUrl == null) {
-            Log.e("Short[onViewCreated]", "ziplineUrl is null")
+        if (savedUrl == null) {
+            Log.e("Short[onViewCreated]", "savedUrl is null")
             Toast.makeText(requireContext(), "Missing URL!", Toast.LENGTH_LONG)
                 .show()
             navController.navigate(
