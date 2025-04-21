@@ -56,12 +56,13 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
 
         val itemPathMap = mapOf(
-            R.id.nav_item_files to "files/",
-            R.id.nav_item_gallery to "gallery/",
-            R.id.nav_item_albums to "albums/",
-            R.id.nav_item_shorts to "shorts/",
-            R.id.nav_item_settings_user to "settings/user/",
-            R.id.nav_item_settings_site to "settings/site/",
+            R.id.nav_site_home to "",
+            R.id.nav_site_files to "files/",
+            R.id.nav_site_gallery to "gallery/",
+            R.id.nav_site_albums to "albums/",
+            R.id.nav_site_shorts to "shorts/",
+            R.id.nav_site_settings_user to "settings/user/",
+            R.id.nav_site_settings_site to "settings/site/",
         )
 
         // Handle Custom Navigation Items

@@ -19,28 +19,32 @@
     <item android:title="Site Navigation">
         <menu>
             <item
-                android:id="@+id/nav_item_files"
+                android:id="@+id/nav_site_home"
+                android:icon="@drawable/fa_house_laptop"
+                android:title="Home" />
+            <item
+                android:id="@+id/nav_site_files"
                 android:icon="@drawable/fa_folder_open"
                 android:title="Files" />
             <item
-                android:id="@+id/nav_item_gallery"
+                android:id="@+id/nav_site_gallery"
                 android:icon="@drawable/fa_table_cells_large"
                 android:title="Gallery" />
             <item
-                android:id="@+id/nav_item_albums"
+                android:id="@+id/nav_site_albums"
                 android:icon="@drawable/fa_image"
                 android:title="Albums" />
             <item
-                android:id="@+id/nav_item_shorts"
+                android:id="@+id/nav_site_shorts"
                 android:icon="@drawable/fa_link"
                 android:title="Shorts" />
 
             <item
-                android:id="@+id/nav_item_settings_user"
+                android:id="@+id/nav_site_settings_user"
                 android:icon="@drawable/fa_circle_user"
                 android:title="User Settings" />
             <item
-                android:id="@+id/nav_item_settings_site"
+                android:id="@+id/nav_site_settings_site"
                 android:icon="@drawable/fa_gears"
                 android:title="Site Settings" />
         </menu>

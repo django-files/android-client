@@ -227,15 +227,15 @@ class HomeFragment : Fragment() {
             //}
         }
 
-        //override fun onPageFinished(view: WebView?, url: String?) {
-        //    Log.d("onPageFinished", "url: $url")
-        //    viewModel.webViewUrl.value = url
-        //    if (clearHistory == true) {
-        //        Log.i("onPageFinished", "CLEARING - binding.webView.clearHistory()")
-        //        clearHistory = false
-        //        binding.webView.clearHistory()
-        //    }
-        //}
+        override fun onPageFinished(view: WebView?, url: String?) {
+            Log.d("onPageFinished", "url: $url")
+            viewModel.webViewUrl.value = url
+            //if (clearHistory == true) {
+            //    Log.i("onPageFinished", "CLEARING - binding.webView.clearHistory()")
+            //    clearHistory = false
+            //    binding.webView.clearHistory()
+            //}
+        }
 
         override fun onReceivedError(
             view: WebView,
