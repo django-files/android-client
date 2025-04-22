@@ -70,6 +70,8 @@ class FilesFragment : Fragment() {
         Log.d("getFiles", "savedData: ${savedData?.size}")
         if (savedData != null) {
             Log.i("File[onViewCreated]", "LOADING SAVED DATA")
+            atEnd = savedInstanceState.getBoolean("at_end")
+            Log.i("File[onViewCreated]", "atEnd: $atEnd")
             filesAdapter.addData(savedData)
             binding.loadingSpinner.visibility = View.GONE
         } else {
@@ -145,6 +147,7 @@ class FilesFragment : Fragment() {
         super.onSaveInstanceState(outState)
         //outState.putParcelableArrayList("recent_data", ArrayList(filesAdapter.getData()))
         outState.putSerializable("recent_data", ArrayList(filesAdapter.getData()))
+        outState.putBoolean("at_end", atEnd)
     }
 
     override fun onPause() {
