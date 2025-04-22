@@ -1,10 +1,20 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:title="App Settings">
 
+        <androidx.preference.SeekBarPreference
+            android:key="files_per_page"
+            android:title="Files Per Page"
+            android:icon="@drawable/md_format_list_numbered_24"
+            android:defaultValue="25"
+            android:max="100"
+            app:min="10"
+            app:showSeekBarValue="true" />
+
             <SwitchPreferenceCompat
                 android:defaultValue="true"
-                android:icon="@drawable/fa_share_nodes"
+                android:icon="@drawable/md_share_24"
                 android:key="share_after_short"
                 android:title="Share URL After Short Generation" />
 

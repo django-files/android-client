@@ -92,14 +92,14 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 - Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
 - Ability to add multiple servers and switch on the fly from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
-- Navigation Drawer on Swipe from Left with App Settings or Server List from the main menu.
 - Native Upload feature from Navigation Drawer and Upload Shortcut on Icon long press.
+- Basic Native File List with Share/Open links, Infinite Scroll, Custom Per Page option.
 
 ### Planned
 
 - Ability to Shorten URL's.
 - Widget with Stats and quick options.
-- Quick access to Recent uploads and URLs.
+- Option to Disable Preview for files and links.
 - Option to Preview file(s) before uploading w/ server selector and upload options.
 - Native App Login to support Discord passkeys and Google App Authentication.
 - Ability to Authenticate if your session (cookie) is expired or invalidated.

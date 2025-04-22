@@ -10,6 +10,7 @@
 
     <string name="upload">Upload</string>
     <string name="upload_file">Upload File</string>
+    <string name="file_list">File List</string>
     <string name="app_settings">App Settings</string>
 
     <string name="delete">Delete</string>

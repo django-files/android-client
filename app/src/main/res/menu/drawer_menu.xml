@@ -7,6 +7,11 @@
             android:title="@string/app_name"
             android:checkable="true" />
         <item
+            android:id="@+id/nav_item_files"
+            android:icon="@drawable/fa_table_list"
+            android:title="@string/file_list"
+            android:checkable="true" />
+        <item
             android:id="@+id/nav_item_upload"
             android:icon="@drawable/fa_upload"
             android:title="@string/upload_file" />

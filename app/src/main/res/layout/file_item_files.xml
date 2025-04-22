@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_weight="0"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/edit_text_border">
+
+        <ImageView
+            android:id="@+id/file_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/file_list"
+            android:scaleType="centerInside"
+            android:src="@drawable/md_docs_24" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="4dp">
+
+        <TextView
+            android:id="@+id/file_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="ReallyLongFileNameBecauseIDontKnowHowToRenameFiles.everyone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/file_size"
+                android:layout_width="54dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                tools:text="999 kB" />
+
+            <TextView
+                android:id="@+id/file_view"
+                android:layout_width="64dp"
+                android:layout_height="fill_parent"
+                android:layout_gravity="start"
+                android:layout_weight="1"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                app:drawableStartCompat="@drawable/md_visibility_24"
+                app:drawableTint="?attr/colorOnSecondary"
+                tools:text="9999" />
+
+            <TextView
+                android:id="@+id/file_private"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="0"
+                android:gravity="center_vertical"
+                app:drawableStartCompat="@drawable/md_lock_24"
+                app:drawableTint="?attr/colorOnSecondary" />
+
+            <TextView
+                android:id="@+id/file_password"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="0"
+                android:gravity="center_vertical"
+                app:drawableStartCompat="@drawable/md_key_vertical_24"
+                app:drawableTint="?attr/colorOnSecondary" />
+
+            <TextView
+                android:id="@+id/file_expr"
+                android:layout_width="64dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:textAlignment="textEnd"
+                app:drawableEndCompat="@drawable/md_timer_24"
+                app:drawableTint="?attr/colorOnSecondary"
+                tools:text="99mo"
+                tools:ignore="RtlCompat" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/share_link"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_weight="0"
+        android:background="@drawable/edit_text_border">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/share"
+            android:scaleType="centerInside"
+            android:src="@drawable/md_share_24" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/open_link"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_weight="0"
+        android:layout_marginHorizontal="4dp"
+        android:background="@drawable/edit_text_border">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/open"
+            android:scaleType="centerInside"
+            android:src="@drawable/md_open_in_new_24" />
+    </LinearLayout>
+
+</LinearLayout>
