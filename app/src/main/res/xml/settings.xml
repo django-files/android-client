@@ -9,7 +9,8 @@
             android:icon="@drawable/md_format_list_numbered_24"
             android:defaultValue="25"
             android:max="100"
-            app:min="10" />
+            app:min="10"
+            app:showSeekBarValue="true" />
 
             <SwitchPreferenceCompat
                 android:defaultValue="true"
