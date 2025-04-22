@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
+    implementation(libs.glide)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -11,12 +12,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.api.ServerApi.RecentResponse
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.shape.CornerFamily
 
 class FilesViewAdapter(
     private val context: Context,
@@ -26,7 +35,7 @@ class FilesViewAdapter(
     private var colorOnSecondary: ColorStateList? = null
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val fileImage: ImageView = view.findViewById(R.id.file_image)
+        val fileImage: ShapeableImageView = view.findViewById(R.id.file_image)
         val fileName: TextView = view.findViewById(R.id.file_name)
         val fileSize: TextView = view.findViewById(R.id.file_size)
         val fileView: TextView = view.findViewById(R.id.file_view)
@@ -35,22 +44,12 @@ class FilesViewAdapter(
         val fileExpr: TextView = view.findViewById(R.id.file_expr)
         val shareLink: LinearLayout = view.findViewById(R.id.share_link)
         val openLink: LinearLayout = view.findViewById(R.id.open_link)
+        val loadingSpinner: ProgressBar = view.findViewById(R.id.loading_spinner)
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.file_item_files, viewGroup, false)
-
-        // Set MD Color
-        val typedValue = TypedValue()
-        val theme = context.theme
-        theme.resolveAttribute(
-            com.google.android.material.R.attr.colorOnSecondary,
-            typedValue,
-            true
-        )
-        colorOnSecondary = ContextCompat.getColorStateList(context, typedValue.resourceId)
-
         return ViewHolder(view)
     }
 
@@ -60,6 +59,15 @@ class FilesViewAdapter(
         //Log.i("onBindViewHolder", "data[$position]: $data")
         //Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
 
+        val typedValue = TypedValue()
+        val theme = context.theme
+        theme.resolveAttribute(
+            com.google.android.material.R.attr.colorOnSecondary,
+            typedValue,
+            true
+        )
+        colorOnSecondary = ContextCompat.getColorStateList(context, typedValue.resourceId)
+
         // Name
         viewHolder.fileName.text = data.name
 
@@ -68,33 +76,17 @@ class FilesViewAdapter(
 
         // Views
         viewHolder.fileView.text = data.view.toString()
-        if (data.view > 0) {
-            viewHolder.fileView.compoundDrawableTintList = null
-        } else {
-            viewHolder.fileView.compoundDrawableTintList = colorOnSecondary
-        }
+        viewHolder.fileView.compoundDrawableTintList = if (data.view > 0) null else colorOnSecondary
 
         // Private
-        if (data.private) {
-            viewHolder.filePrivate.compoundDrawableTintList = null
-        } else {
-            viewHolder.filePrivate.compoundDrawableTintList = colorOnSecondary
-        }
+        viewHolder.filePrivate.compoundDrawableTintList = if (data.private) null else colorOnSecondary
 
         // Password
-        if (!data.password.isEmpty()) {
-            viewHolder.filePassword.compoundDrawableTintList = null
-        } else {
-            viewHolder.filePassword.compoundDrawableTintList = colorOnSecondary
-        }
+        viewHolder.filePassword.compoundDrawableTintList = if (data.password.isNotEmpty()) null else colorOnSecondary
 
         // Expiration
         viewHolder.fileExpr.text = data.expr
-        if (!data.expr.isEmpty()) {
-            viewHolder.fileExpr.compoundDrawableTintList = null
-        } else {
-            viewHolder.fileExpr.compoundDrawableTintList = colorOnSecondary
-        }
+        viewHolder.fileExpr.compoundDrawableTintList = if (data.expr.isNotEmpty()) null else colorOnSecondary
 
         // Share Link
         viewHolder.shareLink.setOnClickListener {
@@ -109,38 +101,71 @@ class FilesViewAdapter(
         }
 
         // Image
-        if (data.mime.startsWith("application/pdf") == true) {
-            viewHolder.fileImage.setImageResource(R.drawable.md_picture_as_pdf_24)
-        } else if (data.mime.startsWith("text/csv") == true) {
-            viewHolder.fileImage.setImageResource(R.drawable.md_csv_24)
-        } else if (data.mime.startsWith("text/") == true) {
-            viewHolder.fileImage.setImageResource(R.drawable.md_docs_24)
-        } else if (data.mime.startsWith("image/") == true) {
-            viewHolder.fileImage.setImageResource(R.drawable.md_imagesmode_24)
-        } else if (data.mime.startsWith("video/") == true) {
-            viewHolder.fileImage.setImageResource(R.drawable.md_videocam_24)
-        } else if (data.mime.startsWith("audio/") == true) {
-            viewHolder.fileImage.setImageResource(R.drawable.md_music_note_24)
-        } else {
-            viewHolder.fileImage.setImageResource(R.drawable.md_unknown_document_24)
+        val radius = context.resources.getDimension(R.dimen.image_radius)
+        viewHolder.fileImage.setShapeAppearanceModel(
+            viewHolder.fileImage.shapeAppearanceModel
+                .toBuilder()
+                .setAllCorners(CornerFamily.ROUNDED, radius)
+                .build()
+        )
+
+        val setGenericIcon = {
+            when {
+                isCodeMime(data.mime) -> viewHolder.fileImage.setImageResource(R.drawable.md_code_blocks_24)
+                data.mime.startsWith("application/json") -> viewHolder.fileImage.setImageResource(R.drawable.md_file_json_24)
+                data.mime.startsWith("application/pdf") -> viewHolder.fileImage.setImageResource(R.drawable.md_picture_as_pdf_24)
+                data.mime.startsWith("image/gif") -> viewHolder.fileImage.setImageResource(R.drawable.md_gif_box_24)
+                data.mime.startsWith("image/png") -> viewHolder.fileImage.setImageResource(R.drawable.md_file_png_24)
+                data.mime.startsWith("text/csv") -> viewHolder.fileImage.setImageResource(R.drawable.md_csv_24)
+                data.mime.startsWith("audio/") -> viewHolder.fileImage.setImageResource(R.drawable.md_music_note_24)
+                data.mime.startsWith("image/") -> viewHolder.fileImage.setImageResource(R.drawable.md_imagesmode_24)
+                data.mime.startsWith("text/") -> viewHolder.fileImage.setImageResource(R.drawable.md_docs_24)
+                data.mime.startsWith("video/") -> viewHolder.fileImage.setImageResource(R.drawable.md_videocam_24)
+                else -> viewHolder.fileImage.setImageResource(R.drawable.md_unknown_document_24)
+            }
         }
 
-        //// TODO: TESTING ONLY
-        //if (data.mime.startsWith("image/")) {
-        //    Log.i("testOnly", "data.mime: ${data.mime}")
-        //    try {
-        //        val galleryUrl = URL("${data.raw}?view=gallery")
-        //        Log.i("testOnly", "galleryUrl: $galleryUrl")
-        //        CoroutineScope(Dispatchers.IO).launch {
-        //            val drawable = Drawable.createFromStream(galleryUrl.openStream(), "src")
-        //            CoroutineScope(Dispatchers.Main).launch {
-        //                viewHolder.fileImage.setImageDrawable(drawable)
-        //            }
-        //        }
-        //    } catch (e: Exception) {
-        //        Log.i("testOnly", "Exception: $e")
-        //    }
-        //}
+        val glideListener = object : RequestListener<Drawable> {
+            override fun onLoadFailed(
+                e: GlideException?,
+                model: Any?,
+                target: Target<Drawable>,
+                isFirstResource: Boolean
+            ): Boolean {
+                Log.d("Glide", "onLoadFailed: ${data.name}")
+                viewHolder.loadingSpinner.visibility = View.GONE
+                setGenericIcon()
+                return true
+            }
+
+            override fun onResourceReady(
+                resource: Drawable,
+                model: Any,
+                target: Target<Drawable>,
+                dataSource: DataSource,
+                isFirstResource: Boolean
+            ): Boolean {
+                Log.d("Glide", "onResourceReady: ${data.name}")
+                viewHolder.loadingSpinner.visibility = View.GONE
+                viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_CROP
+                return false
+            }
+        }
+
+        viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
+
+        if (isGlideMime(data.mime)) {
+            viewHolder.loadingSpinner.visibility = View.VISIBLE
+            val url =
+                data.thumb + if (data.password.isNotEmpty()) "&password=${data.password}" else ""
+            Log.d("Glide", "load: ${data.mime}: $url")
+            Glide.with(context)
+                .load(url)
+                .listener(glideListener)
+                .into(viewHolder.fileImage)
+        } else {
+            setGenericIcon()
+        }
     }
 
     override fun getItemCount() = dataSet.size
@@ -153,6 +178,38 @@ class FilesViewAdapter(
 
     fun getData(): List<RecentResponse> {
         return dataSet
+    }
+
+    private fun isGlideMime(mimeType: String): Boolean {
+        return when (mimeType.lowercase()) {
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp",
+            "image/heif",
+            "video/mp4",
+                -> true
+
+            else -> false
+        }
+    }
+
+    private fun isCodeMime(mimeType: String): Boolean {
+        if (mimeType.startsWith("text/x-script")) return true
+        return when (mimeType.lowercase()) {
+            "application/javascript",
+            "application/x-httpd-php",
+            "application/x-python",
+            "text/javascript",
+            "text/python",
+            "text/x-go",
+            "text/x-ruby",
+            "text/x-php",
+            "text/x-shellscript",
+                -> true
+
+            else -> false
+        }
     }
 
     private fun openUrl(url: String) {
