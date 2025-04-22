@@ -3,10 +3,12 @@ package com.djangofiles.djangofiles.api
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.os.Parcelable
 import android.util.Log
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.parcelize.Parcelize
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -27,9 +29,6 @@ import retrofit2.http.Part
 import retrofit2.http.Query
 import java.io.InputStream
 import java.net.URLConnection
-
-//import android.os.Parcelable
-//import kotlinx.parcelize.Parcelize
 
 // TODO: Pass preferences instead of context since context is not used
 class ServerApi(context: Context, host: String) {
@@ -125,7 +124,7 @@ class ServerApi(context: Context, host: String) {
         val valid: Boolean,
     )
 
-    //@Parcelize
+    @Parcelize
     data class RecentResponse(
         val id: Int,
         val user: Int,
@@ -144,8 +143,7 @@ class ServerApi(context: Context, host: String) {
         val thumb: String,
         val raw: String,
         val date: String,
-        val albums: List<Any>
-    ) // : Parcelable
+    ) : Parcelable
 
     private suspend fun inputStreamToMultipart(
         file: InputStream,

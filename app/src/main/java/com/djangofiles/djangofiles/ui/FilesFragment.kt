@@ -1,6 +1,7 @@
 package com.djangofiles.djangofiles.ui
 
 import android.content.Context.MODE_PRIVATE
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,6 +26,8 @@ class FilesFragment : Fragment() {
 
     private var atEnd = false
     private var errorCount = 0
+
+    private lateinit var key: String
 
     private lateinit var api: ServerApi
     private lateinit var filesAdapter: FilesViewAdapter
@@ -53,10 +56,17 @@ class FilesFragment : Fragment() {
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences.getString("saved_url", "").toString()
         Log.d("File[onViewCreated]", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences.getString("auth_token", null)
+        val authToken = sharedPreferences.getString("auth_token", "")
         Log.d("File[onViewCreated]", "authToken: $authToken")
+        if (authToken.isNullOrEmpty()) {
+            Log.w("File[onViewCreated]", "NO AUTH TOKEN")
+            Toast.makeText(context, "Missing Auth Token!", Toast.LENGTH_LONG).show()
+            return
+        }
+        key = authToken.take(6)
+        Log.d("File[onViewCreated]", "key: $key")
         val perPage = sharedPreferences.getInt("files_per_page", 25)
-        Log.d("AddServer", "perPage: $perPage")
+        Log.d("File[onViewCreated]", "perPage: $perPage")
 
         api = ServerApi(requireContext(), savedUrl)
         filesAdapter = FilesViewAdapter(requireContext(), mutableListOf())
@@ -64,23 +74,25 @@ class FilesFragment : Fragment() {
         binding.filesRecyclerView.adapter = filesAdapter
 
         // TODO: Implement Parcelize/Parcelable
-        //val savedData = savedInstanceState?.getParcelableArrayList<RecentResponse>("recent_data")
-        //val savedData = savedInstanceState?.getSerializable("recent_data") as? ArrayList<RecentResponse>
-        //Log.d("getFiles", "savedData: ${savedData?.size}")
-        //if (savedData != null) {
-        //    Log.i("File[onViewCreated]", "LOADING SAVED DATA")
-        //    atEnd = savedInstanceState.getBoolean("at_end")
-        //    Log.i("File[onViewCreated]", "atEnd: $atEnd")
-        //    filesAdapter.addData(savedData)
-        //    binding.loadingSpinner.visibility = View.GONE
-        //} else {
-        //    lifecycleScope.launch {
-        //        getFiles(perPage)
-        //    }
-        //}
-
-        lifecycleScope.launch {
-            getFiles(perPage)
+        val savedData: List<RecentResponse>? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                savedInstanceState?.getParcelableArrayList("files_data_$key", RecentResponse::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                savedInstanceState?.getParcelableArrayList("files_data_$key")
+            }
+        Log.d("getFiles", "savedData: ${savedData?.size}")
+        if (savedInstanceState != null && savedData != null) {
+            Log.i("File[onViewCreated]", "LOADING SAVED DATA")
+            atEnd = savedInstanceState.getBoolean("files_at_end_$key")
+            Log.d("File[onViewCreated]", "atEnd: $atEnd")
+            filesAdapter.addData(savedData)
+            binding.loadingSpinner.visibility = View.GONE
+        } else {
+            Log.i("File[onViewCreated]", "FETCHING NEW DATA")
+            lifecycleScope.launch {
+                getFiles(perPage)
+            }
         }
 
         binding.filesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -98,6 +110,15 @@ class FilesFragment : Fragment() {
                 }
             }
         })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.d("File[onSave]", "ON SAVE: ${outState.size()}")
+        Log.d("File[onSave]", "key: $key")
+        super.onSaveInstanceState(outState)
+        outState.putParcelableArrayList("files_data_$key", ArrayList(filesAdapter.getData()))
+        outState.putBoolean("files_at_end_$key", atEnd)
+        Log.d("File[onSave]", "SAVE DONE: ${outState.size()}")
     }
 
     suspend fun getFiles(perPage: Int) {
@@ -142,14 +163,6 @@ class FilesFragment : Fragment() {
                 Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        Log.d("File[onSave]", "ON SAVE: ${outState.size()}")
-        super.onSaveInstanceState(outState)
-        //outState.putParcelableArrayList("recent_data", ArrayList(filesAdapter.getData()))
-        //outState.putSerializable("recent_data", ArrayList(filesAdapter.getData()))
-        //outState.putBoolean("at_end", atEnd)
     }
 
     override fun onPause() {
