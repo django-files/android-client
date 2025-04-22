@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SeekBarPreference
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
@@ -45,6 +46,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         buildServerList()
         setupAddServer()
+
+        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 0)
+        Log.d("AddServer", "filesPerPage: $filesPerPage")
+        val seekBar = findPreference<SeekBarPreference>("files_per_page")
+        seekBar?.summary = "Current Value: $filesPerPage"
+        seekBar?.apply {
+            setOnPreferenceChangeListener { pref, newValue ->
+                val intValue = (newValue as Int)
+                var stepped = ((intValue + 2) / 5) * 5
+                if (stepped < 10) stepped = 10
+                Log.d("AddServer", "stepped: $stepped")
+                value = stepped
+                pref.summary = "Current Value: $stepped"
+                false
+            }
+        }
 
 //        lifecycleScope.launch {
 //            val serverList = withContext(Dispatchers.IO) {

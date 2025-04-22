@@ -19,10 +19,12 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Query
 import java.io.InputStream
 import java.net.URLConnection
 
@@ -61,6 +63,11 @@ class ServerApi(context: Context, host: String) {
         return api.postVersion(VersionRequest(version))
     }
 
+    suspend fun recent(amount: Number, start: Number = 0): Response<List<RecentResponse>> {
+        Log.d("Api[recent]", "amount: $amount")
+        return api.getRecent(authToken, amount, start)
+    }
+
     interface ApiService {
         @Multipart
         @POST("upload")
@@ -82,6 +89,13 @@ class ServerApi(context: Context, host: String) {
             @Header("Vanity") vanity: String? = null,
             @Header("Max-Views") maxViews: Number? = null,
         ): Response<ShortResponse>
+
+        @GET("recent")
+        suspend fun getRecent(
+            @Header("Authorization") token: String,
+            @Query("amount") amount: Number,
+            @Query("start") start: Number,
+        ): Response<List<RecentResponse>>
 
         // TODO: Use VersionResponse
         @POST("version")
@@ -107,6 +121,27 @@ class ServerApi(context: Context, host: String) {
     data class VersionResponse(
         val version: String,
         val valid: Boolean,
+    )
+
+    data class RecentResponse(
+        val id: Int,
+        val user: Int,
+        val size: Int,
+        val mime: String,
+        val name: String,
+        val info: String,
+        val expr: String,
+        val view: Int,
+        val maxv: Int,
+        @SerializedName("meta_preview") val metaPreview: Boolean,
+        val password: String,
+        val `private`: Boolean,
+        val avatar: Boolean,
+        val url: String,
+        val thumb: String,
+        val raw: String,
+        val date: String,
+        val albums: List<Any>
     )
 
     private suspend fun inputStreamToMultipart(

@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles
+package com.djangofiles.djangofiles.ui
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
