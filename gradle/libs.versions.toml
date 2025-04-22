@@ -52,3 +52,4 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+#kotlin-parcelize = { id = "kotlin-parcelize", version.ref = "kotlin" }

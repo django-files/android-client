@@ -48,7 +48,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setupAddServer()
 
         val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 0)
-        Log.d("AddServer", "filesPerPage: $filesPerPage")
+        Log.d("onCreatePreferences", "filesPerPage: $filesPerPage")
         val seekBar = findPreference<SeekBarPreference>("files_per_page")
         seekBar?.summary = "Current Value: $filesPerPage"
         seekBar?.apply {
@@ -56,7 +56,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 val intValue = (newValue as Int)
                 var stepped = ((intValue + 2) / 5) * 5
                 if (stepped < 10) stepped = 10
-                Log.d("AddServer", "stepped: $stepped")
+                Log.d("onCreatePreferences", "stepped: $stepped")
                 value = stepped
                 pref.summary = "Current Value: $stepped"
                 false

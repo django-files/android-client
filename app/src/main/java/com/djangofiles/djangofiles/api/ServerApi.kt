@@ -28,6 +28,8 @@ import retrofit2.http.Query
 import java.io.InputStream
 import java.net.URLConnection
 
+//import android.os.Parcelable
+//import kotlinx.parcelize.Parcelize
 
 // TODO: Pass preferences instead of context since context is not used
 class ServerApi(context: Context, host: String) {
@@ -63,8 +65,8 @@ class ServerApi(context: Context, host: String) {
         return api.postVersion(VersionRequest(version))
     }
 
-    suspend fun recent(amount: Number, start: Number = 0): Response<List<RecentResponse>> {
-        Log.d("Api[recent]", "amount: $amount")
+    suspend fun recent(amount: Int, start: Int = 0): Response<List<RecentResponse>> {
+        Log.d("Api[recent]", "amount: $amount - start: $start")
         return api.getRecent(authToken, amount, start)
     }
 
@@ -87,14 +89,14 @@ class ServerApi(context: Context, host: String) {
             @Header("Authorization") token: String,
             @Header("URL") url: String,
             @Header("Vanity") vanity: String? = null,
-            @Header("Max-Views") maxViews: Number? = null,
+            @Header("Max-Views") maxViews: Int? = null,
         ): Response<ShortResponse>
 
         @GET("recent")
         suspend fun getRecent(
             @Header("Authorization") token: String,
-            @Query("amount") amount: Number,
-            @Query("start") start: Number,
+            @Query("amount") amount: Int,
+            @Query("start") start: Int,
         ): Response<List<RecentResponse>>
 
         // TODO: Use VersionResponse
@@ -114,7 +116,7 @@ class ServerApi(context: Context, host: String) {
     data class ShortResponse(
         val url: String,
         val vanity: String,
-        @SerializedName("max-views") val maxViews: Number,
+        @SerializedName("max-views") val maxViews: Int,
     )
 
     data class VersionRequest(val version: String)
@@ -123,6 +125,7 @@ class ServerApi(context: Context, host: String) {
         val valid: Boolean,
     )
 
+    //@Parcelize
     data class RecentResponse(
         val id: Int,
         val user: Int,
@@ -142,7 +145,7 @@ class ServerApi(context: Context, host: String) {
         val raw: String,
         val date: String,
         val albums: List<Any>
-    )
+    ) // : Parcelable
 
     private suspend fun inputStreamToMultipart(
         file: InputStream,
