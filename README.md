@@ -93,7 +93,7 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 - Ability to add multiple servers and switch on the fly from the Server List menu.
 - Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
 - Native Upload feature from Navigation Drawer and Upload Shortcut on Icon long press.
-- Basic Native File List with Share/Open links, Infinite Scroll, Custom Per Page option. 
+- Basic Native File List with Share/Open links, Infinite Scroll, Custom Per Page option.
 
 ### Planned
 
