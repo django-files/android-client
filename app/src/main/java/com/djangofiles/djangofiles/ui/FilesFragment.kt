@@ -65,22 +65,24 @@ class FilesFragment : Fragment() {
 
         // TODO: Implement Parcelize/Parcelable
         //val savedData = savedInstanceState?.getParcelableArrayList<RecentResponse>("recent_data")
-        val savedData =
-            savedInstanceState?.getSerializable("recent_data") as? ArrayList<RecentResponse>
-        Log.d("getFiles", "savedData: ${savedData?.size}")
-        if (savedData != null) {
-            Log.i("File[onViewCreated]", "LOADING SAVED DATA")
-            atEnd = savedInstanceState.getBoolean("at_end")
-            Log.i("File[onViewCreated]", "atEnd: $atEnd")
-            filesAdapter.addData(savedData)
-            binding.loadingSpinner.visibility = View.GONE
-        } else {
-            lifecycleScope.launch {
-                getFiles(perPage)
-            }
+        //val savedData = savedInstanceState?.getSerializable("recent_data") as? ArrayList<RecentResponse>
+        //Log.d("getFiles", "savedData: ${savedData?.size}")
+        //if (savedData != null) {
+        //    Log.i("File[onViewCreated]", "LOADING SAVED DATA")
+        //    atEnd = savedInstanceState.getBoolean("at_end")
+        //    Log.i("File[onViewCreated]", "atEnd: $atEnd")
+        //    filesAdapter.addData(savedData)
+        //    binding.loadingSpinner.visibility = View.GONE
+        //} else {
+        //    lifecycleScope.launch {
+        //        getFiles(perPage)
+        //    }
+        //}
+
+        lifecycleScope.launch {
+            getFiles(perPage)
         }
 
-        // TODO: Since atEnd is false this almost always triggers when loading saved data...
         binding.filesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 if (!rv.canScrollVertically(1)) {
@@ -143,11 +145,11 @@ class FilesFragment : Fragment() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        Log.d("File[onSave]", "outState: ${outState.size()}")
+        Log.d("File[onSave]", "ON SAVE: ${outState.size()}")
         super.onSaveInstanceState(outState)
         //outState.putParcelableArrayList("recent_data", ArrayList(filesAdapter.getData()))
-        outState.putSerializable("recent_data", ArrayList(filesAdapter.getData()))
-        outState.putBoolean("at_end", atEnd)
+        //outState.putSerializable("recent_data", ArrayList(filesAdapter.getData()))
+        //outState.putBoolean("at_end", atEnd)
     }
 
     override fun onPause() {
