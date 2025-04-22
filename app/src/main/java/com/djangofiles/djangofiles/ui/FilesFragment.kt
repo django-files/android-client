@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.djangofiles.djangofiles.api.ServerApi
+import com.djangofiles.djangofiles.api.ServerApi.RecentResponse
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +22,12 @@ class FilesFragment : Fragment() {
 
     private var _binding: FragmentFilesBinding? = null
     private val binding get() = _binding!!
+
+    private var atEnd = false
+    private var errorCount = 0
+
+    private lateinit var api: ServerApi
+    private lateinit var filesAdapter: FilesViewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,7 +41,7 @@ class FilesFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d("File[onDestroyView]", "webView.destroy()")
+        Log.d("File[onDestroyView]", "ON DESTROY")
         super.onDestroyView()
     }
 
@@ -42,111 +49,105 @@ class FilesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("File[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences?.getString("saved_url", "").toString()
+        val sharedPreferences =
+            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val savedUrl = sharedPreferences.getString("saved_url", "").toString()
         Log.d("File[onViewCreated]", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences?.getString("auth_token", null)
+        val authToken = sharedPreferences.getString("auth_token", null)
         Log.d("File[onViewCreated]", "authToken: $authToken")
-        val filesPerPage = sharedPreferences?.getInt("files_per_page", 0)
-        Log.d("AddServer", "filesPerPage: $filesPerPage")
+        val perPage = sharedPreferences.getInt("files_per_page", 25)
+        Log.d("AddServer", "perPage: $perPage")
 
-        var perPage = filesPerPage ?: 25
-        var atEnd = false
+        api = ServerApi(requireContext(), savedUrl)
+        filesAdapter = FilesViewAdapter(requireContext(), mutableListOf())
+        binding.filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.filesRecyclerView.adapter = filesAdapter
 
-        val api = ServerApi(requireContext(), savedUrl)
-        Log.d("File[onViewCreated]", "POST API - PRE LAUNCH")
-        lifecycleScope.launch {
-            try {
-                val response = api.recent(perPage, 0)
-                Log.d("File[onViewCreated]", "response: $response")
-                if (response.isSuccessful) {
-                    val fileResponse = response.body()
-                    Log.d("File[onScrolled]", "fileResponse.count: ${fileResponse?.count()}")
-                    if (fileResponse != null) {
-                        if (fileResponse.count() < perPage) {
-                            atEnd = true
-                        }
-                        val customAdapter =
-                            FilesViewAdapter(requireContext(), fileResponse.toMutableList())
-                        val recyclerView: RecyclerView = binding.myRecyclerView
-                        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-                        recyclerView.adapter = customAdapter
-                        binding.loadingSpinner.visibility = View.GONE
-                    } else {
-                        Log.d("File[onViewCreated]", "Fetch Failed - 1nd else")
-                        binding.loadingSpinner.visibility = View.GONE
-                        val msg = "Fetching Recent Files Failed."
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                        }
-                    }
-                } else {
-                    Log.d("File[onViewCreated]", "Fetch Failed - 2nd else")
-                    binding.loadingSpinner.visibility = View.GONE
-                    val msg = "Fetching Recent Files Failed."
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                binding.loadingSpinner.visibility = View.GONE
-                val msg = e.message ?: "Unknown Error!"
-                Log.w("File[onViewCreated]", "msg: $msg")
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                }
+        // TODO: Implement Parcelize/Parcelable
+        //val savedData = savedInstanceState?.getParcelableArrayList<RecentResponse>("recent_data")
+        val savedData =
+            savedInstanceState?.getSerializable("recent_data") as? ArrayList<RecentResponse>
+        Log.d("getFiles", "savedData: ${savedData?.size}")
+        if (savedData != null) {
+            Log.i("File[onViewCreated]", "LOADING SAVED DATA")
+            atEnd = savedInstanceState.getBoolean("at_end")
+            Log.i("File[onViewCreated]", "atEnd: $atEnd")
+            filesAdapter.addData(savedData)
+            binding.loadingSpinner.visibility = View.GONE
+        } else {
+            lifecycleScope.launch {
+                getFiles(perPage)
             }
         }
 
-        binding.myRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        // TODO: Since atEnd is false this almost always triggers when loading saved data...
+        binding.filesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 if (!rv.canScrollVertically(1)) {
-                    if (atEnd) {
-                        Log.i("File[onScrolled]", "AT END - NOTHING TO DO")
-                        return
-                    }
-                    binding.loadingSpinner.visibility = View.VISIBLE
-                    val currentCount = binding.myRecyclerView.adapter?.itemCount ?: 0
-                    Log.d("File[onScrolled]", "currentCount: $currentCount")
-                    val adapter = binding.myRecyclerView.adapter as? FilesViewAdapter
-                    lifecycleScope.launch {
-                        try {
-                            val moreResponse = api.recent(perPage, currentCount)
-                            Log.d("File[onScrolled]", "moreResponse.code: ${moreResponse.code()}")
-                            if (moreResponse.isSuccessful) {
-                                val moreData = moreResponse.body()
-                                Log.d("File[onScrolled]", "moreData.count: ${moreData?.count()}")
-                                if (!moreData.isNullOrEmpty()) {
-                                    adapter?.addData(moreData)
-                                    binding.loadingSpinner.visibility = View.GONE
-                                    if (moreData.count() < perPage) {
-                                        Log.i("File[onScrolled]", "LESS THAN $perPage - SET AT END")
-                                        atEnd = true
-                                    }
-                                } else {
-                                    Log.i("File[onScrolled]", "NO DATA RETURNED - SET AT END")
-                                    binding.loadingSpinner.visibility = View.GONE
-                                    atEnd = true
-                                }
-                            }
-                        } catch (e: Exception) {
-                            Log.e("File[onScrolled]", "Exception: $e")
-                            binding.loadingSpinner.visibility = View.GONE
-                            val msg = e.message ?: "Error Fetching"
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                            }
+                    Log.d("File[onScrolled]", "atEnd: $atEnd")
+                    if (!atEnd) {
+                        binding.loadingSpinner.visibility = View.VISIBLE
+                        lifecycleScope.launch {
+                            getFiles(perPage)
                         }
+                    } else {
+                        Log.i("File[onScrolled]", "AT END - NOTHING TO DO")
                     }
                 }
             }
         })
     }
 
+    suspend fun getFiles(perPage: Int) {
+        try {
+            Log.d("getFiles", "filesAdapter.itemCount: ${filesAdapter.itemCount}")
+            val response = api.recent(perPage, filesAdapter.itemCount)
+            Log.d("getFiles", "moreResponse.code: ${response.code()}")
+            if (response.isSuccessful) {
+                val data = response.body()
+                Log.d("getFiles", "moreData.count: ${data?.count()}")
+                if (!data.isNullOrEmpty()) {
+                    filesAdapter.addData(data)
+                    if (data.count() < perPage) {
+                        Log.i("getFiles", "LESS THAN $perPage - SET AT END")
+                        atEnd = true
+                    }
+                } else {
+                    Log.i("getFiles", "NO DATA RETURNED - SET AT END")
+                    atEnd = true
+                }
+            } else {
+                Log.e("getFiles", "Error Fetching Files")
+                errorCount += 1
+                val msg = "Error ${response.code()} Fetching Files"
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("getFiles", "Exception: $e")
+            errorCount += 1
+            val msg = e.message ?: "Exception Fetching Files"
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+            }
+        }
+        binding.loadingSpinner.visibility = View.GONE
+        if (errorCount > 5) {
+            atEnd = true
+            val msg = "Recieved $errorCount Errors. Aborting!"
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         Log.d("File[onSave]", "outState: ${outState.size()}")
         super.onSaveInstanceState(outState)
+        //outState.putParcelableArrayList("recent_data", ArrayList(filesAdapter.getData()))
+        outState.putSerializable("recent_data", ArrayList(filesAdapter.getData()))
+        outState.putBoolean("at_end", atEnd)
     }
 
     override fun onPause() {

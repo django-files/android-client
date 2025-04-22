@@ -151,6 +151,10 @@ class FilesViewAdapter(
         notifyItemRangeInserted(start, newData.size)
     }
 
+    fun getData(): List<RecentResponse> {
+        return dataSet
+    }
+
     private fun openUrl(url: String) {
         val openIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(url.toUri(), "text/plain")
