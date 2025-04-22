@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.parcelize).apply {
+        javaClass.getDeclaredField("version").apply { isAccessible = true }.set(this, null)
+    }
 }
 
 android {
