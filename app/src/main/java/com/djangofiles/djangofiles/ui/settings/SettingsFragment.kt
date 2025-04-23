@@ -22,7 +22,7 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.api.ServerApi
+import com.djangofiles.djangofiles.ServerApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

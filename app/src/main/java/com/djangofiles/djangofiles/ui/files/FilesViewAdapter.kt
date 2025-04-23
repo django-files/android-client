@@ -23,7 +23,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.api.ServerApi.RecentResponse
+import com.djangofiles.djangofiles.ServerApi.RecentResponse
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 

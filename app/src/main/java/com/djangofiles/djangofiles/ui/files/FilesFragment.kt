@@ -12,8 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.djangofiles.djangofiles.api.ServerApi
-import com.djangofiles.djangofiles.api.ServerApi.RecentResponse
+import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerApi.RecentResponse
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

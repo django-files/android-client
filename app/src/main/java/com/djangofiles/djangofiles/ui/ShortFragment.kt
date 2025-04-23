@@ -16,7 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.api.ServerApi
+import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentShortBinding
 import kotlinx.coroutines.Dispatchers
