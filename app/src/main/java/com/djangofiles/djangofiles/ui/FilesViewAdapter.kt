@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.graphics.drawable.Drawable
+import android.graphics.Bitmap
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -79,14 +79,17 @@ class FilesViewAdapter(
         viewHolder.fileView.compoundDrawableTintList = if (data.view > 0) null else colorOnSecondary
 
         // Private
-        viewHolder.filePrivate.compoundDrawableTintList = if (data.private) null else colorOnSecondary
+        viewHolder.filePrivate.compoundDrawableTintList =
+            if (data.private) null else colorOnSecondary
 
         // Password
-        viewHolder.filePassword.compoundDrawableTintList = if (data.password.isNotEmpty()) null else colorOnSecondary
+        viewHolder.filePassword.compoundDrawableTintList =
+            if (data.password.isNotEmpty()) null else colorOnSecondary
 
         // Expiration
         viewHolder.fileExpr.text = data.expr
-        viewHolder.fileExpr.compoundDrawableTintList = if (data.expr.isNotEmpty()) null else colorOnSecondary
+        viewHolder.fileExpr.compoundDrawableTintList =
+            if (data.expr.isNotEmpty()) null else colorOnSecondary
 
         // Share Link
         viewHolder.shareLink.setOnClickListener {
@@ -101,7 +104,7 @@ class FilesViewAdapter(
         }
 
         // Image
-        val radius = context.resources.getDimension(R.dimen.image_radius)
+        val radius = context.resources.getDimension(R.dimen.image_preview_small)
         viewHolder.fileImage.setShapeAppearanceModel(
             viewHolder.fileImage.shapeAppearanceModel
                 .toBuilder()
@@ -125,27 +128,27 @@ class FilesViewAdapter(
             }
         }
 
-        val glideListener = object : RequestListener<Drawable> {
+        val glideListener = object : RequestListener<Bitmap> {
             override fun onLoadFailed(
                 e: GlideException?,
                 model: Any?,
-                target: Target<Drawable>,
+                target: Target<Bitmap>,
                 isFirstResource: Boolean
             ): Boolean {
-                Log.d("Glide", "onLoadFailed: ${data.name}")
+                //Log.d("Glide", "onLoadFailed: ${data.name}")
                 viewHolder.loadingSpinner.visibility = View.GONE
                 setGenericIcon()
                 return true
             }
 
             override fun onResourceReady(
-                resource: Drawable,
+                resource: Bitmap,
                 model: Any,
-                target: Target<Drawable>,
+                target: Target<Bitmap>,
                 dataSource: DataSource,
                 isFirstResource: Boolean
             ): Boolean {
-                Log.d("Glide", "onResourceReady: ${data.name}")
+                //Log.d("Glide", "onResourceReady: ${data.name}")
                 viewHolder.loadingSpinner.visibility = View.GONE
                 viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_CROP
                 return false
@@ -160,6 +163,7 @@ class FilesViewAdapter(
                 data.thumb + if (data.password.isNotEmpty()) "&password=${data.password}" else ""
             Log.d("Glide", "load: ${data.mime}: $url")
             Glide.with(context)
+                .asBitmap()
                 .load(url)
                 .listener(glideListener)
                 .into(viewHolder.fileImage)
