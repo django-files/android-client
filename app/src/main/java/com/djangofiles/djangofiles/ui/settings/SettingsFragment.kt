@@ -1,6 +1,5 @@
 package com.djangofiles.djangofiles.ui.settings
 
-import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -12,17 +11,11 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Delete
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.djangofiles.djangofiles.R
+import com.djangofiles.djangofiles.Server
 import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerDao
+import com.djangofiles.djangofiles.ServerDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -302,124 +295,4 @@ fun cleanUrl(urlString: String): String {
         return ""
     }
     return url
-}
-
-
-//class SettingsFragment : PreferenceFragmentCompat() {
-//    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-//        Log.d("SettingsFragment", "onCreatePreferences rootKey: $rootKey")
-//
-//        setPreferencesFromResource(R.xml.preferences, rootKey)
-//
-//        val savedUrlPref = findPreference<EditTextPreference>("saved_url")
-//        Log.d("SettingsFragment", "savedUrlPref: $savedUrlPref")
-//
-//        val preferences = context?.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-//        Log.d("SettingsFragment", "preferences: $preferences")
-//
-//        var savedUrl = preferences?.getString(URL_KEY, "")
-//
-//        savedUrlPref?.let {
-//            //val savedUrl = PreferenceManager.getDefaultSharedPreferences(requireContext())
-//            //    .getString("saved_url", "")
-//            Log.d("SettingsFragment", "savedUrl: $savedUrl")
-//            it.text = savedUrl
-//        }
-//
-//        savedUrlPref?.setOnPreferenceChangeListener { _, newValue ->
-//            val newUrl = newValue as String
-//            Log.d("SettingsFragment", "newUrl: $newUrl")
-//            val url = parseUrl(newUrl)
-//            Log.d("SettingsFragment", "url: $url")
-//            if (url.isNullOrEmpty()) {
-//                Log.d("SettingsFragment", "ERROR CHANGING URL!!")
-//                Toast.makeText(context, "Invalid URL!", Toast.LENGTH_SHORT).show()
-//                false
-//            } else {
-//                if (url == savedUrl) {
-//                    Toast.makeText(context, "URL Not Changed!", Toast.LENGTH_SHORT).show()
-//                    false
-//                } else {
-//                    preferences?.edit { putString(URL_KEY, url) }
-//                    savedUrl = url
-//                    Log.d("SettingsFragment", "URL CHANGED")
-//                    true
-//                }
-//            }
-//
-//            //PreferenceManager.getDefaultSharedPreferences(requireContext())
-//            //    .edit { putString("saved_url", newUrl) }
-//
-//        }
-//    }
-//
-//    private fun parseUrl(urlString: String): String? {
-//        var url = urlString.trim { it <= ' ' }
-//        if (url.isEmpty()) {
-//            Log.d("parseUrl", "url.isEmpty()")
-//            return null
-//        }
-//        if (!url.lowercase().startsWith("http")) {
-//            url = "https://$url"
-//        }
-//        if (url.endsWith("/")) {
-//            url = url.substring(0, url.length - 1)
-//        }
-//        Log.d("parseUrl", "matching: $url")
-//        //if (!Patterns.WEB_URL.matcher(url).matches()) {
-//        //    Log.d("parseUrl", "Patterns.WEB_URL.matcher Failed")
-//        //    return null
-//        //}
-//        return url
-//    }
-//}
-
-
-@Entity
-data class Server(
-    @PrimaryKey val url: String,
-    val token: String = "",
-    val active: Boolean = false
-)
-
-
-@Dao
-interface ServerDao {
-    @Query("SELECT * FROM server")
-    fun getAll(): List<Server>
-
-    @Query("SELECT * FROM server WHERE active = 1 LIMIT 1")
-    fun getActive(): Server?
-
-    @Query("SELECT * FROM server WHERE url = :url LIMIT 1")
-    fun getByUrl(url: String): Server?
-
-    @Query("UPDATE server SET token = :token WHERE url = :url")
-    fun setToken(url: String, token: String)
-
-    @Insert
-    fun add(server: Server)
-
-    @Delete
-    fun delete(server: Server)
-}
-
-
-@Database(entities = [Server::class], version = 1)
-abstract class ServerDatabase : RoomDatabase() {
-    abstract fun serverDao(): ServerDao
-
-    companion object {
-        @Volatile
-        private var instance: ServerDatabase? = null
-
-        fun getInstance(context: Context): ServerDatabase =
-            instance ?: synchronized(this) {
-                instance ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    ServerDatabase::class.java,
-                    "server-database"
-                ).build().also { instance = it }
-            }
-    }
 }

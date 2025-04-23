@@ -66,8 +66,8 @@ class ShortFragment : Fragment() {
         val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences?.getString("saved_url", null)
         Log.d("Short[onViewCreated]", "savedUrl: $savedUrl")
-        //val authToken = sharedPreferences?.getString("auth_token", null)
-        //Log.d("Short[onViewCreated]", "authToken: $authToken")
+        val authToken = sharedPreferences?.getString("auth_token", null)
+        Log.d("Short[onViewCreated]", "authToken: $authToken")
 
         if (savedUrl == null) {
             Log.e("Short[onViewCreated]", "savedUrl is null")
