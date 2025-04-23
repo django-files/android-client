@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles.ui
+package com.djangofiles.djangofiles.ui.files
 
 import android.annotation.SuppressLint
 import android.content.Context

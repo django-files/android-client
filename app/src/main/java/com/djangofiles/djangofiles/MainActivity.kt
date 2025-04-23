@@ -24,7 +24,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
-import com.djangofiles.djangofiles.ui.HomeViewModel
+import com.djangofiles.djangofiles.ui.home.HomeViewModel
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {

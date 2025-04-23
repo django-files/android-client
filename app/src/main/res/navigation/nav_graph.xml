@@ -6,12 +6,12 @@
 
     <fragment
         android:id="@+id/nav_item_home"
-        android:name="com.djangofiles.djangofiles.ui.HomeFragment"
+        android:name="com.djangofiles.djangofiles.ui.home.HomeFragment"
         android:label="Home" />
 
     <fragment
         android:id="@+id/nav_item_files"
-        android:name="com.djangofiles.djangofiles.ui.FilesFragment"
+        android:name="com.djangofiles.djangofiles.ui.files.FilesFragment"
         android:label="Recent" />
 
     <fragment
