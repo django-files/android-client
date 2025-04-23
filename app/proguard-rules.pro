@@ -8,7 +8,7 @@
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
--keepclassmembers class com.djangofiles.djangofiles.WebAppInterface {
+-keepclassmembers class com.djangofiles.djangofiles.ui.HomeFragment$WebAppInterface {
     public *;
 }
 
@@ -20,6 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+
 # Logging
 -assumenosideeffects class android.util.Log {
     public static int d(...);
@@ -29,12 +30,14 @@
     public static int e(...);
 }
 
+
 # Retrofit
 -keep class com.djangofiles.djangofiles.api.ServerApi$* { *; }
 
 -keepclassmembers class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
+
 
 # https://github.com/square/retrofit/blob/trunk/retrofit/src/main/resources/META-INF/proguard/retrofit2.pro
 # Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
@@ -85,3 +88,20 @@
 
 # With R8 full mode generic signatures are stripped for classes that are not kept.
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
+
+
+# https://github.com/bumptech/glide/blob/master/library/proguard-rules.txt
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep class * extends com.bumptech.glide.module.AppGlideModule {
+ <init>(...);
+}
+-keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+-keep class com.bumptech.glide.load.data.ParcelFileDescriptorRewinder$InternalRewinder {
+  *** rewind();
+}
+
+# Uncomment for DexGuard only
+#-keepresourcexmlelements manifest/application/meta-data@value=GlideModule

@@ -47,7 +47,7 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 <details><summary>View QR Code</summary>
 
-[![QR Code](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android-client/django-files-android-client-download.png)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+[![QR Code](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/qr-code-download.png)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
 
 </details>
 
