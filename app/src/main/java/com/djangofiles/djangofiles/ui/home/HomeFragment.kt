@@ -26,8 +26,8 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.djangofiles.djangofiles.databinding.FragmentHomeBinding
-import com.djangofiles.djangofiles.settings.ServerDao
-import com.djangofiles.djangofiles.settings.ServerDatabase
+import com.djangofiles.djangofiles.ui.settings.ServerDao
+import com.djangofiles.djangofiles.ui.settings.ServerDatabase
 
 class HomeFragment : Fragment() {
 

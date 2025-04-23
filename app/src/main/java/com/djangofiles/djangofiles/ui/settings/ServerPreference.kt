@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles.settings
+package com.djangofiles.djangofiles.ui.settings
 
 import android.content.Context
 import android.graphics.PorterDuff

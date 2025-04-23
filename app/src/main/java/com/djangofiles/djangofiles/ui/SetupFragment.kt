@@ -22,9 +22,9 @@ import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.api.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentSetupBinding
 import com.djangofiles.djangofiles.isURL
-import com.djangofiles.djangofiles.settings.Server
-import com.djangofiles.djangofiles.settings.ServerDao
-import com.djangofiles.djangofiles.settings.ServerDatabase
+import com.djangofiles.djangofiles.ui.settings.Server
+import com.djangofiles.djangofiles.ui.settings.ServerDao
+import com.djangofiles.djangofiles.ui.settings.ServerDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

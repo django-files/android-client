@@ -16,7 +16,7 @@
 
     <fragment
         android:id="@+id/nav_item_settings"
-        android:name="com.djangofiles.djangofiles.settings.SettingsFragment"
+        android:name="com.djangofiles.djangofiles.ui.settings.SettingsFragment"
         android:label="Settings" />
 
     <fragment
