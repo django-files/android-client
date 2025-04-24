@@ -24,7 +24,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
-import com.djangofiles.djangofiles.ui.HomeViewModel
+import com.djangofiles.djangofiles.ui.home.HomeViewModel
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
@@ -124,8 +124,10 @@ class MainActivity : AppCompatActivity() {
 
     // TODO: Update with a ViewModel...
     fun setDrawerLockMode(enabled: Boolean) {
+        Log.d("setDrawerLockMode", "enabled: $enabled")
         val lockMode =
             if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        Log.d("setDrawerLockMode", "setDrawerLockMode: $lockMode")
         binding.drawerLayout.setDrawerLockMode(lockMode)
     }
 
@@ -216,7 +218,9 @@ class MainActivity : AppCompatActivity() {
                     val bundle = Bundle().apply {
                         putString("url", extraText)
                     }
-                    // TODO: Determine how to better pop navigation history...
+                    // TODO: Determine how to properly navigate on new intent...
+                    //navController.navigate(R.id.nav_item_short, bundle)
+
                     navController.popBackStack(R.id.nav_graph, true)
                     navController.navigate(
                         R.id.nav_item_short, bundle, NavOptions.Builder()
@@ -284,7 +288,9 @@ class MainActivity : AppCompatActivity() {
             putString("uri", uri.toString())
             putString("type", type)
         }
-        // TODO: This destroys the home fragment making restore from state impossible
+        // TODO: Determine how to properly navigate on new intent...
+        //navController.navigate(R.id.nav_item_preview, bundle)
+
         navController.popBackStack(R.id.nav_graph, true)
         navController.navigate(
             R.id.nav_item_preview, bundle, NavOptions.Builder()
@@ -292,6 +298,12 @@ class MainActivity : AppCompatActivity() {
                 .setLaunchSingleTop(true)
                 .build()
         )
+
+        //val navOptions = NavOptions.Builder()
+        //    .setPopUpTo(R.id.nav_item_home, false)
+        //    .setLaunchSingleTop(true)
+        //    .build()
+        //navController.navigate(R.id.nav_item_preview, bundle, navOptions)
     }
 }
 

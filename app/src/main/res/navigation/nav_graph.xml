@@ -1,23 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_item_home">
 
     <fragment
         android:id="@+id/nav_item_home"
-        android:name="com.djangofiles.djangofiles.ui.HomeFragment"
+        android:name="com.djangofiles.djangofiles.ui.home.HomeFragment"
         android:label="Home" />
 
     <fragment
-        android:id="@+id/nav_item_files"
-        android:name="com.djangofiles.djangofiles.ui.FilesFragment"
-        android:label="Recent" />
+        android:id="@+id/nav_item_settings"
+        android:name="com.djangofiles.djangofiles.ui.settings.SettingsFragment"
+        android:label="Settings" />
 
     <fragment
-        android:id="@+id/nav_item_settings"
-        android:name="com.djangofiles.djangofiles.settings.SettingsFragment"
-        android:label="Settings" />
+        android:id="@+id/nav_item_files"
+        android:name="com.djangofiles.djangofiles.ui.files.FilesFragment"
+        android:label="File List">
+        <action
+            android:id="@+id/nav_item_files_action_preview"
+            app:destination="@id/nav_item_file_preview"
+            app:launchSingleTop="true"
+            app:exitAnim="@anim/slide_out_left"
+            app:enterAnim="@anim/slide_in_left" />
+<!--            TODO: Literally fucking retarded-->
+<!--            app:popEnterAnim="@anim/slide_in_reverse"-->
+<!--            app:popExitAnim="@anim/slide_out_reverse" />-->
+    </fragment>
+        <fragment
+            android:id="@+id/nav_item_file_preview"
+            android:name="com.djangofiles.djangofiles.ui.files.FilesPreviewFragment"
+            android:label="File Preview"
+            tools:layout="@layout/fragment_files_preview" />
+
+    <fragment
+        android:id="@+id/nav_item_short"
+        android:name="com.djangofiles.djangofiles.ui.ShortFragment"
+        android:label="Shorts" />
 
     <fragment
         android:id="@+id/nav_item_preview"
@@ -25,12 +46,8 @@
         android:label="Preview" />
 
     <fragment
-        android:id="@+id/nav_item_short"
-        android:name="com.djangofiles.djangofiles.ui.ShortFragment"
-        android:label="Preview" />
-
-    <fragment
         android:id="@+id/nav_item_setup"
         android:name="com.djangofiles.djangofiles.ui.SetupFragment"
-        android:label="Preview" />
+        android:label="Setup" />
+
 </navigation>

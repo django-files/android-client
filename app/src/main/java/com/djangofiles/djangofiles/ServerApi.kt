@@ -1,7 +1,6 @@
-package com.djangofiles.djangofiles.api
+package com.djangofiles.djangofiles
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.os.Parcelable
 import android.util.Log
@@ -35,7 +34,7 @@ class ServerApi(context: Context, host: String) {
     val api: ApiService
     val authToken: String
     val preferences: SharedPreferences =
-        context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
 
     private lateinit var cookieJar: SimpleCookieJar
     private lateinit var client: OkHttpClient

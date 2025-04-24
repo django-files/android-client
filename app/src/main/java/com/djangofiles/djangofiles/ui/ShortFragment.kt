@@ -16,7 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.api.ServerApi
+import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentShortBinding
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +53,13 @@ class ShortFragment : Fragment() {
 
         navController = findNavController()
 
+        //val callback = object : OnBackPressedCallback(true) {
+        //    override fun handleOnBackPressed() {
+        //        requireActivity().finish()
+        //    }
+        //}
+        //requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
+
         val url = requireArguments().getString("url")
         Log.d("Short[onViewCreated]", "url: $url")
 
@@ -66,8 +73,8 @@ class ShortFragment : Fragment() {
         val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences?.getString("saved_url", null)
         Log.d("Short[onViewCreated]", "savedUrl: $savedUrl")
-        //val authToken = sharedPreferences?.getString("auth_token", null)
-        //Log.d("Short[onViewCreated]", "authToken: $authToken")
+        val authToken = sharedPreferences?.getString("auth_token", null)
+        Log.d("Short[onViewCreated]", "authToken: $authToken")
 
         if (savedUrl == null) {
             Log.e("Short[onViewCreated]", "savedUrl is null")

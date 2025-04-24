@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.parcelize).apply {
         javaClass.getDeclaredField("version").apply { isAccessible = true }.set(this, null)
     }
+    //alias(libs.plugins.androidx.navigation.safeargs.kotlin-gradle-plugin)
+    //id("androidx.navigation.safeargs.kotlin") version "2.8.9" // Use the correct version
 }
 
 android {
@@ -30,7 +32,13 @@ android {
                 "proguard-rules.pro"
             )
         }
+
+        debug {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

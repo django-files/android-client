@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +21,9 @@
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|smallestScreenSize|screenSize|screenLayout|keyboardHidden"
             android:launchMode="singleTask">
+<!--            TODO: Determine how to properly navigate on new intent...-->
+<!--            android:taskAffinity=""-->
+<!--            android:documentLaunchMode="never"-->
 
             <meta-data
                 android:name="android.app.shortcuts"

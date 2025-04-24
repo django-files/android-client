@@ -1,10 +1,12 @@
-package com.djangofiles.djangofiles.ui
+package com.djangofiles.djangofiles.ui.files
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -14,8 +16,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.navigation.ActivityNavigatorExtras
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -23,13 +28,19 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.api.ServerApi.RecentResponse
+import com.djangofiles.djangofiles.ServerApi.RecentResponse
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
+import androidx.core.util.Pair as UtilPair
+
+//import android.net.ConnectivityManager
+//import androidx.fragment.app.FragmentActivity
+//import androidx.navigation.fragment.FragmentNavigatorExtras
 
 class FilesViewAdapter(
     private val context: Context,
-    private val dataSet: MutableList<RecentResponse>
+    private val dataSet: MutableList<RecentResponse>,
+    private val isMetered: Boolean,
 ) : RecyclerView.Adapter<FilesViewAdapter.ViewHolder>() {
 
     private var colorOnSecondary: ColorStateList? = null
@@ -42,6 +53,7 @@ class FilesViewAdapter(
         val filePrivate: TextView = view.findViewById(R.id.file_private)
         val filePassword: TextView = view.findViewById(R.id.file_password)
         val fileExpr: TextView = view.findViewById(R.id.file_expr)
+        val previewLink: LinearLayout = view.findViewById(R.id.preview_link)
         val shareLink: LinearLayout = view.findViewById(R.id.share_link)
         val openLink: LinearLayout = view.findViewById(R.id.open_link)
         val loadingSpinner: ProgressBar = view.findViewById(R.id.loading_spinner)
@@ -79,14 +91,17 @@ class FilesViewAdapter(
         viewHolder.fileView.compoundDrawableTintList = if (data.view > 0) null else colorOnSecondary
 
         // Private
-        viewHolder.filePrivate.compoundDrawableTintList = if (data.private) null else colorOnSecondary
+        viewHolder.filePrivate.compoundDrawableTintList =
+            if (data.private) null else colorOnSecondary
 
         // Password
-        viewHolder.filePassword.compoundDrawableTintList = if (data.password.isNotEmpty()) null else colorOnSecondary
+        viewHolder.filePassword.compoundDrawableTintList =
+            if (data.password.isNotEmpty()) null else colorOnSecondary
 
         // Expiration
         viewHolder.fileExpr.text = data.expr
-        viewHolder.fileExpr.compoundDrawableTintList = if (data.expr.isNotEmpty()) null else colorOnSecondary
+        viewHolder.fileExpr.compoundDrawableTintList =
+            if (data.expr.isNotEmpty()) null else colorOnSecondary
 
         // Share Link
         viewHolder.shareLink.setOnClickListener {
@@ -101,7 +116,7 @@ class FilesViewAdapter(
         }
 
         // Image
-        val radius = context.resources.getDimension(R.dimen.image_radius)
+        val radius = context.resources.getDimension(R.dimen.image_preview_small)
         viewHolder.fileImage.setShapeAppearanceModel(
             viewHolder.fileImage.shapeAppearanceModel
                 .toBuilder()
@@ -132,7 +147,7 @@ class FilesViewAdapter(
                 target: Target<Drawable>,
                 isFirstResource: Boolean
             ): Boolean {
-                Log.d("Glide", "onLoadFailed: ${data.name}")
+                //Log.d("Glide", "onLoadFailed: ${data.name}")
                 viewHolder.loadingSpinner.visibility = View.GONE
                 setGenericIcon()
                 return true
@@ -145,7 +160,7 @@ class FilesViewAdapter(
                 dataSource: DataSource,
                 isFirstResource: Boolean
             ): Boolean {
-                Log.d("Glide", "onResourceReady: ${data.name}")
+                //Log.d("Glide", "onResourceReady: ${data.name}")
                 viewHolder.loadingSpinner.visibility = View.GONE
                 viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_CROP
                 return false
@@ -154,17 +169,53 @@ class FilesViewAdapter(
 
         viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
 
+        //viewHolder.fileImage.transitionName = data.id.toString()
+
         if (isGlideMime(data.mime)) {
             viewHolder.loadingSpinner.visibility = View.VISIBLE
-            val url =
+            val viewUrl = "${data.raw}?view=gallery"
+            val thumbUrl =
                 data.thumb + if (data.password.isNotEmpty()) "&password=${data.password}" else ""
-            Log.d("Glide", "load: ${data.mime}: $url")
-            Glide.with(context)
-                .load(url)
+            //Log.d("Glide", "load: ${data.id}: ${data.mime}: $thumbUrl")
+            Glide.with(viewHolder.itemView)
+                .load(thumbUrl)
+                .onlyRetrieveFromCache(isMetered)
                 .listener(glideListener)
                 .into(viewHolder.fileImage)
+
+            viewHolder.fileImage.transitionName = data.id.toString()
+
+            viewHolder.previewLink.setOnClickListener {
+                val bundle = Bundle().apply {
+                    putString("viewUrl", viewUrl)
+                    putString("thumbUrl", thumbUrl)
+                    putInt("fileId", data.id)
+                }
+                //val extras = FragmentNavigatorExtras(viewHolder.fileImage to data.id.toString())
+
+                val activity = context as Activity
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity,
+                    UtilPair.create(viewHolder.fileImage, data.id.toString())
+                )
+                val extras = ActivityNavigatorExtras(options)
+
+                it.findNavController()
+                    .navigate(R.id.nav_item_files_action_preview, bundle, null, extras)
+            }
+
+            // TODO: Refactor the BottomBitch as a context menu...
+            //viewHolder.fileImage.setOnClickListener {
+            //    val bottomSheet = FilesBottomSheet.newInstance(thumbUrl)
+            //    bottomSheet.show(
+            //        (context as FragmentActivity).supportFragmentManager,
+            //        bottomSheet.tag
+            //    )
+            //}
         } else {
             setGenericIcon()
+            viewHolder.fileImage.transitionName = null
+            viewHolder.previewLink.setOnClickListener { }
         }
     }
 

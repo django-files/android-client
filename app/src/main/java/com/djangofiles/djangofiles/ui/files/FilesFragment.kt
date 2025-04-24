@@ -1,7 +1,8 @@
-package com.djangofiles.djangofiles.ui
+package com.djangofiles.djangofiles.ui.files
 
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import android.os.Build
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,15 +10,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.djangofiles.djangofiles.api.ServerApi
-import com.djangofiles.djangofiles.api.ServerApi.RecentResponse
+import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+// TODO: Literally fucking retarded
+//import android.view.Gravity
+//import android.view.ViewTreeObserver
+//import androidx.transition.Slide
+//import androidx.transition.TransitionInflater
 
 class FilesFragment : Fragment() {
 
@@ -27,10 +34,12 @@ class FilesFragment : Fragment() {
     private var atEnd = false
     private var errorCount = 0
 
-    private lateinit var key: String
+    //private lateinit var key: String
 
     private lateinit var api: ServerApi
     private lateinit var filesAdapter: FilesViewAdapter
+
+    private val viewModel: FilesViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,8 +47,16 @@ class FilesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         Log.d("File[onCreateView]", "savedInstanceState: ${savedInstanceState?.size()}")
+
+        // TODO: Literally fucking retarded
+        //sharedElementEnterTransition = TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
+        //returnTransition = Slide(Gravity.END)
+
         _binding = FragmentFilesBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        //postponeEnterTransition()
+
         return root
     }
 
@@ -52,47 +69,81 @@ class FilesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("File[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
+        // TODO: Literally fucking retarded
+        ////postponeEnterTransition()
+        //binding.filesRecyclerView.viewTreeObserver.addOnPreDrawListener(
+        //    object : ViewTreeObserver.OnPreDrawListener {
+        //        override fun onPreDraw(): Boolean {
+        //            binding.filesRecyclerView.viewTreeObserver.removeOnPreDrawListener(this)
+        //            startPostponedEnterTransition()
+        //            return true
+        //        }
+        //    }
+        //)
+
         val sharedPreferences =
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences.getString("saved_url", "").toString()
-        Log.d("File[onViewCreated]", "savedUrl: $savedUrl")
+        //Log.d("File[onViewCreated]", "savedUrl: $savedUrl")
         val authToken = sharedPreferences.getString("auth_token", "")
-        Log.d("File[onViewCreated]", "authToken: $authToken")
+        //Log.d("File[onViewCreated]", "authToken: $authToken")
         if (authToken.isNullOrEmpty()) {
-            Log.w("File[onViewCreated]", "NO AUTH TOKEN")
+            Log.e("File[onViewCreated]", "NO AUTH TOKEN")
             Toast.makeText(context, "Missing Auth Token!", Toast.LENGTH_LONG).show()
             return
         }
-        key = authToken.take(6)
-        Log.d("File[onViewCreated]", "key: $key")
+        val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
+        Log.i("File[onViewCreated]", "previewMetered: $previewMetered")
+        val connectivityManager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        Log.i("File[onViewCreated]", "METERED: ${connectivityManager.isActiveNetworkMetered}")
+        val isMetered = if (previewMetered) false else connectivityManager.isActiveNetworkMetered
+        Log.i("File[onViewCreated]", "isMetered: $isMetered")
+
+        if (viewModel.savedUrl.value != null) {
+            Log.d("File[onViewCreated]", "SAVED DATA FOR URL: ${viewModel.savedUrl.value}")
+            if (viewModel.savedUrl.value != savedUrl) {
+                Log.i("File[onViewCreated]", "OLD SAVED DATA FOUND - CLEARING DATA")
+                viewModel.filesData.value = null
+                viewModel.savedUrl.value = savedUrl
+            }
+        } else {
+            viewModel.savedUrl.value = savedUrl
+        }
+
+        //key = authToken.take(6)
+        //Log.d("File[onViewCreated]", "key: $key")
         val perPage = sharedPreferences.getInt("files_per_page", 25)
         Log.d("File[onViewCreated]", "perPage: $perPage")
 
         api = ServerApi(requireContext(), savedUrl)
-        filesAdapter = FilesViewAdapter(requireContext(), mutableListOf())
+        filesAdapter = FilesViewAdapter(requireContext(), mutableListOf(), isMetered)
         binding.filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.filesRecyclerView.adapter = filesAdapter
 
-        // TODO: Implement Parcelize/Parcelable
-        val savedData: List<RecentResponse>? =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                savedInstanceState?.getParcelableArrayList("files_data_$key", RecentResponse::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                savedInstanceState?.getParcelableArrayList("files_data_$key")
+        Log.d("File[onViewCreated]", "filesAdapter.itemCount: ${filesAdapter.itemCount}")
+
+        viewModel.filesData.observe(viewLifecycleOwner) { list ->
+            Log.d("filesData[observe]", "list: ${list?.size}")
+            if (list != null && filesAdapter.itemCount == 0) {
+                Log.i("filesData[observe]", "CACHE LOAD")
+                filesAdapter.addData(list)
+                binding.loadingSpinner.visibility = View.GONE
+            } else if (list == null) {
+                Log.i("filesData[observe]", "FETCH NEW DATA")
+                lifecycleScope.launch { getFiles(perPage) }
             }
-        Log.d("getFiles", "savedData: ${savedData?.size}")
-        if (savedInstanceState != null && savedData != null) {
-            Log.i("File[onViewCreated]", "LOADING SAVED DATA")
-            atEnd = savedInstanceState.getBoolean("files_at_end_$key")
-            Log.d("File[onViewCreated]", "atEnd: $atEnd")
-            filesAdapter.addData(savedData)
-            binding.loadingSpinner.visibility = View.GONE
-        } else {
-            Log.i("File[onViewCreated]", "FETCHING NEW DATA")
-            lifecycleScope.launch {
-                getFiles(perPage)
-            }
+        }
+
+        viewModel.atEnd.observe(viewLifecycleOwner) {
+            Log.d("atEnd[observe]", "atEnd: $atEnd")
+            atEnd = it ?: false
+        }
+
+        if (viewModel.filesData.value == null) {
+            Log.i("File[onViewCreated]", "MANUALLY LOADING DATA")
+            //viewModel.filesData.value = null
+            lifecycleScope.launch { getFiles(perPage) }
         }
 
         binding.filesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -112,15 +163,6 @@ class FilesFragment : Fragment() {
         })
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        Log.d("File[onSave]", "ON SAVE: ${outState.size()}")
-        Log.d("File[onSave]", "key: $key")
-        super.onSaveInstanceState(outState)
-        outState.putParcelableArrayList("files_data_$key", ArrayList(filesAdapter.getData()))
-        outState.putBoolean("files_at_end_$key", atEnd)
-        Log.d("File[onSave]", "SAVE DONE: ${outState.size()}")
-    }
-
     suspend fun getFiles(perPage: Int) {
         try {
             Log.d("getFiles", "filesAdapter.itemCount: ${filesAdapter.itemCount}")
@@ -131,13 +173,16 @@ class FilesFragment : Fragment() {
                 Log.d("getFiles", "moreData.count: ${data?.count()}")
                 if (!data.isNullOrEmpty()) {
                     filesAdapter.addData(data)
+                    viewModel.filesData.value = filesAdapter.getData()
                     if (data.count() < perPage) {
                         Log.i("getFiles", "LESS THAN $perPage - SET AT END")
                         atEnd = true
+                        viewModel.atEnd.value = atEnd
                     }
                 } else {
                     Log.i("getFiles", "NO DATA RETURNED - SET AT END")
                     atEnd = true
+                    viewModel.atEnd.value = atEnd
                 }
             } else {
                 Log.e("getFiles", "Error Fetching Files")
@@ -158,6 +203,7 @@ class FilesFragment : Fragment() {
         binding.loadingSpinner.visibility = View.GONE
         if (errorCount > 5) {
             atEnd = true
+            viewModel.atEnd.value = atEnd
             val msg = "Recieved $errorCount Errors. Aborting!"
             withContext(Dispatchers.Main) {
                 Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
