@@ -8,7 +8,7 @@
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
--keepclassmembers class com.djangofiles.djangofiles.ui.HomeFragment$WebAppInterface {
+-keepclassmembers class com.djangofiles.djangofiles.ui.home.HomeFragment$WebAppInterface {
     public *;
 }
 
@@ -32,7 +32,7 @@
 
 
 # Retrofit
--keep class com.djangofiles.djangofiles.api.ServerApi$* { *; }
+-keep class com.djangofiles.djangofiles.ServerApi$* { *; }
 
 -keepclassmembers class * {
     @com.google.gson.annotations.SerializedName <fields>;
