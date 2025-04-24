@@ -167,7 +167,6 @@ class FilesViewAdapter(
 
         viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
 
-        // TODO: If we apply a listener to a GlideMime we must remove it for scroll-back, moron...
         if (isGlideMime(data.mime)) {
             viewHolder.loadingSpinner.visibility = View.VISIBLE
             val viewUrl = "${data.raw}?view=gallery"
@@ -189,9 +188,9 @@ class FilesViewAdapter(
                 }
                 //val extras = FragmentNavigatorExtras(viewHolder.fileImage to data.id.toString())
 
-                val activity = context as? Activity
+                val activity = context as Activity
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    activity!!,
+                    activity,
                     UtilPair.create(viewHolder.fileImage, data.id.toString())
                 )
                 val extras = ActivityNavigatorExtras(options)
@@ -210,6 +209,8 @@ class FilesViewAdapter(
             //}
         } else {
             setGenericIcon()
+            viewHolder.fileImage.transitionName = null
+            viewHolder.previewLink.setOnClickListener {  }
         }
     }
 
