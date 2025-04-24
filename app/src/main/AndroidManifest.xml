@@ -20,6 +20,9 @@
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|smallestScreenSize|screenSize|screenLayout|keyboardHidden"
             android:launchMode="singleTask">
+<!--            TODO: Determine how to properly navigate on new intent...-->
+<!--            android:taskAffinity=""-->
+<!--            android:documentLaunchMode="never"-->
 
             <meta-data
                 android:name="android.app.shortcuts"

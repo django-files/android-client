@@ -19,6 +19,8 @@ retrofit = "2.9.0"
 room = "2.6.1"
 ksp = "2.1.20-1.0.32"
 glide = "5.0.0-rc01"
+
+#navigationSafeargsVersion = "2.8.9"
 #roomRuntime = "2.6.1"
 #roomCompiler = "2.6.1"
 #comGoogleDevtoolsKspGradlePlugin = "2.1.20-1.0.32"
@@ -45,6 +47,8 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+
+#androidx-androidx-navigation-safeargs-kotlin-gradle-plugin = { group = "androidx.navigation.safeargs.kotlin", name = "androidx.navigation.safeargs.kotlin.gradle.plugin", version.ref = "androidxNavigationSafeargsKotlinGradlePlugin" }
 #androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }
 #androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
 #com-google-devtools-ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "comGoogleDevtoolsKspGradlePlugin" }
@@ -55,3 +59,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "kotlin-parcelize", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+#androidx-navigation-safeargs-kotlin-gradle-plugin = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigationSafeargsVersion" }

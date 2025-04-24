@@ -1,3 +1,4 @@
 <resources>
-    <dimen name="image_radius">6dp</dimen>
+    <dimen name="image_preview_small">6dp</dimen>
+    <dimen name="image_preview_large">16dp</dimen>
 </resources>

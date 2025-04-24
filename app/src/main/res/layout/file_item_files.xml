@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="48dp"
+    android:baselineAligned="false"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
@@ -28,10 +29,11 @@
             android:scaleType="centerInside"
             android:src="@drawable/md_docs_24"
             app:strokeWidth="1dp"
-            app:strokeColor="?android:colorControlNormal"/>
+            app:strokeColor="?android:colorControlNormal" />
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/preview_link"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

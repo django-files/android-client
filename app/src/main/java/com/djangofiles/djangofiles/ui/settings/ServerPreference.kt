@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles.settings
+package com.djangofiles.djangofiles.ui.settings
 
 import android.content.Context
 import android.graphics.PorterDuff
@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.djangofiles.djangofiles.R
+import com.djangofiles.djangofiles.Server
 
 class ServerPreference(
     context: Context,

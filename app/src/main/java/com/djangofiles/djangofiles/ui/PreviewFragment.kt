@@ -23,10 +23,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.api.ServerApi
+import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentPreviewBinding
-import com.google.android.material.shape.CornerFamily
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,6 +59,13 @@ class PreviewFragment : Fragment() {
         Log.d("Prev[onViewCreated]", "arguments: $arguments")
 
         navController = findNavController()
+
+        //val callback = object : OnBackPressedCallback(true) {
+        //    override fun handleOnBackPressed() {
+        //        requireActivity().finish()
+        //    }
+        //}
+        //requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
         //val uri = arguments?.getString("uri")?.toUri()
         val uri = requireArguments().getString("uri")?.toUri()
@@ -107,19 +113,11 @@ class PreviewFragment : Fragment() {
             }
         }
 
-        //val radius = resources.getDimension(R.dimen.image_radius)
-        //binding.imagePreview.setShapeAppearanceModel(
-        //    binding.imagePreview.shapeAppearanceModel
-        //        .toBuilder()
-        //        .setAllCorners(CornerFamily.ROUNDED, radius)
-        //        .build()
-        //)
-
         val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences?.getString("saved_url", null)
         Log.d("Prev[onViewCreated]", "savedUrl: $savedUrl")
-        //val authToken = sharedPreferences?.getString("auth_token", null)
-        //Log.d("Prev[onViewCreated]", "authToken: $authToken")
+        val authToken = sharedPreferences?.getString("auth_token", null)
+        Log.d("Prev[onViewCreated]", "authToken: $authToken")
 
         if (savedUrl == null) {
             Log.e("Prev[onViewCreated]", "savedUrl is null")

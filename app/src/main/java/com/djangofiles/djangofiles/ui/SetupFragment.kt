@@ -19,12 +19,12 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.api.ServerApi
+import com.djangofiles.djangofiles.Server
+import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerDao
+import com.djangofiles.djangofiles.ServerDatabase
 import com.djangofiles.djangofiles.databinding.FragmentSetupBinding
 import com.djangofiles.djangofiles.isURL
-import com.djangofiles.djangofiles.settings.Server
-import com.djangofiles.djangofiles.settings.ServerDao
-import com.djangofiles.djangofiles.settings.ServerDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
