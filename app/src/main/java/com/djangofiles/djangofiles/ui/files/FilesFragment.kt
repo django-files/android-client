@@ -1,6 +1,8 @@
 package com.djangofiles.djangofiles.ui.files
 
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -90,6 +92,13 @@ class FilesFragment : Fragment() {
             Toast.makeText(context, "Missing Auth Token!", Toast.LENGTH_LONG).show()
             return
         }
+        val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
+        Log.i("File[onViewCreated]", "previewMetered: $previewMetered")
+        val connectivityManager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        Log.i("File[onViewCreated]", "METERED: ${connectivityManager.isActiveNetworkMetered}")
+        val isMetered = if (previewMetered) false else connectivityManager.isActiveNetworkMetered
+        Log.i("File[onViewCreated]", "isMetered: $isMetered")
 
         if (viewModel.savedUrl.value != null) {
             Log.d("File[onViewCreated]", "SAVED DATA FOR URL: ${viewModel.savedUrl.value}")
@@ -108,7 +117,7 @@ class FilesFragment : Fragment() {
         Log.d("File[onViewCreated]", "perPage: $perPage")
 
         api = ServerApi(requireContext(), savedUrl)
-        filesAdapter = FilesViewAdapter(requireContext(), mutableListOf())
+        filesAdapter = FilesViewAdapter(requireContext(), mutableListOf(), isMetered)
         binding.filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.filesRecyclerView.adapter = filesAdapter
 

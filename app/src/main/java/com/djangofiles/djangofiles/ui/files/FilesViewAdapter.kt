@@ -33,12 +33,14 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 import androidx.core.util.Pair as UtilPair
 
+//import android.net.ConnectivityManager
 //import androidx.fragment.app.FragmentActivity
 //import androidx.navigation.fragment.FragmentNavigatorExtras
 
 class FilesViewAdapter(
     private val context: Context,
     private val dataSet: MutableList<RecentResponse>,
+    private val isMetered: Boolean,
 ) : RecyclerView.Adapter<FilesViewAdapter.ViewHolder>() {
 
     private var colorOnSecondary: ColorStateList? = null
@@ -167,6 +169,8 @@ class FilesViewAdapter(
 
         viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
 
+        //viewHolder.fileImage.transitionName = data.id.toString()
+
         if (isGlideMime(data.mime)) {
             viewHolder.loadingSpinner.visibility = View.VISIBLE
             val viewUrl = "${data.raw}?view=gallery"
@@ -175,6 +179,7 @@ class FilesViewAdapter(
             //Log.d("Glide", "load: ${data.id}: ${data.mime}: $thumbUrl")
             Glide.with(viewHolder.itemView)
                 .load(thumbUrl)
+                .onlyRetrieveFromCache(isMetered)
                 .listener(glideListener)
                 .into(viewHolder.fileImage)
 
@@ -210,7 +215,7 @@ class FilesViewAdapter(
         } else {
             setGenericIcon()
             viewHolder.fileImage.transitionName = null
-            viewHolder.previewLink.setOnClickListener {  }
+            viewHolder.previewLink.setOnClickListener { }
         }
     }
 
