@@ -5,24 +5,27 @@ import android.content.Context.MODE_PRIVATE
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Slide
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-// TODO: Literally fucking retarded
 //import android.view.Gravity
 //import android.view.ViewTreeObserver
+//import androidx.core.view.doOnPreDraw
 //import androidx.transition.Slide
 //import androidx.transition.TransitionInflater
 
@@ -48,15 +51,11 @@ class FilesFragment : Fragment() {
     ): View {
         Log.d("File[onCreateView]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        // TODO: Literally fucking retarded
-        //sharedElementEnterTransition = TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
-        //returnTransition = Slide(Gravity.END)
+        //enterTransition = Slide(Gravity.END)
+        returnTransition = Slide(Gravity.END)
 
         _binding = FragmentFilesBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        //postponeEnterTransition()
-
         return root
     }
 
@@ -69,17 +68,18 @@ class FilesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("File[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        // TODO: Literally fucking retarded
-        ////postponeEnterTransition()
-        //binding.filesRecyclerView.viewTreeObserver.addOnPreDrawListener(
-        //    object : ViewTreeObserver.OnPreDrawListener {
-        //        override fun onPreDraw(): Boolean {
-        //            binding.filesRecyclerView.viewTreeObserver.removeOnPreDrawListener(this)
-        //            startPostponedEnterTransition()
-        //            return true
-        //        }
-        //    }
-        //)
+        Log.d("File[onViewCreated]", "DELAY: postponeEnterTransition")
+        postponeEnterTransition()
+        binding.filesRecyclerView.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    binding.filesRecyclerView.viewTreeObserver.removeOnPreDrawListener(this)
+                    Log.d("File[onViewCreated]", "BEGIN: startPostponedEnterTransition")
+                    startPostponedEnterTransition()
+                    return true
+                }
+            }
+        )
 
         val sharedPreferences =
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -133,6 +133,11 @@ class FilesFragment : Fragment() {
                 Log.i("filesData[observe]", "FETCH NEW DATA")
                 lifecycleScope.launch { getFiles(perPage) }
             }
+
+            //(view.parent as? ViewGroup)?.doOnPreDraw {
+            //    Log.i("File[onViewCreated]", "startPostponedEnterTransition")
+            //    startPostponedEnterTransition()
+            //}
         }
 
         viewModel.atEnd.observe(viewLifecycleOwner) {
