@@ -1,8 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory>
-
+    <PreferenceCategory android:title="File List">
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:icon="@drawable/md_signal_cellular_alt_24"
@@ -18,37 +17,24 @@
             android:max="100"
             app:min="10"
             app:showSeekBarValue="true" />
+    </PreferenceCategory>
 
-            <SwitchPreferenceCompat
-                android:defaultValue="true"
-                android:icon="@drawable/md_share_24"
-                android:key="share_after_short"
-                android:title="Share URL After Short Generation" />
-
-<!--        <SwitchPreferenceCompat-->
-<!--            android:defaultValue="false"-->
-<!--            android:icon="@drawable/fa_upload"-->
-<!--            android:key="show_upload_options"-->
-<!--            android:title="Show Upload Options" />-->
-
-<!--        <SwitchPreferenceCompat-->
-<!--            android:defaultValue="false"-->
-<!--            android:icon="@drawable/fa_fingerprint"-->
-<!--            android:key="enable_biometrics"-->
-<!--            android:title="Enable Biometrics" />-->
-
-<!--    </PreferenceCategory>-->
-<!--    <PreferenceCategory android:title="Server Settings">-->
-
-        <PreferenceCategory
-            android:key="server_list"
-            android:title="Saved Servers" />
+    <PreferenceCategory>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:icon="@drawable/md_share_24"
+            android:key="share_after_short"
+            android:title="Share URL After Short Generation" />
 
         <Preference
+            android:key="add_server_btn"
+            android:title="Add Server"
             android:icon="@android:drawable/ic_input_add"
-            android:key="add_server"
-            android:title="Add Server" />
-
+            android:summary="Add More Django Files Servers" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="server_list"
+        android:title="Saved Servers" />
 
 </PreferenceScreen>

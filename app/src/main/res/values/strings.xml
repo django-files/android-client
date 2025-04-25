@@ -22,5 +22,5 @@
     <string name="file_name">File Name</string>
     <string name="shorten_url">Shorten URL</string>
 
-    <string name="github_link"><![CDATA[<a href="https://github.com/django-files/android-client">django-files/android-client</a>]]></string>
+    <string name="github_link"><![CDATA[<a href="https://django-files.github.io/">https://django-files.github.io</a>]]></string>
 </resources>

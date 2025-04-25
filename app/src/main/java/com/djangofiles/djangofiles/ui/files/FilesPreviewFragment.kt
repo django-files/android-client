@@ -3,14 +3,12 @@ package com.djangofiles.djangofiles.ui.files
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.transition.Slide
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -20,6 +18,8 @@ import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
 
+//import android.view.Gravity
+//import androidx.transition.Slide
 //import androidx.navigation.fragment.navArgs
 
 class FilesPreviewFragment : Fragment() {
@@ -42,12 +42,6 @@ class FilesPreviewFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         Log.d("FilesPre[onCreateView]", "savedInstanceState: ${savedInstanceState?.size()}")
-
-        sharedElementEnterTransition =
-            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
-        //enterTransition = Slide(Gravity.END)
-        returnTransition = Slide(Gravity.END)
-
         _binding = FragmentFilesPreviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -57,7 +51,7 @@ class FilesPreviewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("FilesPre[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        val imageView = view.findViewById<ImageView>(R.id.previewImageView)
+        val imageView = view.findViewById<ImageView>(R.id.preview_image_view)
 
         val fileId = arguments?.getInt("fileId")
         Log.d("FilesPreviewFragment", "fileId: $fileId")
@@ -101,7 +95,6 @@ class FilesPreviewFragment : Fragment() {
             .into(imageView)
 
         imageView.setOnClickListener {
-            // TODO: Literally fucking retarded
             //findNavController().popBackStack()
             findNavController().navigateUp()
         }

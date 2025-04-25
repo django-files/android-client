@@ -18,6 +18,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -103,6 +104,15 @@ class MainActivity : AppCompatActivity() {
                     binding.drawerLayout.closeDrawers()
                 }
                 handled
+            }
+        }
+
+        // TODO: Better handle navigation when preview/login fragments are open
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            Log.d("DestinationChanged", "destination: $destination")
+            when (destination.id) {
+                R.id.nav_item_file_preview -> binding.drawerLayout.closeDrawer(GravityCompat.START)
+                R.id.nav_item_login -> binding.drawerLayout.closeDrawer(GravityCompat.START)
             }
         }
 

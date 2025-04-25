@@ -1,19 +1,16 @@
 package com.djangofiles.djangofiles.ui.settings
 
 import android.os.Bundle
-import android.text.InputType
 import android.util.Log
-import android.util.Patterns
-import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.Server
-import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerDao
 import com.djangofiles.djangofiles.ServerDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -37,9 +34,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         dao = ServerDatabase.getInstance(requireContext()).serverDao()
 
-        buildServerList()
-        setupAddServer()
-
         val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 0)
         Log.d("onCreatePreferences", "filesPerPage: $filesPerPage")
         val seekBar = findPreference<SeekBarPreference>("files_per_page")
@@ -56,83 +50,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
-//        lifecycleScope.launch {
-//            val serverList = withContext(Dispatchers.IO) {
-//                dao.getAll()
-//            }
-//            Log.d("onCreatePreferences", "serverList: $serverList")
-//            withContext(Dispatchers.Main) {
-//                // Update the UI on the main thread
-//                Log.d("onCreatePreferences", "IM ON THE UI BABY")
-//            }
-//        }
+        findPreference<Preference>("add_server_btn")?.setOnPreferenceClickListener {
+            Log.d("onCreatePreferences", "addServerBtn: $it")
+            findNavController().navigate(R.id.nav_item_settings_action_login)
+            false
+        }
     }
 
-    //override fun onPause() {
-    //    super.onPause()
-    //    Log.d("SettingsFragment", "onPause")
-    //}
-
-    //override fun onResume() {
-    //    super.onResume()
-    //    Log.d("SettingsFragment", "onResume")
-    //}
-
-    private fun setupAddServer() {
-        findPreference<Preference>("add_server")?.setOnPreferenceClickListener {
-            val editText = EditText(requireContext()).apply {
-                inputType = InputType.TYPE_TEXT_VARIATION_URI
-                hint = getString(R.string.setup_host_placeholder)
-                maxLines = 1
-                requestFocus()
-            }
-
-            AlertDialog.Builder(requireContext())
-                .setTitle("Add Server")
-                .setView(editText)
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Add", null)
-                .show().apply {
-                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                        // TODO: DUPLICATION: MainActivity
-                        var url = editText.text.toString().trim()
-                        Log.d("AddServer", "setPositiveButton URL: $url")
-                        url = cleanUrl(url)
-                        Log.d("AddServer", "cleanUrl: $url")
-                        if (url.isEmpty()) {
-                            Log.i("AddServer", "URL is Empty")
-                            editText.error = "This field is required."
-                        } else {
-                            Log.d("AddServer", "Processing URL: $url")
-                            //val servers = loadServers().toMutableList()
-                            //Log.d("AddServer", "servers: $servers")
-                            val api = ServerApi(requireContext(), url)
-                            lifecycleScope.launch {
-                                val response = api.version(versionName)
-                                Log.d("AddServer", "response: $response")
-                                withContext(Dispatchers.Main) {
-                                    if (response.isSuccessful) {
-                                        Log.d("AddServer", "SUCCESS")
-                                        val dao: ServerDao =
-                                            ServerDatabase.getInstance(requireContext()).serverDao()
-                                        Log.d("showSettingsDialog", "dao.add Server url = $url")
-                                        // TODO: App Crash if url exists, need to check first...
-                                        withContext(Dispatchers.IO) {
-                                            dao.add(Server(url = url))
-                                        }
-                                        buildServerList()
-                                        cancel()
-                                    } else {
-                                        Log.d("AddServer", "FAILURE")
-                                        editText.error = "Invalid URL"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            true
-        }
+    override fun onResume() {
+        super.onResume()
+        Log.d("SettingsFragment", "onResume")
+        // TODO: Use a ViewModel instead of rebuilding on resume...
+        buildServerList()
     }
 
     private fun buildServerList() {
@@ -152,7 +81,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 val pref = ServerPreference(
                     requireContext(),
                     server = server,
-                    onEdit = { s -> showEditDialog(s, savedUrl) },
+                    onEdit = { s -> activateServer(s, savedUrl) },
                     onDelete = { s -> showDeleteDialog(s) },
                     savedUrl = savedUrl
                 )
@@ -161,46 +90,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun showEditDialog(server: Server, savedUrl: String?) {
-        //val editText = EditText(requireContext()).apply {
-        //    inputType = InputType.TYPE_TEXT_VARIATION_URI
-        //    setText(entry.url)
-        //}
-
-        Log.d("showEditDialog", "server.url: ${server.url}")
-        Log.d("showEditDialog", "server.token: ${server.token}")
-
+    private fun activateServer(server: Server, savedUrl: String?) {
+        Log.d("activateServer", "server.url: ${server.url}")
+        Log.d("activateServer", "server.token: ${server.token}")
         if (server.url == savedUrl) {
-            Log.d("showEditDialog", "server ALREADY ACTIVE - RETURN")
+            Log.d("activateServer", "server ALREADY ACTIVE - RETURN")
             return
         }
-
         preferenceManager.sharedPreferences?.edit()?.apply {
             putString("saved_url", server.url)
             putString("auth_token", server.token)
             apply()
         }
         buildServerList()
-
-        //val servers = loadServers().toMutableList()
-        //val token = servers.find { it.url == entry.url }?.token ?: ""
-        //Log.d("showEditDialog", "token: $token")
-
-
-        //AlertDialog.Builder(requireContext())
-        //    .setTitle("Edit Server")
-        //    .setView(editText)
-        //    .setPositiveButton("Save") { _, _ ->
-        //        val newUrl = editText.text.toString().trim()
-        //        if (newUrl.isNotEmpty()) {
-        //            val servers = loadServers().toMutableList()
-        //            servers[index] = servers[index].copy(url = newUrl)
-        //            saveServers(servers)
-        //            buildServerList()
-        //        }
-        //    }
-        //    .setNegativeButton("Cancel", null)
-        //    .show()
     }
 
     private fun showDeleteDialog(server: Server) {
@@ -208,9 +110,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             .setTitle("Delete Server?")
             .setMessage("Are you sure you want to delete this server?")
             .setPositiveButton("Delete") { _, _ ->
-                //val servers = loadServers().toMutableList()
-                //servers.removeAt(index)
-                //saveServers(servers)
                 CoroutineScope(Dispatchers.IO).launch {
                     dao.delete(server)
                 }
@@ -219,80 +118,4 @@ class SettingsFragment : PreferenceFragmentCompat() {
             .setNegativeButton("Cancel", null)
             .show()
     }
-
-    //private fun loadServers(): List<ServerEntry> {
-    //    val json = preferenceManager.sharedPreferences?.getString(serverKey, "[]") ?: "[]"
-    //    return try {
-    //        JSONArray(json).let { array ->
-    //            List(array.length()) {
-    //                val obj = array.getJSONObject(it)
-    //                ServerEntry(
-    //                    url = obj.getString("url"),
-    //                    token = obj.optString("token", "")
-    //                )
-    //            }
-    //        }
-    //    } catch (_: Exception) {
-    //        emptyList()
-    //    }
-    //}
-
-//    private fun saveServers(list: List<ServerEntry>) {
-//        val array = JSONArray().apply {
-//            list.forEach {
-//                put(JSONObject().apply {
-//                    put("url", it.url)
-//                    put("token", it.token)
-//                })
-//            }
-//        }
-//        preferenceManager.sharedPreferences?.edit() { putString(serverKey, array.toString()) }
-//    }
-
-    //data class ServerEntry(val url: String, val token: String)
-
-//    private fun Preference.setOnPreferenceLongClickListener(listener: (Preference) -> Boolean) {
-//        this.viewLifecycleOwnerLiveData.observe(viewLifecycleOwner) { viewLifecycleOwner ->
-//            if (viewLifecycleOwner != null) {
-//                this.setOnPreferenceClickListener(null)
-//                this.setOnPreferenceClickListener {
-//                    false
-//                }
-//                this.preferenceView?.setOnLongClickListener {
-//                    listener(this)
-//                }
-//            }
-//        }
-//    }
-
-//    private fun setOnPreferenceLongClickListener(preference: Preference, listener: (Preference) -> Boolean) {
-//        preference.setOnLongClickListener {
-//            listener(preference)
-//        }
-//    }
-
-//    private val Preference.preferenceView: View?
-//        get() = (listView?.findViewHolderForAdapterPosition(preferenceScreen.indexOfPreference(this)) as? PreferenceViewHolder)?.itemView
-
-}
-
-// TODO: Moved from MainActivity. Move inside after cleanup...
-fun cleanUrl(urlString: String): String {
-    var url = urlString.trim()
-    if (url.isEmpty()) {
-        Log.i("cleanUrl", "url.isEmpty()")
-        return ""
-    }
-    if (!url.lowercase().startsWith("http")) {
-        url = "https://$url"
-    }
-    if (url.endsWith("/")) {
-        url = url.substring(0, url.length - 1)
-    }
-    Log.d("cleanUrl", "matching: $url")
-    if (!Patterns.WEB_URL.matcher(url).matches()) {
-        Log.i("cleanUrl", "Patterns.WEB_URL.matcher Failed")
-        return ""
-    }
-    return url
 }

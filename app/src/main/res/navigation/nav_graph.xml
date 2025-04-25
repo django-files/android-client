@@ -11,11 +11,6 @@
         android:label="Home" />
 
     <fragment
-        android:id="@+id/nav_item_settings"
-        android:name="com.djangofiles.djangofiles.ui.settings.SettingsFragment"
-        android:label="Settings" />
-
-    <fragment
         android:id="@+id/nav_item_files"
         android:name="com.djangofiles.djangofiles.ui.files.FilesFragment"
         android:label="File List">
@@ -24,16 +19,34 @@
             app:destination="@id/nav_item_file_preview"
             app:launchSingleTop="true"
             app:exitAnim="@anim/slide_out_left"
-            app:enterAnim="@anim/slide_in_left" />
-<!--            TODO: Literally fucking retarded-->
-<!--            app:popEnterAnim="@anim/slide_in_reverse"-->
-<!--            app:popExitAnim="@anim/slide_out_reverse" />-->
+            app:enterAnim="@anim/slide_in_left"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
         <fragment
             android:id="@+id/nav_item_file_preview"
             android:name="com.djangofiles.djangofiles.ui.files.FilesPreviewFragment"
             android:label="File Preview"
             tools:layout="@layout/fragment_files_preview" />
+
+    <fragment
+        android:id="@+id/nav_item_settings"
+        android:name="com.djangofiles.djangofiles.ui.settings.SettingsFragment"
+        android:label="Settings">
+        <action
+            android:id="@+id/nav_item_settings_action_login"
+            app:destination="@id/nav_item_login"
+            app:launchSingleTop="true"
+            app:exitAnim="@anim/slide_out_left"
+            app:enterAnim="@anim/slide_in_left"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_item_login"
+        android:name="com.djangofiles.djangofiles.ui.settings.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login" />
 
     <fragment
         android:id="@+id/nav_item_short"

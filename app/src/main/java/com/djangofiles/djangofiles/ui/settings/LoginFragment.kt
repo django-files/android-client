@@ -1,7 +1,6 @@
-package com.djangofiles.djangofiles.ui
+package com.djangofiles.djangofiles.ui.settings
 
 import android.content.Context.MODE_PRIVATE
-import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -12,61 +11,44 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.edit
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.Server
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerDao
 import com.djangofiles.djangofiles.ServerDatabase
-import com.djangofiles.djangofiles.databinding.FragmentSetupBinding
+import com.djangofiles.djangofiles.databinding.FragmentLoginBinding
 import com.djangofiles.djangofiles.isURL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-// TODO: Remove This and Use LoginFragment...
-class SetupFragment : Fragment() {
-
-    private var _binding: FragmentSetupBinding? = null
+class LoginFragment : Fragment() {
+    private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d("Login[onCreate]", "savedInstanceState: ${savedInstanceState?.size()}")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
-        Log.d("SetupFragment", "onCreateView: $savedInstanceState")
-        _binding = FragmentSetupBinding.inflate(inflater, container, false)
+        Log.d("Login[onCreateView]", "savedInstanceState: ${savedInstanceState?.size()}")
+        _binding = FragmentLoginBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
     }
 
-    override fun onDestroyView() {
-        Log.d("SetupFragment", "onDestroyView")
-        super.onDestroyView()
-        _binding = null
-        // Unlock Navigation Drawer
-        (requireActivity() as MainActivity).setDrawerLockMode(true)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d("onViewCreated", "savedInstanceState: $savedInstanceState")
-
-        // Lock Navigation Drawer
-        (requireActivity() as MainActivity).setDrawerLockMode(false)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            binding.root.setOnApplyWindowInsetsListener { _, insets ->
-                val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-                binding.root.setPadding(0, 0, 0, imeInsets.bottom)
-                insets
-            }
-        }
+        super.onViewCreated(view, savedInstanceState)
+        Log.d("Login[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
         val packageInfo =
             requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
@@ -77,10 +59,16 @@ class SetupFragment : Fragment() {
         link.text = Html.fromHtml(getString(R.string.github_link), Html.FROM_HTML_MODE_LEGACY)
         link.movementMethod = LinkMovementMethod.getInstance()
 
+        // TODO: DUPLICATION: SetupFragment
+
         //binding.loginHostname.setText("https://")
         binding.loginHostname.requestFocus()
 
-        binding.loginButton.setOnClickListener {
+        val loginFunction = View.OnClickListener {
+            Log.d("OnClickListener", "it: ${it.id}")
+            if (it.id == R.id.add_server_login) {
+                Log.d("OnClickListener", "LOGIN BUTTON")
+            }
             val inputHost = binding.loginHostname.text.toString().trim()
             Log.d("setOnClickListener", "inputHost: $inputHost")
             val host = parseHost(inputHost)
@@ -110,7 +98,7 @@ class SetupFragment : Fragment() {
             //    binding.loginPassword.error = "Required"
             //    valid = false
             //}
-            if (!valid) return@setOnClickListener
+            if (!valid) return@OnClickListener
 
             val sharedPreferences =
                 requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -123,7 +111,6 @@ class SetupFragment : Fragment() {
             Log.d("setOnClickListener", "lifecycleScope.launch")
 
             Log.d("showSettingsDialog", "Processing URL: $host")
-            // TODO: This is copied from showSettingsDialog and needs cleanup...
             val api = ServerApi(requireContext(), host)
             lifecycleScope.launch {
                 try {
@@ -133,6 +120,7 @@ class SetupFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             Log.d("showSettingsDialog", "SUCCESS")
+                            // Save Server
                             val dao: ServerDao =
                                 ServerDatabase.getInstance(requireContext())
                                     .serverDao()
@@ -140,26 +128,20 @@ class SetupFragment : Fragment() {
                             withContext(Dispatchers.IO) {
                                 dao.add(Server(url = host))
                             }
+                            // Activate Server
                             sharedPreferences.edit { putString("saved_url", host) }
-                            findNavController().navigate(
-                                R.id.nav_item_home, null, NavOptions.Builder()
-                                    .setPopUpTo(R.id.nav_item_setup, true)
-                                    .build()
-                            )
-                            // TODO: I did this by creating a bad version endpoint...
-                            //val versionResponse = response.body()
-                            //Log.d("processShort", "versionResponse: $versionResponse")
-                            //if (versionResponse != null && versionResponse.valid) {
-                            //    Log.d("showSettingsDialog", "SUCCESS")
-                            //    sharedPreferences.edit { putString(URL_KEY, url) }
-                            //    currentUrl = url
-                            //    Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
-                            //    binding.webView.loadUrl(url)
-                            //    dismiss()
-                            //} else {
-                            //    Log.d("showSettingsDialog", "FAILURE")
-                            //    input.error = "Server Version Too Old"
-                            //}
+                            // Show WebView to Login
+                            if (it.id == R.id.add_server_login) {
+                                Log.d("showSettingsDialog", "Login - navigate: nav_item_home")
+                                findNavController().navigate(
+                                    R.id.nav_item_home, null, NavOptions.Builder()
+                                        .setPopUpTo(R.id.nav_item_login, true)
+                                        .build()
+                                )
+                            } else {
+                                Log.d("showSettingsDialog", "Return - navigateUp")
+                                findNavController().navigateUp()
+                            }
                         } else {
                             Log.d("showSettingsDialog", "FAILURE")
                             //input.error = "Invalid URL"
@@ -178,29 +160,15 @@ class SetupFragment : Fragment() {
                     }
                 }
             }
-
-            //lifecycleScope.launch {
-            //    val api = ZiplineApi(requireContext())
-            //    val token = api.login(host, user, pass)
-            //    Log.d("lifecycleScope.launch", "token: $token")
-            //    if (token.isNullOrEmpty()) {
-            //        Log.d("lifecycleScope.launch", "LOGIN FAILED")
-            //        Toast.makeText(context, "Login Failed!", Toast.LENGTH_SHORT).show()
-            //    } else {
-            //        Log.d("lifecycleScope.launch", "LOGIN SUCCESS")
-            //        val sharedPreferences =
-            //            context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            //        sharedPreferences?.edit { putString("saved_url", host) }
-            //        Log.d("getSharedPreferences", "saved_url: $host")
-            //        sharedPreferences?.edit { putString("auth_token", token) }
-            //        Log.d("getSharedPreferences", "auth_token: $token")
-            //        findNavController().navigate(R.id.nav_item_home, null, NavOptions.Builder()
-            //            .setPopUpTo(R.id.nav_item_setup, true)
-            //            .build())
-            //    }
-            //}
             Log.d("setOnClickListener", "DONE")
         }
+
+        binding.addServerLogin.setOnClickListener(loginFunction)
+        binding.addServerReturn.setOnClickListener(loginFunction)
+        binding.goBack.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
     }
 
     private fun parseHost(urlString: String): String {
