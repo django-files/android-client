@@ -8,6 +8,7 @@ import com.djangofiles.djangofiles.ServerApi
 
 class SettingsViewModel : ViewModel() {
     val hostname = MutableLiveData<String>()
+    val siteName = MutableLiveData<String>()
     val authMethods = MutableLiveData<List<ServerApi.Methods>>()
 
     //@Bindable

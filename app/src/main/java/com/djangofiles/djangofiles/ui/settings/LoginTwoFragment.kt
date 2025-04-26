@@ -63,6 +63,11 @@ class LoginTwoFragment : Fragment() {
         val authMethods = viewModel.authMethods.value
         Log.d("Login[onCreate]", "hostname: $hostname")
         Log.d("Login[onCreate]", "authMethods: $authMethods")
+        Log.d("Login[onCreate]", "viewModel.siteName.value: ${viewModel.siteName.value}")
+
+        if (!viewModel.siteName.value.isNullOrEmpty()) {
+            binding.siteName.text = viewModel.siteName.value
+        }
 
         for (method in authMethods!!) {
             Log.d("Login[onCreate]", "method.name: ${method.name}")

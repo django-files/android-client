@@ -103,6 +103,7 @@ class LoginFragment : Fragment() {
                     Log.d("showSettingsDialog", "methodsResponse: $methodsResponse")
 
                     viewModel.hostname.value = host
+                    viewModel.siteName.value = methodsResponse.siteName
                     viewModel.authMethods.value = methodsResponse.authMethods
                     findNavController().navigate(R.id.nav_item_login_action_next)
 
