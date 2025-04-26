@@ -32,27 +32,27 @@
             android:hint="@string/setup_host_placeholder"
             android:inputType="textUri" />
 
-<!--        <EditText-->
-<!--            android:id="@+id/login_username"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:autofillHints="username"-->
-<!--            android:hint="@string/username"-->
-<!--            android:inputType="text"-->
-<!--            android:padding="10dp"-->
-<!--            android:drawableEnd="@drawable/fa_user"-->
-<!--            android:drawableTint="?android:attr/textColorTertiary" />-->
+        <EditText
+            android:id="@+id/login_username"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:autofillHints="username"
+            android:hint="Username"
+            android:inputType="text"
+            android:padding="10dp"
+            android:drawableEnd="@drawable/fa_circle_user"
+            android:drawableTint="?android:attr/textColorTertiary" />
 
-<!--        <EditText-->
-<!--            android:id="@+id/login_password"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:padding="10dp"-->
-<!--            android:autofillHints="password"-->
-<!--            android:hint="@string/password"-->
-<!--            android:inputType="textPassword"-->
-<!--            android:drawableEnd="@drawable/fa_key"-->
-<!--            android:drawableTint="?android:attr/textColorTertiary" />-->
+        <EditText
+            android:id="@+id/login_password"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:padding="10dp"
+            android:autofillHints="password"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:drawableEnd="@drawable/md_key_24"
+            android:drawableTint="?android:attr/textColorTertiary" />
 
         <Button
             android:id="@+id/login_button"

@@ -187,16 +187,16 @@ class HomeFragment : Fragment() {
                 return false
             }
 
-            if (
-                url.startsWith("https://discord.com/oauth2") ||
-                url.startsWith("https://github.com/sessions/two-factor/") ||
-                url.startsWith("https://github.com/login") ||
-                url.startsWith("https://accounts.google.com/v3/signin") ||
-                url.startsWith("https://accounts.google.com/o/oauth2/v2/auth")
-            ) {
-                Log.d("shouldOverrideUrl", "APP - OAuth URL")
-                return false
-            }
+            //if (
+            //    url.startsWith("https://discord.com/oauth2") ||
+            //    url.startsWith("https://github.com/sessions/two-factor/") ||
+            //    url.startsWith("https://github.com/login") ||
+            //    url.startsWith("https://accounts.google.com/v3/signin") ||
+            //    url.startsWith("https://accounts.google.com/o/oauth2/v2/auth")
+            //) {
+            //    Log.d("shouldOverrideUrl", "APP - OAuth URL")
+            //    return false
+            //}
 
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             view.context.startActivity(intent)
@@ -206,24 +206,6 @@ class HomeFragment : Fragment() {
 
         override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
             Log.d("doUpdateVisitedHistory", "url: $url")
-            //if (url.endsWith("/auth/login") == true) {
-            //    Log.d("doUpdateVisitedHistory", "LOGOUT: $url")
-            //
-            //    val sharedPreferences =
-            //        view.context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            //    Log.d("doUpdateVisitedHistory", "REMOVE: authToken")
-            //    //sharedPreferences.edit { putString("auth_token", "") }
-            //    sharedPreferences.edit { remove("auth_token") }
-            //
-            //    Log.d("doUpdateVisitedHistory", "view.loadUrl: about:blank")
-            //    view.loadUrl("about:blank")
-            //    //view.destroy()
-            //    findNavController().navigate(
-            //        R.id.nav_item_setup, null, NavOptions.Builder()
-            //            .setPopUpTo(R.id.nav_item_home, true)
-            //            .build()
-            //    )
-            //}
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {

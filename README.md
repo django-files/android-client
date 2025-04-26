@@ -84,34 +84,35 @@ To use, share or open any file and choose the Django Files app.
 The app will then upload the file to your Django Files server.
 Additionally, the URL is copied to the clipboard and the preview show in the app.
 
-> [!IMPORTANT]  
-> If you use 2Factor, Local or GitHub OAuth is recommended.
-
 ## Features
 
-- Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
+- Share or Open any file and automatically copy the URL to the clipboard.
 - Ability to add multiple servers and switch on the fly from the Server List menu.
-- Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
+- Supports Native Local Login, GitHub OAuth, Google OAuth, and Discord OAuth.
 - Native Upload feature from Navigation Drawer and Upload Shortcut on Icon long press.
-- Basic Native File List with Share/Open links, Infinite Scroll, Custom Per Page option.
+- Basic Native File List with Links, Preview, Infinite Scroll, Custom Per Page option.
 
 ### Planned
 
-- Ability to Shorten URL's.
-- Widget with Stats and quick options.
-- Option to Disable Preview for files and links.
-- Option to Preview file(s) before uploading w/ server selector and upload options.
-- Native App Login to support Discord passkeys and Google App Authentication.
-- Ability to Authenticate if your session (cookie) is expired or invalidated.
+- Add Default Upload Options.
+- Add Custom Options to Preview page.
+- Option to Disable Preview Page on Open, Share, and for Links.
+- Ability to Authenticate if/when your session (cookie) is expired.
+- Files List
+  - File Options on Preview
+  - Context Menu Button w/ Options
+  - Multi-Select w/ Options
+  - Response Caching for Infinite Scroll
 
 ### Known Issues
 
-- Login with Discord OAuth passkeys does not work.
-- Login with Google OAuth gives an error; however, may succeed if you wait ~30 seconds.
 - The app gets logged out if the session expires; however, sharing continues to work.
-  - Upon logging back in, you may need to leave the app open (in the background) for ~30 seconds to allow the cookie to be saved.
-- Deleting the active server does not deactivate it, and it remains active until selecting another server.
-- Uploading files from the website works; however, taking picture and recording video and audio does not.
+- Uploading files from the website works; however, taking picture and recording video/audio does not.
+- Logging out and deleting servers may have some unexpected results but should work.
+
+Note: If the app gets in a bad state, clear the app data or reinstall the application.
+
+For more planned features you can check out the internal [TODO.md](TODO.md).
 
 # Development
 

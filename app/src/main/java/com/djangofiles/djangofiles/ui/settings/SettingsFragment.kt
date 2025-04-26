@@ -34,6 +34,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         dao = ServerDatabase.getInstance(requireContext()).serverDao()
 
+        parentFragmentManager.setFragmentResultListener("servers_updated", this) { _, _ ->
+            buildServerList()
+        }
+        buildServerList()
+
         val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 0)
         Log.d("onCreatePreferences", "filesPerPage: $filesPerPage")
         val seekBar = findPreference<SeekBarPreference>("files_per_page")
@@ -55,13 +60,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             findNavController().navigate(R.id.nav_item_settings_action_login)
             false
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("SettingsFragment", "onResume")
-        // TODO: Use a ViewModel instead of rebuilding on resume...
-        buildServerList()
     }
 
     private fun buildServerList() {

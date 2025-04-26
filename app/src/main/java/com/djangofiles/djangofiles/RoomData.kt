@@ -29,6 +29,9 @@ interface ServerDao {
     @Insert
     fun add(server: Server)
 
+    @Query("UPDATE server SET active = 1 WHERE url = :url")
+    fun activate(url: String)
+
     @Delete
     fun delete(server: Server)
 }
