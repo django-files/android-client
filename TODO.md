@@ -1,18 +1,22 @@
 # TODO
 
-- Implement Retrofit into Current Settings
-- ❓ Implement Room into Retrofit (or keep separate)
-- ❓ Replace SettingsActivity with a SettingsFragment
+## Upload
 
-## Layouts
+- Add Upload Options to Previews
+- Add Support for Multiple Files
 
-- Server Setup (Login)
-- Text Preview
-- Add Server
-- Edit Server
+## File List
 
-# Retrofit
+- Add Context Menu
+- Add Multi-Select
+- Add Options to Preview
+- Add Swiper to Preview
 
-- Server and Version Check
-- Authentication
-- ❓ Server Settings
+## Settings
+
+- Overhaul Server Selector
+- Add Default Upload Options
+
+## Retrofit
+
+- Implement Version Check

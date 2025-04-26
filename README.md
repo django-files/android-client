@@ -112,6 +112,8 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 
 Note: If the app gets in a bad state, clear the app data or reinstall the application.
 
+For more planned features you can check out the internal [TODO.md](TODO.md).
+
 # Development
 
 This section briefly covers running and building in [Android Studio](#Android-Studio) and the [Command Line](#Command-Line).

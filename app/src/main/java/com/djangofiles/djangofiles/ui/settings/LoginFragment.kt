@@ -55,7 +55,6 @@ class LoginFragment : Fragment() {
         val versionName = packageInfo.versionName
         Log.d("Main[onCreate]", "versionName: $versionName")
 
-        //binding.hostnameText.setText("https://")
         binding.hostnameText.requestFocus()
 
         val loginFunction = View.OnClickListener {
@@ -65,6 +64,7 @@ class LoginFragment : Fragment() {
             val host = parseHost(inputHost)
             if (inputHost != host) {
                 binding.hostnameText.setText(host)
+                binding.hostnameText.setSelection(binding.hostnameText.text.length)
             }
             Log.d("setOnClickListener", "host: $host")
             if (!isURL(host)) {
@@ -158,9 +158,6 @@ class LoginFragment : Fragment() {
         }
         if (!url.lowercase().startsWith("http")) {
             url = "https://$url"
-        }
-        if (url.length < 9) {
-            return "https://"
         }
         if (url.endsWith("/")) {
             url = url.substring(0, url.length - 1)

@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.URL
+import androidx.core.net.toUri
 
 class MainActivity : AppCompatActivity() {
 
@@ -281,61 +282,22 @@ class MainActivity : AppCompatActivity() {
 
         } else if (Intent.ACTION_VIEW == action) {
             Log.d("handleIntent", "ACTION_VIEW")
-            Log.d("handleIntent", "data: $data")
+
             if (data == null) {
                 Toast.makeText(this, "That's a Bug!", Toast.LENGTH_LONG).show()
                 Log.e("handleIntent", "BUG: UNKNOWN action: $action")
                 return
             }
-
             if ("djangofiles" == data.scheme) {
                 Log.d("handleIntent", "scheme: ${data.scheme}")
                 Log.d("handleIntent", "host: ${data.host}")
                 if ("serverlist" == data.host) {
                     Log.d("handleIntent", "djangofiles://serverlist")
                     navController.navigate(R.id.nav_item_settings)
+                } else if ("logout" == data.host) {
+                    processLogout()
                 } else if ("oauth" == data.host) {
-                    // TODO: Can do this in a fragment to show loading screen/errors eventually...
-                    Log.d("handleIntent", "FUCKING OAUTH: WE MADE IT!")
-                    val token = data.getQueryParameter("token")
-                    val sessionKey = data.getQueryParameter("session_key")
-                    val error = data.getQueryParameter("error")
-
-                    // TODO: Handle null data and errors
-                    Log.d("handleIntent", "token: $token")
-                    Log.d("handleIntent", "session_key: $sessionKey")
-                    Log.d("handleIntent", "error: $error")
-
-                    // TODO: Determine how to better get hostname
-                    val hostname = sharedPreferences.getString("oauth_host", null)
-                    Log.d("handleIntent", "hostname: $hostname")
-
-                    sharedPreferences.edit {
-                        putString("saved_url", hostname)
-                        putString("auth_token", token)
-                    }
-                    lifecycleScope.launch {
-                        val dao: ServerDao =
-                            ServerDatabase.getInstance(this@MainActivity).serverDao()
-                        withContext(Dispatchers.IO) {
-                            dao.add(Server(url = hostname!!, token = token!!, active = true))
-                        }
-                    }
-
-                    val cookieManager = CookieManager.getInstance()
-                    //cookieManager.setAcceptThirdPartyCookies(webView, true)
-                    val cookie = "sessionid=$sessionKey; Path=/; HttpOnly; Secure"
-                    Log.d("handleIntent", "cookie: $cookie")
-                    cookieManager.setCookie(hostname, cookie) { cookieManager.flush() }
-
-                    Log.d("handleIntent", "navigate: nav_item_home - setPopUpTo: nav_item_login")
-                    setDrawerLockMode(true)
-                    navController.navigate(
-                        R.id.nav_item_home, null, NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_item_login, true)
-                            .build()
-                    )
-
+                    processOauth(data)
                 } else {
                     Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
                     Log.w("handleIntent", "Unknown DeepLink!")
@@ -373,6 +335,112 @@ class MainActivity : AppCompatActivity() {
         //    .setLaunchSingleTop(true)
         //    .build()
         //navController.navigate(R.id.nav_item_preview, bundle, navOptions)
+    }
+
+    private fun processOauth(data: Uri) {
+        // TODO: Can do this in a fragment to show loading screen/errors eventually...
+        Log.d("handleIntent", "processOauth: data: $data")
+        val token = data.getQueryParameter("token")
+        val sessionKey = data.getQueryParameter("session_key")
+        val error = data.getQueryParameter("error")
+
+        // TODO: Handle null data and errors
+        Log.d("handleIntent", "token: $token")
+        Log.d("handleIntent", "session_key: $sessionKey")
+        Log.d("handleIntent", "error: $error")
+
+        // TODO: Determine how to better get oauthUrl
+        val sharedPreferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val oauthUrl = sharedPreferences.getString("oauth_host", null)
+        Log.d("handleIntent", "oauthUrl: $oauthUrl")
+        if (oauthUrl == null) {
+            // TODO: Handle this error...
+            Log.e("handleIntent", "oauthUrl is null")
+            return
+        }
+
+        sharedPreferences.edit {
+            putString("saved_url", oauthUrl)
+            putString("auth_token", token)
+        }
+        lifecycleScope.launch {
+            val dao: ServerDao =
+                ServerDatabase.getInstance(this@MainActivity).serverDao()
+            withContext(Dispatchers.IO) {
+                dao.add(Server(url = oauthUrl, token = token!!, active = true))
+            }
+        }
+
+        val cookieManager = CookieManager.getInstance()
+        //cookieManager.setAcceptThirdPartyCookies(webView, true)
+        val cookie = "sessionid=$sessionKey; Path=/; HttpOnly; Secure"
+        Log.d("handleIntent", "cookie: $cookie")
+
+        val uri = oauthUrl.toUri()
+        val origin = "${uri.scheme}://${uri.authority}"
+        Log.d("handleIntent", "origin: $origin")
+        cookieManager.setCookie(origin, cookie) { cookieManager.flush() }
+
+        Log.d("handleIntent", "navigate: nav_item_home - setPopUpTo: nav_item_login")
+        setDrawerLockMode(true)
+        navController.navigate(
+            R.id.nav_item_home, null, NavOptions.Builder()
+                .setPopUpTo(R.id.nav_item_login, true)
+                .build()
+        )
+    }
+
+    private fun processLogout() {
+        val sharedPreferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val savedUrl = sharedPreferences.getString("saved_url", null)
+        Log.d("processLogout", "savedUrl: $savedUrl")
+        sharedPreferences.edit {
+            remove("saved_url")
+            remove("auth_token")
+        }
+        val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
+        lifecycleScope.launch {
+            if (savedUrl != null) {
+                Log.d("processLogout", "dao.delete: $savedUrl")
+                val server = Server(url = savedUrl)
+                Log.d("processLogout", "server: $server")
+                withContext(Dispatchers.IO) { dao.delete(server) }
+            }
+            val servers = withContext(Dispatchers.IO) { dao.getAll() }
+            Log.d("processLogout", "servers: $servers")
+            if (servers.isEmpty()) {
+                Log.d("processLogout", "NO MORE SERVERS - LOCK TO LOGIN")
+                //(requireActivity() as MainActivity).setDrawerLockMode(false)
+                setDrawerLockMode(false)
+                // TODO: Confirm this removes history and locks user to login
+                navController.navigate(
+                    R.id.nav_item_login, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_item_home, true)
+                        .build()
+                )
+            } else {
+                Log.d("processLogout", "MORE SERVERS - ACTIVATE ONE")
+                //servers.firstOrNull()?.let { dao.activate(it.url) }
+                val server = servers.first()
+                Log.d("processLogout", "server: $server")
+                withContext(Dispatchers.IO) { dao.activate(server.url) }
+
+                sharedPreferences.edit().apply {
+                    putString("saved_url", server.url)
+                    putString("auth_token", server.token)
+                    apply()
+                }
+
+                Log.d("processLogout", "navigate: nav_item_login")
+                // TODO: Determine proper navigate call here...
+                navController.navigate(R.id.nav_item_settings)
+                //findNavController().navigate(
+                //    R.id.nav_item_settings, null, NavOptions.Builder()
+                //        .setPopUpTo(R.id.nav_item_home, true)
+                //        .build()
+                //)
+            }
+        }
     }
 }
 
