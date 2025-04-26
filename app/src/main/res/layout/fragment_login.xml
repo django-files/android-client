@@ -24,7 +24,7 @@
             android:src="@mipmap/ic_launcher" />
 
         <EditText
-            android:id="@+id/login_hostname"
+            android:id="@+id/hostname_text"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:padding="10dp"
@@ -32,78 +32,50 @@
             android:hint="@string/setup_host_placeholder"
             android:inputType="textUri" />
 
-<!--        <EditText-->
-<!--            android:id="@+id/login_username"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:autofillHints="username"-->
-<!--            android:hint="@string/username"-->
-<!--            android:inputType="text"-->
-<!--            android:padding="10dp"-->
-<!--            android:drawableEnd="@drawable/fa_user"-->
-<!--            android:drawableTint="?android:attr/textColorTertiary" />-->
+        <Button
+            android:id="@+id/continue_btn"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:drawableEnd="@drawable/md_login_24px"
+            android:paddingEnd="36dp"
+            android:paddingStart="36dp"
+            android:text="Continue"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-<!--        <EditText-->
-<!--            android:id="@+id/login_password"-->
+<!--        <Button-->
+<!--            android:id="@+id/go_back"-->
 <!--            android:layout_width="match_parent"-->
 <!--            android:layout_height="48dp"-->
-<!--            android:padding="10dp"-->
-<!--            android:autofillHints="password"-->
-<!--            android:hint="@string/password"-->
-<!--            android:inputType="textPassword"-->
-<!--            android:drawableEnd="@drawable/fa_key"-->
-<!--            android:drawableTint="?android:attr/textColorTertiary" />-->
+<!--            android:layout_marginTop="24dp"-->
+<!--            android:paddingEnd="36dp"-->
+<!--            android:paddingStart="36dp"-->
+<!--            android:text="Go Back"-->
+<!--            android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+<!--            android:textColor="?attr/colorPrimaryDark"-->
+<!--            android:drawableEnd="@drawable/md_undo_24px"-->
+<!--            android:drawableTint="?attr/colorPrimary"-->
+<!--            app:backgroundTint="@android:color/transparent"-->
+<!--            app:rippleColor="?attr/colorPrimary"-->
+<!--            app:strokeColor="?attr/colorPrimary"-->
+<!--            app:strokeWidth="2dp" />-->
 
         <Button
-            android:id="@+id/add_server_login"
+            android:id="@+id/go_back_btn"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="24dp"
             android:paddingEnd="36dp"
             android:paddingStart="36dp"
-            android:text="Save and Login"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:drawableEnd="@drawable/md_login_24px" />
-
-        <Button
-            android:id="@+id/add_server_return"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
-            android:paddingEnd="36dp"
-            android:paddingStart="36dp"
-            android:text="Save and Return"
-            android:textColor="?attr/colorOnPrimary"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:drawableEnd="@drawable/md_keyboard_tab_rtl_24px" />
-
-        <Button
-            android:id="@+id/go_back"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
-            android:paddingEnd="36dp"
-            android:paddingStart="36dp"
             android:text="Go Back"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="?attr/colorPrimaryDark"
+            android:textColor="?android:attr/colorActivatedHighlight"
             android:drawableEnd="@drawable/md_undo_24px"
-            android:drawableTint="?attr/colorPrimary"
+            android:drawableTint="?android:attr/colorActivatedHighlight"
             app:backgroundTint="@android:color/transparent"
-            app:rippleColor="?attr/colorPrimary"
-            app:strokeColor="?attr/colorPrimary"
+            app:rippleColor="#33FFFF00"
+            app:strokeColor="?android:attr/colorActivatedHighlight"
             app:strokeWidth="2dp" />
-
-        <TextView
-            android:id="@+id/github_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/github_link"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColorLink="@android:color/holo_blue_dark"
-            android:drawablePadding="12dp"
-            tools:text="https://django-files.github.io" />
 
     </LinearLayout>
 </ScrollView>

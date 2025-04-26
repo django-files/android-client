@@ -88,10 +88,10 @@ class SetupFragment : Fragment() {
                 binding.loginHostname.setText(host)
             }
             Log.d("setOnClickListener", "host: $host")
-            //val user = binding.loginUsername.text.toString().trim()
-            //Log.d("setOnClickListener", "User: $user")
-            //val pass = binding.loginPassword.text.toString().trim()
-            //Log.d("setOnClickListener", "Pass: $pass")
+            val user = binding.loginUsername.text.toString().trim()
+            Log.d("setOnClickListener", "user: $user")
+            val pass = binding.loginPassword.text.toString().trim()
+            Log.d("setOnClickListener", "pass: $pass")
 
             var valid = true
             //if (host.isEmpty() || host == "https://") {
@@ -102,14 +102,14 @@ class SetupFragment : Fragment() {
                 binding.loginHostname.error = "Invalid Hostname"
                 valid = false
             }
-            //if (user.isEmpty()) {
-            //    binding.loginUsername.error = "Required"
-            //    valid = false
-            //}
-            //if (pass.isEmpty()) {
-            //    binding.loginPassword.error = "Required"
-            //    valid = false
-            //}
+            if (user.isEmpty()) {
+                binding.loginUsername.error = "Required"
+                valid = false
+            }
+            if (pass.isEmpty()) {
+                binding.loginPassword.error = "Required"
+                valid = false
+            }
             if (!valid) return@setOnClickListener
 
             val sharedPreferences =
@@ -120,64 +120,106 @@ class SetupFragment : Fragment() {
             //    .setPopUpTo(R.id.nav_item_setup, true)
             //    .build())
 
-            Log.d("setOnClickListener", "lifecycleScope.launch")
-
-            Log.d("showSettingsDialog", "Processing URL: $host")
+            //Log.d("showSettingsDialog", "Processing URL: $host")
             // TODO: This is copied from showSettingsDialog and needs cleanup...
+
             val api = ServerApi(requireContext(), host)
+
             lifecycleScope.launch {
-                try {
-                    Log.d("showSettingsDialog", "versionName: $versionName")
-                    val response = api.version(versionName.toString())
-                    Log.d("showSettingsDialog", "response: $response")
+                //val response = api.version(versionName.toString())
+                //val versionResponse = response.body()
+                //Log.d("showSettingsDialog", "versionResponse: $versionResponse")
+                val token = api.login(user, pass)
+                Log.d("OMG", "token: $token")
+                if (token == null) {
+                    Log.d("OMG", "LOGIN FAILED")
                     withContext(Dispatchers.Main) {
-                        if (response.isSuccessful) {
-                            Log.d("showSettingsDialog", "SUCCESS")
-                            val dao: ServerDao =
-                                ServerDatabase.getInstance(requireContext())
-                                    .serverDao()
-                            Log.d("showSettingsDialog", "dao.add Server url = $host")
-                            withContext(Dispatchers.IO) {
-                                dao.add(Server(url = host))
-                            }
-                            sharedPreferences.edit { putString("saved_url", host) }
-                            findNavController().navigate(
-                                R.id.nav_item_home, null, NavOptions.Builder()
-                                    .setPopUpTo(R.id.nav_item_setup, true)
-                                    .build()
-                            )
-                            // TODO: I did this by creating a bad version endpoint...
-                            //val versionResponse = response.body()
-                            //Log.d("processShort", "versionResponse: $versionResponse")
-                            //if (versionResponse != null && versionResponse.valid) {
-                            //    Log.d("showSettingsDialog", "SUCCESS")
-                            //    sharedPreferences.edit { putString(URL_KEY, url) }
-                            //    currentUrl = url
-                            //    Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
-                            //    binding.webView.loadUrl(url)
-                            //    dismiss()
-                            //} else {
-                            //    Log.d("showSettingsDialog", "FAILURE")
-                            //    input.error = "Server Version Too Old"
-                            //}
-                        } else {
-                            Log.d("showSettingsDialog", "FAILURE")
-                            //input.error = "Invalid URL"
-                            binding.loginHostname.error = "Validation Error"
-                            Toast.makeText(context, "Invalid URL!", Toast.LENGTH_SHORT).show()
-                        }
+                        Toast.makeText(requireContext(), "Login Failed", Toast.LENGTH_LONG).show()
                     }
-                } catch (e: Exception) {
-                    Log.d("showSettingsDialog", "EXCEPTION")
-                    e.printStackTrace()
-                    val msg = e.message ?: "Unknown Error Validating Server."
-                    Log.i("processUpload", "msg: $msg")
-                    binding.loginHostname.error = "Validation Error"
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                    }
+                    return@launch
                 }
+                Log.d("OMG", "SUCCESS")
+                val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()
+                Log.d("OMG", "dao.add Server url = $host")
+                withContext(Dispatchers.IO) {
+                    dao.add(Server(url = host, token = token, active = true))
+                }
+                sharedPreferences.edit {
+                    putString("saved_url", host)
+                    putString("auth_token", token)
+                }
+                withContext(Dispatchers.Main) {
+                    Log.d("OMG", "navigate: nav_item_home")
+                    findNavController().navigate(
+                        R.id.nav_item_home, null, NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_item_setup, true)
+                            .build()
+                    )
+                }
+                Log.d("OMG", "DONE")
             }
+            //val response = withContext(Dispatchers.Main) {
+            //    api.login(user, pass)
+            //}
+            //val response = lifecycleScope.async {
+            //    api.login(user, pass)
+            //}.await()
+
+
+//            val api = ServerApi(requireContext(), host)
+//            lifecycleScope.launch {
+//                try {
+//                    //Log.d("showSettingsDialog", "versionName: $versionName")
+//                    val response = api.login(user, pass)
+//                    Log.d("showSettingsDialog", "response: $response")
+////                    withContext(Dispatchers.Main) {
+////                        if (response.isSuccessful) {
+////                            Log.d("showSettingsDialog", "SUCCESS")
+////                            val dao: ServerDao =
+////                                ServerDatabase.getInstance(requireContext())
+////                                    .serverDao()
+////                            Log.d("showSettingsDialog", "dao.add Server url = $host")
+////                            withContext(Dispatchers.IO) {
+////                                dao.add(Server(url = host))
+////                            }
+////                            sharedPreferences.edit { putString("saved_url", host) }
+////                            findNavController().navigate(
+////                                R.id.nav_item_home, null, NavOptions.Builder()
+////                                    .setPopUpTo(R.id.nav_item_setup, true)
+////                                    .build()
+////                            )
+////                            // TODO: I did this by creating a bad version endpoint...
+////                            //val versionResponse = response.body()
+////                            //Log.d("processShort", "versionResponse: $versionResponse")
+////                            //if (versionResponse != null && versionResponse.valid) {
+////                            //    Log.d("showSettingsDialog", "SUCCESS")
+////                            //    sharedPreferences.edit { putString(URL_KEY, url) }
+////                            //    currentUrl = url
+////                            //    Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
+////                            //    binding.webView.loadUrl(url)
+////                            //    dismiss()
+////                            //} else {
+////                            //    Log.d("showSettingsDialog", "FAILURE")
+////                            //    input.error = "Server Version Too Old"
+////                            //}
+////                        } else {
+////                            Log.d("showSettingsDialog", "FAILURE")
+////                            //input.error = "Invalid URL"
+////                            binding.loginHostname.error = "Validation Error"
+////                            Toast.makeText(context, "Invalid URL!", Toast.LENGTH_SHORT).show()
+////                        }
+////                    }
+//                } catch (e: Exception) {
+//                    Log.d("showSettingsDialog", "EXCEPTION")
+//                    e.printStackTrace()
+//                    val msg = e.message ?: "Unknown Error Validating Server."
+//                    Log.i("processUpload", "msg: $msg")
+//                    binding.loginHostname.error = "Validation Error"
+//                    withContext(Dispatchers.Main) {
+//                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+//                    }
+//                }
+//            }
 
             //lifecycleScope.launch {
             //    val api = ZiplineApi(requireContext())

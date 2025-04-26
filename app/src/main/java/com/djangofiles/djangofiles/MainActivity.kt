@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.webkit.CookieManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -18,14 +19,19 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.ui.home.HomeViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
@@ -149,9 +155,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleIntent(intent: Intent, savedInstanceState: Bundle?) {
         Log.d("handleIntent", "intent: $intent")
-        Log.d("handleIntent", "intent.data: ${intent.data}")
-        Log.d("handleIntent", "intent.type: ${intent.type}")
-        Log.d("handleIntent", "intent.action: ${intent.action}")
+        val data = intent.data
+        val type = intent.type
+        val action = intent.action
+        Log.d("handleIntent", "data: $data")
+        Log.d("handleIntent", "type: $type")
+        Log.d("handleIntent", "action: $action")
 
         val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
         Log.d("handleIntent", "extraText: $extraText")
@@ -159,19 +168,22 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences.getString("saved_url", null)
         Log.d("handleIntent", "savedUrl: $savedUrl")
+        Log.d("handleIntent", "data?.host: ${data?.host}")
         //val authToken = sharedPreferences.getString("auth_token", null)
         //Log.d("handleIntent", "authToken: $authToken")
 
-        if (savedUrl.isNullOrEmpty()) {
-            Log.i("handleIntent", "Missing Saved URL or Token...")
+        Log.d("handleIntent", "data?.host: ${data?.host}")
+        if (data?.host != "oauth" && savedUrl.isNullOrEmpty()) {
+            Log.i("handleIntent", "Missing Saved URL or Token! Showing Login...")
 
+            setDrawerLockMode(false)
             navController.navigate(
-                R.id.nav_item_setup, null, NavOptions.Builder()
+                R.id.nav_item_login, null, NavOptions.Builder()
                     .setPopUpTo(R.id.nav_item_home, true)
                     .build()
             )
 
-        } else if (Intent.ACTION_MAIN == intent.action) {
+        } else if (Intent.ACTION_MAIN == action) {
             Log.d("handleIntent", "ACTION_MAIN: ${savedInstanceState?.size()}")
 
             binding.drawerLayout.closeDrawers()
@@ -207,7 +219,7 @@ class MainActivity : AppCompatActivity() {
                 filePickerLauncher.launch(arrayOf("*/*"))
             }
 
-        } else if (Intent.ACTION_SEND == intent.action) {
+        } else if (Intent.ACTION_SEND == action) {
             Log.d("handleIntent", "ACTION_SEND")
 
             val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -243,10 +255,10 @@ class MainActivity : AppCompatActivity() {
                     Log.w("handleIntent", "NOT IMPLEMENTED")
                 }
             } else {
-                showPreview(fileUri, intent.type)
+                showPreview(fileUri, type)
             }
 
-        } else if (Intent.ACTION_SEND_MULTIPLE == intent.action) {
+        } else if (Intent.ACTION_SEND_MULTIPLE == action) {
             Log.d("handleIntent", "ACTION_SEND_MULTIPLE")
 
             val fileUris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -267,27 +279,74 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
             Log.w("handleIntent", "NOT IMPLEMENTED")
 
-        } else if (Intent.ACTION_VIEW == intent.action) {
+        } else if (Intent.ACTION_VIEW == action) {
             Log.d("handleIntent", "ACTION_VIEW")
+            Log.d("handleIntent", "data: $data")
+            if (data == null) {
+                Toast.makeText(this, "That's a Bug!", Toast.LENGTH_LONG).show()
+                Log.e("handleIntent", "BUG: UNKNOWN action: $action")
+                return
+            }
 
-            if ("djangofiles" == intent.data?.scheme) {
-                Log.d("handleIntent", "scheme: ${intent.data?.scheme}")
-                val host = intent.data?.host
-                Log.d("handleIntent", "host: $host")
-                if ("serverlist" == host) {
+            if ("djangofiles" == data.scheme) {
+                Log.d("handleIntent", "scheme: ${data.scheme}")
+                Log.d("handleIntent", "host: ${data.host}")
+                if ("serverlist" == data.host) {
                     Log.d("handleIntent", "djangofiles://serverlist")
                     navController.navigate(R.id.nav_item_settings)
+                } else if ("oauth" == data.host) {
+                    // TODO: Can do this in a fragment to show loading screen/errors eventually...
+                    Log.d("handleIntent", "FUCKING OAUTH: WE MADE IT!")
+                    val token = data.getQueryParameter("token")
+                    val sessionKey = data.getQueryParameter("session_key")
+                    val error = data.getQueryParameter("error")
+
+                    // TODO: Handle null data and errors
+                    Log.d("handleIntent", "token: $token")
+                    Log.d("handleIntent", "session_key: $sessionKey")
+                    Log.d("handleIntent", "error: $error")
+
+                    // TODO: Determine how to better get hostname
+                    val hostname = sharedPreferences.getString("oauth_host", null)
+                    Log.d("handleIntent", "hostname: $hostname")
+
+                    sharedPreferences.edit {
+                        putString("saved_url", hostname)
+                        putString("auth_token", token)
+                    }
+                    lifecycleScope.launch {
+                        val dao: ServerDao =
+                            ServerDatabase.getInstance(this@MainActivity).serverDao()
+                        withContext(Dispatchers.IO) {
+                            dao.add(Server(url = hostname!!, token = token!!, active = true))
+                        }
+                    }
+
+                    val cookieManager = CookieManager.getInstance()
+                    //cookieManager.setAcceptThirdPartyCookies(webView, true)
+                    val cookie = "sessionid=$sessionKey; Path=/; HttpOnly; Secure"
+                    Log.d("handleIntent", "cookie: $cookie")
+                    cookieManager.setCookie(hostname, cookie) { cookieManager.flush() }
+
+                    Log.d("handleIntent", "navigate: nav_item_home - setPopUpTo: nav_item_login")
+                    setDrawerLockMode(true)
+                    navController.navigate(
+                        R.id.nav_item_home, null, NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_item_login, true)
+                            .build()
+                    )
+
                 } else {
                     Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
                     Log.w("handleIntent", "Unknown DeepLink!")
                 }
             } else {
-                Log.d("handleIntent", "File URI: ${intent.data}")
-                showPreview(intent.data, intent.type)
+                Log.d("handleIntent", "File URI: $data")
+                showPreview(data, type)
             }
         } else {
             Toast.makeText(this, "That's a Bug!", Toast.LENGTH_LONG).show()
-            Log.e("handleIntent", "BUG: UNKNOWN intent.action: ${intent.action}")
+            Log.e("handleIntent", "BUG: UNKNOWN action: $action")
         }
     }
 

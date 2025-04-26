@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Parcelable
 import android.util.Log
+import android.webkit.CookieManager
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,6 +12,7 @@ import kotlinx.parcelize.Parcelize
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -20,6 +22,8 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
@@ -32,6 +36,7 @@ import java.net.URLConnection
 // TODO: Pass preferences instead of context since context is not used
 class ServerApi(context: Context, host: String) {
     val api: ApiService
+    val hostname: String = host
     val authToken: String
     val preferences: SharedPreferences =
         context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
@@ -40,9 +45,49 @@ class ServerApi(context: Context, host: String) {
     private lateinit var client: OkHttpClient
 
     init {
-        api = createRetrofit(host).create(ApiService::class.java)
+        api = createRetrofit().create(ApiService::class.java)
         authToken = preferences.getString("auth_token", null) ?: ""
         Log.d("ServerApi", "authToken: $authToken")
+        Log.d("ServerApi", "hostname: $hostname")
+    }
+
+    suspend fun login(user: String, pass: String): String? {
+        Log.d("Api[login]", "user/pass: ${user}/${pass}")
+
+        return try {
+            val loginResponse = api.login(user, pass)
+            Log.d("Api[login]", "loginResponse: $loginResponse")
+            if (loginResponse.isSuccessful) {
+                val token = api.getToken().token
+                Log.d("Api[login]", "token: $token")
+                val cookies = cookieJar.loadForRequest(hostname.toHttpUrl())
+                val cookieManager = CookieManager.getInstance()
+                for (cookie in cookies) {
+                    //Log.d("Api[login]", "setCookie: $cookie")
+                    //cookieManager.setCookie(host, cookie.toString())
+                    if (cookie.name == "sessionid") {
+                        Log.i("Api[login]", "ADDING: ${cookie.name}")
+                        cookieManager.setCookie(hostname, cookie.toString()) {
+                            Log.i("Api[login]", "cookieManager.flush")
+                            cookieManager.flush()
+                        }
+                    }
+                }
+                Log.i("Api[login]", "SUCCESS")
+                token
+            } else {
+                Log.e("Api[login]", "Error: ${loginResponse.errorBody()?.string()}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("Api[login]", "Exception: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun methods(): MethodsResponse {
+        Log.e("Api[methods]", "getMethods")
+        return api.getMethods()
     }
 
     suspend fun upload(fileName: String, inputStream: InputStream): Response<FileResponse> {
@@ -69,8 +114,21 @@ class ServerApi(context: Context, host: String) {
     }
 
     interface ApiService {
+        @FormUrlEncoded
+        @POST("oauth/")
+        suspend fun login(
+            @Field("username") username: String,
+            @Field("password") password: String
+        ): Response<ResponseBody>
+
+        @GET("auth/methods/")
+        suspend fun getMethods(): MethodsResponse
+
+        @POST("auth/token/")
+        suspend fun getToken(): TokenResponse
+
         @Multipart
-        @POST("upload")
+        @POST("upload/")
         suspend fun postUpload(
             @Header("Authorization") token: String,
             @Part file: MultipartBody.Part,
@@ -82,7 +140,7 @@ class ServerApi(context: Context, host: String) {
             @Header("Password") password: String? = null,
         ): Response<FileResponse>
 
-        @POST("shorten")
+        @POST("shorten/")
         suspend fun postShort(
             @Header("Authorization") token: String,
             @Header("URL") url: String,
@@ -90,7 +148,7 @@ class ServerApi(context: Context, host: String) {
             @Header("Max-Views") maxViews: Int? = null,
         ): Response<ShortResponse>
 
-        @GET("recent")
+        @GET("recent/")
         suspend fun getRecent(
             @Header("Authorization") token: String,
             @Query("amount") amount: Int,
@@ -98,17 +156,31 @@ class ServerApi(context: Context, host: String) {
         ): Response<List<RecentResponse>>
 
         // TODO: Use VersionResponse
-        @POST("version")
+        @POST("version/")
         suspend fun postVersion(
             @Body version: VersionRequest
         ): Response<ResponseBody>
     }
 
+    data class TokenResponse(
+        val token: String
+    )
+
+    data class MethodsResponse(
+        val authMethods: List<Methods>,
+        val siteName: String,
+    )
+
+    data class Methods(
+        val name: String,
+        val url: String,
+    )
+
     data class FileResponse(
         val url: String,
         val raw: String,
         val name: String,
-        val size: Long
+        val size: Long,
     )
 
     data class ShortResponse(
@@ -156,8 +228,8 @@ class ServerApi(context: Context, host: String) {
         return MultipartBody.Part.createFormData("file", fileName, requestBody)
     }
 
-    private fun createRetrofit(host: String): Retrofit {
-        val baseUrl = "${host}/api/"
+    private fun createRetrofit(): Retrofit {
+        val baseUrl = "${hostname}/api/"
         Log.d("createRetrofit", "baseUrl: $baseUrl")
         cookieJar = SimpleCookieJar()
         client = OkHttpClient.Builder()

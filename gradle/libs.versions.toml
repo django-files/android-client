@@ -57,7 +57,8 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-parcelize = { id = "kotlin-parcelize", version.ref = "kotlin" }
+#kotlin-kapt = { id = "org.jetbrains.kotlin.kapt" }
+kotlin-parcelize = { id = "kotlin-parcelize" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 #androidx-navigation-safeargs-kotlin-gradle-plugin = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigationSafeargsVersion" }

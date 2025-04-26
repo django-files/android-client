@@ -187,16 +187,16 @@ class HomeFragment : Fragment() {
                 return false
             }
 
-            if (
-                url.startsWith("https://discord.com/oauth2") ||
-                url.startsWith("https://github.com/sessions/two-factor/") ||
-                url.startsWith("https://github.com/login") ||
-                url.startsWith("https://accounts.google.com/v3/signin") ||
-                url.startsWith("https://accounts.google.com/o/oauth2/v2/auth")
-            ) {
-                Log.d("shouldOverrideUrl", "APP - OAuth URL")
-                return false
-            }
+//            if (
+//                url.startsWith("https://discord.com/oauth2") ||
+//                url.startsWith("https://github.com/sessions/two-factor/") ||
+//                url.startsWith("https://github.com/login") ||
+//                url.startsWith("https://accounts.google.com/v3/signin") ||
+//                url.startsWith("https://accounts.google.com/o/oauth2/v2/auth")
+//            ) {
+//                Log.d("shouldOverrideUrl", "APP - OAuth URL")
+//                return false
+//            }
 
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             view.context.startActivity(intent)
@@ -219,7 +219,7 @@ class HomeFragment : Fragment() {
             //    view.loadUrl("about:blank")
             //    //view.destroy()
             //    findNavController().navigate(
-            //        R.id.nav_item_setup, null, NavOptions.Builder()
+            //        R.id.nav_item_login, null, NavOptions.Builder()
             //            .setPopUpTo(R.id.nav_item_home, true)
             //            .build()
             //    )

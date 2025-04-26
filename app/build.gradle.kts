@@ -2,9 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlin.parcelize).apply {
-        javaClass.getDeclaredField("version").apply { isAccessible = true }.set(this, null)
-    }
+    //alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.parcelize)
     //alias(libs.plugins.androidx.navigation.safeargs.kotlin-gradle-plugin)
     //id("androidx.navigation.safeargs.kotlin") version "2.8.9" // Use the correct version
 }
@@ -48,6 +47,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        //dataBinding = true
     }
 }
 
