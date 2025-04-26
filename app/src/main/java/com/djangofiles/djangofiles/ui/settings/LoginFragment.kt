@@ -1,34 +1,24 @@
 package com.djangofiles.djangofiles.ui.settings
 
-import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.os.Bundle
-import android.text.Html
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.Server
 import com.djangofiles.djangofiles.ServerApi
-import com.djangofiles.djangofiles.ServerDao
-import com.djangofiles.djangofiles.ServerDatabase
 import com.djangofiles.djangofiles.databinding.FragmentLoginBinding
 import com.djangofiles.djangofiles.isURL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.core.os.bundleOf
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-
 
 class LoginFragment : Fragment() {
 
@@ -37,7 +27,6 @@ class LoginFragment : Fragment() {
 
     //private val viewModel: SettingsViewModel by viewModels()
     private val viewModel: SettingsViewModel by activityViewModels()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,18 +53,11 @@ class LoginFragment : Fragment() {
         val versionName = packageInfo.versionName
         Log.d("Main[onCreate]", "versionName: $versionName")
 
-//        val link: TextView = binding.githubLink
-//        link.text = Html.fromHtml(getString(R.string.github_link), Html.FROM_HTML_MODE_LEGACY)
-//        link.movementMethod = LinkMovementMethod.getInstance()
-
         //binding.hostnameText.setText("https://")
         binding.hostnameText.requestFocus()
 
         val loginFunction = View.OnClickListener {
             Log.d("OnClickListener", "it: ${it.id}")
-            //if (it.id == R.id.add_server_login) {
-            //    Log.d("OnClickListener", "LOGIN BUTTON")
-            //}
             val inputHost = binding.hostnameText.text.toString().trim()
             Log.d("setOnClickListener", "inputHost: $inputHost")
             val host = parseHost(inputHost)
@@ -90,18 +72,32 @@ class LoginFragment : Fragment() {
 
             //val sharedPreferences =
             //    requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            //val savedUrl = sharedPreferences.getString("saved_url", null)
+            //Log.d("getSharedPreferences", "savedUrl: $savedUrl")
             //sharedPreferences?.edit { putString("saved_url", host) }
-            //Log.d("getSharedPreferences", "saved_url: $host")
-            //findNavController().navigate(R.id.nav_item_home, null, NavOptions.Builder()
-            //    .setPopUpTo(R.id.nav_item_login, true)
-            //    .build())
 
             Log.d("showSettingsDialog", "Processing URL: $host")
             val api = ServerApi(requireContext(), host)
             lifecycleScope.launch {
                 try {
+                    // TODO: Implement version request and response, again...
                     //val versionResponse = api.version(versionName.toString())
                     //Log.d("showSettingsDialog", "versionResponse: $versionResponse")
+
+                    // TODO: This was the old code for the version endpoint...
+                    //val versionResponse = response.body()
+                    //Log.d("processShort", "versionResponse: $versionResponse")
+                    //if (versionResponse != null && versionResponse.valid) {
+                    //    Log.d("showSettingsDialog", "SUCCESS")
+                    //    sharedPreferences.edit { putString(URL_KEY, url) }
+                    //    currentUrl = url
+                    //    Log.d("showSettingsDialog", "binding.webView.loadUrl: $url")
+                    //    binding.webView.loadUrl(url)
+                    //    dismiss()
+                    //} else {
+                    //    Log.d("showSettingsDialog", "FAILURE")
+                    //    input.error = "Server Version Too Old"
+                    //}
 
                     val methodsResponse = api.methods()
                     Log.d("showSettingsDialog", "methodsResponse: $methodsResponse")
@@ -125,11 +121,18 @@ class LoginFragment : Fragment() {
         }
 
         binding.continueBtn.setOnClickListener(loginFunction)
-//        binding.addServerReturn.setOnClickListener(loginFunction)
         binding.goBackBtn.setOnClickListener {
-            findNavController().navigateUp()
+            //findNavController().navigateUp()
+            if (!findNavController().popBackStack()) {
+                requireActivity().finishAffinity()
+            }
         }
-
+        binding.websiteLink.setOnClickListener {
+            val url = binding.websiteLink.text.toString()
+            Log.d("websiteLink", "url: $url")
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+            startActivity(intent)
+        }
     }
 
     private fun parseHost(urlString: String): String {
@@ -146,10 +149,6 @@ class LoginFragment : Fragment() {
         if (url.endsWith("/")) {
             url = url.substring(0, url.length - 1)
         }
-        //if (!Patterns.WEB_URL.matcher(url).matches()) {
-        //    Log.d("parseHost", "Patterns.WEB_URL.matcher Failed")
-        //    return ""
-        //}
         return url
     }
 }

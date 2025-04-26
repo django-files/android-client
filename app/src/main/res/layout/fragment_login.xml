@@ -12,14 +12,15 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp">
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="8dp">
 
         <ImageView
             android:id="@+id/app_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="32dp"
             android:contentDescription="@string/app_name"
             android:src="@mipmap/ic_launcher" />
 
@@ -30,41 +31,26 @@
             android:padding="10dp"
             android:autofillHints="url"
             android:hint="@string/setup_host_placeholder"
-            android:inputType="textUri" />
+            android:inputType="textUri"
+            android:drawableEnd="@drawable/md_http_24px"
+            android:drawableTint="?android:attr/textColorTertiary" />
 
         <Button
             android:id="@+id/continue_btn"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:drawableEnd="@drawable/md_login_24px"
             android:paddingEnd="36dp"
             android:paddingStart="36dp"
             android:text="Continue"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-<!--        <Button-->
-<!--            android:id="@+id/go_back"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:layout_marginTop="24dp"-->
-<!--            android:paddingEnd="36dp"-->
-<!--            android:paddingStart="36dp"-->
-<!--            android:text="Go Back"-->
-<!--            android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
-<!--            android:textColor="?attr/colorPrimaryDark"-->
-<!--            android:drawableEnd="@drawable/md_undo_24px"-->
-<!--            android:drawableTint="?attr/colorPrimary"-->
-<!--            app:backgroundTint="@android:color/transparent"-->
-<!--            app:rippleColor="?attr/colorPrimary"-->
-<!--            app:strokeColor="?attr/colorPrimary"-->
-<!--            app:strokeWidth="2dp" />-->
-
         <Button
             android:id="@+id/go_back_btn"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:paddingEnd="36dp"
             android:paddingStart="36dp"
             android:text="Go Back"
@@ -76,6 +62,18 @@
             app:rippleColor="#33FFFF00"
             app:strokeColor="?android:attr/colorActivatedHighlight"
             app:strokeWidth="2dp" />
+
+        <TextView
+            android:id="@+id/website_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="https://django-files.github.io"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/holo_blue_dark"
+            android:drawablePadding="8dp"
+            app:drawableStartCompat="@drawable/md_captive_portal_24px"
+            app:drawableTint="?attr/colorControlNormal" />
 
     </LinearLayout>
 </ScrollView>

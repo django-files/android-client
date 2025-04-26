@@ -2,38 +2,29 @@ package com.djangofiles.djangofiles.ui.settings
 
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.text.Html
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.Server
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerDao
 import com.djangofiles.djangofiles.ServerDatabase
-import com.djangofiles.djangofiles.databinding.FragmentLoginBinding
-import com.djangofiles.djangofiles.isURL
+import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.core.os.bundleOf
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
-import kotlin.getValue
-import androidx.core.net.toUri
-import com.djangofiles.djangofiles.MainActivity
 
 class LoginTwoFragment : Fragment() {
 
@@ -142,9 +133,6 @@ class LoginTwoFragment : Fragment() {
 
         val oauthFunction = View.OnClickListener {
             Log.d("OnClickListener", "it: ${it.id}")
-            //when (it.id) {
-            //    binding.loginGithub.id -> ""
-            //}
             val name = it.tag as? String
             Log.d("OnClickListener", "name: $name")
             val url = authMethods.firstOrNull { it.name == name }?.url
@@ -169,7 +157,11 @@ class LoginTwoFragment : Fragment() {
         binding.loginDiscord.setOnClickListener(oauthFunction)
         binding.loginGithub.setOnClickListener(oauthFunction)
         binding.loginGoogle.setOnClickListener(oauthFunction)
-        binding.goBack.setOnClickListener { findNavController().navigateUp() }
-
+        binding.goBack.setOnClickListener {
+            findNavController().navigateUp()
+            //if (!findNavController().popBackStack()) {
+            //    requireActivity().finishAffinity()
+            //}
+        }
     }
 }

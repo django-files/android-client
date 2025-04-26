@@ -84,25 +84,27 @@ To use, share or open any file and choose the Django Files app.
 The app will then upload the file to your Django Files server.
 Additionally, the URL is copied to the clipboard and the preview show in the app.
 
-> [!IMPORTANT]  
-> If you use 2Factor, Local or GitHub OAuth is recommended.
-
 ## Features
 
-- Share or Open any file (or multiple) and automatically copy the URL to the clipboard.
+- Share or Open any file and automatically copy the URL to the clipboard.
 - Ability to add multiple servers and switch on the fly from the Server List menu.
-- Supports Local Login, GitHub OAuth, Google OAuth, Discord OAuth (w/o passkeys).
+- Supports Native Local Login, GitHub OAuth, Google OAuth, and Discord OAuth.
 - Native Upload feature from Navigation Drawer and Upload Shortcut on Icon long press.
-- Basic Native File List with Share/Open links, Infinite Scroll, Custom Per Page option.
+- Basic Native File List with Links, Preview, Infinite Scroll, Custom Per Page option.
 
 ### Planned
 
-- Ability to Shorten URL's.
-- Widget with Stats and quick options.
-- Option to Disable Preview for files and links.
-- Option to Preview file(s) before uploading w/ server selector and upload options.
-- Native App Login to support Discord passkeys and Google App Authentication.
-- Ability to Authenticate if your session (cookie) is expired or invalidated.
+- Add Default Upload Options.
+- Add Custom Options to Preview page.
+- Option to Disable Preview Page on Open, Share, and for Links.
+- Ability to Authenticate if/when your session (cookie) is expired.
+
+#### Files List
+
+- File Options on Preview
+- Context Menu Button w/ Options
+- Multi-Select w/ Options
+- Response Caching for Infinite Scroll
 
 ### Known Issues
 
