@@ -29,6 +29,16 @@ import com.djangofiles.djangofiles.ServerDao
 import com.djangofiles.djangofiles.ServerDatabase
 import com.djangofiles.djangofiles.databinding.FragmentHomeBinding
 
+//import androidx.lifecycle.lifecycleScope
+//import androidx.navigation.NavOptions
+//import androidx.navigation.fragment.findNavController
+//import com.djangofiles.djangofiles.MainActivity
+//import com.djangofiles.djangofiles.R
+//import com.djangofiles.djangofiles.Server
+//import kotlinx.coroutines.Dispatchers
+//import kotlinx.coroutines.launch
+//import kotlinx.coroutines.withContext
+
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
@@ -206,23 +216,58 @@ class HomeFragment : Fragment() {
 
         override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
             Log.d("doUpdateVisitedHistory", "url: $url")
-            //if (url.endsWith("/auth/login") == true) {
-            //    Log.d("doUpdateVisitedHistory", "LOGOUT: $url")
-            //
+            // TODO: This logic needs to be moved to a deeplink...
+            //val uri = url.toUri()
+            //if (uri.path?.startsWith("/oauth/") == true) {
             //    val sharedPreferences =
             //        view.context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            //    Log.d("doUpdateVisitedHistory", "REMOVE: authToken")
-            //    //sharedPreferences.edit { putString("auth_token", "") }
-            //    sharedPreferences.edit { remove("auth_token") }
+            //    val savedUrl = sharedPreferences.getString("saved_url", null)
+            //    Log.d("logOut", "savedUrl: $savedUrl")
+            //    sharedPreferences.edit {
+            //        remove("saved_url")
+            //        remove("auth_token")
+            //    }
+            //    val dao: ServerDao = ServerDatabase.getInstance(view.context).serverDao()
+            //    lifecycleScope.launch {
+            //        if (savedUrl != null) {
+            //            Log.d("logOut", "dao.delete: $savedUrl")
+            //            val server = Server(url = savedUrl)
+            //            Log.d("logOut", "server: $server")
+            //            withContext(Dispatchers.IO) { dao.delete(server) }
+            //        }
+            //        val servers = withContext(Dispatchers.IO) { dao.getAll() }
+            //        Log.d("logOut", "servers: $servers")
+            //        if (servers.isEmpty()) {
+            //            Log.d("logOut", "NO MORE SERVERS - LOCK TO LOGIN")
+            //            (requireActivity() as MainActivity).setDrawerLockMode(false)
+            //            // TODO: Confirm this removes history and locks user to login
+            //            findNavController().navigate(
+            //                R.id.nav_item_login, null, NavOptions.Builder()
+            //                    .setPopUpTo(R.id.nav_item_home, true)
+            //                    .build()
+            //            )
+            //        } else {
+            //            Log.d("logOut", "MORE SERVERS - ACTIVATE ONE")
+            //            //servers.firstOrNull()?.let { dao.activate(it.url) }
+            //            val server = servers.first()
+            //            Log.d("logOut", "server: $server")
+            //            withContext(Dispatchers.IO) { dao.activate(server.url) }
             //
-            //    Log.d("doUpdateVisitedHistory", "view.loadUrl: about:blank")
-            //    view.loadUrl("about:blank")
-            //    //view.destroy()
-            //    findNavController().navigate(
-            //        R.id.nav_item_login, null, NavOptions.Builder()
-            //            .setPopUpTo(R.id.nav_item_home, true)
-            //            .build()
-            //    )
+            //            sharedPreferences.edit().apply {
+            //                putString("saved_url", server.url)
+            //                putString("auth_token", server.token)
+            //                apply()
+            //            }
+            //
+            //            Log.d("logOut", "navigate: nav_item_login")
+            //            // TODO: Determine proper navigate call here...
+            //            findNavController().navigate(
+            //                R.id.nav_item_settings, null, NavOptions.Builder()
+            //                    .setPopUpTo(R.id.nav_item_home, true)
+            //                    .build()
+            //            )
+            //        }
+            //    }
             //}
         }
 

@@ -107,8 +107,8 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 ### Known Issues
 
 - The app gets logged out if the session expires; however, sharing continues to work.
-- Deleting the active server does not deactivate it, and it remains active until selecting another server.
-- Uploading files from the website works; however, taking picture and recording video and audio does not.
+- Uploading files from the website works; however, taking picture and recording video/audio does not.
+- Logging out and deleting servers may have some unexpected results but should work.
 
 Note: If the app gets in a bad state, clear the app data or reinstall the application.
 

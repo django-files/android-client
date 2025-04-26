@@ -14,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerDao
+import com.djangofiles.djangofiles.ServerDatabase
 import com.djangofiles.djangofiles.databinding.FragmentLoginBinding
 import com.djangofiles.djangofiles.isURL
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +82,19 @@ class LoginFragment : Fragment() {
             val api = ServerApi(requireContext(), host)
             lifecycleScope.launch {
                 try {
+                    val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()
+                    val server = withContext(Dispatchers.IO) { dao.getByUrl(host) }
+                    Log.d("OMG", "server: $server")
+                    if (server != null) {
+                        Log.i("OMG", "Duplicate Hostname")
+                        val msg = "Duplicate Hostname"
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                        }
+                        binding.hostnameText.error = msg
+                        return@launch
+                    }
+
                     // TODO: Implement version request and response, again...
                     //val versionResponse = api.version(versionName.toString())
                     //Log.d("showSettingsDialog", "versionResponse: $versionResponse")

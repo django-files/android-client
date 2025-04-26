@@ -115,8 +115,17 @@ class LoginTwoFragment : Fragment() {
                 Log.d("OMG", "SUCCESS")
                 val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()
                 Log.d("OMG", "dao.add Server url = $hostname")
-                withContext(Dispatchers.IO) {
-                    dao.add(Server(url = hostname, token = token, active = true))
+                try {
+                    withContext(Dispatchers.IO) {
+                        dao.add(Server(url = hostname, token = token, active = true))
+                    }
+                } catch (e: Exception) {
+                    val msg = e.message ?: "Unknown Error"
+                    Log.e("OMG", "Exception: msg: $msg")
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
                 }
                 sharedPreferences.edit {
                     putString("saved_url", hostname)
