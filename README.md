@@ -98,22 +98,19 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 - Add Custom Options to Preview page.
 - Option to Disable Preview Page on Open, Share, and for Links.
 - Ability to Authenticate if/when your session (cookie) is expired.
-
-#### Files List
-
-- File Options on Preview
-- Context Menu Button w/ Options
-- Multi-Select w/ Options
-- Response Caching for Infinite Scroll
+- Files List
+  - File Options on Preview
+  - Context Menu Button w/ Options
+  - Multi-Select w/ Options
+  - Response Caching for Infinite Scroll
 
 ### Known Issues
 
-- Login with Discord OAuth passkeys does not work.
-- Login with Google OAuth gives an error; however, may succeed if you wait ~30 seconds.
 - The app gets logged out if the session expires; however, sharing continues to work.
-  - Upon logging back in, you may need to leave the app open (in the background) for ~30 seconds to allow the cookie to be saved.
 - Deleting the active server does not deactivate it, and it remains active until selecting another server.
 - Uploading files from the website works; however, taking picture and recording video and audio does not.
+
+Note: If the app gets in a bad state, clear the app data or reinstall the application.
 
 # Development
 
