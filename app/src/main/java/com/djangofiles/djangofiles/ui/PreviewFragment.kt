@@ -204,9 +204,6 @@ class PreviewFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         if (fileResponse != null) {
                             copyToClipboard(requireContext(), fileResponse.url)
-                            val msg = getString(R.string.tst_copied_clipboard)
-                            Log.d("processUpload", "msg: $msg")
-                            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                             navController.navigate(
                                 R.id.nav_item_home,
                                 bundleOf("url" to fileResponse.url),

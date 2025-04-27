@@ -444,12 +444,16 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-fun copyToClipboard(context: Context, url: String) {
+fun copyToClipboard(context: Context, url: String, msg: String? = null) {
     Log.d("copyToClipboard", "url: $url")
+    var message = msg
+    if (msg == null){
+        message = context.getString(R.string.tst_copied_clipboard)
+    }
     val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("URL", url)
     clipboard.setPrimaryClip(clip)
-    Toast.makeText(context, "Copied URL to Clipboard.", Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
 fun isURL(url: String): Boolean {

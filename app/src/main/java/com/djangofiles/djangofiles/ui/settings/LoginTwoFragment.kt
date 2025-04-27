@@ -25,6 +25,7 @@ import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.view.isVisible
 
 class LoginTwoFragment : Fragment() {
 
@@ -78,6 +79,10 @@ class LoginTwoFragment : Fragment() {
                 "github" -> binding.loginGithub.visibility = View.VISIBLE
                 "google" -> binding.loginGoogle.visibility = View.VISIBLE
             }
+        }
+
+        if (binding.loginLocal.isVisible){
+            binding.loginUsername.requestFocus()
         }
 
         val sharedPreferences =
