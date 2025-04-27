@@ -152,8 +152,6 @@ class ShortFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         if (shortResponse != null) {
                             copyToClipboard(requireContext(), shortResponse.url)
-                            val msg = getString(R.string.tst_copied_clipboard)
-                            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                             val shareUrl = sharedPreferences.getBoolean("share_after_short", true)
                             Log.d("processShort", "shareUrl: $shareUrl")
                             if (shareUrl) {

@@ -56,6 +56,7 @@ class LoginFragment : Fragment() {
         Log.d("Main[onCreate]", "versionName: $versionName")
 
         binding.hostnameText.requestFocus()
+        binding.hostnameText.setSelection(binding.hostnameText.text.length)
 
         val loginFunction = View.OnClickListener {
             Log.d("OnClickListener", "it: ${it.id}")
