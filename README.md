@@ -98,7 +98,7 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 - Add Custom Options to Preview page.
 - Option to Disable Preview Page on Open, Share, and for Links.
 - Ability to Authenticate if/when your session (cookie) is expired.
-- Files List
+- File List
   - File Options on Preview
   - Context Menu Button w/ Options
   - Multi-Select w/ Options

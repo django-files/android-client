@@ -21,15 +21,16 @@
             android:layout_gravity="center"
             android:layout_margin="4dp"
             android:visibility="gone" />
+
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/file_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/file_list"
-            android:scaleType="centerInside"
+            android:scaleType="center"
             android:src="@drawable/md_docs_24"
-            app:strokeWidth="1dp"
-            app:strokeColor="?android:colorControlNormal" />
+            app:strokeColor="?android:colorControlNormal"
+            app:strokeWidth="1dp" />
     </FrameLayout>
 
     <LinearLayout

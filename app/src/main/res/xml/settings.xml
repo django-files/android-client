@@ -3,11 +3,11 @@
 
     <PreferenceCategory android:title="File List">
         <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:icon="@drawable/md_signal_cellular_alt_24"
-            android:key="file_preview_metered"
-            android:title="Load Images on Metered Connection"
-            android:summary="For Files List"/>
+            android:defaultValue="true"
+            android:icon="@drawable/md_auto_read_play_24px"
+            android:key="file_preview_autoplay"
+            android:title="Auto Play Media on Preview"
+            android:summary="For File Preview"/>
 
         <androidx.preference.SeekBarPreference
             android:key="files_per_page"
@@ -17,6 +17,13 @@
             android:max="100"
             app:min="10"
             app:showSeekBarValue="true" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/md_signal_cellular_alt_24"
+            android:key="file_preview_metered"
+            android:title="Load Images on Metered Connection"
+            android:summary="For File List"/>
     </PreferenceCategory>
 
     <PreferenceCategory>
@@ -24,7 +31,8 @@
             android:defaultValue="true"
             android:icon="@drawable/md_share_24"
             android:key="share_after_short"
-            android:title="Share URL After Short Generation" />
+            android:title="Share URL After Generation"
+            android:summary="For URL Shortening" />
 
         <Preference
             android:key="add_server_btn"

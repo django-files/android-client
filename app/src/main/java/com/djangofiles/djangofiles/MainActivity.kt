@@ -447,7 +447,7 @@ class MainActivity : AppCompatActivity() {
 fun copyToClipboard(context: Context, url: String, msg: String? = null) {
     Log.d("copyToClipboard", "url: $url")
     var message = msg
-    if (msg == null){
+    if (msg == null) {
         message = context.getString(R.string.tst_copied_clipboard)
     }
     val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
