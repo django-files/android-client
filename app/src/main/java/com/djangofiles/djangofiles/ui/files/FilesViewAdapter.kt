@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles.ui.files
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -12,14 +11,11 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.navigation.ActivityNavigatorExtras
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -31,11 +27,12 @@ import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi.RecentResponse
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
-import androidx.core.util.Pair as UtilPair
 
+//import android.widget.ImageView
 //import android.net.ConnectivityManager
 //import androidx.fragment.app.FragmentActivity
 //import androidx.navigation.fragment.FragmentNavigatorExtras
+//import androidx.core.util.Pair as UtilPair
 
 class FilesViewAdapter(
     private val context: Context,
@@ -69,8 +66,9 @@ class FilesViewAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val data = dataSet[position]
         //Log.i("onBindViewHolder", "data[$position]: $data")
-        //Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
+        Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
 
+        // Setup
         val typedValue = TypedValue()
         val theme = context.theme
         theme.resolveAttribute(
@@ -115,7 +113,36 @@ class FilesViewAdapter(
             openUrl(data.url)
         }
 
-        // Image
+        // Variables
+        val viewUrl = "${data.raw}?view=gallery"
+        val thumbUrl =
+            data.thumb + if (data.password.isNotEmpty()) "&password=${data.password}" else ""
+
+        val bundle = Bundle().apply {
+            putInt("fileId", data.id)
+            putString("fileName", data.name)
+            putString("mimeType", data.mime)
+            putString("viewUrl", viewUrl)
+            putString("thumbUrl", thumbUrl)
+        }
+
+        // Preview - itemView Click
+        viewHolder.itemView.setOnClickListener {
+            // TODO: Setup proper transition/animation
+            //val activity = context as Activity
+            //val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+            //    activity,
+            //    UtilPair.create(viewHolder.fileImage, data.id.toString())
+            //)
+            //val extras = ActivityNavigatorExtras(options)
+            //
+            //val extras = FragmentNavigatorExtras(viewHolder.fileImage to data.id.toString())
+            //it.findNavController()
+            //    .navigate(R.id.nav_item_files_action_preview, bundle, null, extras)
+            it.findNavController().navigate(R.id.nav_item_files_action_preview, bundle)
+        }
+
+        // Image - Holder
         val radius = context.resources.getDimension(R.dimen.image_preview_small)
         viewHolder.fileImage.setShapeAppearanceModel(
             viewHolder.fileImage.shapeAppearanceModel
@@ -123,23 +150,9 @@ class FilesViewAdapter(
                 .setAllCorners(CornerFamily.ROUNDED, radius)
                 .build()
         )
+        //viewHolder.fileImage.transitionName = data.id.toString()
 
-        val setGenericIcon = {
-            when {
-                isCodeMime(data.mime) -> viewHolder.fileImage.setImageResource(R.drawable.md_code_blocks_24)
-                data.mime.startsWith("application/json") -> viewHolder.fileImage.setImageResource(R.drawable.md_file_json_24)
-                data.mime.startsWith("application/pdf") -> viewHolder.fileImage.setImageResource(R.drawable.md_picture_as_pdf_24)
-                data.mime.startsWith("image/gif") -> viewHolder.fileImage.setImageResource(R.drawable.md_gif_box_24)
-                data.mime.startsWith("image/png") -> viewHolder.fileImage.setImageResource(R.drawable.md_file_png_24)
-                data.mime.startsWith("text/csv") -> viewHolder.fileImage.setImageResource(R.drawable.md_csv_24)
-                data.mime.startsWith("audio/") -> viewHolder.fileImage.setImageResource(R.drawable.md_music_note_24)
-                data.mime.startsWith("image/") -> viewHolder.fileImage.setImageResource(R.drawable.md_imagesmode_24)
-                data.mime.startsWith("text/") -> viewHolder.fileImage.setImageResource(R.drawable.md_docs_24)
-                data.mime.startsWith("video/") -> viewHolder.fileImage.setImageResource(R.drawable.md_videocam_24)
-                else -> viewHolder.fileImage.setImageResource(R.drawable.md_unknown_document_24)
-            }
-        }
-
+        // Image - Glide Listener
         val glideListener = object : RequestListener<Drawable> {
             override fun onLoadFailed(
                 e: GlideException?,
@@ -149,7 +162,7 @@ class FilesViewAdapter(
             ): Boolean {
                 //Log.d("Glide", "onLoadFailed: ${data.name}")
                 viewHolder.loadingSpinner.visibility = View.GONE
-                setGenericIcon()
+                viewHolder.fileImage.setImageResource(getGenericIcon(data.mime))
                 return true
             }
 
@@ -162,20 +175,14 @@ class FilesViewAdapter(
             ): Boolean {
                 //Log.d("Glide", "onResourceReady: ${data.name}")
                 viewHolder.loadingSpinner.visibility = View.GONE
-                viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_CROP
+                //viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_CROP
                 return false
             }
         }
 
-        viewHolder.fileImage.scaleType = ImageView.ScaleType.CENTER_INSIDE
-
-        //viewHolder.fileImage.transitionName = data.id.toString()
-
+        // Image - Logic
         if (isGlideMime(data.mime)) {
             viewHolder.loadingSpinner.visibility = View.VISIBLE
-            val viewUrl = "${data.raw}?view=gallery"
-            val thumbUrl =
-                data.thumb + if (data.password.isNotEmpty()) "&password=${data.password}" else ""
             //Log.d("Glide", "load: ${data.id}: ${data.mime}: $thumbUrl")
             Glide.with(viewHolder.itemView)
                 .load(thumbUrl)
@@ -183,40 +190,23 @@ class FilesViewAdapter(
                 .listener(glideListener)
                 .into(viewHolder.fileImage)
 
-            viewHolder.fileImage.transitionName = data.id.toString()
+            //viewHolder.fileImage.transitionName = data.id.toString()
+            //Log.d("FilesPreviewFragment", "transitionName: ${viewHolder.fileImage.transitionName}")
 
-            viewHolder.previewLink.setOnClickListener {
-                val bundle = Bundle().apply {
-                    putString("viewUrl", viewUrl)
-                    putString("thumbUrl", thumbUrl)
-                    putInt("fileId", data.id)
-                }
-                //val extras = FragmentNavigatorExtras(viewHolder.fileImage to data.id.toString())
-
-                val activity = context as Activity
-                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    activity,
-                    UtilPair.create(viewHolder.fileImage, data.id.toString())
-                )
-                val extras = ActivityNavigatorExtras(options)
-
-                it.findNavController()
-                    .navigate(R.id.nav_item_files_action_preview, bundle, null, extras)
-            }
-
-            // TODO: Refactor the BottomBitch as a context menu...
-            //viewHolder.fileImage.setOnClickListener {
-            //    val bottomSheet = FilesBottomSheet.newInstance(thumbUrl)
-            //    bottomSheet.show(
-            //        (context as FragmentActivity).supportFragmentManager,
-            //        bottomSheet.tag
-            //    )
-            //}
         } else {
-            setGenericIcon()
-            viewHolder.fileImage.transitionName = null
-            viewHolder.previewLink.setOnClickListener { }
+            viewHolder.fileImage.setImageResource(getGenericIcon(data.mime))
+            //viewHolder.fileImage.transitionName = null
+            //viewHolder.previewLink.setOnClickListener { }
         }
+
+        //// TODO: Refactor the BottomBitch as a context menu...
+        //viewHolder.fileImage.setOnClickListener {
+        //    val bottomSheet = FilesBottomSheet.newInstance(thumbUrl)
+        //    bottomSheet.show(
+        //        (context as FragmentActivity).supportFragmentManager,
+        //        bottomSheet.tag
+        //    )
+        //}
     }
 
     override fun getItemCount() = dataSet.size
@@ -229,38 +219,6 @@ class FilesViewAdapter(
 
     fun getData(): List<RecentResponse> {
         return dataSet
-    }
-
-    private fun isGlideMime(mimeType: String): Boolean {
-        return when (mimeType.lowercase()) {
-            "image/jpeg",
-            "image/png",
-            "image/gif",
-            "image/webp",
-            "image/heif",
-            "video/mp4",
-                -> true
-
-            else -> false
-        }
-    }
-
-    private fun isCodeMime(mimeType: String): Boolean {
-        if (mimeType.startsWith("text/x-script")) return true
-        return when (mimeType.lowercase()) {
-            "application/javascript",
-            "application/x-httpd-php",
-            "application/x-python",
-            "text/javascript",
-            "text/python",
-            "text/x-go",
-            "text/x-ruby",
-            "text/x-php",
-            "text/x-shellscript",
-                -> true
-
-            else -> false
-        }
     }
 
     private fun openUrl(url: String) {
@@ -285,4 +243,50 @@ class FilesViewAdapter(
         bytes >= 1 shl 10 -> "%.0f kB".format(bytes / (1 shl 10))
         else -> "$bytes b"
     }
+}
+
+fun isGlideMime(mimeType: String): Boolean {
+    return when (mimeType.lowercase()) {
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+        "image/heif",
+        "video/mp4",
+            -> true
+
+        else -> false
+    }
+}
+
+fun isCodeMime(mimeType: String): Boolean {
+    if (mimeType.startsWith("text/x-script")) return true
+    return when (mimeType.lowercase()) {
+        "application/javascript",
+        "application/x-httpd-php",
+        "application/x-python",
+        "text/javascript",
+        "text/python",
+        "text/x-go",
+        "text/x-ruby",
+        "text/x-php",
+        "text/x-shellscript",
+            -> true
+
+        else -> false
+    }
+}
+
+fun getGenericIcon(mimeType: String): Int = when {
+    isCodeMime(mimeType) -> R.drawable.md_code_blocks_24
+    mimeType.startsWith("application/json") -> R.drawable.md_file_json_24
+    mimeType.startsWith("application/pdf") -> R.drawable.md_picture_as_pdf_24
+    mimeType.startsWith("image/gif") -> R.drawable.md_gif_box_24
+    mimeType.startsWith("image/png") -> R.drawable.md_file_png_24
+    mimeType.startsWith("text/csv") -> R.drawable.md_csv_24
+    mimeType.startsWith("audio/") -> R.drawable.md_music_note_24
+    mimeType.startsWith("image/") -> R.drawable.md_imagesmode_24
+    mimeType.startsWith("text/") -> R.drawable.md_docs_24
+    mimeType.startsWith("video/") -> R.drawable.md_videocam_24
+    else -> R.drawable.md_unknown_document_24
 }

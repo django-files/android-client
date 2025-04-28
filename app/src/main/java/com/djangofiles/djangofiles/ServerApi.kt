@@ -86,7 +86,7 @@ class ServerApi(context: Context, host: String) {
     }
 
     suspend fun methods(): MethodsResponse {
-        Log.e("Api[methods]", "getMethods")
+        Log.d("Api[methods]", "getMethods")
         return api.getMethods()
     }
 

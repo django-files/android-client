@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
@@ -110,8 +111,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
             .setPositiveButton("Delete") { _, _ ->
                 CoroutineScope(Dispatchers.IO).launch {
                     dao.delete(server)
+                    val servers = dao.getAll()
+                    if (!servers.isEmpty()) {
+                        Log.d("processLogout", "ACTIVATE FIRST SERVER")
+                        val newServer = servers.first()
+                        Log.d("processLogout", "newServer: $newServer")
+                        dao.activate(newServer.url)
+                        preferenceManager.sharedPreferences!!.edit().apply {
+                            putString("saved_url", newServer.url)
+                            putString("auth_token", newServer.token)
+                            apply()
+                        }
+                    } else {
+                        Log.d("processLogout", "NO SERVERS - LOCK OUT")
+                        // TODO: Confirm this removes history and locks user to login
+                        findNavController().navigate(
+                            R.id.nav_item_login, null, NavOptions.Builder()
+                                .setPopUpTo(R.id.nav_item_settings, true)
+                                .build()
+                        )
+                    }
+                    buildServerList()
                 }
-                buildServerList()
             }
             .setNegativeButton("Cancel", null)
             .show()

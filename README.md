@@ -90,7 +90,8 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 - Ability to add multiple servers and switch on the fly from the Server List menu.
 - Supports Native Local Login, GitHub OAuth, Google OAuth, and Discord OAuth.
 - Native Upload feature from Navigation Drawer and Upload Shortcut on Icon long press.
-- Basic Native File List with Links, Preview, Infinite Scroll, Custom Per Page option.
+- Basic Native File List with Open, Share, Preview, Infinite Scroll, Custom Options.
+- File Previews for Images, Video, and Audio via Glide and ExoPlayer.
 
 ### Planned
 
@@ -98,11 +99,15 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 - Add Custom Options to Preview page.
 - Option to Disable Preview Page on Open, Share, and for Links.
 - Ability to Authenticate if/when your session (cookie) is expired.
-- Files List
-  - File Options on Preview
-  - Context Menu Button w/ Options
-  - Multi-Select w/ Options
+- File List
+  - Context Menu with Options
+  - Multi-Select with Options
   - Response Caching for Infinite Scroll
+- File Preview
+  - Caching for Video/Audio
+  - File Options
+  - Text/Code Previews
+  - PDF Previews
 
 ### Known Issues
 

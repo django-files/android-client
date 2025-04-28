@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -25,7 +26,6 @@ import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.core.view.isVisible
 
 class LoginTwoFragment : Fragment() {
 
@@ -81,7 +81,7 @@ class LoginTwoFragment : Fragment() {
             }
         }
 
-        if (binding.loginLocal.isVisible){
+        if (binding.loginLocal.isVisible) {
             binding.loginUsername.requestFocus()
         }
 

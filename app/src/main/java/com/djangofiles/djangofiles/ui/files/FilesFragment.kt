@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +24,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+//import android.net.Network
+//import android.net.NetworkCapabilities
+//import android.net.NetworkRequest
 //import android.view.Gravity
 //import android.view.ViewTreeObserver
 //import androidx.core.view.doOnPreDraw
@@ -43,6 +47,13 @@ class FilesFragment : Fragment() {
     private lateinit var filesAdapter: FilesViewAdapter
 
     private val viewModel: FilesViewModel by viewModels()
+
+    //private lateinit var connectivityManager: ConnectivityManager
+    //
+    //override fun onCreate(savedInstanceState: Bundle?) {
+    //    super.onCreate(savedInstanceState)
+    //    connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    //}
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -92,6 +103,8 @@ class FilesFragment : Fragment() {
             Toast.makeText(context, "Missing Auth Token!", Toast.LENGTH_LONG).show()
             return
         }
+        val cacheWarning = sharedPreferences.getBoolean("preview_cache_warning", false)
+        Log.i("File[onViewCreated]", "cacheWarning: $cacheWarning")
         val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
         Log.i("File[onViewCreated]", "previewMetered: $previewMetered")
         val connectivityManager =
@@ -99,6 +112,39 @@ class FilesFragment : Fragment() {
         Log.i("File[onViewCreated]", "METERED: ${connectivityManager.isActiveNetworkMetered}")
         val isMetered = if (previewMetered) false else connectivityManager.isActiveNetworkMetered
         Log.i("File[onViewCreated]", "isMetered: $isMetered")
+
+        if (!cacheWarning) {
+            binding.previewCacheWarning.visibility = View.VISIBLE
+            binding.previewCacheWarning.setOnClickListener {
+                //binding.meteredText.visibility = View.GONE
+                binding.previewCacheWarning.animate()
+                    .translationY(-binding.previewCacheWarning.height.toFloat())
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction {
+                        binding.previewCacheWarning.visibility = View.GONE
+                    }
+                    .start()
+                sharedPreferences.edit {
+                    putBoolean("preview_cache_warning", true)
+                }
+            }
+        }
+
+        if (connectivityManager.isActiveNetworkMetered) {
+            binding.meteredText.visibility = View.VISIBLE
+            binding.meteredText.setOnClickListener {
+                //binding.meteredText.visibility = View.GONE
+                binding.meteredText.animate()
+                    .translationY(-binding.meteredText.height.toFloat())
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction {
+                        binding.meteredText.visibility = View.GONE
+                    }
+                    .start()
+            }
+        }
 
         if (viewModel.savedUrl.value != null) {
             Log.d("File[onViewCreated]", "SAVED DATA FOR URL: ${viewModel.savedUrl.value}")
@@ -216,6 +262,31 @@ class FilesFragment : Fragment() {
         }
     }
 
+    //private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+    //    override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+    //        val isMetered = connectivityManager.isActiveNetworkMetered
+    //        Log.d("onCapabilitiesChanged", "isMetered: $isMetered")
+    //    }
+    //
+    //    override fun onLost(network: Network) {
+    //        val isMetered = connectivityManager.isActiveNetworkMetered
+    //        Log.d("onLost", "isMetered: $isMetered")
+    //    }
+    //}
+    //
+    //override fun onStart() {
+    //    Log.d("File[onStart]", "ON START")
+    //    super.onStart()
+    //    val request = NetworkRequest.Builder().build()
+    //    connectivityManager.registerNetworkCallback(request, networkCallback)
+    //}
+    //
+    //override fun onStop() {
+    //    Log.d("File[onStop]", "ON STOP")
+    //    super.onStop()
+    //    connectivityManager.unregisterNetworkCallback(networkCallback)
+    //}
+    //
     override fun onPause() {
         Log.d("File[onPause]", "ON PAUSE")
         super.onPause()

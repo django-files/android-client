@@ -4,18 +4,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity" >
+    android:transitionGroup="true"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/preview_cache_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Notice: Video and Audio Previews are NOT Cached. Every request is from the network. Only use on WiFi."
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="13sp"
+        android:background="@android:color/holo_red_dark"
+        android:padding="4dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="parent"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/metered_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorOnPrimaryFixedVariant"
+        android:text="You are on a Metered Connection."
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preview_cache_warning"
+        app:layout_goneMarginTop="0dp"
+        tools:visibility="visible" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/files_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:clipToPadding="false"
         android:contentDescription="@string/file_list"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/metered_text"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_goneMarginTop="0dp"
         tools:itemCount="12"
         tools:layoutManager="LinearLayoutManager"
         tools:listitem="@layout/file_item_files" />
@@ -25,8 +61,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:visibility="visible"
         android:indeterminate="true"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
