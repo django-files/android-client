@@ -66,7 +66,7 @@ class FilesViewAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val data = dataSet[position]
         //Log.i("onBindViewHolder", "data[$position]: $data")
-        Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
+        //Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
 
         // Setup
         val typedValue = TypedValue()
