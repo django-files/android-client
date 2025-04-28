@@ -18,12 +18,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.database.StandaloneDatabaseProvider
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
+import androidx.media3.datasource.cache.SimpleCache
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
@@ -33,6 +40,7 @@ import com.djangofiles.djangofiles.ui.home.HomeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
@@ -41,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
 
+    @OptIn(UnstableApi::class)
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +72,8 @@ class MainActivity : AppCompatActivity() {
         versionTextView.text = "v${versionName}"
 
         binding.drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
+
+        MediaCache.initialize(this)
 
         val itemPathMap = mapOf(
             R.id.nav_site_home to "",
@@ -440,6 +451,26 @@ class MainActivity : AppCompatActivity() {
                 //        .build()
                 //)
             }
+        }
+    }
+}
+
+@UnstableApi
+object MediaCache {
+    lateinit var simpleCache: SimpleCache
+    lateinit var cacheDataSourceFactory: CacheDataSource.Factory
+
+    fun initialize(context: Context) {
+        if (!::simpleCache.isInitialized) {
+            simpleCache = SimpleCache(
+                File(context.cacheDir, "exoCache"),
+                LeastRecentlyUsedCacheEvictor(500 * 1024 * 1024),
+                StandaloneDatabaseProvider(context)
+            )
+            cacheDataSourceFactory = CacheDataSource.Factory()
+                .setCache(simpleCache)
+                .setUpstreamDataSourceFactory(DefaultHttpDataSource.Factory())
+                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
         }
     }
 }

@@ -13,7 +13,6 @@
 
 ## File Preview
 
-- Add ExoPlayer Caching
 - Add Text Previews
 - Add PDF Previews
 - Add Options

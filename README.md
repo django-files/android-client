@@ -104,7 +104,6 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
   - Multi-Select with Options
   - Response Caching for Infinite Scroll
 - File Preview
-  - Caching for Video/Audio
   - File Options
   - Text/Code Previews
   - PDF Previews
@@ -112,8 +111,8 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 ### Known Issues
 
 - The app gets logged out if the session expires; however, sharing continues to work.
-- Uploading files from the website works; however, taking picture and recording video/audio does not.
-- Logging out and deleting servers may have some unexpected results but should work.
+- Uploading files from the website works; however, taking picture/recording does not.
+- Logging out and deleting servers may have some unexpected results, but should work.
 
 Note: If the app gets in a bad state, clear the app data or reinstall the application.
 
@@ -127,7 +126,7 @@ This section briefly covers running and building in [Android Studio](#Android-St
 
 1. Download and Install Android Studio.
 
-https://developer.android.com/studio
+   https://developer.android.com/studio
 
 2. Ensure that usb or wifi debugging is enabled in the Android developer settings and verify.
 

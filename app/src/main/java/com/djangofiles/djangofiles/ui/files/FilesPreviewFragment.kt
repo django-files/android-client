@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
@@ -19,6 +20,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.djangofiles.djangofiles.MediaCache
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
 
 //import android.view.Gravity
@@ -85,9 +87,9 @@ class FilesPreviewFragment : Fragment() {
         //Log.d("FilesPreviewFragment", "transitionName: ${imageView.transitionName}")
 
         if (mimeType?.startsWith("video/") == true || mimeType?.startsWith("audio/") == true) {
-            Log.d("FilesPreviewFragment", "EXOPLAYER LOAD")
-
+            Log.d("FilesPreviewFragment", "EXOPLAYER")
             binding.playerView.visibility = View.VISIBLE
+
             player = ExoPlayer.Builder(requireContext()).build()
             binding.playerView.player = player
             binding.playerView.controllerShowTimeoutMs = 1000
@@ -103,7 +105,9 @@ class FilesPreviewFragment : Fragment() {
             //})
 
             val mediaItem = MediaItem.fromUri(viewUrl!!)
-            player.setMediaItem(mediaItem)
+            val mediaSource = ProgressiveMediaSource.Factory(MediaCache.cacheDataSourceFactory)
+                .createMediaSource(mediaItem)
+            player.setMediaSource(mediaSource)
             player.prepare()
             if (autoPlay) {
                 Log.d("FilesPreviewFragment", "player.play")
@@ -126,8 +130,7 @@ class FilesPreviewFragment : Fragment() {
             //)
 
         } else if (isGlideMime(mimeType.toString())) {
-            Log.d("FilesPreviewFragment", "GLIDE LOAD")
-
+            Log.d("FilesPreviewFragment", "GLIDE")
             binding.previewImageView.visibility = View.VISIBLE
 
             //Glide.with(this)
@@ -135,7 +138,6 @@ class FilesPreviewFragment : Fragment() {
             //    .into(imageView)
 
             postponeEnterTransition()
-
             Glide.with(this)
                 .load(thumbUrl)
                 .listener(object : RequestListener<Drawable> {
@@ -168,7 +170,7 @@ class FilesPreviewFragment : Fragment() {
             }
 
         } else {
-            Log.d("FilesPreviewFragment", "NO PREVIEW 4 U")
+            Log.d("FilesPreviewFragment", "OTHER - NO PREVIEW")
 
             binding.previewImageView.visibility = View.VISIBLE
             binding.previewImageView.setImageResource(getGenericIcon(mimeType.toString()))
