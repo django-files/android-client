@@ -8,22 +8,6 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/preview_cache_warning"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Notice: Video and Audio Previews are NOT Cached. Every request is from the network. Only use on WiFi."
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        android:textSize="13sp"
-        android:background="@android:color/holo_red_dark"
-        android:padding="4dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="parent"
-        tools:visibility="visible" />
-
-    <TextView
         android:id="@+id/metered_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,9 +17,9 @@
         android:textColor="@android:color/white"
         android:textSize="12sp"
         android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview_cache_warning"
         app:layout_goneMarginTop="0dp"
         tools:visibility="visible" />
 
@@ -45,11 +29,11 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:contentDescription="@string/file_list"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/metered_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintVertical_bias="0.0"
         app:layout_goneMarginTop="0dp"
         tools:itemCount="12"

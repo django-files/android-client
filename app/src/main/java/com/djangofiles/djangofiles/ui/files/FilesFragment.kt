@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
-import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -103,8 +102,6 @@ class FilesFragment : Fragment() {
             Toast.makeText(context, "Missing Auth Token!", Toast.LENGTH_LONG).show()
             return
         }
-        val cacheWarning = sharedPreferences.getBoolean("preview_cache_warning", false)
-        Log.i("File[onViewCreated]", "cacheWarning: $cacheWarning")
         val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
         Log.i("File[onViewCreated]", "previewMetered: $previewMetered")
         val connectivityManager =
@@ -112,24 +109,6 @@ class FilesFragment : Fragment() {
         Log.i("File[onViewCreated]", "METERED: ${connectivityManager.isActiveNetworkMetered}")
         val isMetered = if (previewMetered) false else connectivityManager.isActiveNetworkMetered
         Log.i("File[onViewCreated]", "isMetered: $isMetered")
-
-        if (!cacheWarning) {
-            binding.previewCacheWarning.visibility = View.VISIBLE
-            binding.previewCacheWarning.setOnClickListener {
-                //binding.meteredText.visibility = View.GONE
-                binding.previewCacheWarning.animate()
-                    .translationY(-binding.previewCacheWarning.height.toFloat())
-                    .alpha(0f)
-                    .setDuration(300)
-                    .withEndAction {
-                        binding.previewCacheWarning.visibility = View.GONE
-                    }
-                    .start()
-                sharedPreferences.edit {
-                    putBoolean("preview_cache_warning", true)
-                }
-            }
-        }
 
         if (connectivityManager.isActiveNetworkMetered) {
             binding.meteredText.visibility = View.VISIBLE

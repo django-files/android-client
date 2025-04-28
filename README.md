@@ -104,7 +104,6 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
   - Multi-Select with Options
   - Response Caching for Infinite Scroll
 - File Preview
-  - Caching for Video/Audio
   - File Options
   - Text/Code Previews
   - PDF Previews
