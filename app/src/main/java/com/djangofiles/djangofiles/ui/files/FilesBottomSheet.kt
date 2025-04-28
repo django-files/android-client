@@ -11,6 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 
+// TODO: This is currently not used and will be refactored...
 class FilesBottomSheet : BottomSheetDialogFragment() {
 
     private var imageUrl: String? = null

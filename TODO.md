@@ -9,8 +9,14 @@
 
 - Add Context Menu
 - Add Multi-Select
-- Add Options to Preview
 - Add Swiper to Preview
+
+## File Preview
+
+- Add ExoPlayer Caching
+- Add Text Previews
+- Add PDF Previews
+- Add Options
 
 ## Settings
 
@@ -20,3 +26,7 @@
 ## Retrofit
 
 - Implement Version Check
+
+## Room
+
+- Move Room to Directory

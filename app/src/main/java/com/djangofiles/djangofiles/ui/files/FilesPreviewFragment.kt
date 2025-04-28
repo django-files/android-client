@@ -57,14 +57,24 @@ class FilesPreviewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("FilesPre[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
+        binding.goBack.setOnClickListener {
+            Log.d("FilesPreviewFragment", "GO BACK")
+            //findNavController().popBackStack()
+            findNavController().navigateUp()
+        }
+
         val fileId = arguments?.getInt("fileId")
         Log.d("FilesPreviewFragment", "fileId: $fileId")
+        val fileName = arguments?.getString("fileName")
+        Log.d("FilesPreviewFragment", "fileName: $fileName")
         val mimeType = arguments?.getString("mimeType")
         Log.d("FilesPreviewFragment", "mimeType: $mimeType")
         val thumbUrl = arguments?.getString("thumbUrl")
         Log.d("FilesPreviewFragment", "thumbUrl: $thumbUrl")
         val viewUrl = arguments?.getString("viewUrl")
         Log.d("FilesPreviewFragment", "viewUrl: $viewUrl")
+
+        binding.fileName.text = fileName
 
         val sharedPreferences =
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -74,18 +84,13 @@ class FilesPreviewFragment : Fragment() {
         binding.playerView.transitionName = fileId.toString()
         //Log.d("FilesPreviewFragment", "transitionName: ${imageView.transitionName}")
 
-        //Glide.with(this)
-        //    .load(thumbUrl)
-        //    .into(imageView)
-
         if (mimeType?.startsWith("video/") == true || mimeType?.startsWith("audio/") == true) {
             Log.d("FilesPreviewFragment", "EXOPLAYER LOAD")
 
             binding.playerView.visibility = View.VISIBLE
             player = ExoPlayer.Builder(requireContext()).build()
             binding.playerView.player = player
-            //binding.playerView.controllerAutoShow = false
-            binding.playerView.controllerShowTimeoutMs = 2000
+            binding.playerView.controllerShowTimeoutMs = 1000
 
             //player.addListener(object : Player.Listener {
             //    override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -101,6 +106,7 @@ class FilesPreviewFragment : Fragment() {
             player.setMediaItem(mediaItem)
             player.prepare()
             if (autoPlay) {
+                Log.d("FilesPreviewFragment", "player.play")
                 player.play()
             }
 
@@ -123,6 +129,11 @@ class FilesPreviewFragment : Fragment() {
             Log.d("FilesPreviewFragment", "GLIDE LOAD")
 
             binding.previewImageView.visibility = View.VISIBLE
+
+            //Glide.with(this)
+            //    .load(thumbUrl)
+            //    .into(imageView)
+
             postponeEnterTransition()
 
             Glide.with(this)
@@ -150,12 +161,6 @@ class FilesPreviewFragment : Fragment() {
                     }
                 })
                 .into(binding.previewImageView)
-
-            //binding.goBack.setOnClickListener {
-            //    Log.d("FilesPreviewFragment", "GO BACK")
-            //    //findNavController().popBackStack()
-            //    findNavController().navigateUp()
-            //}
             binding.previewImageView.setOnClickListener {
                 Log.d("FilesPreviewFragment", "IMAGE BACK")
                 //findNavController().popBackStack()

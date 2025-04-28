@@ -120,6 +120,7 @@ class FilesViewAdapter(
 
         val bundle = Bundle().apply {
             putInt("fileId", data.id)
+            putString("fileName", data.name)
             putString("mimeType", data.mime)
             putString("viewUrl", viewUrl)
             putString("thumbUrl", thumbUrl)
