@@ -22,6 +22,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -29,6 +30,7 @@ import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 import java.io.InputStream
 import java.net.URLConnection
@@ -113,6 +115,11 @@ class ServerApi(context: Context, host: String) {
         return api.getRecent(authToken, amount, start)
     }
 
+    suspend fun deleteFile(fileId: Int): Response<ResponseBody> {
+        Log.d("Api[recent]", "fileId: $fileId")
+        return api.fileDelete(authToken, fileId)
+    }
+
     interface ApiService {
         @FormUrlEncoded
         @POST("oauth/")
@@ -154,6 +161,12 @@ class ServerApi(context: Context, host: String) {
             @Query("amount") amount: Int,
             @Query("start") start: Int,
         ): Response<List<RecentResponse>>
+
+        @DELETE("file/{id}")
+        suspend fun fileDelete(
+            @Header("Authorization") token: String,
+            @Path("id") fileId: Int,
+        ): Response<ResponseBody>
 
         // TODO: Use VersionResponse
         @POST("version/")

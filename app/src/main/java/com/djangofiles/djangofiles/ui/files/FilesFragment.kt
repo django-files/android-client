@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -45,7 +45,8 @@ class FilesFragment : Fragment() {
     private lateinit var api: ServerApi
     private lateinit var filesAdapter: FilesViewAdapter
 
-    private val viewModel: FilesViewModel by viewModels()
+    //private val viewModel: FilesViewModel by viewModels()
+    private val viewModel: FilesViewModel by activityViewModels()
 
     //private lateinit var connectivityManager: ConnectivityManager
     //
@@ -191,6 +192,18 @@ class FilesFragment : Fragment() {
                 }
             }
         })
+
+        //viewModel.filesData.observe(viewLifecycleOwner) { newList ->
+        //    Log.d("filesData[observe]", "newList.size: ${newList.size}")
+        //}
+
+        // Monitor viewModel.deleteId for changes and attempt to filesAdapter.deleteById the ID
+        viewModel.deleteId.observe(viewLifecycleOwner) { fileId ->
+            Log.d("deleteId[observe]", "fileId: $fileId")
+            if (fileId != null) {
+                filesAdapter.deleteById(fileId)
+            }
+        }
     }
 
     suspend fun getFiles(perPage: Int) {

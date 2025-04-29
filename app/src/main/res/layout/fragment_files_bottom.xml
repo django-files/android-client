@@ -4,16 +4,93 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:baselineAligned="false"
+    android:orientation="horizontal">
 
-    <!-- ImageView to show the image preview -->
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/image_preview"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:scaleType="centerInside"
-        android:layout_gravity="center"
-        app:strokeWidth="1dp"
-        app:strokeColor="?android:colorControlNormal" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/edit_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:contentDescription="Edit"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/md_edit_square_24px" />
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/share_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:contentDescription="Share"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/md_share_24" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="196dp">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/image_preview"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:scaleType="fitCenter"
+            android:layout_gravity="center"
+            app:strokeWidth="1dp"
+            app:strokeColor="?android:colorControlNormal" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/delete_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:contentDescription="Delete"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/md_delete_forever_24px"
+                app:tint="@android:color/holo_red_dark" />
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/open_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:contentDescription="Open"
+                android:padding="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/md_captive_portal_24px" />
+        </FrameLayout>
+
+    </LinearLayout>
 </LinearLayout>
