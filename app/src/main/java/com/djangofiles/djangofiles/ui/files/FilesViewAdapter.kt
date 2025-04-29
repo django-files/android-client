@@ -117,11 +117,9 @@ class FilesViewAdapter(
         }
         //Log.d("FilesViewAdapter", "bundle: $bundle")
 
-        // Open Link
+        // Menu Link
         viewHolder.openMenu.setOnClickListener {
             Log.d("FilesViewAdapter", "openMenu.setOnClickListener: $bundle")
-            //openUrl(data.url)
-
             val bottomSheet = FilesBottomSheet.newInstance(bundle)
             bottomSheet.show(
                 (context as FragmentActivity).supportFragmentManager,
@@ -255,7 +253,6 @@ fun isGlideMime(mimeType: String): Boolean {
         "image/gif",
         "image/webp",
         "image/heif",
-        "video/mp4",
             -> true
 
         else -> false

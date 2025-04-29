@@ -114,6 +114,7 @@ class FilesFragment : Fragment() {
         if (connectivityManager.isActiveNetworkMetered) {
             binding.meteredText.visibility = View.VISIBLE
             binding.meteredText.setOnClickListener {
+                // TODO: The recycler view does not slide until after this animation completes...
                 //binding.meteredText.visibility = View.GONE
                 binding.meteredText.animate()
                     .translationY(-binding.meteredText.height.toFloat())

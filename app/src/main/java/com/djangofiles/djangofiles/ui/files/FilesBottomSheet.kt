@@ -10,9 +10,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesBottomBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -63,6 +65,8 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         Log.d("Bottom[onCreateView]", "arguments: $arguments")
         val fileId = arguments?.getInt("fileId")
         Log.d("Bottom[onCreateView]", "fileId: $fileId")
+        val fileName = arguments?.getString("fileName")
+        Log.d("Bottom[onCreateView]", "fileName: $fileName")
         val mimeType = arguments?.getString("mimeType")
         Log.d("Bottom[onCreateView]", "mimeType: $mimeType")
         val thumbUrl = arguments?.getString("thumbUrl")
@@ -70,18 +74,22 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         val shareUrl = arguments?.getString("shareUrl")
         Log.d("Bottom[onCreateView]", "shareUrl: $shareUrl")
 
+        binding.fileName.text = fileName
+
         binding.shareButton.setOnClickListener {
             shareUrl(requireContext(), shareUrl!!)
         }
         binding.openButton.setOnClickListener {
             openUrl(requireContext(), shareUrl!!)
         }
-        binding.editButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Not Yet Implemented", Toast.LENGTH_SHORT).show()
+        binding.copyButton.setOnClickListener {
+            //val message = requireContext().getString(R.string.tst_copied_clipboard)
+            //Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            copyToClipboard(requireContext(), shareUrl!!)
         }
         binding.deleteButton.setOnClickListener {
             Log.d("Bottom[onCreateView]", "deleteById: $fileId")
-            deleteConfirmDialog(savedUrl, fileId!!)
+            deleteConfirmDialog(savedUrl, fileId!!, fileName!!)
         }
 
         val radius = requireContext().resources.getDimension(R.dimen.image_preview_large)
@@ -100,13 +108,19 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         } else {
             binding.imagePreview.setImageResource(getGenericIcon(mimeType))
         }
+
+        binding.imagePreview.setOnClickListener {
+            Log.d("Bottom[onCreateView]", "onClick: imagePreview")
+            findNavController().navigate(R.id.nav_item_files_action_preview, arguments)
+            dismiss()
+        }
     }
 
-    private fun deleteConfirmDialog(savedUrl: String, fileId: Int) {
+    private fun deleteConfirmDialog(savedUrl: String, fileId: Int,fileName: String) {
         Log.d("deleteConfirmDialog", "$fileId - savedUrl: $fileId")
         AlertDialog.Builder(requireContext())
-            .setTitle("Delete Server?")
-            .setMessage("Really fucking sure?")
+            .setTitle("Delete File?")
+            .setMessage(fileName)
             .setPositiveButton("Delete") { _, _ ->
                 Log.d("deleteConfirmDialog", "Delete Confirm: fileId $fileId")
                 val api = ServerApi(requireContext(), savedUrl)
