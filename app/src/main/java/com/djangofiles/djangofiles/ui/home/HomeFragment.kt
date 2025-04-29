@@ -209,7 +209,7 @@ class HomeFragment : Fragment() {
 
         override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
             Log.d("doUpdateVisitedHistory", "url: $url")
-            if (url.startsWith("${currentUrl}/oauth/")){
+            if (url.startsWith("${currentUrl}/oauth/")) {
                 Log.d("doUpdateVisitedHistory", "AUTHENTICATION URL: $url")
                 //findNavController().navigate(R.id.nav_item_settings_action_login)
                 val bundle = Bundle().apply {

@@ -116,7 +116,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private fun deleteConfirmDialog(savedUrl: String, fileId: Int,fileName: String) {
+    private fun deleteConfirmDialog(savedUrl: String, fileId: Int, fileName: String) {
         Log.d("deleteConfirmDialog", "$fileId - savedUrl: $fileId")
         AlertDialog.Builder(requireContext())
             .setTitle("Delete File?")
