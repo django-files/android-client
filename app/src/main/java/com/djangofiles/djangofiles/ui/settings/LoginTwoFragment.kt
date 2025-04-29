@@ -127,10 +127,11 @@ class LoginTwoFragment : Fragment() {
                 } catch (e: Exception) {
                     val msg = e.message ?: "Unknown Error"
                     Log.e("OMG", "Exception: msg: $msg")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                    }
-                    return@launch
+                    // TODO: Update to allow duplicates but still catch errors...
+                    //withContext(Dispatchers.Main) {
+                    //    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                    //}
+                    //return@launch
                 }
                 sharedPreferences.edit {
                     putString("saved_url", hostname)
