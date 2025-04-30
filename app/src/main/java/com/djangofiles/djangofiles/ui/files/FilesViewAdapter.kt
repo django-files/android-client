@@ -16,6 +16,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -51,8 +52,7 @@ class FilesViewAdapter(
         val filePassword: TextView = view.findViewById(R.id.file_password)
         val fileExpr: TextView = view.findViewById(R.id.file_expr)
         val previewLink: LinearLayout = view.findViewById(R.id.preview_link)
-        val shareLink: LinearLayout = view.findViewById(R.id.share_link)
-        val openLink: LinearLayout = view.findViewById(R.id.open_link)
+        val openMenu: LinearLayout = view.findViewById(R.id.open_menu)
         val loadingSpinner: ProgressBar = view.findViewById(R.id.loading_spinner)
     }
 
@@ -66,7 +66,7 @@ class FilesViewAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val data = dataSet[position]
         //Log.i("onBindViewHolder", "data[$position]: $data")
-        Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
+        //Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
 
         // Setup
         val typedValue = TypedValue()
@@ -101,22 +101,10 @@ class FilesViewAdapter(
         viewHolder.fileExpr.compoundDrawableTintList =
             if (data.expr.isNotEmpty()) null else colorOnSecondary
 
-        // Share Link
-        viewHolder.shareLink.setOnClickListener {
-            Log.d("FilesViewAdapter", "shareLink.setOnClickListener: $data")
-            shareUrl(data.url)
-        }
-
-        // Open Link
-        viewHolder.openLink.setOnClickListener {
-            Log.d("FilesViewAdapter", "openLink.setOnClickListener: $data")
-            openUrl(data.url)
-        }
-
         // Variables
-        val viewUrl = "${data.raw}?view=gallery"
-        val thumbUrl =
-            data.thumb + if (data.password.isNotEmpty()) "&password=${data.password}" else ""
+        val passParam = if (data.password.isNotEmpty()) "&password=${data.password}" else ""
+        val viewUrl = "${data.raw}?view=gallery${passParam}"
+        val thumbUrl = "${data.thumb}${passParam}"
 
         val bundle = Bundle().apply {
             putInt("fileId", data.id)
@@ -124,6 +112,19 @@ class FilesViewAdapter(
             putString("mimeType", data.mime)
             putString("viewUrl", viewUrl)
             putString("thumbUrl", thumbUrl)
+            putString("shareUrl", data.url)
+            putString("rawUrl", data.raw)
+        }
+        //Log.d("FilesViewAdapter", "bundle: $bundle")
+
+        // Menu Link
+        viewHolder.openMenu.setOnClickListener {
+            Log.d("FilesViewAdapter", "openMenu.setOnClickListener: $bundle")
+            val bottomSheet = FilesBottomSheet.newInstance(bundle)
+            bottomSheet.show(
+                (context as FragmentActivity).supportFragmentManager,
+                bottomSheet.tag
+            )
         }
 
         // Preview - itemView Click
@@ -221,21 +222,21 @@ class FilesViewAdapter(
         return dataSet
     }
 
-    private fun openUrl(url: String) {
-        val openIntent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(url.toUri(), "text/plain")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    fun deleteById(fileId: Int) {
+        val index = dataSet.indexOfFirst { it.id == fileId }
+        if (index != -1) {
+            dataSet.removeAt(index)
+            notifyItemRemoved(index)
         }
-        context.startActivity(Intent.createChooser(openIntent, null))
     }
 
-    private fun shareUrl(url: String) {
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, url)
-        }
-        context.startActivity(Intent.createChooser(shareIntent, null))
-    }
+    // Note: this has not been tested due to warning on notifyDataSetChanged
+    //fun submitList(newList: List<RecentResponse>) {
+    //    Log.d("submitList", "newList.size: ${newList.size}")
+    //    dataSet.clear()
+    //    dataSet.addAll(newList)
+    //    notifyDataSetChanged()
+    //}
 
     private fun bytesToHuman(bytes: Double) = when {
         bytes >= 1 shl 30 -> "%.1f GB".format(bytes / (1 shl 30))
@@ -252,11 +253,26 @@ fun isGlideMime(mimeType: String): Boolean {
         "image/gif",
         "image/webp",
         "image/heif",
-        "video/mp4",
             -> true
 
         else -> false
     }
+}
+
+fun openUrl(context: Context, url: String) {
+    val openIntent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(url.toUri(), "text/plain")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    context.startActivity(Intent.createChooser(openIntent, null))
+}
+
+fun shareUrl(context: Context, url: String) {
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, url)
+    }
+    context.startActivity(Intent.createChooser(shareIntent, null))
 }
 
 fun isCodeMime(mimeType: String): Boolean {

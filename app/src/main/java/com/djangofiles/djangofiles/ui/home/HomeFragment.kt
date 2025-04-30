@@ -25,6 +25,9 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
+import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerDao
 import com.djangofiles.djangofiles.ServerDatabase
 import com.djangofiles.djangofiles.databinding.FragmentHomeBinding
@@ -206,6 +209,18 @@ class HomeFragment : Fragment() {
 
         override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
             Log.d("doUpdateVisitedHistory", "url: $url")
+            if (url.startsWith("${currentUrl}/oauth/")) {
+                Log.d("doUpdateVisitedHistory", "AUTHENTICATION URL: $url")
+                //findNavController().navigate(R.id.nav_item_settings_action_login)
+                val bundle = Bundle().apply {
+                    putString("authUrl", currentUrl.toString())
+                }
+                findNavController().navigate(
+                    R.id.nav_item_login, bundle, NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_item_home, true)
+                        .build()
+                )
+            }
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {

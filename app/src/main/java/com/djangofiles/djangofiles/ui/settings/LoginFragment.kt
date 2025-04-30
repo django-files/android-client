@@ -53,21 +53,24 @@ class LoginFragment : Fragment() {
         val packageInfo =
             requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
         val versionName = packageInfo.versionName
-        Log.d("Main[onCreate]", "versionName: $versionName")
+        Log.d("Login[onViewCreated]", "versionName: $versionName")
+
+        val authUrl = arguments?.getString("authUrl")
+        Log.d("Login[onViewCreated]", "authUrl: $authUrl")
 
         binding.hostnameText.requestFocus()
         binding.hostnameText.setSelection(binding.hostnameText.text.length)
 
         val loginFunction = View.OnClickListener {
-            Log.d("OnClickListener", "it: ${it.id}")
+            Log.d("loginFunction", "it: ${it.id}")
             val inputHost = binding.hostnameText.text.toString().trim()
-            Log.d("setOnClickListener", "inputHost: $inputHost")
+            Log.d("loginFunction", "inputHost: $inputHost")
             val host = parseHost(inputHost)
             if (inputHost != host) {
                 binding.hostnameText.setText(host)
                 binding.hostnameText.setSelection(binding.hostnameText.text.length)
             }
-            Log.d("setOnClickListener", "host: $host")
+            Log.d("loginFunction", "host: $host")
             if (!isURL(host)) {
                 binding.hostnameText.error = "Invalid Hostname"
                 return@OnClickListener
@@ -79,15 +82,16 @@ class LoginFragment : Fragment() {
             //Log.d("getSharedPreferences", "savedUrl: $savedUrl")
             //sharedPreferences?.edit { putString("saved_url", host) }
 
-            Log.d("showSettingsDialog", "Processing URL: $host")
+            Log.d("loginFunction", "Processing URL: $host")
             val api = ServerApi(requireContext(), host)
             lifecycleScope.launch {
                 try {
                     val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()
                     val server = withContext(Dispatchers.IO) { dao.getByUrl(host) }
-                    Log.d("OMG", "server: $server")
-                    if (server != null) {
-                        Log.i("OMG", "Duplicate Hostname")
+                    Log.d("loginFunction", "server: $server")
+                    Log.d("loginFunction", "authUrl: $authUrl")
+                    if (server != null && authUrl == null) {
+                        Log.i("loginFunction", "Duplicate Hostname")
                         val msg = "Duplicate Hostname"
                         withContext(Dispatchers.Main) {
                             Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
@@ -116,7 +120,7 @@ class LoginFragment : Fragment() {
                     //}
 
                     val methodsResponse = api.methods()
-                    Log.d("showSettingsDialog", "methodsResponse: $methodsResponse")
+                    Log.d("loginFunction", "methodsResponse: $methodsResponse")
 
                     viewModel.hostname.value = host
                     viewModel.siteName.value = methodsResponse.siteName
@@ -124,17 +128,17 @@ class LoginFragment : Fragment() {
                     findNavController().navigate(R.id.nav_item_login_action_next)
 
                 } catch (e: Exception) {
-                    Log.d("showSettingsDialog", "EXCEPTION")
+                    Log.d("loginFunction", "EXCEPTION")
                     e.printStackTrace()
                     val msg = e.message ?: "Unknown Error Validating Server."
-                    Log.i("showSettingsDialog", "msg: $msg")
+                    Log.i("loginFunction", "msg: $msg")
                     binding.hostnameText.error = "Validation Error"
                     withContext(Dispatchers.Main) {
                         Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                     }
                 }
             }
-            Log.d("setOnClickListener", "DONE")
+            Log.d("loginFunction", "DONE")
         }
 
         binding.continueBtn.setOnClickListener(loginFunction)
@@ -149,6 +153,14 @@ class LoginFragment : Fragment() {
             Log.d("websiteLink", "url: $url")
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             startActivity(intent)
+        }
+
+        if (authUrl != null) {
+            // TODO: If the user presses back they can not go forward with the same url...
+            Log.d("authUrl", "MANUALLY TRIGGERING CLICK ON authUrl: $authUrl")
+            arguments?.remove("authUrl")
+            binding.hostnameText.setText(authUrl)
+            binding.continueBtn.performClick()
         }
     }
 
