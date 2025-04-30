@@ -5,12 +5,14 @@ import android.content.SharedPreferences
 import android.os.Parcelable
 import android.util.Log
 import android.webkit.CookieManager
+import androidx.core.content.edit
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import okhttp3.Cookie
 import okhttp3.CookieJar
+import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -35,8 +37,7 @@ import retrofit2.http.Query
 import java.io.InputStream
 import java.net.URLConnection
 
-// TODO: Pass preferences instead of context since context is not used
-class ServerApi(context: Context, host: String) {
+class ServerApi(val context: Context, host: String) {
     val api: ApiService
     val hostname: String = host
     val authToken: String
@@ -87,6 +88,29 @@ class ServerApi(context: Context, host: String) {
         }
     }
 
+    private suspend fun reAuthenticate(): String? {
+        return try {
+            val cookies = CookieManager.getInstance().getCookie(hostname)
+            Log.d("reAuthenticate", "cookies: $cookies")
+            val httpUrl = hostname.toHttpUrl()
+            cookieJar.setCookie(httpUrl, cookies)
+
+            val tokenResponse = api.getToken()
+            Log.d("reAuthenticate", "tokenResponse: $tokenResponse")
+
+            preferences.edit { putString("auth_token", tokenResponse.token) }
+            Log.d("reAuthenticate", "auth_token: ${tokenResponse.token}")
+            val dao: ServerDao = ServerDatabase.getInstance(context).serverDao()
+            withContext(Dispatchers.IO) {
+                dao.setToken(hostname, tokenResponse.token)
+            }
+            tokenResponse.token
+        } catch (e: Exception) {
+            Log.e("reAuthenticate", "Exception: ${e.message}")
+            null
+        }
+    }
+
     suspend fun methods(): MethodsResponse {
         Log.d("Api[methods]", "getMethods")
         return api.getMethods()
@@ -95,7 +119,17 @@ class ServerApi(context: Context, host: String) {
     suspend fun upload(fileName: String, inputStream: InputStream): Response<FileResponse> {
         Log.d("Api[upload]", "fileName: $fileName")
         val multiPart: MultipartBody.Part = inputStreamToMultipart(inputStream, fileName)
-        return api.postUpload(authToken, multiPart)
+        var response = api.postUpload(authToken, multiPart)
+        // TODO: Determine how to make this block a reusable function...
+        Log.d("Api[upload]", "response.code: ${response.code()}")
+        if (response.code() == 401) {
+            val token = reAuthenticate()
+            Log.d("Api[upload]", "token: $token")
+            if (token != null) {
+                response = api.postUpload(token, multiPart)
+            }
+        }
+        return response
     }
 
     suspend fun shorten(url: String, vanity: String?): Response<ShortResponse> {
@@ -266,9 +300,9 @@ class ServerApi(context: Context, host: String) {
             return cookieStore[url.host] ?: emptyList()
         }
 
-        //fun setCookie(url: HttpUrl, rawCookie: String) {
-        //    val cookies = Cookie.parseAll(url, Headers.headersOf("Set-Cookie", rawCookie))
-        //    cookieStore[url.host] = cookies
-        //}
+        fun setCookie(url: HttpUrl, rawCookie: String) {
+            val cookies = Cookie.parseAll(url, Headers.headersOf("Set-Cookie", rawCookie))
+            cookieStore[url.host] = cookies
+        }
     }
 }
