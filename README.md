@@ -142,7 +142,7 @@ To Build:
 - Build > Generate App Bundles or APK > Generate APKs
 
 > [!NOTE]  
-> Text/Code Previews use highlight.js, to install run:
+> Text/Code Previews use highlight.js; to install this run:  
 > `bash .github/scripts/prepare.sh`
 
 ## Command Line
