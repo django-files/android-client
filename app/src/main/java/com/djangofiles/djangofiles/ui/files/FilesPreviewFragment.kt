@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -25,6 +26,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.MediaCache
+import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -203,49 +205,33 @@ class FilesPreviewFragment : Fragment() {
             val url = "file:///android_asset/preview/preview.html"
             Log.d("FilesPreviewFragment", "url: $url")
             binding.webView.visibility = View.VISIBLE
-
-            //binding.webView.apply {
-            //    settings.javaScriptEnabled = true
-            //    loadUrl(url)
-            //}
-
-            val forceCacheInterceptor = Interceptor { chain ->
-                val response = chain.proceed(chain.request())
-                response.newBuilder()
-                    .header("Cache-Control", "public, max-age=31536000")
-                    .build()
-            }
-
-            val cacheDirectory = File(requireContext().cacheDir, "http_cache")
-            val cache = Cache(cacheDirectory, 100 * 1024 * 1024)
-
-            val client = OkHttpClient.Builder()
-                .addNetworkInterceptor(forceCacheInterceptor)
-                .cache(cache)
-                .build()
+            binding.copyText.visibility = View.VISIBLE
 
             lifecycleScope.launch {
-                Log.d("FilesPreviewFragment", "viewUrl: $viewUrl")
-                val request = Request.Builder().url(viewUrl!!).build()
-                withContext(Dispatchers.IO) {
-                    client.newCall(request).execute().use { response ->
-                        Log.d("FilesPreviewFragment", "response.code: ${response.code}")
-                        if (response.isSuccessful) {
-                            val content = response.body?.string() ?: ""
-                            Log.d("FilesPreviewFragment", "content: $content")
-                            val escapedContent = JSONObject.quote(content)
-                            val jsString =
-                                "document.querySelector('pre').textContent = $escapedContent;"
-                            withContext(Dispatchers.Main) {
-                                binding.webView.apply {
-                                    settings.javaScriptEnabled = true
-                                    loadUrl(url)
-                                    webViewClient = object : WebViewClient() {
-                                        override fun onPageFinished(view: WebView?, url: String?) {
-                                            evaluateJavascript(jsString, null)
-                                        }
-                                    }
-                                }
+                val content = withContext(Dispatchers.IO) { getContent(viewUrl!!) }
+                if (content == null) {
+                    Log.w("FilesPreviewFragment", "content is null")
+                    withContext(Dispatchers.Main) {
+                        val msg = "Error Loading Content!"
+                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
+                }
+                binding.copyText.setOnClickListener {
+                    copyToClipboard(requireContext(), content, "Text Copied")
+                }
+                //Log.d("FilesPreviewFragment", "content: $content")
+                val escapedContent = JSONObject.quote(content)
+                //Log.d("FilesPreviewFragment", "escapedContent: $escapedContent")
+                val jsString = "addContent(${escapedContent});"
+                //Log.d("FilesPreviewFragment", "jsString: $jsString")
+                withContext(Dispatchers.Main) {
+                    binding.webView.apply {
+                        settings.javaScriptEnabled = true
+                        loadUrl(url)
+                        webViewClient = object : WebViewClient() {
+                            override fun onPageFinished(view: WebView?, url: String?) {
+                                evaluateJavascript(jsString, null)
                             }
                         }
                     }
@@ -261,6 +247,39 @@ class FilesPreviewFragment : Fragment() {
                 //findNavController().popBackStack()
                 findNavController().navigateUp()
             }
+        }
+    }
+
+    fun getContent(viewUrl: String): String? {
+        Log.d("getContent", "viewUrl: $viewUrl")
+        val forceCacheInterceptor = Interceptor { chain ->
+            val response = chain.proceed(chain.request())
+            response.newBuilder()
+                .header("Cache-Control", "public, max-age=31536000")
+                .build()
+        }
+
+        val cacheDirectory = File(requireContext().cacheDir, "http_cache")
+        val cache = Cache(cacheDirectory, 100 * 1024 * 1024)
+
+        val client = OkHttpClient.Builder()
+            .addNetworkInterceptor(forceCacheInterceptor)
+            .cache(cache)
+            .build()
+
+        Log.d("getContent", "viewUrl: $viewUrl")
+        val request = Request.Builder().url(viewUrl).build()
+        return try {
+            client.newCall(request).execute().use { response ->
+                Log.d("getContent", "response.code: ${response.code}")
+                if (response.isSuccessful) {
+                    return response.body?.string()
+                }
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("getContent", "Exception: ${e.message}")
+            null
         }
     }
 

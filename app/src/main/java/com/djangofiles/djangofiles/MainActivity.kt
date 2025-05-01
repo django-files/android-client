@@ -475,14 +475,14 @@ object MediaCache {
     }
 }
 
-fun copyToClipboard(context: Context, url: String, msg: String? = null) {
-    Log.d("copyToClipboard", "url: $url")
+fun copyToClipboard(context: Context, text: String, msg: String? = null) {
+    //Log.d("copyToClipboard", "text: $text")
     var message = msg
     if (msg == null) {
         message = context.getString(R.string.tst_copied_clipboard)
     }
     val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("URL", url)
+    val clip = ClipData.newPlainText("Text", text)
     clipboard.setPrimaryClip(clip)
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

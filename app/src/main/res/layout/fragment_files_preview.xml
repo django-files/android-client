@@ -19,16 +19,27 @@
             android:layout_width="48dp"
             android:layout_height="match_parent"
             android:contentDescription="Go Back"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/md_right_panel_open_24px" />
         <TextView
             android:id="@+id/file_name"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:paddingHorizontal="4dp"
             android:maxLines="1"
             android:ellipsize="end"
             android:gravity="center_vertical"
             tools:text="some_long_file_name_here_aaaaaa.why" />
+        <ImageView
+            android:id="@+id/copy_text"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:contentDescription="Copy Text"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:visibility="gone"
+            android:src="@drawable/md_content_copy_24px"
+            tools:visibility="visible" />
     </LinearLayout>
 
     <FrameLayout
