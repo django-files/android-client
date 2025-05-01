@@ -19,7 +19,7 @@
             android:layout_width="48dp"
             android:layout_height="match_parent"
             android:contentDescription="Go Back"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="?attr/selectableItemBackground"
             android:src="@drawable/md_right_panel_open_24px" />
         <TextView
             android:id="@+id/file_name"
@@ -36,7 +36,7 @@
             android:layout_width="48dp"
             android:layout_height="match_parent"
             android:contentDescription="Copy Text"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="?attr/selectableItemBackground"
             android:visibility="gone"
             android:src="@drawable/md_content_copy_24px"
             tools:visibility="visible" />
