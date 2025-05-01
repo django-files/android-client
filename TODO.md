@@ -13,7 +13,6 @@
 
 ## File Preview
 
-- Add Text Previews
 - Add PDF Previews
 - Add Options
 

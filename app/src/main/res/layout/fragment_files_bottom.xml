@@ -31,7 +31,7 @@
                     android:contentDescription="Edit"
                     android:padding="4dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/md_content_copy_24px" />
+                    android:src="@drawable/md_link_24px" />
             </FrameLayout>
             <FrameLayout
                 android:layout_width="match_parent"

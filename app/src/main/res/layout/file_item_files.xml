@@ -7,7 +7,8 @@
     android:layout_height="48dp"
     android:baselineAligned="false"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:background="?attr/selectableItemBackground">
 
     <FrameLayout
         android:layout_width="40dp"
@@ -124,7 +125,7 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/open"
             android:scaleType="centerInside"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="?attr/selectableItemBackground"
             android:src="@drawable/md_menu_24px" />
     </LinearLayout>
 

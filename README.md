@@ -91,7 +91,7 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 - Supports Native Local Login, GitHub OAuth, Google OAuth, and Discord OAuth.
 - Native Upload feature from Navigation Drawer and Upload Shortcut on Icon long press.
 - Basic Native File List with Open, Share, Preview, Infinite Scroll, Custom Options.
-- File Previews for Images, Video, and Audio via Glide and ExoPlayer.
+- File Previews for Images, Video, Audio and Text via Glide, ExoPlayer and Highlight.js.
 
 ### Planned
 
