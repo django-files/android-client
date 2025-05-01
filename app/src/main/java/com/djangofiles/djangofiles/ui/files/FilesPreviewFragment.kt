@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -201,11 +202,14 @@ class FilesPreviewFragment : Fragment() {
 
         } else if (mimeType?.startsWith("text/") == true || isCodeMime(mimeType!!)) {
             Log.d("FilesPreviewFragment", "WEB VIEW TIME")
-            //val url = "${savedUrl}/code/${fileName}"
             val url = "file:///android_asset/preview/preview.html"
             Log.d("FilesPreviewFragment", "url: $url")
             binding.webView.visibility = View.VISIBLE
             binding.copyText.visibility = View.VISIBLE
+
+            //val cookieManager = CookieManager.getInstance()
+            //cookieManager.setAcceptCookie(true)
+            //cookieManager.setAcceptThirdPartyCookies(binding.webView, true)
 
             lifecycleScope.launch {
                 val content = withContext(Dispatchers.IO) { getContent(viewUrl!!) }
@@ -259,6 +263,9 @@ class FilesPreviewFragment : Fragment() {
                 .build()
         }
 
+        val cookies = CookieManager.getInstance().getCookie(viewUrl)
+        Log.d("getContent", "cookies: $cookies")
+
         val cacheDirectory = File(requireContext().cacheDir, "http_cache")
         val cache = Cache(cacheDirectory, 100 * 1024 * 1024)
 
@@ -267,8 +274,7 @@ class FilesPreviewFragment : Fragment() {
             .cache(cache)
             .build()
 
-        Log.d("getContent", "viewUrl: $viewUrl")
-        val request = Request.Builder().url(viewUrl).build()
+        val request = Request.Builder().url(viewUrl).header("Cookie", cookies ?: "").build()
         return try {
             client.newCall(request).execute().use { response ->
                 Log.d("getContent", "response.code: ${response.code}")

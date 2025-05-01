@@ -25,7 +25,8 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.ServerApi.RecentResponse
+import com.djangofiles.djangofiles.ServerApi.FileEditRequest
+import com.djangofiles.djangofiles.ServerApi.FileResponse
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 
@@ -37,7 +38,7 @@ import com.google.android.material.shape.CornerFamily
 
 class FilesViewAdapter(
     private val context: Context,
-    private val dataSet: MutableList<RecentResponse>,
+    private val dataSet: MutableList<FileResponse>,
     private val isMetered: Boolean,
 ) : RecyclerView.Adapter<FilesViewAdapter.ViewHolder>() {
 
@@ -114,6 +115,8 @@ class FilesViewAdapter(
             putString("thumbUrl", thumbUrl)
             putString("shareUrl", data.url)
             putString("rawUrl", data.raw)
+            putString("filePassword", data.password)
+            putBoolean("isPrivate", data.private)
         }
         //Log.d("FilesViewAdapter", "bundle: $bundle")
 
@@ -199,26 +202,17 @@ class FilesViewAdapter(
             //viewHolder.fileImage.transitionName = null
             //viewHolder.previewLink.setOnClickListener { }
         }
-
-        //// TODO: Refactor the BottomBitch as a context menu...
-        //viewHolder.fileImage.setOnClickListener {
-        //    val bottomSheet = FilesBottomSheet.newInstance(thumbUrl)
-        //    bottomSheet.show(
-        //        (context as FragmentActivity).supportFragmentManager,
-        //        bottomSheet.tag
-        //    )
-        //}
     }
 
     override fun getItemCount() = dataSet.size
 
-    fun addData(newData: List<RecentResponse>) {
+    fun addData(newData: List<FileResponse>) {
         val start = dataSet.size
         dataSet.addAll(newData)
         notifyItemRangeInserted(start, newData.size)
     }
 
-    fun getData(): List<RecentResponse> {
+    fun getData(): List<FileResponse> {
         return dataSet
     }
 
@@ -230,8 +224,25 @@ class FilesViewAdapter(
         }
     }
 
+    fun editById(request: FileEditRequest) {
+        Log.d("editById", "id: ${request.id}")
+        Log.d("editById", "request: $request")
+        val index = dataSet.indexOfFirst { it.id == request.id }
+        Log.d("editById", "index: $index")
+        if (index != -1) {
+            val file = dataSet[index]
+            if (request.private != null) {
+                file.private = request.private
+            }
+            if (request.password != null) {
+                file.password = request.password
+            }
+            notifyItemChanged(index)
+        }
+    }
+
     // Note: this has not been tested due to warning on notifyDataSetChanged
-    //fun submitList(newList: List<RecentResponse>) {
+    //fun submitList(newList: List<FileResponse>) {
     //    Log.d("submitList", "newList.size: ${newList.size}")
     //    dataSet.clear()
     //    dataSet.addAll(newList)

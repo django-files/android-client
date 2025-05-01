@@ -2,14 +2,15 @@ package com.djangofiles.djangofiles.ui.files
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.djangofiles.djangofiles.ServerApi.RecentResponse
+import com.djangofiles.djangofiles.ServerApi
 
 class FilesViewModel : ViewModel() {
 
     val savedUrl = MutableLiveData<String>()
-    val filesData = MutableLiveData<List<RecentResponse>>()
+    val filesData = MutableLiveData<List<ServerApi.FileResponse>>()
     val atEnd = MutableLiveData<Boolean>()
     val deleteId = MutableLiveData<Int>()
+    val editRequest = MutableLiveData<ServerApi.FileEditRequest>()
 
     //// Note: this will not work without a filesData observer to update data on changes
     //fun deleteById(fileId: Int) {

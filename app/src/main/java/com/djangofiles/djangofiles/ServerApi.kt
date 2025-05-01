@@ -2,14 +2,13 @@ package com.djangofiles.djangofiles
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Parcelable
 import android.util.Log
 import android.webkit.CookieManager
 import androidx.core.content.edit
+import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.parcelize.Parcelize
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.Headers
@@ -36,6 +35,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import java.io.InputStream
 import java.net.URLConnection
+
+//import android.os.Parcelable
+//import kotlinx.parcelize.Parcelize
 
 class ServerApi(val context: Context, host: String) {
     val api: ApiService
@@ -116,7 +118,7 @@ class ServerApi(val context: Context, host: String) {
         return api.getMethods()
     }
 
-    suspend fun upload(fileName: String, inputStream: InputStream): Response<FileResponse> {
+    suspend fun upload(fileName: String, inputStream: InputStream): Response<UploadResponse> {
         Log.d("Api[upload]", "fileName: $fileName")
         val multiPart: MultipartBody.Part = inputStreamToMultipart(inputStream, fileName)
         var response = api.postUpload(authToken, multiPart)
@@ -132,6 +134,12 @@ class ServerApi(val context: Context, host: String) {
         return response
     }
 
+    suspend fun edit(fileId: Int, data: FileEditRequest): Response<ResponseBody> {
+        Log.d("Api[edit]", "fileId: $fileId")
+        Log.d("Api[edit]", "data: $data")
+        return api.fileEdit(authToken, fileId, data)
+    }
+
     suspend fun shorten(url: String, vanity: String?): Response<ShortResponse> {
         Log.d("Api[shorten]", "url: $url")
         Log.d("Api[shorten]", "vanity: $vanity")
@@ -144,7 +152,7 @@ class ServerApi(val context: Context, host: String) {
         return api.postVersion(VersionRequest(version))
     }
 
-    suspend fun recent(amount: Int, start: Int = 0): Response<List<RecentResponse>> {
+    suspend fun recent(amount: Int, start: Int = 0): Response<List<FileResponse>> {
         Log.d("Api[recent]", "amount: $amount - start: $start")
         return api.getRecent(authToken, amount, start)
     }
@@ -179,7 +187,7 @@ class ServerApi(val context: Context, host: String) {
             @Header("Strip-EXIF") stripExif: String? = null,
             @Header("Private") private: String? = null,
             @Header("Password") password: String? = null,
-        ): Response<FileResponse>
+        ): Response<UploadResponse>
 
         @POST("shorten/")
         suspend fun postShort(
@@ -194,7 +202,14 @@ class ServerApi(val context: Context, host: String) {
             @Header("Authorization") token: String,
             @Query("amount") amount: Int,
             @Query("start") start: Int,
-        ): Response<List<RecentResponse>>
+        ): Response<List<FileResponse>>
+
+        @POST("file/{id}")
+        suspend fun fileEdit(
+            @Header("Authorization") token: String,
+            @Path("id") fileId: Int,
+            @Body data: FileEditRequest
+        ): Response<ResponseBody>
 
         @DELETE("file/{id}")
         suspend fun fileDelete(
@@ -223,7 +238,7 @@ class ServerApi(val context: Context, host: String) {
         val url: String,
     )
 
-    data class FileResponse(
+    data class UploadResponse(
         val url: String,
         val raw: String,
         val name: String,
@@ -242,8 +257,27 @@ class ServerApi(val context: Context, host: String) {
         val valid: Boolean,
     )
 
-    @Parcelize
-    data class RecentResponse(
+    data class FileEditRequest(
+        @SerializedName("id") val id: Int? = null,
+        @SerializedName("user") val user: Int? = null,
+        @SerializedName("size") val size: Int? = null,
+        @SerializedName("mime") val mime: String? = null,
+        @SerializedName("name") val name: String? = null,
+        @SerializedName("info") val info: String? = null,
+        @SerializedName("expr") val expr: String? = null,
+        @SerializedName("view") val view: Int? = null,
+        @SerializedName("maxv") val maxv: Int? = null,
+        @SerializedName("meta_preview") val metaPreview: Boolean? = null,
+        @SerializedName("password") val password: String? = null,
+        @SerializedName("private") val private: Boolean? = null,
+        @SerializedName("avatar") val avatar: Boolean? = null,
+        @SerializedName("url") val url: String? = null,
+        @SerializedName("thumb") val thumb: String? = null,
+        @SerializedName("raw") val raw: String? = null,
+        @SerializedName("date") val date: String? = null
+    )
+
+    data class FileResponse(
         val id: Int,
         val user: Int,
         val size: Int,
@@ -254,14 +288,14 @@ class ServerApi(val context: Context, host: String) {
         val view: Int,
         val maxv: Int,
         @SerializedName("meta_preview") val metaPreview: Boolean,
-        val password: String,
-        val `private`: Boolean,
+        var password: String,
+        var `private`: Boolean,
         val avatar: Boolean,
         val url: String,
         val thumb: String,
         val raw: String,
         val date: String,
-    ) : Parcelable
+    )
 
     private suspend fun inputStreamToMultipart(
         file: InputStream,
@@ -282,9 +316,10 @@ class ServerApi(val context: Context, host: String) {
         client = OkHttpClient.Builder()
             .cookieJar(cookieJar)
             .build()
+        val gson = GsonBuilder().create()
         return Retrofit.Builder()
             .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()
     }

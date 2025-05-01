@@ -1,19 +1,26 @@
 package com.djangofiles.djangofiles.ui.files
 
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesBottomBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -30,6 +37,9 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
 
     //private val viewModel: FilesViewModel by viewModels()
     private val viewModel: FilesViewModel by activityViewModels()
+
+    private lateinit var savedUrl: String
+    private lateinit var filePassword: String
 
     companion object {
         fun newInstance(bundle: Bundle) = FilesBottomSheet().apply {
@@ -60,7 +70,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
 
         val sharedPreferences =
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", "").toString()
+        savedUrl = sharedPreferences.getString("saved_url", "").toString()
 
         Log.d("Bottom[onCreateView]", "arguments: $arguments")
         val fileId = arguments?.getInt("fileId")
@@ -73,25 +83,59 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         Log.d("Bottom[onCreateView]", "thumbUrl: $thumbUrl")
         val shareUrl = arguments?.getString("shareUrl")
         Log.d("Bottom[onCreateView]", "shareUrl: $shareUrl")
+        filePassword = arguments?.getString("filePassword") ?: ""
+        Log.d("Bottom[onCreateView]", "filePassword: $filePassword")
+        var isPrivate = requireArguments().getBoolean("isPrivate")
+        Log.d("Bottom[onCreateView]", "isPrivate: $isPrivate")
 
+        // Name
         binding.fileName.text = fileName
-
+        // Share
         binding.shareButton.setOnClickListener {
             shareUrl(requireContext(), shareUrl!!)
         }
+        // Open
         binding.openButton.setOnClickListener {
             openUrl(requireContext(), shareUrl!!)
         }
+        // Copy
         binding.copyButton.setOnClickListener {
-            //val message = requireContext().getString(R.string.tst_copied_clipboard)
-            //Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             copyToClipboard(requireContext(), shareUrl!!)
         }
+        // Delete
         binding.deleteButton.setOnClickListener {
-            Log.d("Bottom[onCreateView]", "deleteById: $fileId")
+            Log.d("deleteButton", "fileId: $fileId")
             deleteConfirmDialog(savedUrl, fileId!!, fileName!!)
         }
+        // Private
+        if (isPrivate) {
+            tintImage(binding.togglePrivate)
+        }
+        binding.togglePrivate.setOnClickListener {
+            isPrivate = !isPrivate
+            Log.d("togglePrivate", "New Value: $isPrivate")
+            val api = ServerApi(requireContext(), savedUrl)
+            lifecycleScope.launch {
+                val response = api.edit(fileId!!, FileEditRequest(private = isPrivate))
+                Log.d("deleteButton", "response: $response")
+                viewModel.editRequest.value = FileEditRequest(id = fileId, private = isPrivate)
+                if (isPrivate) {
+                    tintImage(binding.togglePrivate)
+                } else {
+                    binding.togglePrivate.imageTintList = null
+                }
+            }
+        }
+        // Password
+        if (!filePassword.isEmpty()) {
+            tintImage(binding.setPassword)
+        }
+        binding.setPassword.setOnClickListener {
+            Log.d("setPassword", "setOnClickListener")
+            setPasswordDialog(requireContext(), fileId!!, fileName!!)
+        }
 
+        // Image Preview
         val radius = requireContext().resources.getDimension(R.dimen.image_preview_large)
         binding.imagePreview.setShapeAppearanceModel(
             binding.imagePreview.shapeAppearanceModel
@@ -116,6 +160,16 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    private fun tintImage(item: ImageView) {
+        item.imageTintList =
+            ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    android.R.color.holo_orange_light
+                )
+            )
+    }
+
     private fun deleteConfirmDialog(savedUrl: String, fileId: Int, fileName: String) {
         Log.d("deleteConfirmDialog", "$fileId - savedUrl: $fileId")
         AlertDialog.Builder(requireContext())
@@ -132,6 +186,50 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
                             .show()
                     }
                     dismiss()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun setPasswordDialog(context: Context, fileId: Int, fileName: String) {
+        Log.d("setPasswordDialog", "$fileId - savedUrl: $fileId")
+
+        val layout = LinearLayout(context)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(10, 0, 10, 40)
+
+        val input = EditText(context)
+        input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+        input.maxLines = 1
+        input.hint = "Leave Blank to Remove"
+        input.setText(filePassword)
+        input.requestFocus()
+        layout.addView(input)
+
+        AlertDialog.Builder(requireContext())
+            .setView(layout)
+            .setTitle("Set Password")
+            .setMessage(fileName)
+            .setPositiveButton("Save") { _, _ ->
+                val newPassword = input.text.toString().trim()
+                Log.d("setPasswordDialog", "newPassword: $newPassword")
+                if (newPassword == filePassword) {
+                    Log.d("setPasswordDialog", "Password Not Changed.")
+                    return@setPositiveButton
+                }
+                filePassword = newPassword
+                val api = ServerApi(requireContext(), savedUrl)
+                lifecycleScope.launch {
+                    val response = api.edit(fileId, FileEditRequest(password = newPassword))
+                    Log.d("setPasswordDialog", "response: $response")
+                    viewModel.editRequest.value =
+                        FileEditRequest(id = fileId, password = newPassword)
+                    if (newPassword.isEmpty()) {
+                        binding.setPassword.imageTintList = null
+                    } else {
+                        tintImage(binding.setPassword)
+                    }
                 }
             }
             .setNegativeButton("Cancel", null)

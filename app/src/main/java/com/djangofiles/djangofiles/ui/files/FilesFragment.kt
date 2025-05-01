@@ -205,6 +205,13 @@ class FilesFragment : Fragment() {
                 filesAdapter.deleteById(fileId)
             }
         }
+        // Monitor viewModel.editRequest for changes and do something...
+        viewModel.editRequest.observe(viewLifecycleOwner) { editRequest ->
+            Log.d("editId[observe]", "editRequest: $editRequest")
+            if (editRequest != null) {
+                filesAdapter.editById(editRequest)
+            }
+        }
     }
 
     suspend fun getFiles(perPage: Int) {

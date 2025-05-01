@@ -169,7 +169,7 @@ class ShortFragment : Fragment() {
                                     .build()
                             )
                         } else {
-                            Log.w("processShort", "fileResponse is null")
+                            Log.w("processShort", "shortResponse is null")
                             val msg = "Unknown Response!"
                             Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                         }
