@@ -128,7 +128,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
                     api.deleteFile(fileId)
                     viewModel.deleteId.value = fileId
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Ralf Broke It!", Toast.LENGTH_SHORT)
+                        Toast.makeText(requireContext(), "File Deleted!", Toast.LENGTH_SHORT)
                             .show()
                     }
                     dismiss()

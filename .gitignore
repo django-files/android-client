@@ -13,3 +13,5 @@ app/release
 local.properties
 *.keystore
 *.logcat
+
+**/dist/

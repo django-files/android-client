@@ -70,9 +70,6 @@ should take you to the settings area to allow installation if not already enable
 
 </details>
 
-> [!NOTE]  
-> Swipe from the left to access the Android menu.
-
 ### Setup
 
 1. [Install](#Install) and open the app on your device.
@@ -83,6 +80,9 @@ should take you to the settings area to allow installation if not already enable
 To use, share or open any file and choose the Django Files app.
 The app will then upload the file to your Django Files server.
 Additionally, the URL is copied to the clipboard and the preview show in the app.
+
+> [!NOTE]  
+> Swipe from the left to access the Android menu.
 
 ## Features
 
@@ -140,6 +140,10 @@ To Build:
 
 - Select the Build Variant (debug or release)
 - Build > Generate App Bundles or APK > Generate APKs
+
+> [!NOTE]  
+> Text/Code Previews use highlight.js; to install this run:  
+> `bash .github/scripts/prepare.sh`
 
 ## Command Line
 
