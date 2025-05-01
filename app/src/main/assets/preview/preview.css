@@ -1,0 +1,23 @@
+html,
+body,
+pre {
+    margin: 0;
+}
+
+pre {
+    padding: 6px;
+}
+
+html,
+body {
+    background: #1c1b1b;
+    color: #ccc;
+}
+
+@media (prefers-color-scheme: light) {
+    html,
+    body {
+        background: #f6f6f6;
+        color: #1c1b1b;
+    }
+}

@@ -278,9 +278,16 @@ fun shareUrl(context: Context, url: String) {
 fun isCodeMime(mimeType: String): Boolean {
     if (mimeType.startsWith("text/x-script")) return true
     return when (mimeType.lowercase()) {
+        "application/atom+xml",
         "application/javascript",
+        "application/json",
+        "application/ld+json",
+        "application/rss+xml",
+        "application/xml",
         "application/x-httpd-php",
         "application/x-python",
+        "application/x-www-form-urlencoded",
+        "application/yaml",
         "text/javascript",
         "text/python",
         "text/x-go",

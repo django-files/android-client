@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles.ui.files
 
+import android.annotation.SuppressLint
 import android.content.Context.MODE_PRIVATE
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -7,8 +8,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.annotation.OptIn
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
@@ -22,6 +26,15 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.MediaCache
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Cache
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
+import java.io.File
 
 //import android.view.Gravity
 //import androidx.transition.Slide
@@ -57,6 +70,7 @@ class FilesPreviewFragment : Fragment() {
         return root
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -85,6 +99,8 @@ class FilesPreviewFragment : Fragment() {
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val autoPlay = sharedPreferences.getBoolean("file_preview_autoplay", false)
         Log.d("FilesPreviewFragment", "autoPlay: $autoPlay")
+        val savedUrl = sharedPreferences.getString("saved_url", null)
+        Log.d("FilesPreviewFragment", "savedUrl: $savedUrl")
 
         binding.playerView.transitionName = fileId.toString()
         //Log.d("FilesPreviewFragment", "transitionName: ${imageView.transitionName}")
@@ -181,6 +197,61 @@ class FilesPreviewFragment : Fragment() {
                 findNavController().navigateUp()
             }
 
+        } else if (mimeType?.startsWith("text/") == true || isCodeMime(mimeType!!)) {
+            Log.d("FilesPreviewFragment", "WEB VIEW TIME")
+            //val url = "${savedUrl}/code/${fileName}"
+            val url = "file:///android_asset/preview/preview.html"
+            Log.d("FilesPreviewFragment", "url: $url")
+            binding.webView.visibility = View.VISIBLE
+
+            //binding.webView.apply {
+            //    settings.javaScriptEnabled = true
+            //    loadUrl(url)
+            //}
+
+            val forceCacheInterceptor = Interceptor { chain ->
+                val response = chain.proceed(chain.request())
+                response.newBuilder()
+                    .header("Cache-Control", "public, max-age=31536000")
+                    .build()
+            }
+
+            val cacheDirectory = File(requireContext().cacheDir, "http_cache")
+            val cache = Cache(cacheDirectory, 100 * 1024 * 1024)
+
+            val client = OkHttpClient.Builder()
+                .addNetworkInterceptor(forceCacheInterceptor)
+                .cache(cache)
+                .build()
+
+            lifecycleScope.launch {
+                Log.d("FilesPreviewFragment", "viewUrl: $viewUrl")
+                val request = Request.Builder().url(viewUrl!!).build()
+                withContext(Dispatchers.IO) {
+                    client.newCall(request).execute().use { response ->
+                        Log.d("FilesPreviewFragment", "response.code: ${response.code}")
+                        if (response.isSuccessful) {
+                            val content = response.body?.string() ?: ""
+                            Log.d("FilesPreviewFragment", "content: $content")
+                            val escapedContent = JSONObject.quote(content)
+                            val jsString =
+                                "document.querySelector('pre').textContent = $escapedContent;"
+                            withContext(Dispatchers.Main) {
+                                binding.webView.apply {
+                                    settings.javaScriptEnabled = true
+                                    loadUrl(url)
+                                    webViewClient = object : WebViewClient() {
+                                        override fun onPageFinished(view: WebView?, url: String?) {
+                                            evaluateJavascript(jsString, null)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
         } else {
             Log.d("FilesPreviewFragment", "OTHER - NO PREVIEW")
 
@@ -194,8 +265,17 @@ class FilesPreviewFragment : Fragment() {
     }
 
     //override fun onPause() {
-    //    Log.d("FilesPreviewFragment", "ON PAUSE")
+    //    Log.d("Home[onPause]", "0 - ON PAUSE")
     //    super.onPause()
+    //    binding.webView?.onPause()
+    //    binding.webView?.pauseTimers()
+    //}
+
+    //override fun onResume() {
+    //    Log.d("Home[onResume]", "ON RESUME")
+    //    super.onResume()
+    //    binding.webView?.onResume()
+    //    binding.webView?.resumeTimers()
     //}
 
     override fun onStop() {
@@ -227,6 +307,7 @@ class FilesPreviewFragment : Fragment() {
         if (::player.isInitialized) {
             player.release()
         }
+        binding.webView.destroy()
     }
 
     //override fun onStart() {
