@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     //alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.kotlin.parcelize)
+    //alias(libs.plugins.kotlin.parcelize)
     //alias(libs.plugins.androidx.navigation.safeargs.kotlin-gradle-plugin)
     //id("androidx.navigation.safeargs.kotlin") version "2.8.9" // Use the correct version
 }
@@ -67,10 +67,12 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
     implementation(libs.glide)
+    implementation(libs.okhttp3.integration)
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.ui)
     implementation(libs.media3.ui.compose)
+    //ksp(libs.glide.compiler)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

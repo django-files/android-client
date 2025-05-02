@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -16,6 +17,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.fragment.findNavController
@@ -133,9 +136,19 @@ class FilesPreviewFragment : Fragment() {
             Log.d("FilesPreviewFragment", "isPlaying: $isPlaying")
             Log.d("FilesPreviewFragment", "currentPosition: $currentPosition")
 
-            val mediaItem = MediaItem.fromUri(viewUrl!!)
-            val mediaSource = ProgressiveMediaSource.Factory(MediaCache.cacheDataSourceFactory)
-                .createMediaSource(mediaItem)
+            //val mediaSource = ProgressiveMediaSource.Factory(MediaCache.cacheDataSourceFactory)
+            //    .createMediaSource(MediaItem.fromUri(viewUrl!!))
+            val cookie = CookieManager.getInstance().getCookie(savedUrl)
+            Log.d("FilesPreviewFragment", "cookie: $cookie")
+            val baseDataSourceFactory = DefaultHttpDataSource.Factory()
+                .setDefaultRequestProperties(mapOf("Cookie" to cookie))
+            val cacheDataSourceFactory = CacheDataSource.Factory()
+                .setCache(MediaCache.simpleCache)
+                .setUpstreamDataSourceFactory(baseDataSourceFactory)
+                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+            val mediaSource = ProgressiveMediaSource.Factory(cacheDataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(viewUrl!!))
+
             player.setMediaSource(mediaSource)
             player.prepare()
             player.seekTo(currentPosition)
@@ -201,11 +214,14 @@ class FilesPreviewFragment : Fragment() {
 
         } else if (mimeType?.startsWith("text/") == true || isCodeMime(mimeType!!)) {
             Log.d("FilesPreviewFragment", "WEB VIEW TIME")
-            //val url = "${savedUrl}/code/${fileName}"
             val url = "file:///android_asset/preview/preview.html"
             Log.d("FilesPreviewFragment", "url: $url")
             binding.webView.visibility = View.VISIBLE
             binding.copyText.visibility = View.VISIBLE
+
+            //val cookieManager = CookieManager.getInstance()
+            //cookieManager.setAcceptCookie(true)
+            //cookieManager.setAcceptThirdPartyCookies(binding.webView, true)
 
             lifecycleScope.launch {
                 val content = withContext(Dispatchers.IO) { getContent(viewUrl!!) }
@@ -259,6 +275,9 @@ class FilesPreviewFragment : Fragment() {
                 .build()
         }
 
+        val cookies = CookieManager.getInstance().getCookie(viewUrl)
+        Log.d("getContent", "cookies: $cookies")
+
         val cacheDirectory = File(requireContext().cacheDir, "http_cache")
         val cache = Cache(cacheDirectory, 100 * 1024 * 1024)
 
@@ -267,8 +286,7 @@ class FilesPreviewFragment : Fragment() {
             .cache(cache)
             .build()
 
-        Log.d("getContent", "viewUrl: $viewUrl")
-        val request = Request.Builder().url(viewUrl).build()
+        val request = Request.Builder().url(viewUrl).header("Cookie", cookies ?: "").build()
         return try {
             client.newCall(request).execute().use { response ->
                 Log.d("getContent", "response.code: ${response.code}")

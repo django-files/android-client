@@ -199,20 +199,20 @@ class PreviewFragment : Fragment() {
                 val response = api.upload(fileName, inputStream)
                 Log.d("processUpload", "response: $response")
                 if (response.isSuccessful) {
-                    val fileResponse = response.body()
-                    Log.d("processUpload", "fileResponse: $fileResponse")
+                    val uploadResponse = response.body()
+                    Log.d("processUpload", "uploadResponse: $uploadResponse")
                     withContext(Dispatchers.Main) {
-                        if (fileResponse != null) {
-                            copyToClipboard(requireContext(), fileResponse.url)
+                        if (uploadResponse != null) {
+                            copyToClipboard(requireContext(), uploadResponse.url)
                             navController.navigate(
                                 R.id.nav_item_home,
-                                bundleOf("url" to fileResponse.url),
+                                bundleOf("url" to uploadResponse.url),
                                 NavOptions.Builder()
                                     .setPopUpTo(R.id.nav_graph, inclusive = true)
                                     .build()
                             )
                         } else {
-                            Log.w("processUpload", "fileResponse is null")
+                            Log.w("processUpload", "uploadResponse is null")
                             val msg = "Unknown Response!"
                             Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                         }
