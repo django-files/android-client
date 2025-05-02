@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.webkit.CookieManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,11 +18,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Slide
+import com.bumptech.glide.Glide
+import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
+import com.bumptech.glide.load.model.GlideUrl
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import java.io.InputStream
 
 //import android.net.Network
 //import android.net.NetworkCapabilities
@@ -103,6 +109,25 @@ class FilesFragment : Fragment() {
             Toast.makeText(context, "Missing Auth Token!", Toast.LENGTH_LONG).show()
             return
         }
+
+        Log.e("File[onViewCreated]", "Glide CookieMonster")
+        val cookie = CookieManager.getInstance().getCookie(savedUrl)
+        Log.d("Glide", "cookie: $cookie")
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("Cookie", cookie)
+                    .build()
+                chain.proceed(request)
+            }
+            .build()
+        val okHttpUrlLoader = OkHttpUrlLoader.Factory(okHttpClient)
+        Glide.get(requireContext()).registry.replace(
+            GlideUrl::class.java,
+            InputStream::class.java,
+            okHttpUrlLoader
+        )
+
         val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
         Log.i("File[onViewCreated]", "previewMetered: $previewMetered")
         val connectivityManager =

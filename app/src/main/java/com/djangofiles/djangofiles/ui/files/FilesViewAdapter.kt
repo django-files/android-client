@@ -11,7 +11,6 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.CookieManager
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -21,10 +20,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.R
@@ -32,8 +29,6 @@ import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.ServerApi.FileResponse
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
-import okhttp3.OkHttpClient
-import java.io.InputStream
 
 //import android.widget.ImageView
 //import android.net.ConnectivityManager
@@ -193,24 +188,6 @@ class FilesViewAdapter(
         if (isGlideMime(data.mime)) {
             viewHolder.loadingSpinner.visibility = View.VISIBLE
             //Log.d("Glide", "load: ${data.id}: ${data.mime}: $thumbUrl")
-
-            val cookie = CookieManager.getInstance().getCookie(thumbUrl)
-            Log.d("Glide", "cookie: $cookie")
-            val okHttpClient = OkHttpClient.Builder()
-                .addInterceptor { chain ->
-                    val request = chain.request().newBuilder()
-                        .addHeader("Cookie", cookie)
-                        .build()
-                    chain.proceed(request)
-                }
-                .build()
-
-            val okHttpUrlLoader = OkHttpUrlLoader.Factory(okHttpClient)
-            Glide.get(context).registry.replace(
-                GlideUrl::class.java,
-                InputStream::class.java,
-                okHttpUrlLoader
-            )
 
             Glide.with(viewHolder.itemView)
                 .load(thumbUrl)
