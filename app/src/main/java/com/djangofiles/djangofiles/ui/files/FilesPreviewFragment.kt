@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.fragment.findNavController
@@ -27,6 +28,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.djangofiles.djangofiles.MediaCache
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
 import kotlinx.coroutines.Dispatchers
@@ -136,12 +138,17 @@ class FilesPreviewFragment : Fragment() {
 
             //val mediaSource = ProgressiveMediaSource.Factory(MediaCache.cacheDataSourceFactory)
             //    .createMediaSource(MediaItem.fromUri(viewUrl!!))
-
             val cookie = CookieManager.getInstance().getCookie(savedUrl)
-            val dataSourceFactory = DefaultHttpDataSource.Factory()
+            Log.d("FilesPreviewFragment", "cookie: $cookie")
+            val baseDataSourceFactory = DefaultHttpDataSource.Factory()
                 .setDefaultRequestProperties(mapOf("Cookie" to cookie))
-            val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+            val cacheDataSourceFactory = CacheDataSource.Factory()
+                .setCache(MediaCache.simpleCache)
+                .setUpstreamDataSourceFactory(baseDataSourceFactory)
+                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+            val mediaSource = ProgressiveMediaSource.Factory(cacheDataSourceFactory)
                 .createMediaSource(MediaItem.fromUri(viewUrl!!))
+
             player.setMediaSource(mediaSource)
             player.prepare()
             player.seekTo(currentPosition)
