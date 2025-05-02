@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.fragment.findNavController
@@ -26,7 +27,6 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.djangofiles.djangofiles.MediaCache
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
 import kotlinx.coroutines.Dispatchers
@@ -134,9 +134,14 @@ class FilesPreviewFragment : Fragment() {
             Log.d("FilesPreviewFragment", "isPlaying: $isPlaying")
             Log.d("FilesPreviewFragment", "currentPosition: $currentPosition")
 
-            val mediaItem = MediaItem.fromUri(viewUrl!!)
-            val mediaSource = ProgressiveMediaSource.Factory(MediaCache.cacheDataSourceFactory)
-                .createMediaSource(mediaItem)
+            //val mediaSource = ProgressiveMediaSource.Factory(MediaCache.cacheDataSourceFactory)
+            //    .createMediaSource(MediaItem.fromUri(viewUrl!!))
+
+            val cookie = CookieManager.getInstance().getCookie(savedUrl)
+            val dataSourceFactory = DefaultHttpDataSource.Factory()
+                .setDefaultRequestProperties(mapOf("Cookie" to cookie))
+            val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(viewUrl!!))
             player.setMediaSource(mediaSource)
             player.prepare()
             player.seekTo(currentPosition)
