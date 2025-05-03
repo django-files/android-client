@@ -191,7 +191,7 @@ class UploadFragment : Fragment() {
         binding.shareButton.setOnClickListener {
             Log.d("shareButton", "setOnClickListener")
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                this.type = type
+                this.type = mimeType
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
@@ -206,7 +206,7 @@ class UploadFragment : Fragment() {
         binding.openButton.setOnClickListener {
             Log.d("openButton", "setOnClickListener")
             val openIntent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, type)
+                setDataAndType(uri, mimeType)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             startActivity(Intent.createChooser(openIntent, null))
