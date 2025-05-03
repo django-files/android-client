@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:background="?android:attr/colorBackground">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,12 +52,6 @@
                 app:show_shuffle_button="false"
                 app:resize_mode="fit"
                 tools:visibility="gone" />
-<!--            <WebView-->
-<!--                android:id="@+id/web_view"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:visibility="gone"-->
-<!--                tools:visibility="visible" />-->
         </FrameLayout>
 
         <EditText
@@ -86,9 +79,9 @@
             android:paddingStart="36dp"
             android:text="@string/upload"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            app:icon="@drawable/fa_upload"
+            app:icon="@drawable/md_upload_24px"
             app:iconGravity="end"
-            app:iconPadding="-36dp"
+            app:iconPadding="-24dp"
             app:iconSize="24dp" />
 
         <Button
@@ -100,9 +93,9 @@
             android:paddingStart="36dp"
             android:text="@string/options"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            app:icon="@drawable/fa_gear"
+            app:icon="@drawable/md_settings_24px"
             app:iconGravity="end"
-            app:iconPadding="-36dp"
+            app:iconPadding="-24dp"
             app:iconSize="24dp" />
 
         <LinearLayout
@@ -110,40 +103,27 @@
             android:layout_height="48dp"
             android:layout_marginTop="8dp"
             android:orientation="horizontal">
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
             <Button
                 android:id="@+id/share_button"
-                android:layout_width="140dp"
-                android:layout_height="match_parent"
-                android:text="@string/share"
-                app:icon="@drawable/fa_share_nodes"
-                app:iconGravity="textEnd"
-                app:iconSize="24dp" />
-
-            <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
-
+                android:layout_weight="1"
+                android:text="@string/share"
+                app:icon="@drawable/md_share_24"
+                app:iconGravity="textEnd"
+                app:iconSize="24dp" />
+            <Space
+                android:layout_width="20dp"
+                android:layout_height="match_parent" />
             <Button
                 android:id="@+id/open_button"
-                android:layout_width="140dp"
-                android:layout_height="match_parent"
-                android:text="@string/open"
-                app:icon="@drawable/fa_arrow_up_right_from_square"
-                app:iconGravity="textEnd"
-                app:iconSize="24dp" />
-
-            <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
-
+                android:layout_weight="1"
+                android:text="@string/open"
+                app:icon="@drawable/md_open_in_new_24"
+                app:iconGravity="textEnd"
+                app:iconSize="24dp" />
         </LinearLayout>
 
     </LinearLayout>

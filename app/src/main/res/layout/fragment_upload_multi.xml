@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:gravity="top"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -33,9 +34,9 @@
             android:paddingStart="36dp"
             android:text="@string/upload"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            app:icon="@drawable/fa_upload"
+            app:icon="@drawable/md_upload_24px"
             app:iconGravity="end"
-            app:iconPadding="-36dp"
+            app:iconPadding="-24dp"
             app:iconSize="24dp"
             tools:text="Upload 12 Files" />
 
@@ -48,9 +49,9 @@
             android:paddingStart="36dp"
             android:text="@string/options"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            app:icon="@drawable/fa_gear"
+            app:icon="@drawable/md_settings_24px"
             app:iconGravity="end"
-            app:iconPadding="-36dp"
+            app:iconPadding="-24dp"
             app:iconSize="24dp" />
 
     </LinearLayout>
