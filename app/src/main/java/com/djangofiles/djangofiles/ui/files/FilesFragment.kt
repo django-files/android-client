@@ -79,6 +79,7 @@ class FilesFragment : Fragment() {
     override fun onDestroyView() {
         Log.d("File[onDestroyView]", "ON DESTROY")
         super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles.ui.upload
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
@@ -12,23 +13,36 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
 import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentUploadBinding
+import com.djangofiles.djangofiles.ui.files.getGenericIcon
+import com.djangofiles.djangofiles.ui.files.isCodeMime
+import com.djangofiles.djangofiles.ui.files.isGlideMime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class UploadFragment : Fragment() {
 
@@ -37,26 +51,39 @@ class UploadFragment : Fragment() {
 
     private lateinit var navController: NavController
 
+    private lateinit var player: ExoPlayer
+    private lateinit var webView: WebView
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("PreviewFragment", "onCreateView: $savedInstanceState")
+        Log.d("UploadFragment", "onCreateView: $savedInstanceState")
         _binding = FragmentUploadBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
     }
 
     override fun onDestroyView() {
-        Log.d("PreviewFragment", "onDestroyView")
+        Log.d("UploadFragment", "onDestroyView")
         super.onDestroyView()
+        if (::player.isInitialized) {
+            Log.d("UploadFragment", "player.release")
+            player.release()
+        }
+        if (::webView.isInitialized) {
+            Log.d("UploadFragment", "webView.destroy")
+            webView.destroy()
+        }
         _binding = null
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
+    @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d("Prev[onViewCreated]", "savedInstanceState: $savedInstanceState")
-        Log.d("Prev[onViewCreated]", "arguments: $arguments")
+        Log.d("Upload[onViewCreated]", "savedInstanceState: $savedInstanceState")
+        Log.d("Upload[onViewCreated]", "arguments: $arguments")
 
         navController = findNavController()
 
@@ -69,27 +96,84 @@ class UploadFragment : Fragment() {
 
         //val uri = arguments?.getString("uri")?.toUri()
         val uri = requireArguments().getString("uri")?.toUri()
-        Log.d("Prev[onViewCreated]", "uri: $uri")
-        val type = arguments?.getString("type")
-        Log.d("Prev[onViewCreated]", "type: $type")
+        Log.d("Upload[onViewCreated]", "uri: $uri")
+        val mimeType = arguments?.getString("type")
+        Log.d("Upload[onViewCreated]", "mimeType: $mimeType")
         //val text = arguments?.getString("text")
-        //Log.d("Prev[onViewCreated]", "text: $text")
+        //Log.d("Upload[onViewCreated]", "text: $text")
 
         if (uri == null) {
             // TODO: Better Handle this Error
-            Log.e("Prev[onViewCreated]", "URI is null")
+            Log.e("Upload[onViewCreated]", "URI is null")
             Toast.makeText(requireContext(), "No URI to Process!", Toast.LENGTH_LONG).show()
             return
         }
 
         val fileName = getFileNameFromUri(requireContext(), uri)
-        Log.d("Prev[onViewCreated]", "fileName: $fileName")
+        Log.d("Upload[onViewCreated]", "fileName: $fileName")
         binding.fileName.setText(fileName)
 
-        if (type?.startsWith("image/") == true) {
-            // Show Image Preview
-            binding.imagePreview.setImageURI(uri)
+        // TODO: Overhaul with Glide and ExoPlayer...
+        if (mimeType?.startsWith("video/") == true || mimeType?.startsWith("audio/") == true) {
+            Log.d("Upload[onViewCreated]", "EXOPLAYER")
+            binding.playerView.visibility = View.VISIBLE
+
+            player = ExoPlayer.Builder(requireContext()).build()
+            binding.playerView.player = player
+            binding.playerView.controllerShowTimeoutMs = 1000
+            binding.playerView.setShowNextButton(false)
+            binding.playerView.setShowPreviousButton(false)
+            val dataSourceFactory = DefaultDataSource.Factory(requireContext())
+            val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(uri))
+            player.setMediaSource(mediaSource)
+            player.prepare()
+
+        } else if (isGlideMime(mimeType.toString())) {
+            Log.d("Upload[onViewCreated]", "GLIDE")
+            binding.imageHolder.visibility = View.VISIBLE
+
+            Glide.with(binding.imagePreview).load(uri).into(binding.imagePreview)
+
+        } else if (mimeType?.startsWith("text/") == true || isCodeMime(mimeType!!)) {
+            Log.d("Upload[onViewCreated]", "WEBVIEW")
+            webView = WebView(requireContext())
+            binding.frameLayout.addView(webView)
+
+            val url = "file:///android_asset/preview/preview.html"
+            Log.d("Upload[onViewCreated]", "url: $url")
+
+            val content = requireContext().contentResolver.openInputStream(uri)?.bufferedReader()
+                ?.use { it.readText() }
+            if (content == null) {
+                // TODO: Handle null content error...
+                Log.w("Upload[onViewCreated]", "content is null")
+                return
+            }
+            //Log.d("Upload[onViewCreated]", "content: $content")
+            val escapedContent = JSONObject.quote(content)
+            //Log.d("Upload[onViewCreated]", "escapedContent: $escapedContent")
+            val jsString = "addContent(${escapedContent});"
+            //Log.d("Upload[onViewCreated]", "jsString: $jsString")
+            webView.apply {
+                settings.javaScriptEnabled = true
+                addJavascriptInterface(object {
+                    @JavascriptInterface
+                    fun notifyReady() {
+                        webView.post {
+                            Log.i("Upload[onViewCreated]", "evaluateJavascript")
+                            webView.evaluateJavascript(jsString, null)
+                        }
+                    }
+                }, "Android")
+                Log.d("Upload[onViewCreated]", "loadUrl: $url")
+                loadUrl(url)
+            }
+
         } else {
+            Log.d("Upload[onViewCreated]", "OTHER")
+            binding.imageHolder.visibility = View.VISIBLE
+
             // Set Tint of Icon
             val typedValue = TypedValue()
             val theme = binding.imagePreview.context.theme
@@ -98,37 +182,10 @@ class UploadFragment : Fragment() {
             val dimmedTint = ColorUtils.setAlphaComponent(tint, (0.5f * 255).toInt())
             binding.imagePreview.setColorFilter(dimmedTint, PorterDuff.Mode.SRC_IN)
             // Set Mime Type Text
-            binding.imageOverlayText.text = type
+            binding.imageOverlayText.text = mimeType
             binding.imageOverlayText.visibility = View.VISIBLE
             // Set Icon Based on Type
-            // TODO: Create Mapping...
-            if (type?.startsWith("text/") == true) {
-                binding.imagePreview.setImageResource(R.drawable.fa_file_lines)
-            } else if (type?.startsWith("video/") == true) {
-                binding.imagePreview.setImageResource(R.drawable.fa_file_video)
-            } else if (type?.startsWith("audio/") == true) {
-                binding.imagePreview.setImageResource(R.drawable.fa_file_audio)
-            } else {
-                binding.imagePreview.setImageResource(R.drawable.fa_file_circle_question)
-            }
-        }
-
-        val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences?.getString("saved_url", null)
-        Log.d("Prev[onViewCreated]", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences?.getString("auth_token", null)
-        Log.d("Prev[onViewCreated]", "authToken: $authToken")
-
-        if (savedUrl == null) {
-            Log.e("Prev[onViewCreated]", "savedUrl is null")
-            Toast.makeText(requireContext(), "Missing URL!", Toast.LENGTH_LONG)
-                .show()
-            navController.navigate(
-                R.id.nav_item_login_two, null, NavOptions.Builder()
-                    .setPopUpTo(R.id.nav_item_home, true)
-                    .build()
-            )
-            return
+            binding.imagePreview.setImageResource(getGenericIcon(mimeType.toString()))
         }
 
         binding.shareButton.setOnClickListener {
@@ -231,6 +288,18 @@ class UploadFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                 }
+            }
+        }
+    }
+
+    override fun onStop() {
+        Log.d("Upload[onStop]", "1 - ON STOP")
+        super.onStop()
+        if (::player.isInitialized) {
+            Log.d("Upload[onStop]", "player.isPlaying: ${player.isPlaying}")
+            if (player.isPlaying) {
+                Log.d("Upload[onStop]", "player.pause")
+                player.pause()
             }
         }
     }

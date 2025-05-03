@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     applyTheme(mediaQuery)
     mediaQuery.addEventListener('change', applyTheme)
+
+    if (typeof Android !== 'undefined') {
+        console.log('Android')
+        Android.notifyReady()
+    }
 })
 
 function applyTheme(mediaQuery) {
