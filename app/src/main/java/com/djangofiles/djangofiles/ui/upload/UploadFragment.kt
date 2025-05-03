@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles.ui
+package com.djangofiles.djangofiles.ui.upload
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
@@ -25,14 +25,14 @@ import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.copyToClipboard
-import com.djangofiles.djangofiles.databinding.FragmentPreviewBinding
+import com.djangofiles.djangofiles.databinding.FragmentUploadBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class PreviewFragment : Fragment() {
+class UploadFragment : Fragment() {
 
-    private var _binding: FragmentPreviewBinding? = null
+    private var _binding: FragmentUploadBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var navController: NavController
@@ -43,7 +43,7 @@ class PreviewFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         Log.d("PreviewFragment", "onCreateView: $savedInstanceState")
-        _binding = FragmentPreviewBinding.inflate(inflater, container, false)
+        _binding = FragmentUploadBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
     }
@@ -234,18 +234,18 @@ class PreviewFragment : Fragment() {
             }
         }
     }
+}
 
-    // TODO: This was originally in ZiplineApi but being refactored in DF
-    private fun getFileNameFromUri(context: Context, uri: Uri): String? {
-        var fileName: String? = null
-        context.contentResolver.query(uri, null, null, null, null).use { cursor ->
-            if (cursor != null && cursor.moveToFirst()) {
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex)
-                }
+// TODO: This was originally in ZiplineApi but being refactored in DF
+fun getFileNameFromUri(context: Context, uri: Uri): String? {
+    var fileName: String? = null
+    context.contentResolver.query(uri, null, null, null, null).use { cursor ->
+        if (cursor != null && cursor.moveToFirst()) {
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIndex != -1) {
+                fileName = cursor.getString(nameIndex)
             }
         }
-        return fileName
     }
+    return fileName
 }

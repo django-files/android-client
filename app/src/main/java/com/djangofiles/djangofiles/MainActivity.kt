@@ -288,8 +288,18 @@ class MainActivity : AppCompatActivity() {
             for (fileUri in fileUris) {
                 Log.d("handleIntent", "MULTI: fileUri: $fileUri")
             }
-            Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
-            Log.w("handleIntent", "NOT IMPLEMENTED")
+            //Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
+            //Log.w("handleIntent", "NOT IMPLEMENTED")
+            val bundle = Bundle()
+            bundle.putParcelableArrayList("fileUris", fileUris)
+
+            navController.popBackStack(R.id.nav_graph, true)
+            navController.navigate(
+                R.id.nav_item_upload_multi, bundle, NavOptions.Builder()
+                    .setPopUpTo(R.id.nav_item_home, true)
+                    .setLaunchSingleTop(true)
+                    .build()
+            )
 
         } else if (Intent.ACTION_VIEW == action) {
             Log.d("handleIntent", "ACTION_VIEW")
@@ -335,7 +345,7 @@ class MainActivity : AppCompatActivity() {
 
         navController.popBackStack(R.id.nav_graph, true)
         navController.navigate(
-            R.id.nav_item_preview, bundle, NavOptions.Builder()
+            R.id.nav_item_upload, bundle, NavOptions.Builder()
                 .setPopUpTo(R.id.nav_item_home, true)
                 .setLaunchSingleTop(true)
                 .build()
@@ -464,7 +474,7 @@ object MediaCache {
         if (!::simpleCache.isInitialized) {
             simpleCache = SimpleCache(
                 File(context.cacheDir, "exoCache"),
-                LeastRecentlyUsedCacheEvictor(500 * 1024 * 1024),
+                LeastRecentlyUsedCacheEvictor(350 * 1024 * 1024),
                 StandaloneDatabaseProvider(context)
             )
             cacheDataSourceFactory = CacheDataSource.Factory()

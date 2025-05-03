@@ -65,9 +65,9 @@ class FilesViewAdapter(
 
     @SuppressLint("UseCompatTextViewDrawableApis")
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        //Log.d("UploadMultiAdapter", "position: $position")
         val data = dataSet[position]
-        //Log.i("onBindViewHolder", "data[$position]: $data")
-        //Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
+        //Log.d("onBindViewHolder", "data[$position]: $data")
 
         // Setup
         val typedValue = TypedValue()
@@ -305,6 +305,7 @@ fun isCodeMime(mimeType: String): Boolean {
         "text/x-go",
         "text/x-ruby",
         "text/x-php",
+        "text/x-python",
         "text/x-shellscript",
             -> true
 

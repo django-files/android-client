@@ -96,17 +96,15 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 ### Planned
 
 - Add Default Upload Options.
-- Add Custom Options to Preview page.
-- Option to Disable Preview Page on Open, Share, and for Links.
+- Add File Options to Preview page.
+- Option to Disable Preview Page on Open, Share, and/or for Links.
 - Ability to Authenticate if/when your session (cookie) is expired.
 - File List
-  - Context Menu with Options
-  - Multi-Select with Options
+  - Multi-Select with File Options
   - Response Caching for Infinite Scroll
 - File Preview
-  - File Options
-  - Text/Code Previews
   - PDF Previews
+  - File Options
 
 ### Known Issues
 
