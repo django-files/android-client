@@ -56,6 +56,7 @@ class FilesPreviewFragment : Fragment() {
     private var currentPosition: Long = 0
 
     private lateinit var player: ExoPlayer
+    private lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,17 +70,31 @@ class FilesPreviewFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("FilesPre[onCreateView]", "savedInstanceState: ${savedInstanceState?.size()}")
+        Log.d("FilesPreviewFragment", "onCreateView: ${savedInstanceState?.size()}")
         _binding = FragmentFilesPreviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
+    }
+
+    override fun onDestroyView() {
+        Log.d("FilesPreviewFragment", "onDestroyView")
+        super.onDestroyView()
+        if (::player.isInitialized) {
+            Log.d("FilesPreviewFragment", "player.release")
+            player.release()
+        }
+        if (::webView.isInitialized) {
+            Log.d("FilesPreviewFragment", "webView.destroy")
+            webView.destroy()
+        }
+        _binding = null
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("FilesPre[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
+        Log.d("FilesPreviewFragment", "onViewCreated: ${savedInstanceState?.size()}")
 
         binding.goBack.setOnClickListener {
             Log.d("FilesPreviewFragment", "GO BACK")
@@ -214,14 +229,16 @@ class FilesPreviewFragment : Fragment() {
 
         } else if (mimeType?.startsWith("text/") == true || isCodeMime(mimeType!!)) {
             Log.d("FilesPreviewFragment", "WEB VIEW TIME")
+            binding.copyText.visibility = View.VISIBLE
+            webView = WebView(requireContext())
+            binding.previewContainer.addView(webView)
+
             val url = "file:///android_asset/preview/preview.html"
             Log.d("FilesPreviewFragment", "url: $url")
-            binding.webView.visibility = View.VISIBLE
-            binding.copyText.visibility = View.VISIBLE
 
             //val cookieManager = CookieManager.getInstance()
             //cookieManager.setAcceptCookie(true)
-            //cookieManager.setAcceptThirdPartyCookies(binding.webView, true)
+            //cookieManager.setAcceptThirdPartyCookies(webView, true)
 
             lifecycleScope.launch {
                 val content = withContext(Dispatchers.IO) { getContent(viewUrl!!) }
@@ -242,7 +259,7 @@ class FilesPreviewFragment : Fragment() {
                 val jsString = "addContent(${escapedContent});"
                 //Log.d("FilesPreviewFragment", "jsString: $jsString")
                 withContext(Dispatchers.Main) {
-                    binding.webView.apply {
+                    webView.apply {
                         settings.javaScriptEnabled = true
                         loadUrl(url)
                         webViewClient = object : WebViewClient() {
@@ -302,17 +319,17 @@ class FilesPreviewFragment : Fragment() {
     }
 
     //override fun onPause() {
-    //    Log.d("Home[onPause]", "0 - ON PAUSE")
+    //    Log.d("Files[onPause]", "0 - ON PAUSE")
     //    super.onPause()
-    //    binding.webView?.onPause()
-    //    binding.webView?.pauseTimers()
+    //    webView.onPause()
+    //    webView.pauseTimers()
     //}
 
     //override fun onResume() {
     //    Log.d("Home[onResume]", "ON RESUME")
     //    super.onResume()
-    //    binding.webView?.onResume()
-    //    binding.webView?.resumeTimers()
+    //    webView.onResume()
+    //    webView.resumeTimers()
     //}
 
     override fun onStop() {
@@ -326,7 +343,7 @@ class FilesPreviewFragment : Fragment() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        Log.d("Files[onSave]", "2 - ON SAVE")
+        Log.d("Files[onSave]", "2 - ON SAVE: outState: ${outState.size()}")
         super.onSaveInstanceState(outState)
         if (::player.isInitialized) {
             Log.d("Files[onSave]", "isPlaying: $isPlaying")
@@ -336,15 +353,6 @@ class FilesPreviewFragment : Fragment() {
             Log.d("Files[onSave]", "player.currentPosition: ${player.currentPosition}")
             outState.putLong("current_position", player.currentPosition)
         }
-    }
-
-    override fun onDestroyView() {
-        Log.d("Files[onDestroy]", "3 - ON DESTROY")
-        super.onDestroyView()
-        if (::player.isInitialized) {
-            player.release()
-        }
-        binding.webView.destroy()
     }
 
     //override fun onStart() {

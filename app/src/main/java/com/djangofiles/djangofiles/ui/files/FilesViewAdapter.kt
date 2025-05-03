@@ -65,9 +65,9 @@ class FilesViewAdapter(
 
     @SuppressLint("UseCompatTextViewDrawableApis")
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        //Log.d("UploadMultiAdapter", "position: $position")
         val data = dataSet[position]
-        //Log.i("onBindViewHolder", "data[$position]: $data")
-        //Log.d("onBindViewHolder", "mime[$position]: ${data.mime}")
+        //Log.d("onBindViewHolder", "data[$position]: $data")
 
         // Setup
         val typedValue = TypedValue()
@@ -103,16 +103,15 @@ class FilesViewAdapter(
             if (data.expr.isNotEmpty()) null else colorOnSecondary
 
         // Variables
-        val passParam = if (data.password.isNotEmpty()) "&password=${data.password}" else ""
-        val viewUrl = "${data.raw}?view=gallery${passParam}"
-        val thumbUrl = "${data.thumb}${passParam}"
+        //val passParam = if (data.password.isNotEmpty()) "&password=${data.password}" else ""
+        val viewUrl = "${data.raw}?view=gallery"
 
         val bundle = Bundle().apply {
             putInt("fileId", data.id)
             putString("fileName", data.name)
             putString("mimeType", data.mime)
             putString("viewUrl", viewUrl)
-            putString("thumbUrl", thumbUrl)
+            putString("thumbUrl", data.thumb)
             putString("shareUrl", data.url)
             putString("rawUrl", data.raw)
             putString("filePassword", data.password)
@@ -190,7 +189,7 @@ class FilesViewAdapter(
             //Log.d("Glide", "load: ${data.id}: ${data.mime}: $thumbUrl")
 
             Glide.with(viewHolder.itemView)
-                .load(thumbUrl)
+                .load(data.thumb)
                 .onlyRetrieveFromCache(isMetered)
                 .listener(glideListener)
                 .into(viewHolder.fileImage)
@@ -305,6 +304,7 @@ fun isCodeMime(mimeType: String): Boolean {
         "text/x-go",
         "text/x-ruby",
         "text/x-php",
+        "text/x-python",
         "text/x-shellscript",
             -> true
 
