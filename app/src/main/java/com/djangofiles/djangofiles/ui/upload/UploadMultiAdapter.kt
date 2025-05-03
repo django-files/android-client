@@ -17,19 +17,27 @@ import com.djangofiles.djangofiles.ui.files.isGlideMime
 
 class UploadMultiAdapter(
     private val dataSet: List<Uri>,
+    private val selectedUris: MutableSet<Uri>,
     private val onItemClick: (MutableSet<Uri>) -> Unit,
 ) : RecyclerView.Adapter<UploadMultiAdapter.ViewHolder>() {
 
     private lateinit var context: Context
 
     // TODO: Consider moving this to a ViewModel...
-    val selectedUris: MutableSet<Uri> = dataSet.toMutableSet()
 
     //// Note: This data type redraws the list every time
     //val selectedUris = mutableSetOf<Uri>()
     //init {
     //    selectedUris.addAll(dataSet)
     //}
+
+    init {
+        setHasStableIds(true)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return dataSet[position].hashCode().toLong()
+    }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val imageHolder: FrameLayout = view.findViewById(R.id.image_holder)
@@ -47,12 +55,12 @@ class UploadMultiAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Log.d("Multi[onBindViewHolder]", "position: $position")
+        //Log.d("Multi[onBindViewHolder]", "position: $position")
         val data = dataSet[position]
-        Log.d("Multi[onBindViewHolder]", "data: $data")
+        //Log.d("Multi[onBindViewHolder]", "data: $data")
 
         val mimeType = context.contentResolver.getType(data)
-        Log.d("Multi[onBindViewHolder]", "mimeType: $mimeType")
+        //Log.d("Multi[onBindViewHolder]", "mimeType: $mimeType")
 
         if (mimeType != null && isGlideMime(mimeType)) {
             Glide.with(holder.imageView).load(data).into(holder.imageView)
@@ -61,7 +69,7 @@ class UploadMultiAdapter(
         }
 
         val fileName = getFileNameFromUri(context, data)
-        Log.d("Multi[onBindViewHolder]", "fileName: $fileName")
+        //Log.d("Multi[onBindViewHolder]", "fileName: $fileName")
         holder.fileText.text = fileName
 
         if (selectedUris.contains(data)) {

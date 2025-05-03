@@ -11,11 +11,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentUploadMultiBinding
@@ -26,16 +28,21 @@ class UploadMultiFragment : Fragment() {
     private var _binding: FragmentUploadMultiBinding? = null
     private val binding get() = _binding!!
 
-    private var fileUris: ArrayList<Uri>? = null
+    private val viewModel: UploadViewModel by activityViewModels()
 
     private lateinit var navController: NavController
+    private lateinit var adapter: UploadMultiAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("UploadMultiFragment", "onCreateView: $savedInstanceState")
+        Log.d("Multi[onCreateView]", "savedInstanceState: ${savedInstanceState?.size()}")
         _binding = FragmentUploadMultiBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -48,7 +55,7 @@ class UploadMultiFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d("Multi[onViewCreated]", "savedInstanceState: $savedInstanceState")
+        Log.d("Multi[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
         Log.d("Multi[onViewCreated]", "arguments: $arguments")
 
         navController = findNavController()
@@ -60,7 +67,7 @@ class UploadMultiFragment : Fragment() {
         Log.d("Multi[onViewCreated]", "authToken: $authToken")
 
         if (savedUrl == null) {
-            Log.e("Multi[onViewCreated]", "savedUrl is null")
+            Log.w("Multi[onViewCreated]", "savedUrl is null")
             Toast.makeText(requireContext(), "Missing URL!", Toast.LENGTH_LONG)
                 .show()
             navController.navigate(
@@ -71,60 +78,74 @@ class UploadMultiFragment : Fragment() {
             return
         }
 
-        // TODO: Determine how to better pass fileUris argument
-        arguments?.let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                fileUris = it.getParcelableArrayList("fileUris", Uri::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                fileUris = it.getParcelableArrayList("fileUris")
-            }
+        val fileUris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireArguments().getParcelableArrayList("fileUris", Uri::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            requireArguments().getParcelableArrayList("fileUris")
         }
-        Log.d("Multi[onViewCreated]", "fileUris: $fileUris")
-
         if (fileUris == null) {
-            // TODO: Better Handle this Error
-            Log.e("Multi[onViewCreated]", "URI is null")
-            Toast.makeText(requireContext(), "No URI to Process!", Toast.LENGTH_LONG).show()
+            Log.w("Multi[onCreate]", "fileUris is null")
             return
         }
 
-        // ViewAdapter
-        binding.previewRecycler.layoutManager = GridLayoutManager(requireContext(), 2)
-        val adapter = UploadMultiAdapter(fileUris!!) { selectedUris ->
-            //Log.d("Multi[onItemClick]", "selectedUris: $selectedUris")
-            Log.d("Multi[onItemClick]", "selectedUris.size: ${selectedUris.size}")
-            binding.uploadButton.text = getString(R.string.upload_multi, selectedUris.size)
+        if (viewModel.selectedUris.value == null) {
+            Log.i("Multi[onCreate]", "RESET SELECTED URIS TO ALL")
+            viewModel.selectedUris.value = fileUris.toSet()
+        } else {
+            Log.i("Multi[onCreate]", "USE VIEW MODEL SELECTED URIS")
         }
-        binding.previewRecycler.adapter = adapter
+
+        Log.d("Multi[onViewCreated]", "fileUris.size: ${fileUris.size}")
+        val selectedUris = viewModel.selectedUris.value!!.toMutableSet()
+        Log.d("Multi[onViewCreated]", "selectedUris.size: ${selectedUris.size}")
+
+        if (!::adapter.isInitialized) {
+            Log.i("Multi[onViewCreated]", "INITIALIZE NEW ADAPTER")
+            adapter = UploadMultiAdapter(fileUris, selectedUris) { updated ->
+                viewModel.selectedUris.value = updated
+                binding.uploadButton.text = getString(R.string.upload_multi, updated.size)
+            }
+        }
+
+        binding.previewRecycler.layoutManager = GridLayoutManager(requireContext(), 2)
+        if (binding.previewRecycler.adapter == null) {
+            binding.previewRecycler.adapter = adapter
+        }
 
         // Upload Button
-        binding.uploadButton.text = getString(R.string.upload_multi, adapter.selectedUris.size)
+        binding.uploadButton.text = getString(R.string.upload_multi, selectedUris.size)
         binding.uploadButton.setOnClickListener {
-            Log.d("uploadButton", "selectedUris: ${adapter.selectedUris}")
-            Log.d("uploadButton", "selectedUris.size: ${adapter.selectedUris.size}")
-            processUpload(adapter.selectedUris)
+            val selectedUris = viewModel.selectedUris.value
+            //Log.d("uploadButton", "selectedUris: $selectedUris")
+            Log.d("uploadButton", "selectedUris.size: ${selectedUris?.size}")
+            if (selectedUris.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "No Files Selected!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            processMultiUpload(selectedUris)
         }
+
         // Options Button
         binding.optionsButton.setOnClickListener {
-            Log.d("optionsButton", "setOnClickListener")
+            Log.d("optionsButton", "setOnClickListener: navigate: nav_item_settings")
             navController.navigate(R.id.nav_item_settings)
         }
     }
 
-    // TODO: DUPLICATION: ShortFragment.processShort
-    private fun processUpload(fileUris: MutableSet<Uri>) {
-        Log.d("processUpload", "fileUris: $fileUris")
+    private fun processMultiUpload(fileUris: Set<Uri>) {
+        Log.d("processMultiUpload", "fileUris: $fileUris")
+        Log.d("processMultiUpload", "fileUris.size: ${fileUris.size}")
         val sharedPreferences =
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences.getString("saved_url", null)
-        Log.d("processUpload", "savedUrl: $savedUrl")
+        Log.d("processMultiUpload", "savedUrl: $savedUrl")
         val authToken = sharedPreferences.getString("auth_token", null)
-        Log.d("processUpload", "authToken: $authToken")
+        Log.d("processMultiUpload", "authToken: $authToken")
 
         if (savedUrl == null || authToken == null) {
             // TODO: Show settings dialog here...
-            Log.w("processUpload", "Missing OR savedUrl/authToken/fileName")
+            Log.w("processMultiUpload", "Missing OR savedUrl/authToken/fileName")
             Toast.makeText(requireContext(), getString(R.string.tst_no_url), Toast.LENGTH_SHORT)
                 .show()
             return
@@ -133,27 +154,27 @@ class UploadMultiFragment : Fragment() {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 
         val api = ServerApi(requireContext(), savedUrl)
-        Log.d("processUpload", "api: $api")
+        Log.d("processMultiUpload", "api: $api")
         val currentContext = requireContext()
         lifecycleScope.launch {
             for (fileUri in fileUris) {
-                Log.d("processUpload", "fileUri: $fileUri")
+                Log.d("processMultiUpload", "fileUri: $fileUri")
                 val fileName = getFileNameFromUri(currentContext, fileUri)
-                Log.d("processUpload", "fileName: $fileName")
+                Log.d("processMultiUpload", "fileName: $fileName")
                 try {
                     val inputStream = currentContext.contentResolver.openInputStream(fileUri)
                     if (inputStream == null) {
-                        Log.w("processUpload", "inputStream is null")
+                        Log.w("processMultiUpload", "inputStream is null")
                         continue
                     }
                     val response = api.upload(fileName!!, inputStream)
-                    Log.d("processUpload", "response: $response")
+                    Log.d("processMultiUpload", "response: $response")
                     if (response.isSuccessful) {
                         val uploadResponse = response.body()
-                        Log.d("processUpload", "uploadResponse: $uploadResponse")
+                        Log.d("processMultiUpload", "uploadResponse: $uploadResponse")
                     } else {
                         val msg = "Error: ${response.code()}: ${response.message()}"
-                        Log.w("processUpload", "UPLOAD ERROR: $msg")
+                        Log.w("processMultiUpload", "UPLOAD ERROR: $msg")
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

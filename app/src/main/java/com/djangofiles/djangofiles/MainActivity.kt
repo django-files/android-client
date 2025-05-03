@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         val versionName = packageInfo.versionName
-        Log.d("Main[onCreate]", "versionName: $versionName")
+        //Log.d("Main[onCreate]", "versionName: $versionName")
 
         val headerView = binding.navigationView.getHeaderView(0)
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
@@ -147,7 +147,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        handleIntent(intent, savedInstanceState)
+        // Only Handel Intent Once on Startup
+        if (savedInstanceState?.getBoolean("intentHandled") != true) {
+            handleIntent(intent)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("intentHandled", true)
     }
 
     // TODO: Update with a ViewModel...
@@ -162,11 +170,11 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Log.d("onNewIntent", "intent: $intent")
-        handleIntent(intent, null)
+        handleIntent(intent)
     }
 
-    private fun handleIntent(intent: Intent, savedInstanceState: Bundle?) {
-        Log.d("handleIntent", "intent: $intent")
+    private fun handleIntent(intent: Intent) {
+        //Log.d("handleIntent", "intent: $intent")
         val data = intent.data
         val type = intent.type
         val action = intent.action
@@ -180,11 +188,11 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences.getString("saved_url", null)
         Log.d("handleIntent", "savedUrl: $savedUrl")
-        Log.d("handleIntent", "data?.host: ${data?.host}")
         //val authToken = sharedPreferences.getString("auth_token", null)
         //Log.d("handleIntent", "authToken: $authToken")
 
         Log.d("handleIntent", "data?.host: ${data?.host}")
+
         if (data?.host != "oauth" && savedUrl.isNullOrEmpty()) {
             Log.i("handleIntent", "Missing Saved URL or Token! Showing Login...")
 
@@ -196,7 +204,7 @@ class MainActivity : AppCompatActivity() {
             )
 
         } else if (Intent.ACTION_MAIN == action) {
-            Log.d("handleIntent", "ACTION_MAIN: ${savedInstanceState?.size()}")
+            Log.d("handleIntent", "ACTION_MAIN")
 
             binding.drawerLayout.closeDrawers()
 
@@ -285,11 +293,8 @@ class MainActivity : AppCompatActivity() {
                 Log.w("handleIntent", "fileUris is null")
                 return
             }
-            for (fileUri in fileUris) {
-                Log.d("handleIntent", "MULTI: fileUri: $fileUri")
-            }
-            //Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
-            //Log.w("handleIntent", "NOT IMPLEMENTED")
+            //fileUris.sort()
+            //Log.d("handleIntent", "fileUris: $fileUris")
             val bundle = Bundle()
             bundle.putParcelableArrayList("fileUris", fileUris)
 
