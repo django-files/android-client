@@ -17,7 +17,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentUploadMultiBinding

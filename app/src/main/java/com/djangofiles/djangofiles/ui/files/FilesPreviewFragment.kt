@@ -302,17 +302,17 @@ class FilesPreviewFragment : Fragment() {
     }
 
     //override fun onPause() {
-    //    Log.d("Home[onPause]", "0 - ON PAUSE")
+    //    Log.d("Files[onPause]", "0 - ON PAUSE")
     //    super.onPause()
-    //    binding.webView?.onPause()
-    //    binding.webView?.pauseTimers()
+    //    binding.webView.onPause()
+    //    binding.webView.pauseTimers()
     //}
 
     //override fun onResume() {
     //    Log.d("Home[onResume]", "ON RESUME")
     //    super.onResume()
-    //    binding.webView?.onResume()
-    //    binding.webView?.resumeTimers()
+    //    binding.webView.onResume()
+    //    binding.webView.resumeTimers()
     //}
 
     override fun onStop() {
@@ -326,7 +326,7 @@ class FilesPreviewFragment : Fragment() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        Log.d("Files[onSave]", "2 - ON SAVE")
+        Log.d("Files[onSave]", "2 - ON SAVE: outState: ${outState.size()}")
         super.onSaveInstanceState(outState)
         if (::player.isInitialized) {
             Log.d("Files[onSave]", "isPlaying: $isPlaying")
