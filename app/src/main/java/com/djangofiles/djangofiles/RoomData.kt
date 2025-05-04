@@ -10,6 +10,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.Upsert
 
 
 @Dao
@@ -28,6 +29,9 @@ interface ServerDao {
 
     @Insert
     fun add(server: Server)
+
+    @Upsert
+    fun addOrUpdate(server: Server)
 
     @Query("UPDATE server SET active = 1 WHERE url = :url")
     fun activate(url: String)

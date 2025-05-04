@@ -92,9 +92,9 @@ class LoginTwoFragment : Fragment() {
             Log.d("OnClickListener", "it: ${it.id}")
 
             val username = binding.loginUsername.text.toString().trim()
-            Log.d("setOnClickListener", "username: $username")
+            Log.d("loginFunction", "username: $username")
             val password = binding.loginPassword.text.toString().trim()
-            Log.d("setOnClickListener", "password: $password")
+            Log.d("loginFunction", "password: $password")
             var valid = true
             if (username.isEmpty()) {
                 binding.loginUsername.error = "Required"
@@ -109,45 +109,45 @@ class LoginTwoFragment : Fragment() {
             lifecycleScope.launch {
                 val api = ServerApi(requireContext(), hostname!!)
                 val token = api.login(username, password)
-                Log.d("OMG", "token: $token")
+                Log.d("loginFunction", "token: $token")
                 if (token == null) {
-                    Log.d("OMG", "LOGIN FAILED")
+                    Log.d("loginFunction", "LOGIN FAILED")
                     withContext(Dispatchers.Main) {
                         Toast.makeText(requireContext(), "Login Failed", Toast.LENGTH_LONG).show()
                     }
                     return@launch
                 }
-                Log.d("OMG", "SUCCESS")
+                Log.d("loginFunction", "SUCCESS")
                 val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()
-                Log.d("OMG", "dao.add Server url = $hostname")
+                Log.d("loginFunction", "dao.add Server url = $hostname")
                 try {
                     withContext(Dispatchers.IO) {
-                        dao.add(Server(url = hostname, token = token, active = true))
+                        dao.addOrUpdate(Server(url = hostname, token = token, active = true))
                     }
                 } catch (e: Exception) {
+                    // TODO: This needs to be handled...
                     val msg = e.message ?: "Unknown Error"
-                    Log.e("OMG", "Exception: msg: $msg")
-                    // TODO: Update to allow duplicates but still catch errors...
-                    //withContext(Dispatchers.Main) {
-                    //    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                    //}
-                    //return@launch
+                    Log.e("loginFunction", "Exception: msg: $msg")
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
                 }
                 sharedPreferences.edit {
                     putString("saved_url", hostname)
                     putString("auth_token", token)
                 }
-                Log.d("OMG", "MainActivity: setDrawerLockMode(true)")
+                Log.d("loginFunction", "MainActivity: setDrawerLockMode(true)")
                 (requireActivity() as MainActivity).setDrawerLockMode(true)
                 withContext(Dispatchers.Main) {
-                    Log.d("OMG", "navigate: nav_item_home")
+                    Log.d("loginFunction", "navigate: nav_item_home")
                     findNavController().navigate(
                         R.id.nav_item_home, null, NavOptions.Builder()
                             .setPopUpTo(R.id.nav_item_login, true)
                             .build()
                     )
                 }
-                Log.d("OMG", "DONE")
+                Log.d("loginFunction", "DONE")
             }
         }
 
