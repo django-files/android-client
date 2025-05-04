@@ -420,8 +420,13 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val dao: ServerDao =
                 ServerDatabase.getInstance(this@MainActivity).serverDao()
-            withContext(Dispatchers.IO) {
-                dao.addOrUpdate(Server(url = oauthUrl, token = token!!, active = true))
+            try {
+                withContext(Dispatchers.IO) {
+                    dao.addOrUpdate(Server(url = oauthUrl, token = token!!, active = true))
+                }
+            } catch (e: Exception) {
+                // TODO: This needs to be handled...
+                Log.e("processOauth", "Exception: $e")
             }
         }
 
