@@ -421,7 +421,7 @@ class MainActivity : AppCompatActivity() {
             val dao: ServerDao =
                 ServerDatabase.getInstance(this@MainActivity).serverDao()
             withContext(Dispatchers.IO) {
-                dao.add(Server(url = oauthUrl, token = token!!, active = true))
+                dao.addOrUpdate(Server(url = oauthUrl, token = token!!, active = true))
             }
         }
 

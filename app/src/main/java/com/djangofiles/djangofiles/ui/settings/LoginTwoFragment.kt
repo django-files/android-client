@@ -122,7 +122,7 @@ class LoginTwoFragment : Fragment() {
                 Log.d("OMG", "dao.add Server url = $hostname")
                 try {
                     withContext(Dispatchers.IO) {
-                        dao.add(Server(url = hostname, token = token, active = true))
+                        dao.addOrUpdate(Server(url = hostname, token = token, active = true))
                     }
                 } catch (e: Exception) {
                     val msg = e.message ?: "Unknown Error"
