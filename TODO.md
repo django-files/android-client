@@ -1,6 +1,6 @@
 # TODO
 
-- [Authentication](#Authentication)
+- [TODO](#TODO)
 - [Status](#Status)
 
 ## Authentication
@@ -13,8 +13,7 @@ Options for persistent authentication are:
 ## Upload
 
 - Add Upload Options to Previews
-- Enable Multi for Upload Shortcut
-- Enable Multi for Upload Menu Option
+- Add Support for Plain Text Sharing
 
 ## File List
 
@@ -41,6 +40,8 @@ Options for persistent authentication are:
 - Move Room to Directory
 - Implement Room Active Server
 
+---
+
 # Status
 
 ## Authentication
@@ -48,7 +49,25 @@ Options for persistent authentication are:
 - Returns a Cookie
 - Uses Cookie to get Token
 
-## File List
+## Uploads
+
+### File
+
+- File Previews
+
+### Multiple Files
+
+- Image Previews w/ Multi-Select
+
+### URLs
+
+- Preview w/ Vanity Option
+
+### Text
+
+- WIP
+
+## File List/Preview
 
 Total Cache Size: `700` MB
 

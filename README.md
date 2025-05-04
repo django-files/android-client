@@ -86,25 +86,25 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 
 ## Features
 
-- Share or Open any file and automatically copy the URL to the clipboard.
-- Ability to add multiple servers and switch on the fly from the Server List menu.
+- Share or Open any files and automatically copy the URL to the clipboard.
+- Upload Previews for Media with File Selector when uploading multiple files.
+- Native File List with Options, Infinite Scroll, and Live Previews for Media.
 - Supports Native Local Login, GitHub OAuth, Google OAuth, and Discord OAuth.
-- Native Upload feature from Navigation Drawer and Upload Shortcut on Icon long press.
-- Basic Native File List with Open, Share, Preview, Infinite Scroll, Custom Options.
-- File Previews for Images, Video, Audio and Text via Glide, ExoPlayer and Highlight.js.
+- Ability to add multiple servers and switch on the fly from the Server List menu.
 
 ### Planned
 
 - Add Default Upload Options.
-- Add File Options to Preview page.
-- Option to Disable Preview Page on Open, Share, and/or for Links.
-- Ability to Authenticate if/when your session (cookie) is expired.
+- Option to Disable Preview Page.
+- Ability to Auto Authenticate when your session expires.
+- Upload Preview
+  - Upload Options
 - File List
   - Multi-Select with File Options
   - Response Caching for Infinite Scroll
 - File Preview
-  - PDF Previews
   - File Options
+  - PDF Previews
 
 ### Known Issues
 

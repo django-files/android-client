@@ -94,13 +94,16 @@ class UploadFragment : Fragment() {
         //}
         //requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
-        //val uri = arguments?.getString("uri")?.toUri()
+        //val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        //    requireArguments().getParcelable("EXTRA_INTENT", Intent::class.java)
+        //} else {
+        //    @Suppress("DEPRECATION")
+        //    requireArguments().getParcelable("EXTRA_INTENT") as? Intent
+        //}
+        //Log.d("Upload[onViewCreated]", "intent: $intent")
+
         val uri = requireArguments().getString("uri")?.toUri()
         Log.d("Upload[onViewCreated]", "uri: $uri")
-        val mimeType = arguments?.getString("type")
-        Log.d("Upload[onViewCreated]", "mimeType: $mimeType")
-        //val text = arguments?.getString("text")
-        //Log.d("Upload[onViewCreated]", "text: $text")
 
         if (uri == null) {
             // TODO: Better Handle this Error
@@ -108,6 +111,9 @@ class UploadFragment : Fragment() {
             Toast.makeText(requireContext(), "No URI to Process!", Toast.LENGTH_LONG).show()
             return
         }
+
+        val mimeType = requireContext().contentResolver.getType(uri)
+        Log.d("Upload[onViewCreated]", "mimeType: $mimeType")
 
         val fileName = getFileNameFromUri(requireContext(), uri)
         Log.d("Upload[onViewCreated]", "fileName: $fileName")
@@ -305,7 +311,6 @@ class UploadFragment : Fragment() {
     }
 }
 
-// TODO: This was originally in ZiplineApi but being refactored in DF
 fun getFileNameFromUri(context: Context, uri: Uri): String? {
     var fileName: String? = null
     context.contentResolver.query(uri, null, null, null, null).use { cursor ->
