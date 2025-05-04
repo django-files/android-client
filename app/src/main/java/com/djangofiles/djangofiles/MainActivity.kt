@@ -68,7 +68,6 @@ class MainActivity : AppCompatActivity() {
         //navController = navHostFragment.navController
         //val inflater = navController.navInflater
         //val originalGraph = inflater.inflate(R.navigation.nav_graph)
-        //
         //Log.d("Main[onCreate]", "intent?.action: ${intent?.action}")
         //val startDest = when (intent?.action) {
         //    Intent.ACTION_VIEW -> R.id.nav_item_upload
@@ -77,28 +76,23 @@ class MainActivity : AppCompatActivity() {
         //    else -> R.id.nav_item_home
         //}
         //Log.d("Main[onCreate]", "startDest: $startDest")
-        //
         //val navState = NavGraphNavigator(navController.navigatorProvider)
         //val newGraph = NavGraph(navState).apply {
         //    id = originalGraph.id
         //    addAll(originalGraph)
         //    setStartDestination(startDest)
         //}
-        //
         //val args = if (startDest != R.id.nav_item_home) {
         //    Bundle().apply {
         //        putParcelable("EXTRA_INTENT", intent)
         //    }
         //} else null
         //Log.d("Main[onCreate]", "args: $args")
-        //
         //navController.setGraph(newGraph, args)
-        //
         //Log.d("Main[onCreate]", "DONE - navController")
 
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         val versionName = packageInfo.versionName
-        //Log.d("Main[onCreate]", "versionName: $versionName")
 
         val headerView = binding.navigationView.getHeaderView(0)
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
@@ -193,8 +187,8 @@ class MainActivity : AppCompatActivity() {
         outState.putBoolean("intentHandled", true)
     }
 
-    // TODO: Update with a ViewModel...
     fun setDrawerLockMode(enabled: Boolean) {
+        // TODO: Update with a ViewModel...
         Log.d("setDrawerLockMode", "enabled: $enabled")
         val lockMode =
             if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
@@ -244,12 +238,10 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawers()
 
             // TODO: Cleanup the logic for handling MAIN intent...
-
             //val currentDestinationId = navController.currentDestination?.id
             //Log.d("handleIntent", "currentDestinationId: $currentDestinationId")
             //val launcherAction = sharedPreferences.getString("launcher_action", null)
             //Log.d("handleIntent", "launcherAction: $launcherAction")
-
             //Log.d("handleIntent", "nav_item_preview: ${R.id.nav_item_preview}")
             //Log.d("handleIntent", "nav_item_short: ${R.id.nav_item_short}")
             //if (currentDestinationId == R.id.nav_item_preview || currentDestinationId == R.id.nav_item_short) {
@@ -266,7 +258,6 @@ class MainActivity : AppCompatActivity() {
             //    navController.navigate(R.id.nav_item_home)
             //}
 
-            // TODO: Determine if this needs to be in the above if/else
             val fromShortcut = intent.getStringExtra("fromShortcut")
             Log.d("handleIntent", "fromShortcut: $fromShortcut")
             if (fromShortcut == "upload") {
@@ -297,7 +288,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     // TODO: Determine how to properly navigate on new intent...
                     //navController.navigate(R.id.nav_item_short, bundle)
-
                     navController.popBackStack(R.id.nav_graph, true)
                     navController.navigate(
                         R.id.nav_item_short, bundle, NavOptions.Builder()
@@ -362,17 +352,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    private fun navigateIntent(destination: Int){
-//        val args = Bundle().apply { putParcelable("intent", intent) }
-//        Log.d("Main[onCreate]", "args: $args")
-//        navController.popBackStack(R.id.nav_graph, true)
-//        navController.navigate(
-//            destination, args, NavOptions.Builder()
-//                .setPopUpTo(R.id.nav_item_home, true)
-//                .setLaunchSingleTop(true)
-//                .build()
-//        )
-//    }
+    //private fun navigateIntent(destination: Int){
+    //    val args = Bundle().apply { putParcelable("intent", intent) }
+    //    Log.d("Main[onCreate]", "args: $args")
+    //    navController.popBackStack(R.id.nav_graph, true)
+    //    navController.navigate(
+    //        destination, args, NavOptions.Builder()
+    //            .setPopUpTo(R.id.nav_item_home, true)
+    //            .setLaunchSingleTop(true)
+    //            .build()
+    //    )
+    //}
 
     private fun showMultiPreview(fileUris: ArrayList<Uri>) {
         Log.d("Main[showMultiPreview]", "fileUris: $fileUris")
@@ -476,7 +466,6 @@ class MainActivity : AppCompatActivity() {
                 Log.d("processLogout", "NO MORE SERVERS - LOCK TO LOGIN")
                 //(requireActivity() as MainActivity).setDrawerLockMode(false)
                 setDrawerLockMode(false)
-                // TODO: Confirm this removes history and locks user to login
                 navController.navigate(
                     R.id.nav_item_login, null, NavOptions.Builder()
                         .setPopUpTo(R.id.nav_item_home, true)
