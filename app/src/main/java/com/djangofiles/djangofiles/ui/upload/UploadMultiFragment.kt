@@ -154,6 +154,7 @@ class UploadMultiFragment : Fragment() {
 
         val api = ServerApi(requireContext(), savedUrl)
         Log.d("processMultiUpload", "api: $api")
+        val results: MutableList<ServerApi.UploadResponse> = mutableListOf()
         val currentContext = requireContext()
         lifecycleScope.launch {
             for (fileUri in fileUris) {
@@ -171,6 +172,9 @@ class UploadMultiFragment : Fragment() {
                     if (response.isSuccessful) {
                         val uploadResponse = response.body()
                         Log.d("processMultiUpload", "uploadResponse: $uploadResponse")
+                        if (uploadResponse != null) {
+                            results.add(uploadResponse)
+                        }
                     } else {
                         val msg = "Error: ${response.code()}: ${response.message()}"
                         Log.w("processMultiUpload", "UPLOAD ERROR: $msg")
@@ -179,11 +183,20 @@ class UploadMultiFragment : Fragment() {
                     e.printStackTrace()
                 }
             }
-
-            Toast.makeText(requireContext(), "Upload Complete.", Toast.LENGTH_SHORT).show()
+            Log.d("processMultiUpload", "results: $results")
+            Log.d("processMultiUpload", "results,size: ${results.size}")
+            if (results.isEmpty()) {
+                // TODO: Handle upload failures better...
+                Toast.makeText(requireContext(), "All Uploads Failed!", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            val destUrl = if (results.size != 1) "${savedUrl}/files/" else results[0].url
+            Log.d("processMultiUpload", "destUrl: $destUrl")
+            val msg = "Uploaded ${results.size} Files."
+            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
             navController.navigate(
                 R.id.nav_item_home,
-                bundleOf("url" to "${savedUrl}/files/"),
+                bundleOf("url" to destUrl),
                 NavOptions.Builder()
                     .setPopUpTo(R.id.nav_graph, inclusive = true)
                     .build()

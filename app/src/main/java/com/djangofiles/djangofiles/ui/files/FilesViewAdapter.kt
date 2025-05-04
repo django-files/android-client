@@ -2,7 +2,6 @@ package com.djangofiles.djangofiles.ui.files
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -15,7 +14,6 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -255,73 +253,4 @@ class FilesViewAdapter(
         bytes >= 1 shl 10 -> "%.0f kB".format(bytes / (1 shl 10))
         else -> "$bytes b"
     }
-}
-
-fun isGlideMime(mimeType: String): Boolean {
-    return when (mimeType.lowercase()) {
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-        "image/heif",
-            -> true
-
-        else -> false
-    }
-}
-
-fun openUrl(context: Context, url: String) {
-    val openIntent = Intent(Intent.ACTION_VIEW).apply {
-        setDataAndType(url.toUri(), "text/plain")
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    context.startActivity(Intent.createChooser(openIntent, null))
-}
-
-fun shareUrl(context: Context, url: String) {
-    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_TEXT, url)
-    }
-    context.startActivity(Intent.createChooser(shareIntent, null))
-}
-
-fun isCodeMime(mimeType: String): Boolean {
-    if (mimeType.startsWith("text/x-script")) return true
-    return when (mimeType.lowercase()) {
-        "application/atom+xml",
-        "application/javascript",
-        "application/json",
-        "application/ld+json",
-        "application/rss+xml",
-        "application/xml",
-        "application/x-httpd-php",
-        "application/x-python",
-        "application/x-www-form-urlencoded",
-        "application/yaml",
-        "text/javascript",
-        "text/python",
-        "text/x-go",
-        "text/x-ruby",
-        "text/x-php",
-        "text/x-python",
-        "text/x-shellscript",
-            -> true
-
-        else -> false
-    }
-}
-
-fun getGenericIcon(mimeType: String): Int = when {
-    isCodeMime(mimeType) -> R.drawable.md_code_blocks_24
-    mimeType.startsWith("application/json") -> R.drawable.md_file_json_24
-    mimeType.startsWith("application/pdf") -> R.drawable.md_picture_as_pdf_24
-    mimeType.startsWith("image/gif") -> R.drawable.md_gif_box_24
-    mimeType.startsWith("image/png") -> R.drawable.md_file_png_24
-    mimeType.startsWith("text/csv") -> R.drawable.md_csv_24
-    mimeType.startsWith("audio/") -> R.drawable.md_music_note_24
-    mimeType.startsWith("image/") -> R.drawable.md_imagesmode_24
-    mimeType.startsWith("text/") -> R.drawable.md_docs_24
-    mimeType.startsWith("video/") -> R.drawable.md_videocam_24
-    else -> R.drawable.md_unknown_document_24
 }
