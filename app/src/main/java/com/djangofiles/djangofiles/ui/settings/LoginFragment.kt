@@ -86,19 +86,20 @@ class LoginFragment : Fragment() {
             val api = ServerApi(requireContext(), host)
             lifecycleScope.launch {
                 try {
-                    val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()
-                    val server = withContext(Dispatchers.IO) { dao.getByUrl(host) }
-                    Log.d("loginFunction", "server: $server")
-                    Log.d("loginFunction", "authUrl: $authUrl")
-                    if (server != null && authUrl == null) {
-                        Log.i("loginFunction", "Duplicate Hostname")
-                        val msg = "Duplicate Hostname"
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                        }
-                        binding.hostnameText.error = msg
-                        return@launch
-                    }
+                    // TODO: When a session expires the server will be a duplicate...
+                    //val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()
+                    //val server = withContext(Dispatchers.IO) { dao.getByUrl(host) }
+                    //Log.d("loginFunction", "server: $server")
+                    //Log.d("loginFunction", "authUrl: $authUrl")
+                    //if (server != null && authUrl == null) {
+                    //    Log.i("loginFunction", "Duplicate Hostname")
+                    //    val msg = "Duplicate Hostname"
+                    //    withContext(Dispatchers.Main) {
+                    //        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                    //    }
+                    //    binding.hostnameText.error = msg
+                    //    return@launch
+                    //}
 
                     // TODO: Implement version request and response, again...
                     //val versionResponse = api.version(versionName.toString())
