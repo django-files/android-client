@@ -27,6 +27,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -157,9 +158,25 @@ class ServerApi(val context: Context, host: String) {
         return api.getRecent(authToken, amount, start)
     }
 
+    suspend fun albums(): Response<List<AlbumResponse>> {
+        Log.d("Api[albums]", "albums")
+        val response = api.getAlbums(authToken)
+        return response
+    }
+
     suspend fun deleteFile(fileId: Int): Response<ResponseBody> {
-        Log.d("Api[recent]", "fileId: $fileId")
+        Log.d("Api[deleteFile]", "fileId: $fileId")
         return api.fileDelete(authToken, fileId)
+    }
+
+    suspend fun filesEdit(data: FilesEditRequest): Response<ResponseBody> {
+        Log.d("Api[filesEdit]", "data: $data")
+        return api.filesEdit(authToken, data)
+    }
+
+    suspend fun filesDelete(data: FilesEditRequest): Response<ResponseBody> {
+        Log.d("Api[filesDelete]", "data: $data")
+        return api.filesDelete(authToken, data)
     }
 
     interface ApiService {
@@ -204,6 +221,11 @@ class ServerApi(val context: Context, host: String) {
             @Query("start") start: Int,
         ): Response<List<FileResponse>>
 
+        @GET("albums/")
+        suspend fun getAlbums(
+            @Header("Authorization") token: String,
+        ): Response<List<AlbumResponse>>
+
         @POST("file/{id}")
         suspend fun fileEdit(
             @Header("Authorization") token: String,
@@ -215,6 +237,20 @@ class ServerApi(val context: Context, host: String) {
         suspend fun fileDelete(
             @Header("Authorization") token: String,
             @Path("id") fileId: Int,
+        ): Response<ResponseBody>
+
+        @POST("files/edit/")
+        suspend fun filesEdit(
+            @Header("Authorization") token: String,
+            @Body data: FilesEditRequest
+        ): Response<ResponseBody>
+
+        //@DELETE("files/")
+        //@HTTP(method = "DELETE", path = "files/", hasBody = true)
+        @POST("files/delete/")
+        suspend fun filesDelete(
+            @Header("Authorization") token: String,
+            @Body data: FilesEditRequest
         ): Response<ResponseBody>
 
         // TODO: Use VersionResponse
@@ -277,6 +313,16 @@ class ServerApi(val context: Context, host: String) {
         @SerializedName("date") val date: String? = null
     )
 
+    data class FilesEditRequest(
+        @SerializedName("ids") val ids: List<Int>,
+        @SerializedName("info") val info: String? = null,
+        @SerializedName("expr") val expr: String? = null,
+        @SerializedName("maxv") val maxv: Int? = null,
+        @SerializedName("meta_preview") val metaPreview: Boolean? = null,
+        @SerializedName("password") val password: String? = null,
+        @SerializedName("private") val private: Boolean? = null,
+    )
+
     data class FileResponse(
         val id: Int,
         val user: Int,
@@ -295,6 +341,26 @@ class ServerApi(val context: Context, host: String) {
         val thumb: String,
         val raw: String,
         val date: String,
+    )
+
+    data class AlbumResponse(
+        val albums: List<Album>,
+        val next: Int,
+        val count: Int,
+    )
+
+    data class Album(
+        @SerializedName("id") val id: Int,
+        @SerializedName("user") val user: Int,
+        @SerializedName("name") val name: String,
+        @SerializedName("password") val password: String,
+        @SerializedName("private") val private: Boolean,
+        @SerializedName("info") val info: String,
+        @SerializedName("view") val view: Int,
+        @SerializedName("maxv") val maxv: Int,
+        @SerializedName("expr") val expr: String,
+        @SerializedName("date") val date: String,
+        @SerializedName("url") val url: String,
     )
 
     private suspend fun inputStreamToMultipart(

@@ -12,7 +12,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.webkit.CookieManager
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -25,7 +28,9 @@ import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
 import com.bumptech.glide.load.model.GlideUrl
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerApi.FilesEditRequest
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,21 +53,13 @@ class FilesFragment : Fragment() {
 
     private var atEnd = false
     private var errorCount = 0
-
-    //private lateinit var key: String
+    private var isMetered = false
 
     private lateinit var api: ServerApi
     private lateinit var filesAdapter: FilesViewAdapter
 
     //private val viewModel: FilesViewModel by viewModels()
     private val viewModel: FilesViewModel by activityViewModels()
-
-    //private lateinit var connectivityManager: ConnectivityManager
-    //
-    //override fun onCreate(savedInstanceState: Bundle?) {
-    //    super.onCreate(savedInstanceState)
-    //    connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    //}
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -108,13 +105,16 @@ class FilesFragment : Fragment() {
         //Log.d("File[onViewCreated]", "savedUrl: $savedUrl")
         val authToken = sharedPreferences.getString("auth_token", "")
         //Log.d("File[onViewCreated]", "authToken: $authToken")
+        val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
+        Log.d("File[checkMetered]", "previewMetered: $previewMetered")
+
         if (authToken.isNullOrEmpty()) {
             Log.e("File[onViewCreated]", "NO AUTH TOKEN")
             Toast.makeText(context, "Missing Auth Token!", Toast.LENGTH_LONG).show()
             return
         }
 
-        Log.e("File[onViewCreated]", "Glide CookieMonster")
+        Log.d("File[onViewCreated]", "Glide CookieMonster")
         val cookie = CookieManager.getInstance().getCookie(savedUrl)
         Log.d("Glide", "cookie: $cookie")
         val okHttpClient = OkHttpClient.Builder()
@@ -132,39 +132,46 @@ class FilesFragment : Fragment() {
             okHttpUrlLoader
         )
 
-        val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
-        Log.i("File[onViewCreated]", "previewMetered: $previewMetered")
-        val connectivityManager =
-            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        Log.i("File[onViewCreated]", "METERED: ${connectivityManager.isActiveNetworkMetered}")
-        val isMetered = if (previewMetered) false else connectivityManager.isActiveNetworkMetered
-        Log.i("File[onViewCreated]", "isMetered: $isMetered")
+//        val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
+//        Log.d("File[onViewCreated]", "previewMetered: $previewMetered")
+//        val connectivityManager =
+//            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//        Log.d("File[onViewCreated]", "METERED: ${connectivityManager.isActiveNetworkMetered}")
+//        val isMetered = if (previewMetered) false else connectivityManager.isActiveNetworkMetered
+//        Log.d("File[onViewCreated]", "isMetered: $isMetered")
+//        Log.d("File[onViewCreated]", "viewModel.meterHidden.value: ${viewModel.meterHidden.value}")
+//        displayMetered = if (viewModel.meterHidden.value == true) false else isMetered
+//        Log.d("File[onViewCreated]", "displayMetered: $displayMetered")
+//
+//        if (displayMetered && connectivityManager.isActiveNetworkMetered) {
+//            binding.meteredText.visibility = View.VISIBLE
+//            binding.meteredText.setOnClickListener {
+//                // TODO: The recycler view does not slide until after this animation completes...
+//                //binding.meteredText.visibility = View.GONE
+//                viewModel.meterHidden.value = true
+//                binding.meteredText.animate()
+//                    .translationY(-binding.meteredText.height.toFloat())
+//                    .alpha(0f)
+//                    .setDuration(300)
+//                    .withEndAction {
+//                        binding.meteredText.visibility = View.GONE
+//                    }
+//                    .start()
+//            }
+//        }
 
-        if (connectivityManager.isActiveNetworkMetered) {
-            binding.meteredText.visibility = View.VISIBLE
-            binding.meteredText.setOnClickListener {
-                // TODO: The recycler view does not slide until after this animation completes...
-                //binding.meteredText.visibility = View.GONE
-                binding.meteredText.animate()
-                    .translationY(-binding.meteredText.height.toFloat())
-                    .alpha(0f)
-                    .setDuration(300)
-                    .withEndAction {
-                        binding.meteredText.visibility = View.GONE
-                    }
-                    .start()
-            }
-        }
-
-        if (viewModel.savedUrl.value != null) {
-            Log.d("File[onViewCreated]", "SAVED DATA FOR URL: ${viewModel.savedUrl.value}")
-            if (viewModel.savedUrl.value != savedUrl) {
-                Log.i("File[onViewCreated]", "OLD SAVED DATA FOUND - CLEARING DATA")
+        val key = "${savedUrl}/${authToken.take(8)}"
+        if (viewModel.viewKey.value != null) {
+            Log.d("File[onViewCreated]", "Found Saved viewKey: ${viewModel.viewKey.value}")
+            if (viewModel.viewKey.value != key) {
+                Log.i("File[onViewCreated]", "VIEW KEY MISMATCH - CLEARING VIEW MODEL DATA")
                 viewModel.filesData.value = null
-                viewModel.savedUrl.value = savedUrl
+                viewModel.viewKey.value = key
+                viewModel.selected.value = mutableSetOf<Int>()
             }
         } else {
-            viewModel.savedUrl.value = savedUrl
+            Log.i("File[onViewCreated]", "Set viewKey: $key")
+            viewModel.viewKey.value = key
         }
 
         //key = authToken.take(6)
@@ -172,8 +179,36 @@ class FilesFragment : Fragment() {
         val perPage = sharedPreferences.getInt("files_per_page", 25)
         Log.d("File[onViewCreated]", "perPage: $perPage")
 
+        val selected = viewModel.selected.value?.toMutableSet() ?: mutableSetOf<Int>()
+        Log.d("File[onViewCreated]", "selected.size: ${selected.size}")
+
         api = ServerApi(requireContext(), savedUrl)
-        filesAdapter = FilesViewAdapter(requireContext(), mutableListOf(), isMetered)
+        //filesAdapter = FilesViewAdapter(requireContext(), mutableListOf(), selectedUris, isMetered)
+
+        checkMetered(previewMetered) // Set isMetered
+
+        //if (!::filesAdapter.isInitialized) {
+        //    Log.i("File[onViewCreated]", "INITIALIZE ADAPTER isMetered: $isMetered")
+        //    filesAdapter =
+        //        FilesViewAdapter(requireContext(), mutableListOf(), selected, isMetered)
+        //}
+
+        if (!::filesAdapter.isInitialized) {
+            Log.i("File[onViewCreated]", "INITIALIZE ADAPTER isMetered: $isMetered")
+            filesAdapter =
+                FilesViewAdapter(requireContext(), mutableListOf(), selected, isMetered) { list ->
+                    Log.d("File[onViewCreated]", "list.size: ${list.size}")
+                    viewModel.selected.value = list
+                }
+        }
+
+        Log.d("File[selectedUris]", "viewModel.selectedUris.value: ${viewModel.selected.value}")
+        if (viewModel.selected.value != null && viewModel.selected.value!!.isEmpty() != true) {
+            binding.filesSelectedHeader.visibility = View.VISIBLE
+            binding.filesSelectedText.text =
+                getString(R.string.files_selected, viewModel.selected.value?.size)
+        }
+
         binding.filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.filesRecyclerView.adapter = filesAdapter
 
@@ -184,16 +219,32 @@ class FilesFragment : Fragment() {
             if (list != null && filesAdapter.itemCount == 0) {
                 Log.i("filesData[observe]", "CACHE LOAD")
                 filesAdapter.addData(list)
+                Log.d("loadingSpinner", "loadingSpinner: View.GONE")
                 binding.loadingSpinner.visibility = View.GONE
             } else if (list == null) {
                 Log.i("filesData[observe]", "FETCH NEW DATA")
                 lifecycleScope.launch { getFiles(perPage) }
+            } else {
+                // TODO: Consider setting default view to GONE
+                Log.d("filesData[observe]", "loadingSpinner: iew.GONE")
+                binding.loadingSpinner.visibility = View.GONE
             }
 
             //(view.parent as? ViewGroup)?.doOnPreDraw {
             //    Log.i("File[onViewCreated]", "startPostponedEnterTransition")
             //    startPostponedEnterTransition()
             //}
+        }
+        viewModel.selected.observe(viewLifecycleOwner) { selected ->
+            Log.d("selected[observe]", "selected.size: ${selected?.size}")
+            Log.d("selected[observe]", "selected: $selected")
+            //viewModel.selected.value = selected
+            if (selected.isNotEmpty()) {
+                binding.filesSelectedHeader.visibility = View.VISIBLE
+            } else {
+                binding.filesSelectedHeader.visibility = View.GONE
+            }
+            binding.filesSelectedText.text = getString(R.string.files_selected, selected.size)
         }
 
         viewModel.atEnd.observe(viewLifecycleOwner) {
@@ -212,16 +263,147 @@ class FilesFragment : Fragment() {
                 if (!rv.canScrollVertically(1)) {
                     Log.d("File[onScrolled]", "atEnd: $atEnd")
                     if (!atEnd) {
+                        Log.d("File[onScrolled]", "loadingSpinner: View.VISIBLE")
                         binding.loadingSpinner.visibility = View.VISIBLE
                         lifecycleScope.launch {
                             getFiles(perPage)
                         }
                     } else {
-                        Log.i("File[onScrolled]", "AT END - NOTHING TO DO")
+                        Log.d("File[onScrolled]", "AT END - NOTHING TO DO")
                     }
                 }
             }
         })
+
+        //binding.fileMenu.setOnClickListener {
+        //    (requireActivity() as MainActivity).binding.drawerLayout.openDrawer(GravityCompat.START)
+        //}
+
+        binding.filesSelectAll.setOnClickListener {
+            Log.d("File[filesSelectAll]", "setOnClickListener")
+            Log.d("File[filesSelectAll]", "size: ${viewModel.selected.value?.size}")
+            binding.filesSelectedHeader.visibility = View.VISIBLE
+            val positionIds: MutableSet<Int> =
+                viewModel.filesData.value?.indices?.toMutableSet() ?: mutableSetOf<Int>()
+            Log.d("deleteId[observe]", "positionIds: $positionIds")
+            viewModel.selected.value = positionIds
+            filesAdapter.selected.addAll(viewModel.selected.value!!)
+            Log.d("File[filesSelectAll]", "size: ${viewModel.selected.value?.size}")
+            binding.filesSelectedText.text =
+                getString(R.string.files_selected, viewModel.selected.value?.size)
+
+            if (positionIds.isNotEmpty()) {
+                //val first = positionIds.first()
+                //Log.d("File[filesDeselect]", "first: $first ")
+                val last = positionIds.size
+                Log.d("File[filesDeselect]", "last: $last")
+                filesAdapter.notifyItemRangeChanged(0, positionIds.size)
+                //filesAdapter.notifyItemRangeChanged(first, last - first + 1)
+            }
+
+            //filesAdapter.notifyDataSetChanged()
+
+            //for (i in 0 until binding.filesRecyclerView.childCount) {
+            //    val view = binding.filesRecyclerView.getChildAt(i)
+            //    val holder =
+            //        binding.filesRecyclerView.getChildViewHolder(view) as FilesViewAdapter.ViewHolder
+            //    holder.checkMark.visibility = View.VISIBLE
+            //    holder.itemBorder.setBackgroundResource(R.drawable.image_border_selected_2dp)
+            //}
+        }
+
+        binding.filesDeselect.setOnClickListener {
+            Log.d("File[filesDeselect]", "setOnClickListener")
+            val currentSelected = viewModel.selected.value?.toSet()
+            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
+            viewModel.selected.value = mutableSetOf<Int>()
+            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
+            filesAdapter.selected.clear()
+            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
+            Log.d(
+                "File[filesDeselect]",
+                "viewModel.selected.value.size: ${viewModel.selected.value?.size}"
+            )
+            binding.filesSelectedHeader.visibility = View.GONE
+
+            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
+            currentSelected?.forEach { position ->
+                Log.d("File[filesDeselect]", "position: $position")
+                filesAdapter.notifyItemChanged(position)
+            }
+            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
+
+            //filesAdapter.notifyDataSetChanged()
+
+            //for (i in 0 until binding.filesRecyclerView.childCount) {
+            //    val view = binding.filesRecyclerView.getChildAt(i)
+            //    val holder =
+            //        binding.filesRecyclerView.getChildViewHolder(view) as FilesViewAdapter.ViewHolder
+            //    holder.checkMark.visibility = View.GONE
+            //    holder.itemBorder.background = null
+            //}
+        }
+        binding.deleteAllButton.setOnClickListener {
+            Log.d("File[deleteAllButton]", "viewModel.selected.value: ${viewModel.selected.value}")
+            if (viewModel.selected.value.isNullOrEmpty()) {
+                return@setOnClickListener
+            }
+
+            val positions = viewModel.selected.value!!.toList()
+            Log.d("File[deleteAllButton]", "positions: $positions")
+
+            val data = viewModel.filesData.value!!.toList()
+            Log.d("File[deleteAllButton]", "data.size: ${data.size}")
+            val selectedPositions: List<Int> = viewModel.selected.value!!.toList()
+            Log.d("File[deleteAllButton]", "selectedPositions: $selectedPositions")
+            val ids: List<Int> = selectedPositions.map { index -> data[index].id }
+            Log.d("File[deleteAllButton]", "ids: $ids")
+
+            //filesAdapter.deleteIds(positions)
+            //viewModel.selected.value?.clear()
+
+            lifecycleScope.launch {
+                val response = api.filesDelete(FilesEditRequest(ids = ids))
+                Log.d("File[deleteAllButton]", "response: $response")
+                if (response.isSuccessful) {
+                    Log.d("File[deleteAllButton]", "filesAdapter.deleteIds: $selectedPositions")
+                    filesAdapter.deleteIds(selectedPositions)
+                }
+            }
+        }
+        binding.expireAllButton.setOnClickListener {
+            Log.d("File[expireAllButton]", "setOnClickListener")
+            //val ids = mutableListOf<Int>()
+            //viewModel.selected.value?.forEach { fileResponse ->
+            //    Log.d("File[expireAllButton]", "fileResponse: $fileResponse")
+            //    ids.add(fileResponse.id)
+            //}
+            //Log.d("File[expireAllButton]", "ids: $ids")
+            Log.d("File[expireAllButton]", "viewModel.selected.value: ${viewModel.selected.value}")
+            fun onUpdated(newExpr: String) {
+                Log.d("onUpdated", "viewModel.selected.value: ${viewModel.selected.value}")
+                for (index in viewModel.selected.value!!) {
+                    val file = viewModel.filesData.value?.get(index)
+                    file?.expr = newExpr
+                }
+                filesAdapter.notifyIdsUpdated(viewModel.selected.value!!.toList())
+            }
+
+            val fileIds = getFileIds(viewModel.selected.value!!.toList())
+            Log.d("File[expireAllButton]", "fileIds: $fileIds")
+            showExpireDialog(requireContext(), fileIds, ::onUpdated)
+            //lifecycleScope.launch {
+            //    val response = api.filesEdit(FilesEditRequest(ids = ids, expr = "1y"))
+            //    Log.d("File[expireAllButton]", "response: $response")
+            //    if (response.isSuccessful) {
+            //        Log.d("File[expireAllButton]", "Process Success...")
+            //    }
+            //}
+        }
+        binding.albumAllButton.setOnClickListener {
+            Log.d("File[albumAllButton]", "viewModel.selected.value: ${viewModel.selected.value}")
+            showAlbumsDialog(requireContext(), viewModel.selected.value!!)
+        }
 
         //viewModel.filesData.observe(viewLifecycleOwner) { newList ->
         //    Log.d("filesData[observe]", "newList.size: ${newList.size}")
@@ -241,6 +423,15 @@ class FilesFragment : Fragment() {
                 filesAdapter.editById(editRequest)
             }
         }
+    }
+
+    fun getFileIds(positions: List<Int>): List<Int> {
+        Log.d("File[getFileIds]", "positions: $positions")
+        val data = viewModel.filesData.value!!.toList()
+        Log.d("File[getFileIds]", "data.size: ${data.size}")
+        val ids: List<Int> = positions.map { index -> data[index].id }
+        Log.d("File[getFileIds]", "ids: $ids")
+        return ids
     }
 
     suspend fun getFiles(perPage: Int) {
@@ -280,6 +471,7 @@ class FilesFragment : Fragment() {
                 Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
             }
         }
+        Log.d("loadingSpinner", "loadingSpinner: View.GONE")
         binding.loadingSpinner.visibility = View.GONE
         if (errorCount > 5) {
             atEnd = true
@@ -324,6 +516,61 @@ class FilesFragment : Fragment() {
     override fun onResume() {
         Log.d("File[onResume]", "ON RESUME")
         super.onResume()
+        checkMetered()
+//        val connectivityManager =
+//            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//
+//        if (!connectivityManager.isActiveNetworkMetered) {
+//            Log.d("File[onResume]", "GONE")
+//            binding.meteredText.visibility = View.GONE
+//            displayMetered = false
+//            filesAdapter.isMetered = false
+//        }
+    }
+
+    private fun checkMetered(metered: Boolean? = null) {
+        Log.d("File[checkMetered]", "checkMetered")
+        val previewMetered = if (metered != null) {
+            metered
+        } else {
+            val sharedPreferences =
+                requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            sharedPreferences.getBoolean("file_preview_metered", false)
+        }
+        Log.d("File[checkMetered]", "previewMetered: $previewMetered")
+        val connectivityManager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        Log.d("File[checkMetered]", "METERED: ${connectivityManager.isActiveNetworkMetered}")
+        isMetered = if (previewMetered) false else connectivityManager.isActiveNetworkMetered
+        Log.d("File[checkMetered]", "isMetered: $isMetered")
+
+        if (::filesAdapter.isInitialized) {
+            filesAdapter.isMetered = isMetered
+            Log.d("File[checkMetered]", "filesAdapter.isMetered: ${filesAdapter.isMetered}")
+        }
+
+        Log.d("File[checkMetered]", "viewModel.meterHidden.value: ${viewModel.meterHidden.value}")
+        val displayMetered = if (viewModel.meterHidden.value == true) false else isMetered
+        Log.d("File[checkMetered]", "displayMetered: $displayMetered")
+
+        if (displayMetered && connectivityManager.isActiveNetworkMetered) {
+            binding.meteredText.visibility = View.VISIBLE
+            binding.meteredText.setOnClickListener {
+                // TODO: The recycler view does not slide until after this animation completes...
+                //binding.meteredText.visibility = View.GONE
+                viewModel.meterHidden.value = true
+                binding.meteredText.animate()
+                    .translationY(-binding.meteredText.height.toFloat())
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction {
+                        binding.meteredText.visibility = View.GONE
+                    }
+                    .start()
+            }
+        } else {
+            binding.meteredText.visibility = View.GONE
+        }
     }
 }
 
@@ -394,4 +641,78 @@ fun getGenericIcon(mimeType: String): Int = when {
     mimeType.startsWith("text/") -> R.drawable.md_docs_24
     mimeType.startsWith("video/") -> R.drawable.md_videocam_24
     else -> R.drawable.md_unknown_document_24
+}
+
+private fun showExpireDialog(
+    context: Context,
+    fileIds: List<Int>,
+    callback: (newExpr: String) -> Unit
+) {
+    Log.d("showExpireDialog", "$fileIds: $fileIds")
+
+    val layout = LinearLayout(context)
+    layout.orientation = LinearLayout.VERTICAL
+    layout.setPadding(10, 0, 10, 40)
+
+    val input = EditText(context)
+    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+    input.maxLines = 1
+    input.hint = "6mo"
+    input.requestFocus()
+    layout.addView(input)
+
+    val savedUrl =
+        context.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
+            .toString()
+
+    AlertDialog.Builder(context)
+        .setView(layout)
+        .setTitle("Set Expiration")
+        .setMessage("Leave Blank for None")
+        .setPositiveButton("Save") { _, _ ->
+            val newExpire = input.text.toString().trim()
+            Log.d("showExpireDialog", "newExpire: $newExpire")
+            val api = ServerApi(context, savedUrl)
+            CoroutineScope(Dispatchers.IO).launch {
+                val response =
+                    api.filesEdit(FilesEditRequest(ids = fileIds, expr = newExpire))
+                Log.d("showExpireDialog", "response: $response")
+                if (response.isSuccessful) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        callback(newExpire)
+                    }
+                } else {
+                    Log.w("showExpireDialog", "RESPONSE FAILURE")
+                }
+            }
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+
+private fun showAlbumsDialog(context: Context, fileIds: MutableSet<Int>) {
+    Log.d("showAlbumsDialog", "$fileIds: $fileIds")
+
+    val layout = LinearLayout(context)
+    layout.orientation = LinearLayout.VERTICAL
+    layout.setPadding(10, 0, 10, 40)
+
+    val input = EditText(context)
+    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+    input.maxLines = 1
+    input.hint = "Album ID"
+    input.requestFocus()
+    layout.addView(input)
+
+    AlertDialog.Builder(context)
+        .setView(layout)
+        .setTitle("Manage Albums")
+        .setMessage("Enter the Album ID")
+        .setPositiveButton("Save") { _, _ ->
+            val newAlbum = input.text.toString().trim()
+            Log.d("showAlbumsDialog", "newAlbum: $newAlbum")
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
 }

@@ -10,6 +10,8 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -37,7 +39,9 @@ import com.google.android.material.shape.CornerFamily
 class FilesViewAdapter(
     private val context: Context,
     private val dataSet: MutableList<FileResponse>,
-    private val isMetered: Boolean,
+    val selected: MutableSet<Int>,
+    var isMetered: Boolean,
+    private val onItemClick: (MutableSet<Int>) -> Unit,
 ) : RecyclerView.Adapter<FilesViewAdapter.ViewHolder>() {
 
     private var colorOnSecondary: ColorStateList? = null
@@ -50,7 +54,9 @@ class FilesViewAdapter(
         val filePrivate: TextView = view.findViewById(R.id.file_private)
         val filePassword: TextView = view.findViewById(R.id.file_password)
         val fileExpr: TextView = view.findViewById(R.id.file_expr)
-        val previewLink: LinearLayout = view.findViewById(R.id.preview_link)
+        val itemSelect: FrameLayout = view.findViewById(R.id.item_select)
+        val itemBorder: LinearLayout = view.findViewById(R.id.item_border)
+        val checkMark: ImageView = view.findViewById(R.id.check_mark)
         val openMenu: LinearLayout = view.findViewById(R.id.open_menu)
         val loadingSpinner: ProgressBar = view.findViewById(R.id.loading_spinner)
     }
@@ -66,6 +72,7 @@ class FilesViewAdapter(
         //Log.d("UploadMultiAdapter", "position: $position")
         val data = dataSet[position]
         //Log.d("onBindViewHolder", "data[$position]: $data")
+        //Log.d("onBindViewHolder", "data[$position]: ${data.name}")
 
         // Setup
         val typedValue = TypedValue()
@@ -143,6 +150,47 @@ class FilesViewAdapter(
             it.findNavController().navigate(R.id.nav_item_files_action_preview, bundle)
         }
 
+        if (position in selected) {
+            viewHolder.checkMark.visibility = View.VISIBLE
+            viewHolder.itemBorder.setBackgroundResource(R.drawable.image_border_selected_2dp)
+        } else {
+            viewHolder.checkMark.visibility = View.GONE
+            viewHolder.itemBorder.background = null
+        }
+
+        // Select - itemSelect Click
+        viewHolder.itemSelect.setOnClickListener {
+            Log.d("Adapter[itemSelect]", "setOnClickListener")
+
+            val pos = viewHolder.bindingAdapterPosition
+            Log.d("Adapter[itemSelect]", "itemView: $pos")
+            if (pos != RecyclerView.NO_POSITION) {
+                if (pos in selected) {
+                    Log.d("Adapter[itemSelect]", "REMOVE - $data")
+                    selected.remove(pos)
+                    viewHolder.checkMark.visibility = View.GONE
+                    //viewHolder.itemBorder.setBackgroundResource(R.drawable.image_border)
+                    viewHolder.itemBorder.background = null
+                } else {
+                    Log.d("Adapter[itemSelect]", "ADD - $data")
+                    selected.add(pos)
+                    viewHolder.checkMark.visibility = View.VISIBLE
+                    viewHolder.itemBorder.setBackgroundResource(R.drawable.image_border_selected_2dp)
+                }
+                notifyItemChanged(viewHolder.bindingAdapterPosition)
+
+                onItemClick(selected)
+            }
+        }
+        if (position in selected) {
+            viewHolder.checkMark.visibility = View.VISIBLE
+            viewHolder.itemBorder.setBackgroundResource(R.drawable.image_border_selected_2dp)
+        } else {
+            viewHolder.checkMark.visibility = View.GONE
+            //viewHolder.itemBorder.setBackgroundResource(R.drawable.image_border)
+            viewHolder.itemBorder.background = null
+        }
+
         // Image - Holder
         val radius = context.resources.getDimension(R.dimen.image_preview_small)
         viewHolder.fileImage.setShapeAppearanceModel(
@@ -213,6 +261,42 @@ class FilesViewAdapter(
     fun getData(): List<FileResponse> {
         return dataSet
     }
+
+    fun notifyIdsUpdated(positions: List<Int>) {
+        val sorted = positions.sortedDescending()
+        Log.d("notifyIdsUpdated", "sorted: $sorted")
+        for (pos in sorted) {
+            //Log.d("notifyIdsUpdated", "pos: $pos")
+            if (pos in dataSet.indices) {
+                Log.d("notifyIdsUpdated", "notifyItemRemoved: $pos")
+                notifyItemChanged(pos)
+            }
+        }
+        selected.clear()
+        onItemClick(selected)
+
+//        Log.d("deleteIds", "start: ${sorted.min()} - count: ${dataSet.size - sorted.min()}")
+//        notifyItemRangeChanged(sorted.min(), dataSet.size - sorted.min())
+    }
+
+    fun deleteIds(positions: List<Int>) {
+        val sorted = positions.sortedDescending()
+        Log.d("deleteIds", "sorted: $sorted")
+        for (pos in sorted) {
+            //Log.d("deleteIds", "pos: $pos")
+            if (pos in dataSet.indices) {
+                Log.d("deleteIds", "removeAt: $pos")
+                dataSet.removeAt(pos)
+                notifyItemRemoved(pos)
+            }
+        }
+        selected.clear()
+        onItemClick(selected)
+
+//        Log.d("deleteIds", "start: ${sorted.min()} - count: ${dataSet.size - sorted.min()}")
+//        notifyItemRangeChanged(sorted.min(), dataSet.size - sorted.min())
+    }
+
 
     fun deleteById(fileId: Int) {
         val index = dataSet.indexOfFirst { it.id == fileId }
