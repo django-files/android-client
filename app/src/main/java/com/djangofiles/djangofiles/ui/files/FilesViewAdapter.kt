@@ -252,10 +252,19 @@ class FilesViewAdapter(
 
     override fun getItemCount() = dataSet.size
 
-    fun addData(newData: List<FileResponse>) {
+    @SuppressLint("NotifyDataSetChanged")
+    fun addData(newData: List<FileResponse>, reset: Boolean = false) {
+        Log.d("notifyIdsUpdated", "addData: ${newData.size}: $reset")
+        if (reset) dataSet.clear()
         val start = dataSet.size
         dataSet.addAll(newData)
-        notifyItemRangeInserted(start, newData.size)
+        if (reset) {
+            Log.d("notifyIdsUpdated", "notifyDataSetChanged")
+            notifyDataSetChanged()
+        } else {
+            Log.d("notifyIdsUpdated", "notifyItemRangeInserted: $start - ${newData.size}")
+            notifyItemRangeInserted(start, newData.size)
+        }
     }
 
     fun getData(): List<FileResponse> {

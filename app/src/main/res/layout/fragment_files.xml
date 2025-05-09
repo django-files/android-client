@@ -23,18 +23,21 @@
             android:gravity="center"
             android:background="?attr/selectableItemBackground">
             <ImageView
+                android:id="@+id/check_box_icon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginHorizontal="8dp"
                 android:contentDescription="Select All"
-                android:src="@drawable/md_check_box_24px" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:text="Select All" />
+                android:src="@drawable/md_check_box_outline_blank_24px" />
         </LinearLayout>
+        <TextView
+            android:id="@+id/files_total_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:text="Loading…"
+            tools:text="999 Files" />
     </LinearLayout>
 
     <LinearLayout
@@ -52,28 +55,17 @@
         app:layout_goneMarginTop="0dp"
         tools:visibility="visible">
 
-        <LinearLayout
-            android:id="@+id/files_deselect"
-            android:layout_width="48dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:background="?attr/selectableItemBackground">
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:contentDescription="Unselect All"
-                android:src="@drawable/md_check_box_outline_blank_24px" />
-        </LinearLayout>
-
         <TextView
             android:id="@+id/files_selected_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:layout_marginStart="4dp"
             android:gravity="center_vertical"
             android:clickable="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            tools:text="9999 Files" />
+            android:text="@string/files_selected_total"
+            tools:text="999 / 999 Files" />
 
         <LinearLayout
             android:id="@+id/album_all_button"
@@ -132,8 +124,8 @@
         app:layout_goneMarginTop="0dp"
         tools:visibility="visible" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/files_recycler_view"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
@@ -144,10 +136,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintVertical_bias="0.0"
-        app:layout_goneMarginTop="0dp"
-        tools:itemCount="12"
-        tools:layoutManager="LinearLayoutManager"
-        tools:listitem="@layout/file_item_files" />
+        app:layout_goneMarginTop="0dp">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/files_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:contentDescription="File List"
+            tools:itemCount="12"
+            tools:viewBindingType="androidx.recyclerview.widget.RecyclerView"
+            tools:layoutManager="LinearLayoutManager"
+            tools:listitem="@layout/file_item_files" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <ProgressBar
         android:id="@+id/loading_spinner"
@@ -156,9 +156,26 @@
         android:layout_gravity="center_horizontal"
         android:indeterminate="true"
         android:visibility="visible"
-        app:layout_constraintTop_toTopOf="@+id/files_recycler_view"
+        app:layout_constraintTop_toTopOf="@+id/refresh_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:visibility="gone" />
+
+    <TextView
+        android:id="@+id/refresh_banner"
+        android:layout_width="match_parent"
+        android:layout_height="18dp"
+        android:gravity="center"
+        android:background="?attr/colorSecondary"
+        android:text="Files Reloaded."
+        android:textColor="?attr/colorOnSecondary"
+        android:textSize="12sp"
+        android:visibility="visible"
+        android:alpha="0"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.ui)
     implementation(libs.media3.ui.compose)
+    implementation(libs.androidx.swiperefreshlayout)
     //ksp(libs.glide.compiler)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)

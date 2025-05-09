@@ -5,6 +5,8 @@ import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -22,6 +24,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import androidx.transition.Slide
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
@@ -132,34 +135,6 @@ class FilesFragment : Fragment() {
             okHttpUrlLoader
         )
 
-//        val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
-//        Log.d("File[onViewCreated]", "previewMetered: $previewMetered")
-//        val connectivityManager =
-//            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-//        Log.d("File[onViewCreated]", "METERED: ${connectivityManager.isActiveNetworkMetered}")
-//        val isMetered = if (previewMetered) false else connectivityManager.isActiveNetworkMetered
-//        Log.d("File[onViewCreated]", "isMetered: $isMetered")
-//        Log.d("File[onViewCreated]", "viewModel.meterHidden.value: ${viewModel.meterHidden.value}")
-//        displayMetered = if (viewModel.meterHidden.value == true) false else isMetered
-//        Log.d("File[onViewCreated]", "displayMetered: $displayMetered")
-//
-//        if (displayMetered && connectivityManager.isActiveNetworkMetered) {
-//            binding.meteredText.visibility = View.VISIBLE
-//            binding.meteredText.setOnClickListener {
-//                // TODO: The recycler view does not slide until after this animation completes...
-//                //binding.meteredText.visibility = View.GONE
-//                viewModel.meterHidden.value = true
-//                binding.meteredText.animate()
-//                    .translationY(-binding.meteredText.height.toFloat())
-//                    .alpha(0f)
-//                    .setDuration(300)
-//                    .withEndAction {
-//                        binding.meteredText.visibility = View.GONE
-//                    }
-//                    .start()
-//            }
-//        }
-
         val key = "${savedUrl}/${authToken.take(8)}"
         if (viewModel.viewKey.value != null) {
             Log.d("File[onViewCreated]", "Found Saved viewKey: ${viewModel.viewKey.value}")
@@ -202,11 +177,27 @@ class FilesFragment : Fragment() {
                 }
         }
 
+        fun updateCheckButton() {
+            val selectedSize = viewModel.selected.value?.size ?: 0
+            val filesSize = viewModel.filesData.value?.size ?: 0
+            binding.filesTotalText.text = getString(R.string.files_total, filesSize)
+            binding.filesSelectedText.text =
+                getString(R.string.files_selected_total, selectedSize, filesSize)
+            if (selectedSize == filesSize) {
+                Log.i("filesData[updateCheckButton]", "ALL SELECTED")
+                binding.checkBoxIcon.setImageResource(R.drawable.md_check_box_24px)
+            } else {
+                Log.i("filesData[updateCheckButton]", "NOT ALL SELECTED")
+                binding.checkBoxIcon.setImageResource(R.drawable.md_check_box_outline_blank_24px)
+            }
+        }
+
         Log.d("File[selectedUris]", "viewModel.selectedUris.value: ${viewModel.selected.value}")
         if (viewModel.selected.value != null && viewModel.selected.value!!.isEmpty() != true) {
             binding.filesSelectedHeader.visibility = View.VISIBLE
-            binding.filesSelectedText.text =
-                getString(R.string.files_selected, viewModel.selected.value?.size)
+            //binding.filesSelectedText.text =
+            //    getString(R.string.files_selected, viewModel.selected.value?.size)
+            updateCheckButton()
         }
 
         binding.filesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -226,9 +217,10 @@ class FilesFragment : Fragment() {
                 lifecycleScope.launch { getFiles(perPage) }
             } else {
                 // TODO: Consider setting default view to GONE
-                Log.d("filesData[observe]", "loadingSpinner: iew.GONE")
+                Log.d("filesData[observe]", "loadingSpinner: View.GONE")
                 binding.loadingSpinner.visibility = View.GONE
             }
+            updateCheckButton()
 
             //(view.parent as? ViewGroup)?.doOnPreDraw {
             //    Log.i("File[onViewCreated]", "startPostponedEnterTransition")
@@ -244,7 +236,8 @@ class FilesFragment : Fragment() {
             } else {
                 binding.filesSelectedHeader.visibility = View.GONE
             }
-            binding.filesSelectedText.text = getString(R.string.files_selected, selected.size)
+            //binding.filesSelectedText.text = getString(R.string.files_selected, selected.size)
+            updateCheckButton()
         }
 
         viewModel.atEnd.observe(viewLifecycleOwner) {
@@ -258,6 +251,8 @@ class FilesFragment : Fragment() {
             lifecycleScope.launch { getFiles(perPage) }
         }
 
+        //binding.refreshLayout.isEnabled = false
+
         binding.filesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 if (!rv.canScrollVertically(1)) {
@@ -265,12 +260,59 @@ class FilesFragment : Fragment() {
                     if (!atEnd) {
                         Log.d("File[onScrolled]", "loadingSpinner: View.VISIBLE")
                         binding.loadingSpinner.visibility = View.VISIBLE
+                        Log.i("File[onScrolled]", "GET FILES ON SCROLL")
                         lifecycleScope.launch {
                             getFiles(perPage)
                         }
                     } else {
                         Log.d("File[onScrolled]", "AT END - NOTHING TO DO")
                     }
+                }
+
+                // Only Enable Refresh Layout when At Top
+                if (!rv.canScrollVertically(-1) && rv.scrollState != RecyclerView.SCROLL_STATE_IDLE) {
+                    Log.i("File[onScrolled]", "REFRESH: ON")
+                    binding.refreshLayout.isEnabled = true
+                } else if (binding.refreshLayout.isEnabled) {
+                    Log.i("File[onScrolled]", "REFRESH: OFF")
+                    binding.refreshLayout.isEnabled = false
+                }
+            }
+        })
+
+        // Setup refresh listener which triggers new data loading
+        binding.refreshLayout.setOnRefreshListener(object : OnRefreshListener {
+            override fun onRefresh() {
+                // TODO: This will be overhauled and possibly disabled until then...
+                Log.d("File[refreshLayout]", "onRefresh")
+                lifecycleScope.launch {
+                    Log.d("File[refreshLayout]", "START")
+                    viewModel.selected.value?.clear()
+                    filesAdapter.selected.clear()
+                    getFiles(perPage, true)
+                    binding.refreshLayout.isRefreshing = false
+                    Log.d("File[refreshLayout]", "DONE")
+                    // Fade In
+                    binding.refreshBanner.post {
+                        binding.refreshBanner.translationY = -binding.refreshBanner.height.toFloat()
+                        binding.refreshBanner.visibility = View.VISIBLE
+                        binding.refreshBanner.animate()
+                            .alpha(1f)
+                            .translationY(0f)
+                            .setDuration(400)
+                            .start()
+                    }
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        // Fade Out
+                        binding.refreshBanner.animate()
+                            .alpha(0f)
+                            .translationY(-binding.refreshBanner.height.toFloat())
+                            .setDuration(400)
+                            .withEndAction {
+                                binding.refreshBanner.visibility = View.GONE
+                            }
+                            .start()
+                    }, 1600)
                 }
             }
         })
@@ -279,70 +321,59 @@ class FilesFragment : Fragment() {
         //    (requireActivity() as MainActivity).binding.drawerLayout.openDrawer(GravityCompat.START)
         //}
 
-        binding.filesSelectAll.setOnClickListener {
-            Log.d("File[filesSelectAll]", "setOnClickListener")
-            Log.d("File[filesSelectAll]", "size: ${viewModel.selected.value?.size}")
-            binding.filesSelectedHeader.visibility = View.VISIBLE
-            val positionIds: MutableSet<Int> =
-                viewModel.filesData.value?.indices?.toMutableSet() ?: mutableSetOf<Int>()
-            Log.d("deleteId[observe]", "positionIds: $positionIds")
-            viewModel.selected.value = positionIds
-            filesAdapter.selected.addAll(viewModel.selected.value!!)
-            Log.d("File[filesSelectAll]", "size: ${viewModel.selected.value?.size}")
-            binding.filesSelectedText.text =
-                getString(R.string.files_selected, viewModel.selected.value?.size)
-
-            if (positionIds.isNotEmpty()) {
-                //val first = positionIds.first()
-                //Log.d("File[filesDeselect]", "first: $first ")
-                val last = positionIds.size
-                Log.d("File[filesDeselect]", "last: $last")
-                filesAdapter.notifyItemRangeChanged(0, positionIds.size)
-                //filesAdapter.notifyItemRangeChanged(first, last - first + 1)
-            }
-
-            //filesAdapter.notifyDataSetChanged()
-
-            //for (i in 0 until binding.filesRecyclerView.childCount) {
-            //    val view = binding.filesRecyclerView.getChildAt(i)
-            //    val holder =
-            //        binding.filesRecyclerView.getChildViewHolder(view) as FilesViewAdapter.ViewHolder
-            //    holder.checkMark.visibility = View.VISIBLE
-            //    holder.itemBorder.setBackgroundResource(R.drawable.image_border_selected_2dp)
+        val filesSelectAll: (View) -> Unit = { view ->
+            //when (view.id) {
+            //    R.id.filesSelectAll -> { /* select all */ }
+            //    R.id.filesDeselectAll -> { /* deselect all */ }
             //}
-        }
-
-        binding.filesDeselect.setOnClickListener {
-            Log.d("File[filesDeselect]", "setOnClickListener")
+            val totalSize = viewModel.filesData.value?.size ?: 0
+            Log.d("File[filesSelectAll]", "totalSize: $totalSize")
             val currentSelected = viewModel.selected.value?.toSet()
-            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
-            viewModel.selected.value = mutableSetOf<Int>()
-            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
-            filesAdapter.selected.clear()
-            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
-            Log.d(
-                "File[filesDeselect]",
-                "viewModel.selected.value.size: ${viewModel.selected.value?.size}"
-            )
-            binding.filesSelectedHeader.visibility = View.GONE
+            Log.d("File[filesSelectAll]", "currentSelected: $currentSelected")
+            if (currentSelected.isNullOrEmpty() || currentSelected.size < totalSize) {
+                Log.i("File[filesSelectAll]", "SELECT ALL")
+                Log.d("File[filesSelectAll]", "size: ${viewModel.selected.value?.size}")
+                binding.filesSelectedHeader.visibility = View.VISIBLE
+                val positionIds: MutableSet<Int> =
+                    viewModel.filesData.value?.indices?.toMutableSet() ?: mutableSetOf<Int>()
+                Log.d("deleteId[observe]", "positionIds: $positionIds")
+                viewModel.selected.value = positionIds
+                filesAdapter.selected.addAll(viewModel.selected.value!!)
+                Log.d("File[filesSelectAll]", "size: ${viewModel.selected.value?.size}")
+                //binding.filesSelectedText.text =
+                //    getString(R.string.files_selected, viewModel.selected.value?.size)
+                updateCheckButton()
 
-            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
-            currentSelected?.forEach { position ->
-                Log.d("File[filesDeselect]", "position: $position")
-                filesAdapter.notifyItemChanged(position)
+                if (positionIds.isNotEmpty()) {
+                    //val first = positionIds.first()
+                    //Log.d("File[filesSelectAll]", "first: $first ")
+                    val last = positionIds.size
+                    Log.d("File[filesSelectAll]", "last: $last")
+                    filesAdapter.notifyItemRangeChanged(0, positionIds.size)
+                    //filesAdapter.notifyItemRangeChanged(first, last - first + 1)
+                }
+            } else {
+                Log.i("File[filesSelectAll]", "UNSELECT ALL")
+                viewModel.selected.value = mutableSetOf<Int>()
+                filesAdapter.selected.clear()
+                Log.d(
+                    "File[filesSelectAll]",
+                    "viewModel.selected.value.size: ${viewModel.selected.value?.size}"
+                )
+                binding.filesSelectedHeader.visibility = View.GONE
+
+                Log.d("File[filesSelectAll]", "currentSelected: $currentSelected")
+                currentSelected.forEach { position ->
+                    Log.d("File[filesSelectAll]", "position: $position")
+                    filesAdapter.notifyItemChanged(position)
+                }
+                Log.d("File[filesSelectAll]", "currentSelected: $currentSelected")
             }
-            Log.d("File[filesDeselect]", "currentSelected: $currentSelected")
-
-            //filesAdapter.notifyDataSetChanged()
-
-            //for (i in 0 until binding.filesRecyclerView.childCount) {
-            //    val view = binding.filesRecyclerView.getChildAt(i)
-            //    val holder =
-            //        binding.filesRecyclerView.getChildViewHolder(view) as FilesViewAdapter.ViewHolder
-            //    holder.checkMark.visibility = View.GONE
-            //    holder.itemBorder.background = null
-            //}
         }
+
+        binding.filesSelectAll.setOnClickListener(filesSelectAll)
+        //binding.filesDeselect.setOnClickListener(filesSelectAll)
+
         binding.deleteAllButton.setOnClickListener {
             Log.d("File[deleteAllButton]", "viewModel.selected.value: ${viewModel.selected.value}")
             if (viewModel.selected.value.isNullOrEmpty()) {
@@ -434,16 +465,17 @@ class FilesFragment : Fragment() {
         return ids
     }
 
-    suspend fun getFiles(perPage: Int) {
+    suspend fun getFiles(perPage: Int, reset: Boolean = false) {
         try {
-            Log.d("getFiles", "filesAdapter.itemCount: ${filesAdapter.itemCount}")
-            val response = api.recent(perPage, filesAdapter.itemCount)
+            val start = if (reset) 0 else filesAdapter.itemCount
+            Log.d("getFiles", "start: $start")
+            val response = api.recent(perPage, start)
             Log.d("getFiles", "moreResponse.code: ${response.code()}")
             if (response.isSuccessful) {
                 val data = response.body()
                 Log.d("getFiles", "moreData.count: ${data?.count()}")
                 if (!data.isNullOrEmpty()) {
-                    filesAdapter.addData(data)
+                    filesAdapter.addData(data, reset)
                     viewModel.filesData.value = filesAdapter.getData()
                     if (data.count() < perPage) {
                         Log.i("getFiles", "LESS THAN $perPage - SET AT END")

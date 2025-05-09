@@ -141,7 +141,7 @@ class ShortFragment : Fragment() {
         }
         val api = ServerApi(requireContext(), savedUrl)
         Log.d("processShort", "api: $api")
-        Toast.makeText(requireContext(), "Creating Short URL...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Creating Short URL…", Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
             try {
                 val response = api.shorten(url, vanity)
