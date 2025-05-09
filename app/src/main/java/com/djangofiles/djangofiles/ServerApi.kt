@@ -217,7 +217,9 @@ class ServerApi(val context: Context, host: String) {
         suspend fun getRecent(
             @Header("Authorization") token: String,
             @Query("amount") amount: Int,
-            @Query("start") start: Int,
+            @Query("start") start: Int? = null,
+            @Query("before") before: Int? = null,
+            @Query("after") after: Int? = null,
         ): Response<List<FileResponse>>
 
         @GET("albums/")
