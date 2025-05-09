@@ -82,8 +82,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@android:color/holo_blue_dark"
             android:drawablePadding="8dp"
-            app:drawableStartCompat="@drawable/md_captive_portal_24px"
-            app:drawableTint="?attr/colorControlNormal" />
+            app:drawableStartCompat="@drawable/md_captive_portal_24px" />
 
     </LinearLayout>
 </ScrollView>
