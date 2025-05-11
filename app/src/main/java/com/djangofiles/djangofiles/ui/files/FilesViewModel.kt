@@ -12,6 +12,7 @@ class FilesViewModel : ViewModel() {
     val atEnd = MutableLiveData<Boolean>()
     val deleteId = MutableLiveData<Int>()
     val editRequest = MutableLiveData<FileEditRequest>()
+    //val updateRequest = MutableLiveData<FileResponse>()
 
     val meterHidden = MutableLiveData<Boolean>().apply { value = false }
     val selected = MutableLiveData<MutableSet<Int>>()

@@ -112,6 +112,7 @@ class FilesViewAdapter(
         val viewUrl = "${data.raw}?view=gallery"
 
         val bundle = Bundle().apply {
+            putInt("position", viewHolder.bindingAdapterPosition) // TODO: REMOVE EVERYTHING ELSE
             putInt("fileId", data.id)
             putString("fileName", data.name)
             putString("mimeType", data.mime)
@@ -272,6 +273,7 @@ class FilesViewAdapter(
     }
 
     fun notifyIdsUpdated(positions: List<Int>) {
+        // TODO: Look into notifyIdsUpdated and determine if it should be NUKED!!!
         val sorted = positions.sortedDescending()
         Log.d("notifyIdsUpdated", "sorted: $sorted")
         for (pos in sorted) {

@@ -157,7 +157,7 @@ class ServerApi(val context: Context, host: String) {
         return api.getRecent(authToken, amount, start)
     }
 
-    suspend fun albums(): Response<List<AlbumResponse>> {
+    suspend fun albums(): Response<AlbumResponse> {
         Log.d("Api[albums]", "albums")
         val response = api.getAlbums(authToken)
         return response
@@ -225,7 +225,7 @@ class ServerApi(val context: Context, host: String) {
         @GET("albums/")
         suspend fun getAlbums(
             @Header("Authorization") token: String,
-        ): Response<List<AlbumResponse>>
+        ): Response<AlbumResponse>
 
         @POST("file/{id}")
         suspend fun fileEdit(
@@ -311,7 +311,8 @@ class ServerApi(val context: Context, host: String) {
         @SerializedName("url") val url: String? = null,
         @SerializedName("thumb") val thumb: String? = null,
         @SerializedName("raw") val raw: String? = null,
-        @SerializedName("date") val date: String? = null
+        @SerializedName("date") val date: String? = null,
+        @SerializedName("albums") val albums: List<Int>? = null,
     )
 
     data class FilesEditRequest(
@@ -322,6 +323,7 @@ class ServerApi(val context: Context, host: String) {
         @SerializedName("meta_preview") val metaPreview: Boolean? = null,
         @SerializedName("password") val password: String? = null,
         @SerializedName("private") val private: Boolean? = null,
+        @SerializedName("albums") val albums: List<Int>? = null,
     )
 
     data class FileResponse(
@@ -342,15 +344,16 @@ class ServerApi(val context: Context, host: String) {
         val thumb: String,
         val raw: String,
         val date: String,
+        var albums: List<Int>,
     )
 
     data class AlbumResponse(
-        val albums: List<Album>,
+        val albums: List<AlbumData>,
         val next: Int,
         val count: Int,
     )
 
-    data class Album(
+    data class AlbumData(
         @SerializedName("id") val id: Int,
         @SerializedName("user") val user: Int,
         @SerializedName("name") val name: String,

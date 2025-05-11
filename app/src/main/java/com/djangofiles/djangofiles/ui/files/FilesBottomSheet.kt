@@ -14,7 +14,9 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -23,6 +25,7 @@ import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesBottomBinding
+import com.djangofiles.djangofiles.db.AlbumDatabase
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.shape.CornerFamily
@@ -73,58 +76,86 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         savedUrl = sharedPreferences.getString("saved_url", "").toString()
 
         Log.d("Bottom[onCreateView]", "arguments: $arguments")
-        val fileId = arguments?.getInt("fileId")
-        Log.d("Bottom[onCreateView]", "fileId: $fileId")
-        val fileName = arguments?.getString("fileName")
-        Log.d("Bottom[onCreateView]", "fileName: $fileName")
-        val mimeType = arguments?.getString("mimeType")
-        Log.d("Bottom[onCreateView]", "mimeType: $mimeType")
-        val thumbUrl = arguments?.getString("thumbUrl")
-        Log.d("Bottom[onCreateView]", "thumbUrl: $thumbUrl")
-        val shareUrl = arguments?.getString("shareUrl")
-        Log.d("Bottom[onCreateView]", "shareUrl: $shareUrl")
-        filePassword = arguments?.getString("filePassword") ?: ""
-        Log.d("Bottom[onCreateView]", "filePassword: $filePassword")
-        var isPrivate = requireArguments().getBoolean("isPrivate")
-        Log.d("Bottom[onCreateView]", "isPrivate: $isPrivate")
+        //val fileId = arguments?.getInt("fileId")
+        //Log.d("Bottom[onCreateView]", "fileId: $fileId")
+        //val fileName = arguments?.getString("fileName")
+        //Log.d("Bottom[onCreateView]", "fileName: $fileName")
+        //val mimeType = arguments?.getString("mimeType")
+        //Log.d("Bottom[onCreateView]", "mimeType: $mimeType")
+        //val thumbUrl = arguments?.getString("thumbUrl")
+        //Log.d("Bottom[onCreateView]", "thumbUrl: $thumbUrl")
+        //val shareUrl = arguments?.getString("shareUrl")
+        //Log.d("Bottom[onCreateView]", "shareUrl: $shareUrl")
+        //filePassword = arguments?.getString("filePassword") ?: ""
+        //Log.d("Bottom[onCreateView]", "filePassword: $filePassword")
+        //var isPrivate = requireArguments().getBoolean("isPrivate")
+        //Log.d("Bottom[onCreateView]", "isPrivate: $isPrivate")
+
+        val position = requireArguments().getInt("position")
+        Log.i("Bottom[onCreateView]", "position: $position")
+        val data = viewModel.filesData.value?.get(position)
+        Log.i("Bottom[onCreateView]", "data: $data")
+        if (data == null) {
+            // TODO: HANDLE THIS ERROR FOR SURE!!!
+            return
+        }
+        filePassword = data.password // TODO: FUCKING KILL THIS WITH FIRE!!!
 
         // Name
-        binding.fileName.text = fileName
-        // Share
-        binding.shareButton.setOnClickListener {
-            shareUrl(requireContext(), shareUrl!!)
-        }
-        // Open
-        binding.openButton.setOnClickListener {
-            openUrl(requireContext(), shareUrl!!)
-        }
-        // Copy
-        binding.copyButton.setOnClickListener {
-            copyToClipboard(requireContext(), shareUrl!!)
-        }
-        // Delete
-        binding.deleteButton.setOnClickListener {
-            Log.d("deleteButton", "fileId: $fileId")
-            deleteConfirmDialog(savedUrl, fileId!!, fileName!!)
-        }
+        binding.fileName.text = data.name
+
         // Private
-        if (isPrivate) {
+        if (data.private) {
             tintImage(binding.togglePrivate)
         }
         binding.togglePrivate.setOnClickListener {
-            isPrivate = !isPrivate
-            Log.d("togglePrivate", "New Value: $isPrivate")
+            data.private = !data.private
+            Log.d("togglePrivate", "New Value: ${data.private}")
             val api = ServerApi(requireContext(), savedUrl)
             lifecycleScope.launch {
-                val response = api.edit(fileId!!, FileEditRequest(private = isPrivate))
+                val response = api.edit(data.id, FileEditRequest(private = data.private))
                 Log.d("deleteButton", "response: $response")
-                viewModel.editRequest.value = FileEditRequest(id = fileId, private = isPrivate)
-                if (isPrivate) {
+                viewModel.editRequest.value = FileEditRequest(id = data.id, private = data.private)
+                if (data.private) {
                     tintImage(binding.togglePrivate)
                 } else {
                     binding.togglePrivate.imageTintList = null
                 }
             }
+        }
+        // Album
+        binding.albumButton.setOnClickListener {
+            Log.d("albumButton", "Album Button")
+            val dao = AlbumDatabase.getInstance(requireContext(), savedUrl).albumDao()
+            lifecycleScope.launch {
+                Log.d("File[albumButton]", "viewModel.selected.value: ${viewModel.selected.value}")
+                setFragmentResultListener("albums_result") { _, bundle ->
+                    val albums = bundle.getIntegerArrayList("albums")
+                    Log.i("File[albumButton]", "albums: $albums")
+                    data.albums = albums!!.toList() // TODO: This is enough for non-display items?
+                    //viewModel.updateRequest.value = data
+                }
+
+                val albums =  withContext(Dispatchers.IO) { dao.getAll() }
+                Log.i("File[albumButton]", "albums: $albums")
+                val albumFragment = AlbumFragment()
+                albumFragment.setAlbumData(albums, listOf(data.id), data.albums)
+                albumFragment.show(parentFragmentManager, "AlbumFragment")
+            }
+        }
+        // Share
+        binding.shareButton.setOnClickListener {
+            shareUrl(requireContext(), data.url)
+        }
+        // Copy
+        binding.copyButton.setOnClickListener {
+            copyToClipboard(requireContext(), data.url)
+        }
+
+        // Delete
+        binding.deleteButton.setOnClickListener {
+            Log.d("deleteButton", "fileId: ${data.id}")
+            deleteConfirmDialog(savedUrl, data.id, data.name)
         }
         // Password
         if (!filePassword.isEmpty()) {
@@ -132,10 +163,18 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         }
         binding.setPassword.setOnClickListener {
             Log.d("setPassword", "setOnClickListener")
-            setPasswordDialog(requireContext(), fileId!!, fileName!!)
+            setPasswordDialog(requireContext(), data.id, data.name)
+        }
+        // Expire
+        binding.expireButton.setOnClickListener {
+            Log.d("expireButton", "Expire Button")
+        }
+        // Open
+        binding.openButton.setOnClickListener {
+            openUrl(requireContext(), data.url)
         }
 
-        // Image Preview
+        // Image
         val radius = requireContext().resources.getDimension(R.dimen.image_preview_large)
         binding.imagePreview.setShapeAppearanceModel(
             binding.imagePreview.shapeAppearanceModel
@@ -143,16 +182,14 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
                 .setAllCorners(CornerFamily.ROUNDED, radius)
                 .build()
         )
-
-        if (isGlideMime(mimeType!!)) {
+        if (isGlideMime(data.mime)) {
             Log.d("Bottom[onCreateView]", "isGlideMime")
             Glide.with(this)
-                .load(thumbUrl)
+                .load(data.thumb)
                 .into(binding.imagePreview)
         } else {
-            binding.imagePreview.setImageResource(getGenericIcon(mimeType))
+            binding.imagePreview.setImageResource(getGenericIcon(data.mime))
         }
-
         binding.imagePreview.setOnClickListener {
             Log.d("Bottom[onCreateView]", "onClick: imagePreview")
             findNavController().navigate(R.id.nav_item_files_action_preview, arguments)

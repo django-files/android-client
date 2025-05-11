@@ -21,6 +21,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +34,9 @@ import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerApi.FilesEditRequest
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
+import com.djangofiles.djangofiles.db.AlbumDatabase
+import com.djangofiles.djangofiles.db.AlbumEntity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -200,9 +204,11 @@ class FilesFragment : Fragment() {
         if (!viewModel.filesData.value.isNullOrEmpty() && filesAdapter.itemCount == 0) {
             Log.i("File[onViewCreated]", "LOAD FROM CACHE")
             filesAdapter.addData(viewModel.filesData.value!!)
+            binding.loadingSpinner.visibility = View.GONE
         } else if (viewModel.filesData.value.isNullOrEmpty()) {
             Log.i("File[onViewCreated]", "LOAD NEW DATA")
             lifecycleScope.launch { getFiles(perPage) }
+            // binding.loadingSpinner.visibility = View.GONE // getFiles handles this
         } else {
             Log.i("File[onViewCreated]", "ALREADY LOADED")
             binding.loadingSpinner.visibility = View.GONE
@@ -265,6 +271,12 @@ class FilesFragment : Fragment() {
                 Log.d("File[refreshLayout]", "onRefresh")
                 lifecycleScope.launch {
                     Log.d("File[refreshLayout]", "START")
+
+                    //Log.d("File[refreshLayout]", "Get Albums in the Background...")
+                    //launch(Dispatchers.IO) {
+                    //    getAlbums(requireContext(), savedUrl)
+                    //}
+
                     //viewModel.selected.value?.clear()
                     viewModel.selected.value = mutableSetOf<Int>()
                     filesAdapter.selected.clear()
@@ -385,7 +397,26 @@ class FilesFragment : Fragment() {
         }
         binding.albumAllButton.setOnClickListener {
             Log.d("File[albumAllButton]", "viewModel.selected.value: ${viewModel.selected.value}")
-            showAlbumsDialog(requireContext(), viewModel.selected.value!!)
+            setFragmentResultListener("albums_result") { _, bundle ->
+                val albums = bundle.getIntegerArrayList("albums")
+                Log.i("File[fragmentResultListener]", "albums: $albums")
+                for (index in viewModel.selected.value!!) {
+                    val file = viewModel.filesData.value?.get(index)
+                    file?.albums = albums!!
+                }
+                // TODO: Look into notifyIdsUpdated and determine if it should be NUKED!!!
+                filesAdapter.notifyIdsUpdated(viewModel.selected.value!!.toList())
+            }
+            lifecycleScope.launch {
+                val dao = AlbumDatabase.getInstance(requireContext(), savedUrl).albumDao()
+                val albums = withContext(Dispatchers.IO) { dao.getAll() }
+                Log.i("File[lifecycleScope]", "albums: $albums")
+                val albumFragment = AlbumFragment()
+                val fileIds = getFileIds(viewModel.selected.value!!.toList())
+                Log.i("File[lifecycleScope]", "fileIds: $fileIds")
+                albumFragment.setAlbumData(albums, fileIds, emptyList())
+                albumFragment.show(parentFragmentManager, "AlbumFragment")
+            }
         }
 
         // Monitor viewModel.deleteId for changes and attempt to filesAdapter.deleteById the ID
@@ -397,11 +428,23 @@ class FilesFragment : Fragment() {
         }
         // Monitor viewModel.editRequest for changes and do something...
         viewModel.editRequest.observe(viewLifecycleOwner) { editRequest ->
-            Log.d("editId[observe]", "editRequest: $editRequest")
+            Log.d("editRequest[observe]", "editRequest: $editRequest")
             if (editRequest != null) {
                 filesAdapter.editById(editRequest)
             }
         }
+
+        //// TODO: Avoid using this...
+        //// Monitor viewModel.updateRequest for changes and do something...
+        //viewModel.updateRequest.observe(viewLifecycleOwner) { updateRequest ->
+        //    Log.d("updateRequest[observe]", "updateRequest: $updateRequest")
+        //    val data = viewModel.filesData.value?.first { it.id == updateRequest.id }
+        //    Log.d("updateRequest[observe]", "data: $data")
+        //    if (data != null) {
+        //        //filesAdapter.editById(data)
+        //        Log.d("updateRequest[observe]", "JUST UPDATE THE FUCKING DATA: $data")
+        //    }
+        //}
     }
 
     fun getFileIds(positions: List<Int>): List<Int> {
@@ -462,6 +505,14 @@ class FilesFragment : Fragment() {
             }
         }
     }
+
+//    override fun onDialogPositiveClick(dialog: DialogFragment) {
+//        Log.i("onDialogPositiveClick", "dialog: $dialog")
+//    }
+//
+//    override fun onDialogNegativeClick(dialog: DialogFragment) {
+//        Log.i("onDialogNegativeClick", "dialog: $dialog")
+//    }
 
     //override fun onStart() {
     //    Log.d("File[onStart]", "ON START")
@@ -708,6 +759,35 @@ private fun deleteConfirmDialog(
                     }
                 }
             }
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+fun Context.showAlbumSelectionDialog(
+    albums: List<AlbumEntity>,
+    preselectedIds: List<Int> = emptyList(),
+    onAlbumsSelected: (List<Int>) -> Unit
+) {
+    val selected = BooleanArray(albums.size) { index ->
+        albums[index].id in preselectedIds
+    }
+
+    MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+        .setIcon(R.drawable.md_imagesmode_24)
+        .setTitle("Choose Albums 2")
+        .setMultiChoiceItems(
+            albums.map { it.name }.toTypedArray(),
+            selected
+        ) { _, which, isChecked ->
+            selected[which] = isChecked
+        }
+        .setPositiveButton("Set") { _, _ ->
+            val selectedIds = albums
+                .mapIndexedNotNull { index, album ->
+                    if (selected[index]) album.id else null
+                }
+            onAlbumsSelected(selectedIds)
         }
         .setNegativeButton("Cancel", null)
         .show()

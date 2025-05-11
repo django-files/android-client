@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles.ui.settings
 
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
@@ -23,7 +24,12 @@ import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerDao
 import com.djangofiles.djangofiles.ServerDatabase
 import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
+import com.djangofiles.djangofiles.db.AlbumDao
+import com.djangofiles.djangofiles.db.AlbumDatabase
+import com.djangofiles.djangofiles.db.AlbumEntity
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -51,6 +57,7 @@ class LoginTwoFragment : Fragment() {
         return root
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Login[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
@@ -137,6 +144,13 @@ class LoginTwoFragment : Fragment() {
                     putString("saved_url", hostname)
                     putString("auth_token", token)
                 }
+
+                Log.d("loginFunction", "GlobalScope.launch")
+                GlobalScope.launch(Dispatchers.IO) {
+                    Log.d("loginFunction", "getAlbums: $hostname")
+                    getAlbums(requireContext(), hostname)
+                }
+
                 Log.d("loginFunction", "MainActivity: setDrawerLockMode(true)")
                 (requireActivity() as MainActivity).setDrawerLockMode(true)
                 withContext(Dispatchers.Main) {
@@ -182,6 +196,36 @@ class LoginTwoFragment : Fragment() {
             //if (!findNavController().popBackStack()) {
             //    requireActivity().finishAffinity()
             //}
+        }
+    }
+}
+
+suspend fun getAlbums(context: Context, savedUrl: String) {
+    val api = ServerApi(context, savedUrl)
+    val response = api.albums()
+    Log.d("getAlbums", "response: $response")
+    if (response.isSuccessful) {
+        val dao: AlbumDao = AlbumDatabase.getInstance(context, savedUrl).albumDao()
+        val albumResponse = response.body()
+        Log.d("getAlbums", "albumResponse: $albumResponse")
+        if (albumResponse != null) {
+            dao.syncAlbums(albumResponse.albums)
+            //for (album in albumResponse.albums) {
+            //    Log.d("getAlbums", "album: $album")
+            //    val albumEntry = AlbumEntity(
+            //        id = album.id,
+            //        name = album.name,
+            //        password = album.password,
+            //        private = album.private,
+            //        info = album.info,
+            //        expr = album.expr,
+            //        date = album.date,
+            //        url = album.url,
+            //    )
+            //    Log.d("getAlbums", "albumEntry: $albumEntry")
+            //    dao.addOrUpdate(album = albumEntry)
+            //}
+            Log.d("getAlbums", "DONE")
         }
     }
 }

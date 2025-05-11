@@ -3,4 +3,12 @@
 <!--        <item name="colorPrimary">@color/primary</item>-->
     </style>
     <style name="Theme.djangofiles" parent="Base.Theme.djangofiles" />
+
+    <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/AlertDialogCorner</item>
+    </style>
+    <style name="AlertDialogCorner" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
 </resources>
