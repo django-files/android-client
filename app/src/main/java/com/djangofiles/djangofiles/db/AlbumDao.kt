@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles.db
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete

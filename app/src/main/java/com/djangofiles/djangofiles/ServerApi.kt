@@ -120,17 +120,31 @@ class ServerApi(val context: Context, host: String) {
         return api.getMethods()
     }
 
-    suspend fun upload(fileName: String, inputStream: InputStream): Response<UploadResponse> {
-        Log.d("Api[upload]", "fileName: $fileName")
+    suspend fun upload(
+        fileName: String,
+        inputStream: InputStream,
+        editRequest: FileEditRequest,
+    ): Response<UploadResponse> {
+        Log.d("Api[upload]", "fileName: $fileName - $editRequest")
         val multiPart: MultipartBody.Part = inputStreamToMultipart(inputStream, fileName)
-        var response = api.postUpload(authToken, multiPart)
+        var response = api.postUpload(
+            authToken, multiPart,
+            password = editRequest.password,
+            private = editRequest.private,
+            albums = editRequest.albums,
+        )
         // TODO: Determine how to make this block a reusable function...
         Log.d("Api[upload]", "response.code: ${response.code()}")
         if (response.code() == 401) {
             val token = reAuthenticate()
             Log.d("Api[upload]", "token: $token")
             if (token != null) {
-                response = api.postUpload(token, multiPart)
+                response = api.postUpload(
+                    token, multiPart,
+                    password = editRequest.password,
+                    private = editRequest.private,
+                    albums = editRequest.albums,
+                )
             }
         }
         return response
@@ -201,10 +215,11 @@ class ServerApi(val context: Context, host: String) {
             @Part file: MultipartBody.Part,
             @Header("Format") format: String? = null,
             @Header("Expires-At") expiresAt: String? = null,
-            @Header("Strip-GPS") stripGps: String? = null,
-            @Header("Strip-EXIF") stripExif: String? = null,
-            @Header("Private") private: String? = null,
+            @Header("Strip-GPS") stripGps: Boolean? = null,
+            @Header("Strip-EXIF") stripExif: Boolean? = null,
+            @Header("Private") private: Boolean? = null,
             @Header("Password") password: String? = null,
+            @Header("Albums") albums: List<Int>? = null,
         ): Response<UploadResponse>
 
         @POST("shorten/")
@@ -298,27 +313,19 @@ class ServerApi(val context: Context, host: String) {
 
     data class FileEditRequest(
         @SerializedName("id") val id: Int? = null,
-        @SerializedName("user") val user: Int? = null,
-        @SerializedName("size") val size: Int? = null,
-        @SerializedName("mime") val mime: String? = null,
-        @SerializedName("name") val name: String? = null,
-        @SerializedName("info") val info: String? = null,
-        @SerializedName("expr") val expr: String? = null,
-        @SerializedName("view") val view: Int? = null,
-        @SerializedName("maxv") val maxv: Int? = null,
-        @SerializedName("meta_preview") val metaPreview: Boolean? = null,
-        @SerializedName("password") val password: String? = null,
-        @SerializedName("private") val private: Boolean? = null,
-        @SerializedName("avatar") val avatar: Boolean? = null,
-        @SerializedName("url") val url: String? = null,
-        @SerializedName("thumb") val thumb: String? = null,
-        @SerializedName("raw") val raw: String? = null,
-        @SerializedName("date") val date: String? = null,
-        @SerializedName("albums") val albums: List<Int>? = null,
+        @SerializedName("name") var name: String? = null,
+        @SerializedName("info") var info: String? = null,
+        @SerializedName("expr") var expr: String? = null,
+        @SerializedName("maxv") var maxv: Int? = null,
+        @SerializedName("meta_preview") var metaPreview: Boolean? = null,
+        @SerializedName("password") var password: String? = null,
+        @SerializedName("private") var private: Boolean? = null,
+        @SerializedName("albums") var albums: List<Int>? = null,
     )
 
     data class FilesEditRequest(
         @SerializedName("ids") val ids: List<Int>,
+        @SerializedName("name") val name: String? = null,
         @SerializedName("info") val info: String? = null,
         @SerializedName("expr") val expr: String? = null,
         @SerializedName("maxv") val maxv: Int? = null,

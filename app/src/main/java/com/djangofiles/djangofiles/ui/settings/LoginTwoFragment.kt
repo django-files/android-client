@@ -18,11 +18,11 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
+import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
-import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
 import com.djangofiles.djangofiles.ui.files.getAlbums
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers

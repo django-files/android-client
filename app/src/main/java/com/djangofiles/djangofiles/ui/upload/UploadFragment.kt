@@ -22,6 +22,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
@@ -34,8 +35,11 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentUploadBinding
+import com.djangofiles.djangofiles.db.AlbumDatabase
+import com.djangofiles.djangofiles.ui.files.AlbumFragment
 import com.djangofiles.djangofiles.ui.files.getGenericIcon
 import com.djangofiles.djangofiles.ui.files.isCodeMime
 import com.djangofiles.djangofiles.ui.files.isGlideMime
@@ -115,9 +119,13 @@ class UploadFragment : Fragment() {
         val mimeType = requireContext().contentResolver.getType(uri)
         Log.d("Upload[onViewCreated]", "mimeType: $mimeType")
 
-        val fileName = getFileNameFromUri(requireContext(), uri)
+        val fileName = requireContext().getFileNameFromUri(uri)
         Log.d("Upload[onViewCreated]", "fileName: $fileName")
         binding.fileName.setText(fileName)
+
+        // Upload Options - TODO: Set default options here...
+        //val fileAlbums = mutableListOf<Int>()
+        val editRequest = FileEditRequest()
 
         // TODO: Overhaul with Glide and ExoPlayer...
         if (mimeType?.startsWith("video/") == true || mimeType?.startsWith("audio/") == true) {
@@ -221,12 +229,44 @@ class UploadFragment : Fragment() {
         binding.uploadButton.setOnClickListener {
             val fileName = binding.fileName.text.toString().trim()
             Log.d("uploadButton", "fileName: $fileName")
-            processUpload(uri, fileName)
+            processUpload(uri, fileName, editRequest)
+        }
+
+        // TODO: Duplicate from UploadMultiFragment
+        binding.albumButton.setOnClickListener {
+            Log.d("File[albumButton]", "Album Button")
+            Log.d("File[albumButton]", "editRequest: $editRequest")
+
+            val sharedPreferences =
+                requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            val savedUrl = sharedPreferences.getString("saved_url", null).toString()
+            Log.d("File[albumButton]", "savedUrl: $savedUrl")
+
+            val dao = AlbumDatabase.getInstance(requireContext(), savedUrl).albumDao()
+            lifecycleScope.launch {
+                setFragmentResultListener("albums_result") { _, bundle ->
+                    val albums = bundle.getIntegerArrayList("albums")
+                    Log.d("File[albumButton]", "albums: $albums")
+                    if (albums != null) {
+                        editRequest.albums = albums.toList()
+                    }
+                }
+
+                val albums = withContext(Dispatchers.IO) { dao.getAll() }
+                Log.d("File[albumButton]", "albums: $albums")
+                val albumFragment = AlbumFragment()
+                albumFragment.setAlbumData(albums, listOf(), editRequest.albums)
+                albumFragment.show(parentFragmentManager, "AlbumFragment")
+            }
         }
     }
 
     // TODO: DUPLICATION: ShortFragment.processShort
-    private fun processUpload(fileUri: Uri, fileName: String?) {
+    private fun processUpload(
+        fileUri: Uri,
+        fileName: String?,
+        editRequest: FileEditRequest? = null,
+    ) {
         Log.d("processUpload", "fileUri: $fileUri")
         //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val sharedPreferences =
@@ -235,7 +275,7 @@ class UploadFragment : Fragment() {
         Log.d("processUpload", "savedUrl: $savedUrl")
         val authToken = sharedPreferences.getString("auth_token", null)
         Log.d("processUpload", "authToken: $authToken")
-        val fileName = fileName ?: getFileNameFromUri(requireContext(), fileUri)
+        val fileName = fileName ?: requireContext().getFileNameFromUri(fileUri)
         Log.d("processUpload", "fileName: $fileName")
         if (savedUrl == null || authToken == null || fileName == null) {
             // TODO: Show settings dialog here...
@@ -259,7 +299,7 @@ class UploadFragment : Fragment() {
             .show()
         lifecycleScope.launch {
             try {
-                val response = api.upload(fileName, inputStream)
+                val response = api.upload(fileName, inputStream, editRequest ?: FileEditRequest())
                 Log.d("processUpload", "response: $response")
                 if (response.isSuccessful) {
                     val uploadResponse = response.body()
@@ -311,9 +351,9 @@ class UploadFragment : Fragment() {
     }
 }
 
-fun getFileNameFromUri(context: Context, uri: Uri): String? {
+fun Context.getFileNameFromUri(uri: Uri): String? {
     var fileName: String? = null
-    context.contentResolver.query(uri, null, null, null, null).use { cursor ->
+    this.contentResolver.query(uri, null, null, null, null).use { cursor ->
         if (cursor != null && cursor.moveToFirst()) {
             val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
             if (nameIndex != -1) {
