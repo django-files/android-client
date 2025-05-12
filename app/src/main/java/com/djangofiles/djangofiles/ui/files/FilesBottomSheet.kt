@@ -76,9 +76,9 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
 
         Log.d("Bottom[onCreateView]", "arguments: $arguments")
         val position = requireArguments().getInt("position")
-        Log.i("Bottom[onCreateView]", "position: $position")
+        Log.d("Bottom[onCreateView]", "position: $position")
         val data = viewModel.filesData.value?.get(position)
-        Log.i("Bottom[onCreateView]", "data: $data")
+        Log.d("Bottom[onCreateView]", "data: $data")
         if (data == null) {
             // TODO: HANDLE THIS ERROR!!!
             return
@@ -115,13 +115,13 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
                 Log.d("File[albumButton]", "viewModel.selected.value: ${viewModel.selected.value}")
                 setFragmentResultListener("albums_result") { _, bundle ->
                     val albums = bundle.getIntegerArrayList("albums")
-                    Log.i("File[albumButton]", "albums: $albums")
+                    Log.d("File[albumButton]", "albums: $albums")
                     data.albums = albums!!.toList() // TODO: This is enough for non-display items?
                     //viewModel.updateRequest.value = data
                 }
 
                 val albums = withContext(Dispatchers.IO) { dao.getAll() }
-                Log.i("File[albumButton]", "albums: $albums")
+                Log.d("File[albumButton]", "albums: $albums")
                 val albumFragment = AlbumFragment()
                 albumFragment.setAlbumData(albums, listOf(data.id), data.albums)
                 albumFragment.show(parentFragmentManager, "AlbumFragment")

@@ -151,11 +151,9 @@ class FilesFragment : Fragment() {
                 viewModel.filesData.value = null
                 viewModel.viewKey.value = key
                 viewModel.selected.value = mutableSetOf<Int>()
+                viewModel.atEnd.value = false
                 resetAdapter = true
             }
-            //if (::filesAdapter.isInitialized) {
-            //    Log.i("File[onViewCreated]", "filesAdapter.isInitialized")
-            //}
         } else {
             Log.i("File[onViewCreated]", "Set New viewKey: $key")
             viewModel.viewKey.value = key
@@ -404,7 +402,7 @@ class FilesFragment : Fragment() {
             Log.d("File[albumAllButton]", "viewModel.selected.value: ${viewModel.selected.value}")
             setFragmentResultListener("albums_result") { _, bundle ->
                 val albums = bundle.getIntegerArrayList("albums")
-                Log.i("File[fragmentResultListener]", "albums: $albums")
+                Log.d("File[fragmentResultListener]", "albums: $albums")
                 for (index in viewModel.selected.value!!) {
                     val file = viewModel.filesData.value?.get(index)
                     file?.albums = albums!!
@@ -415,10 +413,10 @@ class FilesFragment : Fragment() {
             lifecycleScope.launch {
                 val dao = AlbumDatabase.getInstance(requireContext(), savedUrl).albumDao()
                 val albums = withContext(Dispatchers.IO) { dao.getAll() }
-                Log.i("File[lifecycleScope]", "albums: $albums")
+                Log.d("File[lifecycleScope]", "albums: $albums")
                 val albumFragment = AlbumFragment()
                 val fileIds = getFileIds(viewModel.selected.value!!.toList())
-                Log.i("File[lifecycleScope]", "fileIds: $fileIds")
+                Log.d("File[lifecycleScope]", "fileIds: $fileIds")
                 albumFragment.setAlbumData(albums, fileIds, emptyList())
                 albumFragment.show(parentFragmentManager, "AlbumFragment")
             }
