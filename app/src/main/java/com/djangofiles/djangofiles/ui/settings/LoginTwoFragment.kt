@@ -18,12 +18,15 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.Server
+import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.ServerApi
-import com.djangofiles.djangofiles.ServerDao
-import com.djangofiles.djangofiles.ServerDatabase
+import com.djangofiles.djangofiles.db.ServerDao
+import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
+import com.djangofiles.djangofiles.ui.files.getAlbums
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -51,6 +54,7 @@ class LoginTwoFragment : Fragment() {
         return root
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Login[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
@@ -137,6 +141,13 @@ class LoginTwoFragment : Fragment() {
                     putString("saved_url", hostname)
                     putString("auth_token", token)
                 }
+
+                Log.d("loginFunction", "GlobalScope.launch")
+                GlobalScope.launch(Dispatchers.IO) {
+                    Log.d("loginFunction", "getAlbums: $hostname")
+                    requireContext().getAlbums(hostname)
+                }
+
                 Log.d("loginFunction", "MainActivity: setDrawerLockMode(true)")
                 (requireActivity() as MainActivity).setDrawerLockMode(true)
                 withContext(Dispatchers.Main) {

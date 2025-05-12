@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles
+package com.djangofiles.djangofiles.db
 
 import android.content.Context
 import androidx.room.Dao

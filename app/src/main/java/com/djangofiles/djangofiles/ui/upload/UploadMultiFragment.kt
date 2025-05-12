@@ -149,7 +149,7 @@ class UploadMultiFragment : Fragment() {
                 .show()
             return
         }
-        val msg = "Uploading ${fileUris.size} Files..."
+        val msg = "Uploading ${fileUris.size} Files…"
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 
         val api = ServerApi(requireContext(), savedUrl)

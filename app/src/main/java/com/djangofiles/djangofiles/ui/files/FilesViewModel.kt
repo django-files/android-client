@@ -7,11 +7,15 @@ import com.djangofiles.djangofiles.ServerApi.FileResponse
 
 class FilesViewModel : ViewModel() {
 
-    val savedUrl = MutableLiveData<String>()
+    val viewKey = MutableLiveData<String>()
     val filesData = MutableLiveData<List<FileResponse>>()
     val atEnd = MutableLiveData<Boolean>()
     val deleteId = MutableLiveData<Int>()
     val editRequest = MutableLiveData<FileEditRequest>()
+    val updateRequest = MutableLiveData<List<Int>>()
+
+    val meterHidden = MutableLiveData<Boolean>().apply { value = false }
+    val selected = MutableLiveData<MutableSet<Int>>()
 
     //// Note: this will not work without a filesData observer to update data on changes
     //fun deleteById(fileId: Int) {

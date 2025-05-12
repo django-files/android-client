@@ -14,8 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
-import com.djangofiles.djangofiles.ServerDao
-import com.djangofiles.djangofiles.ServerDatabase
 import com.djangofiles.djangofiles.databinding.FragmentLoginBinding
 import com.djangofiles.djangofiles.isURL
 import kotlinx.coroutines.Dispatchers

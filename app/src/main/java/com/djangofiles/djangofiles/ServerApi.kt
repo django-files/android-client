@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import android.util.Log
 import android.webkit.CookieManager
 import androidx.core.content.edit
+import com.djangofiles.djangofiles.db.ServerDao
+import com.djangofiles.djangofiles.db.ServerDatabase
 import com.google.gson.GsonBuilder
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.Dispatchers
@@ -157,9 +159,25 @@ class ServerApi(val context: Context, host: String) {
         return api.getRecent(authToken, amount, start)
     }
 
+    suspend fun albums(): Response<AlbumResponse> {
+        Log.d("Api[albums]", "albums")
+        val response = api.getAlbums(authToken)
+        return response
+    }
+
     suspend fun deleteFile(fileId: Int): Response<ResponseBody> {
-        Log.d("Api[recent]", "fileId: $fileId")
+        Log.d("Api[deleteFile]", "fileId: $fileId")
         return api.fileDelete(authToken, fileId)
+    }
+
+    suspend fun filesEdit(data: FilesEditRequest): Response<ResponseBody> {
+        Log.d("Api[filesEdit]", "data: $data")
+        return api.filesEdit(authToken, data)
+    }
+
+    suspend fun filesDelete(data: FilesEditRequest): Response<ResponseBody> {
+        Log.d("Api[filesDelete]", "data: $data")
+        return api.filesDelete(authToken, data)
     }
 
     interface ApiService {
@@ -201,8 +219,15 @@ class ServerApi(val context: Context, host: String) {
         suspend fun getRecent(
             @Header("Authorization") token: String,
             @Query("amount") amount: Int,
-            @Query("start") start: Int,
+            @Query("start") start: Int? = null,
+            @Query("before") before: Int? = null,
+            @Query("after") after: Int? = null,
         ): Response<List<FileResponse>>
+
+        @GET("albums/")
+        suspend fun getAlbums(
+            @Header("Authorization") token: String,
+        ): Response<AlbumResponse>
 
         @POST("file/{id}")
         suspend fun fileEdit(
@@ -215,6 +240,20 @@ class ServerApi(val context: Context, host: String) {
         suspend fun fileDelete(
             @Header("Authorization") token: String,
             @Path("id") fileId: Int,
+        ): Response<ResponseBody>
+
+        @POST("files/edit/")
+        suspend fun filesEdit(
+            @Header("Authorization") token: String,
+            @Body data: FilesEditRequest
+        ): Response<ResponseBody>
+
+        //@DELETE("files/")
+        //@HTTP(method = "DELETE", path = "files/", hasBody = true)
+        @POST("files/delete/")
+        suspend fun filesDelete(
+            @Header("Authorization") token: String,
+            @Body data: FilesEditRequest
         ): Response<ResponseBody>
 
         // TODO: Use VersionResponse
@@ -274,7 +313,19 @@ class ServerApi(val context: Context, host: String) {
         @SerializedName("url") val url: String? = null,
         @SerializedName("thumb") val thumb: String? = null,
         @SerializedName("raw") val raw: String? = null,
-        @SerializedName("date") val date: String? = null
+        @SerializedName("date") val date: String? = null,
+        @SerializedName("albums") val albums: List<Int>? = null,
+    )
+
+    data class FilesEditRequest(
+        @SerializedName("ids") val ids: List<Int>,
+        @SerializedName("info") val info: String? = null,
+        @SerializedName("expr") val expr: String? = null,
+        @SerializedName("maxv") val maxv: Int? = null,
+        @SerializedName("meta_preview") val metaPreview: Boolean? = null,
+        @SerializedName("password") val password: String? = null,
+        @SerializedName("private") val private: Boolean? = null,
+        @SerializedName("albums") val albums: List<Int>? = null,
     )
 
     data class FileResponse(
@@ -295,6 +346,27 @@ class ServerApi(val context: Context, host: String) {
         val thumb: String,
         val raw: String,
         val date: String,
+        var albums: List<Int>,
+    )
+
+    data class AlbumResponse(
+        val albums: List<AlbumData>,
+        val next: Int,
+        val count: Int,
+    )
+
+    data class AlbumData(
+        @SerializedName("id") val id: Int,
+        @SerializedName("user") val user: Int,
+        @SerializedName("name") val name: String,
+        @SerializedName("password") val password: String,
+        @SerializedName("private") val private: Boolean,
+        @SerializedName("info") val info: String,
+        @SerializedName("view") val view: Int,
+        @SerializedName("maxv") val maxv: Int,
+        @SerializedName("expr") val expr: String,
+        @SerializedName("date") val date: String,
+        @SerializedName("url") val url: String,
     )
 
     private suspend fun inputStreamToMultipart(
