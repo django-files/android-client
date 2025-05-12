@@ -286,8 +286,8 @@ class FilesViewAdapter(
         selected.clear()
         onItemClick(selected)
 
-//        Log.d("deleteIds", "start: ${sorted.min()} - count: ${dataSet.size - sorted.min()}")
-//        notifyItemRangeChanged(sorted.min(), dataSet.size - sorted.min())
+        //Log.d("deleteIds", "start: ${sorted.min()} - count: ${dataSet.size - sorted.min()}")
+        //notifyItemRangeChanged(sorted.min(), dataSet.size - sorted.min())
     }
 
     fun deleteIds(positions: List<Int>) {
@@ -303,9 +303,6 @@ class FilesViewAdapter(
         }
         selected.clear()
         onItemClick(selected)
-
-//        Log.d("deleteIds", "start: ${sorted.min()} - count: ${dataSet.size - sorted.min()}")
-//        notifyItemRangeChanged(sorted.min(), dataSet.size - sorted.min())
     }
 
 

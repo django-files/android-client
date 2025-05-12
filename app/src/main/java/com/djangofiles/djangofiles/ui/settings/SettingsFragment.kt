@@ -10,9 +10,9 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.Server
-import com.djangofiles.djangofiles.ServerDao
-import com.djangofiles.djangofiles.ServerDatabase
+import com.djangofiles.djangofiles.db.Server
+import com.djangofiles.djangofiles.db.ServerDao
+import com.djangofiles.djangofiles.db.ServerDatabase
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

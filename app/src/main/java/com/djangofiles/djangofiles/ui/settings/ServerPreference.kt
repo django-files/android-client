@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.Server
+import com.djangofiles.djangofiles.db.Server
 
 class ServerPreference(
     context: Context,

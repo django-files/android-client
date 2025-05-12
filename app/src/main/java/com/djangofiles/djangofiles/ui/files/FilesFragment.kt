@@ -141,16 +141,21 @@ class FilesFragment : Fragment() {
             okHttpUrlLoader
         )
 
+        var resetAdapter = false
         val key = "${savedUrl}/${authToken.take(8)}"
         //Log.d("File[onViewCreated]", "key: $key")
         if (viewModel.viewKey.value != null) {
             Log.d("File[onViewCreated]", "Found Saved viewKey: ${viewModel.viewKey.value}")
             if (viewModel.viewKey.value != key) {
-                Log.i("File[onViewCreated]", "VIEW KEY MISMATCH - CLEARING VIEW MODEL DATA")
+                Log.i("File[onViewCreated]", "VIEW KEY MISMATCH - RESET DATA")
                 viewModel.filesData.value = null
                 viewModel.viewKey.value = key
                 viewModel.selected.value = mutableSetOf<Int>()
+                resetAdapter = true
             }
+            //if (::filesAdapter.isInitialized) {
+            //    Log.i("File[onViewCreated]", "filesAdapter.isInitialized")
+            //}
         } else {
             Log.i("File[onViewCreated]", "Set New viewKey: $key")
             viewModel.viewKey.value = key
@@ -205,8 +210,8 @@ class FilesFragment : Fragment() {
             filesAdapter.addData(viewModel.filesData.value!!)
             binding.loadingSpinner.visibility = View.GONE
         } else if (viewModel.filesData.value.isNullOrEmpty()) {
-            Log.i("File[onViewCreated]", "LOAD NEW DATA")
-            lifecycleScope.launch { getFiles(perPage) }
+            Log.i("File[onViewCreated]", "1 - getFiles: LOAD NEW DATA: $resetAdapter")
+            lifecycleScope.launch { getFiles(perPage, resetAdapter) }
             // binding.loadingSpinner.visibility = View.GONE // getFiles handles this
         } else {
             Log.i("File[onViewCreated]", "ALREADY LOADED")
@@ -243,7 +248,7 @@ class FilesFragment : Fragment() {
                     if (!atEnd) {
                         Log.d("File[onScrolled]", "loadingSpinner: View.VISIBLE")
                         binding.loadingSpinner.visibility = View.VISIBLE
-                        Log.i("File[onScrolled]", "GET FILES ON SCROLL")
+                        Log.i("File[onScrolled]", "2 - getFiles: ON SCROLL")
                         lifecycleScope.launch {
                             getFiles(perPage)
                         }
@@ -279,6 +284,7 @@ class FilesFragment : Fragment() {
                     //viewModel.selected.value?.clear()
                     viewModel.selected.value = mutableSetOf<Int>()
                     filesAdapter.selected.clear()
+                    Log.i("File[refreshLayout]", "3 - getFiles: ON REFRESH")
                     getFiles(perPage, true)
                     binding.refreshLayout.isRefreshing = false
                     binding.refreshLayout.isEnabled = false
@@ -440,13 +446,6 @@ class FilesFragment : Fragment() {
             for (pos in updateRequest) {
                 filesAdapter.notifyItemChanged(pos)
             }
-
-            //val data = viewModel.filesData.value?.first { it.id == updateRequest.id }
-            //Log.d("updateRequest[observe]", "data: $data")
-            //if (data != null) {
-            //    //filesAdapter.editById(data)
-            //    Log.d("updateRequest[observe]", "JUST UPDATE THE FUCKING DATA: $data")
-            //}
         }
     }
 

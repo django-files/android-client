@@ -73,25 +73,6 @@ data class AlbumEntity(
 )
 
 
-//@Database(entities = [Album::class], version = 1)
-//abstract class AlbumDatabase : RoomDatabase() {
-//    abstract fun albumDao(): AlbumDao
-//
-//    companion object {
-//        @Volatile
-//        private var instance: AlbumDatabase? = null
-//
-//        fun getInstance(context: Context, name: String): AlbumDatabase =
-//            instance ?: synchronized(this) {
-//                instance ?: Room.databaseBuilder(
-//                    context.applicationContext,
-//                    AlbumDatabase::class.java,
-//                    "album-$name"
-//                ).build().also { instance = it }
-//            }
-//    }
-//}
-
 @Database(entities = [AlbumEntity::class], version = 1)
 abstract class AlbumDatabase : RoomDatabase() {
     abstract fun albumDao(): AlbumDao
