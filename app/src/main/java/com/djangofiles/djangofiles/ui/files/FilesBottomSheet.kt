@@ -201,7 +201,9 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         Log.d("deleteConfirmDialog", "$fileId - savedUrl: $fileId")
         MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
             .setTitle("Delete File?")
+            .setIcon(R.drawable.md_delete_24px)
             .setMessage(fileName)
+            .setNegativeButton("Cancel", null)
             .setPositiveButton("Delete") { _, _ ->
                 Log.d("deleteConfirmDialog", "Delete Confirm: fileId $fileId")
                 val api = ServerApi(requireContext(), savedUrl)
@@ -215,7 +217,6 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
                     dismiss()
                 }
             }
-            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -238,7 +239,9 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
             .setView(layout)
             .setTitle("Set Password")
+            .setIcon(R.drawable.md_key_24)
             .setMessage(fileName)
+            .setNegativeButton("Cancel", null)
             .setPositiveButton("Save") { _, _ ->
                 val newPassword = input.text.toString().trim()
                 Log.d("setPasswordDialog", "newPassword: $newPassword")
@@ -260,7 +263,6 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
                     }
                 }
             }
-            .setNegativeButton("Cancel", null)
             .show()
     }
 }

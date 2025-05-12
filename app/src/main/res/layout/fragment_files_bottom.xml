@@ -100,7 +100,7 @@
                 android:contentDescription="Delete"
                 android:padding="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/md_delete_forever_24px"
+                android:src="@drawable/md_delete_24px"
                 app:tint="@android:color/holo_red_dark" />
             <ImageView
                 android:id="@+id/set_password"

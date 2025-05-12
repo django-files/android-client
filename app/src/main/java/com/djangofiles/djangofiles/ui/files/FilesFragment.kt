@@ -609,7 +609,9 @@ fun Context.showExpireDialog(
     MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
         .setView(layout)
         .setTitle("Set Expiration")
+        .setIcon(R.drawable.md_timer_24)
         .setMessage("Leave Blank for None")
+        .setNegativeButton("Cancel", null)
         .setPositiveButton("Save") { _, _ ->
             val newExpire = input.text.toString().trim()
             Log.d("showExpireDialog", "newExpire: $newExpire")
@@ -627,7 +629,6 @@ fun Context.showExpireDialog(
                 }
             }
         }
-        .setNegativeButton("Cancel", null)
         .show()
 }
 
@@ -641,11 +642,14 @@ private fun Context.deleteConfirmDialog(
     val savedUrl =
         this.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
             .toString()
+    val count = fileIds.count()
     Log.d("deleteConfirmDialog", "savedUrl: $savedUrl")
     MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
-        .setTitle("Confirm Delete!")
-        .setMessage("Delete ${fileIds.count()} Files?")
-        .setPositiveButton("Delete") { _, _ ->
+        .setTitle("Delete $count Files?")
+        .setIcon(R.drawable.md_delete_24px)
+        .setMessage("This action can not be undone!\nConfirm deleting $count files...")
+        .setNegativeButton("Cancel", null)
+        .setPositiveButton("Delete $count Files") { _, _ ->
             Log.d("deleteConfirmDialog", "Delete Confirm: fileIds $fileIds")
             val api = ServerApi(this, savedUrl)
             CoroutineScope(Dispatchers.IO).launch {
@@ -659,7 +663,6 @@ private fun Context.deleteConfirmDialog(
                 }
             }
         }
-        .setNegativeButton("Cancel", null)
         .show()
 }
 

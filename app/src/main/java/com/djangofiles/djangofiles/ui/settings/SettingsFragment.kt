@@ -107,7 +107,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun showDeleteDialog(server: Server) {
         MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
             .setTitle("Delete Server?")
+            .setIcon(R.drawable.md_delete_24px)
             .setMessage("Are you sure you want to delete this server?")
+            .setNegativeButton("Cancel", null)
             .setPositiveButton("Delete") { _, _ ->
                 CoroutineScope(Dispatchers.IO).launch {
                     dao.delete(server)
@@ -134,7 +136,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     buildServerList()
                 }
             }
-            .setNegativeButton("Cancel", null)
             .show()
     }
 }

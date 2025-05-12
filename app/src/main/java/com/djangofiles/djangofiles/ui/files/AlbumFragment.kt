@@ -39,12 +39,14 @@ class AlbumFragment : DialogFragment() {
         val albumNames = albums.map { it.name }.toTypedArray()
 
         val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
-            .setTitle("Choose Albums")
+            .setTitle("Set Albums")
             .setIcon(R.drawable.md_imagesmode_24)
-            .setMultiChoiceItems(albumNames, selected) { _, which, isChecked ->
+            .setNegativeButton("Cancel") { _, _ -> }
+        if (albums.isNotEmpty()) {
+            dialog.setMultiChoiceItems(albumNames, selected) { _, which, isChecked ->
                 selected[which] = isChecked
             }
-            .setPositiveButton("Set") { _, _ ->
+            dialog.setPositiveButton("Save") { _, _ ->
                 val selectedIds = albums.mapIndexedNotNull { i, album ->
                     if (selected[i]) album.id else null
                 }
@@ -55,9 +57,10 @@ class AlbumFragment : DialogFragment() {
                 setFragmentResult("albums_result", bundleOf("albums" to selectedIds))
                 dismiss()
             }
-            .setNegativeButton("Cancel") { _, _ -> }
-            .create()
+        } else {
+            dialog.setMessage("No Albums Found.")
+        }
 
-        return dialog
+        return dialog.create()
     }
 }
