@@ -78,20 +78,17 @@ abstract class AlbumDatabase : RoomDatabase() {
     abstract fun albumDao(): AlbumDao
 
     companion object {
-        @Volatile
-        private var instance: AlbumDatabase? = null
+        private val instances = mutableMapOf<String, AlbumDatabase>()
 
         fun getInstance(context: Context, url: String): AlbumDatabase {
-            Log.d("albumDao", "url: $url")
             val safeName = Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(url.toByteArray(Charsets.UTF_8))
-            Log.d("albumDao", "safeName: $safeName")
-            return instance ?: synchronized(this) {
-                instance ?: Room.databaseBuilder(
+            return instances[safeName] ?: synchronized(this) {
+                instances[safeName] ?: Room.databaseBuilder(
                     context.applicationContext,
                     AlbumDatabase::class.java,
                     "album-$safeName"
-                ).build().also { instance = it }
+                ).build().also { instances[safeName] = it }
             }
         }
     }
