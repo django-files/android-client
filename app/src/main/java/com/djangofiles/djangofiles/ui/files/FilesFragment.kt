@@ -17,7 +17,6 @@ import android.webkit.CookieManager
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -34,8 +33,8 @@ import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerApi.FilesEditRequest
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
+import com.djangofiles.djangofiles.db.AlbumDao
 import com.djangofiles.djangofiles.db.AlbumDatabase
-import com.djangofiles.djangofiles.db.AlbumEntity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -272,10 +271,10 @@ class FilesFragment : Fragment() {
                 lifecycleScope.launch {
                     Log.d("File[refreshLayout]", "START")
 
-                    //Log.d("File[refreshLayout]", "Get Albums in the Background...")
-                    //launch(Dispatchers.IO) {
-                    //    getAlbums(requireContext(), savedUrl)
-                    //}
+                    Log.d("File[refreshLayout]", "Get Albums in the Background...")
+                    launch(Dispatchers.IO) {
+                        requireContext().getAlbums(savedUrl)
+                    }
 
                     //viewModel.selected.value?.clear()
                     viewModel.selected.value = mutableSetOf<Int>()
@@ -378,7 +377,7 @@ class FilesFragment : Fragment() {
                 Log.d("File[deleteAllButton]", "callback: $deletePositions")
                 filesAdapter.deleteIds(deletePositions)
             }
-            deleteConfirmDialog(requireContext(), ids, selectedPositions, ::callback)
+            requireContext().deleteConfirmDialog(ids, selectedPositions, ::callback)
         }
         binding.expireAllButton.setOnClickListener {
             Log.d("File[expireAllButton]", "viewModel.selected.value: ${viewModel.selected.value}")
@@ -393,7 +392,7 @@ class FilesFragment : Fragment() {
 
             val fileIds = getFileIds(viewModel.selected.value!!.toList())
             Log.d("File[expireAllButton]", "fileIds: $fileIds")
-            showExpireDialog(requireContext(), fileIds, ::callback)
+            requireContext().showExpireDialog(fileIds, ::callback)
         }
         binding.albumAllButton.setOnClickListener {
             Log.d("File[albumAllButton]", "viewModel.selected.value: ${viewModel.selected.value}")
@@ -434,17 +433,21 @@ class FilesFragment : Fragment() {
             }
         }
 
-        //// TODO: Avoid using this...
-        //// Monitor viewModel.updateRequest for changes and do something...
-        //viewModel.updateRequest.observe(viewLifecycleOwner) { updateRequest ->
-        //    Log.d("updateRequest[observe]", "updateRequest: $updateRequest")
-        //    val data = viewModel.filesData.value?.first { it.id == updateRequest.id }
-        //    Log.d("updateRequest[observe]", "data: $data")
-        //    if (data != null) {
-        //        //filesAdapter.editById(data)
-        //        Log.d("updateRequest[observe]", "JUST UPDATE THE FUCKING DATA: $data")
-        //    }
-        //}
+        // TODO: Avoid using this...
+        // Monitor viewModel.updateRequest for changes and do something...
+        viewModel.updateRequest.observe(viewLifecycleOwner) { updateRequest ->
+            Log.d("updateRequest[observe]", "updateRequest: $updateRequest")
+            for (pos in updateRequest) {
+                filesAdapter.notifyItemChanged(pos)
+            }
+
+            //val data = viewModel.filesData.value?.first { it.id == updateRequest.id }
+            //Log.d("updateRequest[observe]", "data: $data")
+            //if (data != null) {
+            //    //filesAdapter.editById(data)
+            //    Log.d("updateRequest[observe]", "JUST UPDATE THE FUCKING DATA: $data")
+            //}
+        }
     }
 
     fun getFileIds(positions: List<Int>): List<Int> {
@@ -505,14 +508,6 @@ class FilesFragment : Fragment() {
             }
         }
     }
-
-//    override fun onDialogPositiveClick(dialog: DialogFragment) {
-//        Log.i("onDialogPositiveClick", "dialog: $dialog")
-//    }
-//
-//    override fun onDialogNegativeClick(dialog: DialogFragment) {
-//        Log.i("onDialogNegativeClick", "dialog: $dialog")
-//    }
 
     //override fun onStart() {
     //    Log.d("File[onStart]", "ON START")
@@ -584,21 +579,137 @@ class FilesFragment : Fragment() {
     }
 }
 
-fun openUrl(context: Context, url: String) {
+fun Context.showExpireDialog(
+    fileIds: List<Int>,
+    callback: (newExpr: String) -> Unit,
+    currentValue: String? = null,
+) {
+    // TODO: Refactor this function to not use a callback or not exist at all...
+    Log.d("showExpireDialog", "$fileIds: $fileIds")
+
+    val layout = LinearLayout(this)
+    layout.orientation = LinearLayout.VERTICAL
+    layout.setPadding(10, 0, 10, 40)
+
+    val input = EditText(this)
+    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+    input.maxLines = 1
+    input.hint = "6mo"
+
+    if (currentValue != null) {
+        Log.d("showExpireDialog", "input.setText: currentValue: $currentValue")
+        input.setText(currentValue)
+        input.setSelection(0, currentValue.length)
+    }
+    input.requestFocus()
+    layout.addView(input)
+
+    val savedUrl =
+        this.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
+            .toString()
+    MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+        .setView(layout)
+        .setTitle("Set Expiration")
+        .setMessage("Leave Blank for None")
+        .setPositiveButton("Save") { _, _ ->
+            val newExpire = input.text.toString().trim()
+            Log.d("showExpireDialog", "newExpire: $newExpire")
+            val api = ServerApi(this, savedUrl)
+            CoroutineScope(Dispatchers.IO).launch {
+                val response =
+                    api.filesEdit(FilesEditRequest(ids = fileIds, expr = newExpire))
+                Log.d("showExpireDialog", "response: $response")
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        callback(newExpire)
+                    }
+                } else {
+                    Log.w("showExpireDialog", "RESPONSE FAILURE")
+                }
+            }
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+private fun Context.deleteConfirmDialog(
+    fileIds: List<Int>,
+    selectedPositions: List<Int>,
+    callback: (deletePositions: List<Int>) -> Unit,
+) {
+    // TODO: Refactor this function to not use a callback or not exist at all...
+    Log.d("deleteConfirmDialog", "fileIds: $fileIds - selectedPositions: $selectedPositions")
+    val savedUrl =
+        this.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
+            .toString()
+    Log.d("deleteConfirmDialog", "savedUrl: $savedUrl")
+    MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+        .setTitle("Confirm Delete!")
+        .setMessage("Delete ${fileIds.count()} Files?")
+        .setPositiveButton("Delete") { _, _ ->
+            Log.d("deleteConfirmDialog", "Delete Confirm: fileIds $fileIds")
+            val api = ServerApi(this, savedUrl)
+            CoroutineScope(Dispatchers.IO).launch {
+                val response = api.filesDelete(FilesEditRequest(ids = fileIds))
+                Log.d("File[deleteAllButton]", "response: $response")
+                if (response.isSuccessful) {
+                    Log.d("File[deleteAllButton]", "filesAdapter.deleteIds: $selectedPositions")
+                    withContext(Dispatchers.Main) {
+                        callback(selectedPositions)
+                    }
+                }
+            }
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
+}
+
+suspend fun Context.getAlbums(savedUrl: String) {
+    val api = ServerApi(this, savedUrl)
+    val response = api.albums()
+    Log.d("getAlbums", "response: $response")
+    if (response.isSuccessful) {
+        val dao: AlbumDao = AlbumDatabase.getInstance(this, savedUrl).albumDao()
+        val albumResponse = response.body()
+        Log.d("getAlbums", "albumResponse: $albumResponse")
+        if (albumResponse != null) {
+            dao.syncAlbums(albumResponse.albums)
+            //for (album in albumResponse.albums) {
+            //    Log.d("getAlbums", "album: $album")
+            //    val albumEntry = AlbumEntity(
+            //        id = album.id,
+            //        name = album.name,
+            //        password = album.password,
+            //        private = album.private,
+            //        info = album.info,
+            //        expr = album.expr,
+            //        date = album.date,
+            //        url = album.url,
+            //    )
+            //    Log.d("getAlbums", "albumEntry: $albumEntry")
+            //    dao.addOrUpdate(album = albumEntry)
+            //}
+            Log.d("getAlbums", "DONE")
+        }
+    }
+}
+
+fun Context.openUrl(url: String) {
     val openIntent = Intent(Intent.ACTION_VIEW).apply {
         setDataAndType(url.toUri(), "text/plain")
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    context.startActivity(Intent.createChooser(openIntent, null))
+    this.startActivity(Intent.createChooser(openIntent, null))
 }
 
-fun shareUrl(context: Context, url: String) {
+fun Context.shareUrl(url: String) {
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
         putExtra(Intent.EXTRA_TEXT, url)
     }
-    context.startActivity(Intent.createChooser(shareIntent, null))
+    this.startActivity(Intent.createChooser(shareIntent, null))
 }
+
 
 fun isGlideMime(mimeType: String): Boolean {
     return when (mimeType.lowercase()) {
@@ -651,144 +762,4 @@ fun getGenericIcon(mimeType: String): Int = when {
     mimeType.startsWith("text/") -> R.drawable.md_docs_24
     mimeType.startsWith("video/") -> R.drawable.md_videocam_24
     else -> R.drawable.md_unknown_document_24
-}
-
-private fun showExpireDialog(
-    context: Context,
-    fileIds: List<Int>,
-    callback: (newExpr: String) -> Unit
-) {
-    Log.d("showExpireDialog", "$fileIds: $fileIds")
-
-    val layout = LinearLayout(context)
-    layout.orientation = LinearLayout.VERTICAL
-    layout.setPadding(10, 0, 10, 40)
-
-    val input = EditText(context)
-    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
-    input.maxLines = 1
-    input.hint = "6mo"
-    input.requestFocus()
-    layout.addView(input)
-
-    val savedUrl =
-        context.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
-            .toString()
-
-    AlertDialog.Builder(context)
-        .setView(layout)
-        .setTitle("Set Expiration")
-        .setMessage("Leave Blank for None")
-        .setPositiveButton("Save") { _, _ ->
-            val newExpire = input.text.toString().trim()
-            Log.d("showExpireDialog", "newExpire: $newExpire")
-            val api = ServerApi(context, savedUrl)
-            CoroutineScope(Dispatchers.IO).launch {
-                val response =
-                    api.filesEdit(FilesEditRequest(ids = fileIds, expr = newExpire))
-                Log.d("showExpireDialog", "response: $response")
-                if (response.isSuccessful) {
-                    withContext(Dispatchers.Main) {
-                        callback(newExpire)
-                    }
-                } else {
-                    Log.w("showExpireDialog", "RESPONSE FAILURE")
-                }
-            }
-        }
-        .setNegativeButton("Cancel", null)
-        .show()
-}
-
-
-private fun showAlbumsDialog(context: Context, fileIds: MutableSet<Int>) {
-    Log.d("showAlbumsDialog", "$fileIds: $fileIds")
-
-    val layout = LinearLayout(context)
-    layout.orientation = LinearLayout.VERTICAL
-    layout.setPadding(10, 0, 10, 40)
-
-    val input = EditText(context)
-    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
-    input.maxLines = 1
-    input.hint = "Album ID"
-    input.requestFocus()
-    layout.addView(input)
-
-    AlertDialog.Builder(context)
-        .setView(layout)
-        .setTitle("Manage Albums")
-        .setMessage("Enter the Album ID")
-        .setPositiveButton("Save") { _, _ ->
-            val newAlbum = input.text.toString().trim()
-            Log.d("showAlbumsDialog", "newAlbum: $newAlbum")
-        }
-        .setNegativeButton("Cancel", null)
-        .show()
-}
-
-private fun deleteConfirmDialog(
-
-    context: Context,
-    fileIds: List<Int>,
-    selectedPositions: List<Int>,
-    callback: (deletePositions: List<Int>) -> Unit
-
-) {
-    Log.d("deleteConfirmDialog", "fileIds: $fileIds")
-    Log.d("deleteConfirmDialog", "selectedPositions: $selectedPositions")
-
-    val savedUrl =
-        context.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
-            .toString()
-    Log.d("deleteConfirmDialog", "savedUrl: $savedUrl")
-
-    AlertDialog.Builder(context)
-        .setTitle("Confirm Delete!")
-        .setMessage("Delete ${fileIds.count()} Files?")
-        .setPositiveButton("Delete") { _, _ ->
-            Log.d("deleteConfirmDialog", "Delete Confirm: fileIds $fileIds")
-            val api = ServerApi(context, savedUrl)
-            CoroutineScope(Dispatchers.IO).launch {
-                val response = api.filesDelete(FilesEditRequest(ids = fileIds))
-                Log.d("File[deleteAllButton]", "response: $response")
-                if (response.isSuccessful) {
-                    Log.d("File[deleteAllButton]", "filesAdapter.deleteIds: $selectedPositions")
-                    withContext(Dispatchers.Main) {
-                        callback(selectedPositions)
-                    }
-                }
-            }
-        }
-        .setNegativeButton("Cancel", null)
-        .show()
-}
-
-fun Context.showAlbumSelectionDialog(
-    albums: List<AlbumEntity>,
-    preselectedIds: List<Int> = emptyList(),
-    onAlbumsSelected: (List<Int>) -> Unit
-) {
-    val selected = BooleanArray(albums.size) { index ->
-        albums[index].id in preselectedIds
-    }
-
-    MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
-        .setIcon(R.drawable.md_imagesmode_24)
-        .setTitle("Choose Albums 2")
-        .setMultiChoiceItems(
-            albums.map { it.name }.toTypedArray(),
-            selected
-        ) { _, which, isChecked ->
-            selected[which] = isChecked
-        }
-        .setPositiveButton("Set") { _, _ ->
-            val selectedIds = albums
-                .mapIndexedNotNull { index, album ->
-                    if (selected[index]) album.id else null
-                }
-            onAlbumsSelected(selectedIds)
-        }
-        .setNegativeButton("Cancel", null)
-        .show()
 }

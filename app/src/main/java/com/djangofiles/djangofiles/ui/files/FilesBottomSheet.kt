@@ -12,9 +12,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +26,7 @@ import com.djangofiles.djangofiles.databinding.FragmentFilesBottomBinding
 import com.djangofiles.djangofiles.db.AlbumDatabase
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.CornerFamily
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -76,30 +75,15 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         savedUrl = sharedPreferences.getString("saved_url", "").toString()
 
         Log.d("Bottom[onCreateView]", "arguments: $arguments")
-        //val fileId = arguments?.getInt("fileId")
-        //Log.d("Bottom[onCreateView]", "fileId: $fileId")
-        //val fileName = arguments?.getString("fileName")
-        //Log.d("Bottom[onCreateView]", "fileName: $fileName")
-        //val mimeType = arguments?.getString("mimeType")
-        //Log.d("Bottom[onCreateView]", "mimeType: $mimeType")
-        //val thumbUrl = arguments?.getString("thumbUrl")
-        //Log.d("Bottom[onCreateView]", "thumbUrl: $thumbUrl")
-        //val shareUrl = arguments?.getString("shareUrl")
-        //Log.d("Bottom[onCreateView]", "shareUrl: $shareUrl")
-        //filePassword = arguments?.getString("filePassword") ?: ""
-        //Log.d("Bottom[onCreateView]", "filePassword: $filePassword")
-        //var isPrivate = requireArguments().getBoolean("isPrivate")
-        //Log.d("Bottom[onCreateView]", "isPrivate: $isPrivate")
-
         val position = requireArguments().getInt("position")
         Log.i("Bottom[onCreateView]", "position: $position")
         val data = viewModel.filesData.value?.get(position)
         Log.i("Bottom[onCreateView]", "data: $data")
         if (data == null) {
-            // TODO: HANDLE THIS ERROR FOR SURE!!!
+            // TODO: HANDLE THIS ERROR!!!
             return
         }
-        filePassword = data.password // TODO: FUCKING KILL THIS WITH FIRE!!!
+        filePassword = data.password // TODO: Make a Reusable Password Dialog...
 
         // Name
         binding.fileName.text = data.name
@@ -136,7 +120,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
                     //viewModel.updateRequest.value = data
                 }
 
-                val albums =  withContext(Dispatchers.IO) { dao.getAll() }
+                val albums = withContext(Dispatchers.IO) { dao.getAll() }
                 Log.i("File[albumButton]", "albums: $albums")
                 val albumFragment = AlbumFragment()
                 albumFragment.setAlbumData(albums, listOf(data.id), data.albums)
@@ -145,7 +129,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         }
         // Share
         binding.shareButton.setOnClickListener {
-            shareUrl(requireContext(), data.url)
+            requireContext().shareUrl(data.url)
         }
         // Copy
         binding.copyButton.setOnClickListener {
@@ -168,10 +152,16 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         // Expire
         binding.expireButton.setOnClickListener {
             Log.d("expireButton", "Expire Button")
+            fun callback(newExpr: String) {
+                Log.d("Bottom[expireAllButton]", "newExpr: $newExpr")
+                data.expr = newExpr
+                viewModel.updateRequest.value = listOf(position)
+            }
+            requireContext().showExpireDialog(listOf(data.id), ::callback, data.expr)
         }
         // Open
         binding.openButton.setOnClickListener {
-            openUrl(requireContext(), data.url)
+            requireContext().openUrl(data.url)
         }
 
         // Image
@@ -209,7 +199,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
 
     private fun deleteConfirmDialog(savedUrl: String, fileId: Int, fileName: String) {
         Log.d("deleteConfirmDialog", "$fileId - savedUrl: $fileId")
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
             .setTitle("Delete File?")
             .setMessage(fileName)
             .setPositiveButton("Delete") { _, _ ->
@@ -243,8 +233,9 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         input.setText(filePassword)
         input.requestFocus()
         layout.addView(input)
+        input.setSelection(0, filePassword.length)
 
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
             .setView(layout)
             .setTitle("Set Password")
             .setMessage(fileName)

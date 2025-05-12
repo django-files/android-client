@@ -2,7 +2,6 @@ package com.djangofiles.djangofiles.ui.settings
 
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -14,6 +13,7 @@ import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.Server
 import com.djangofiles.djangofiles.ServerDao
 import com.djangofiles.djangofiles.ServerDatabase
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -105,7 +105,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun showDeleteDialog(server: Server) {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
             .setTitle("Delete Server?")
             .setMessage("Are you sure you want to delete this server?")
             .setPositiveButton("Delete") { _, _ ->
