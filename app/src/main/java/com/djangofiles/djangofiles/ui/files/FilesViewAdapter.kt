@@ -322,10 +322,10 @@ class FilesViewAdapter(
         if (index != -1) {
             val file = dataSet[index]
             if (request.private != null) {
-                file.private = request.private
+                file.private = request.private!!
             }
             if (request.password != null) {
-                file.password = request.password
+                file.password = request.password!!
             }
             notifyItemChanged(index)
         }

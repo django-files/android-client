@@ -1,6 +1,7 @@
 package com.djangofiles.djangofiles.ui.upload
 
 import android.content.Context.MODE_PRIVATE
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -19,8 +21,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.databinding.FragmentUploadMultiBinding
+import com.djangofiles.djangofiles.db.AlbumDatabase
+import com.djangofiles.djangofiles.ui.files.AlbumFragment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class UploadMultiFragment : Fragment() {
 
@@ -88,41 +95,57 @@ class UploadMultiFragment : Fragment() {
             return
         }
 
-        if (viewModel.selectedUris.value == null) {
-            Log.i("Multi[onCreate]", "RESET SELECTED URIS TO ALL")
-            viewModel.selectedUris.value = fileUris.toSet()
-        } else {
-            Log.i("Multi[onCreate]", "USE VIEW MODEL SELECTED URIS")
-        }
+//        Log.d("Multi[onViewCreated]", "viewModel.selectedUris.value?.size: ${viewModel.selectedUris.value?.size}")
+//        Log.d("Multi[onViewCreated]", "fileUris.size: ${fileUris.size}")
+//        if (viewModel.selectedUris.value == null) {
+//            Log.i("Multi[onCreate]", "RESET SELECTED URIS on viewModel null")
+//            viewModel.selectedUris.value = fileUris.toSet()
+//        } else if (viewModel.selectedUris.value?.size != fileUris.size) {
+//            Log.i("Multi[onCreate]", "RESET SELECTED URIS on size mismatch")
+//            viewModel.selectedUris.value = fileUris.toSet()
+//        } else {
+//            Log.i("Multi[onCreate]", "REUSE OLD SELECTED DATA")
+//        }
+//        val selectedUris = viewModel.selectedUris.value!!.toMutableSet()
+//        Log.d("Multi[onViewCreated]", "selectedUris.size: ${selectedUris.size}")
 
-        Log.d("Multi[onViewCreated]", "fileUris.size: ${fileUris.size}")
-        val selectedUris = viewModel.selectedUris.value!!.toMutableSet()
-        Log.d("Multi[onViewCreated]", "selectedUris.size: ${selectedUris.size}")
+        // TODO: Implement viewModel functions vs using selectedUris
+        viewModel.setInitialUris(fileUris)
+        val selectedUris = viewModel.getSelectedUris()
+        Log.d("Multi[onViewCreated]", "selectedUris: $selectedUris")
 
         if (!::adapter.isInitialized) {
             Log.i("Multi[onViewCreated]", "INITIALIZE NEW ADAPTER")
-            adapter = UploadMultiAdapter(fileUris, selectedUris) { updated ->
+            adapter = UploadMultiAdapter(fileUris, selectedUris.toMutableSet()) { updated ->
                 viewModel.selectedUris.value = updated
                 binding.uploadButton.text = getString(R.string.upload_multi, updated.size)
             }
         }
 
-        binding.previewRecycler.layoutManager = GridLayoutManager(requireContext(), 2)
+        val spanCount =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3
+        Log.i("Multi[onViewCreated]", "GridLayoutManager: $spanCount")
+        binding.previewRecycler.layoutManager = GridLayoutManager(requireContext(), spanCount)
         if (binding.previewRecycler.adapter == null) {
             binding.previewRecycler.adapter = adapter
         }
 
+        // Upload Options - TODO: Set default options here...
+        //val fileAlbums = mutableListOf<Int>()
+        val editRequest = FileEditRequest()
+
         // Upload Button
         binding.uploadButton.text = getString(R.string.upload_multi, selectedUris.size)
         binding.uploadButton.setOnClickListener {
-            val selectedUris = viewModel.selectedUris.value
+            val selectedUris = viewModel.getSelectedUris()
             //Log.d("uploadButton", "selectedUris: $selectedUris")
-            Log.d("uploadButton", "selectedUris.size: ${selectedUris?.size}")
-            if (selectedUris.isNullOrEmpty()) {
+            Log.d("uploadButton", "selectedUris.size: ${selectedUris.size}")
+            if (selectedUris.isEmpty()) {
                 Toast.makeText(requireContext(), "No Files Selected!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            processMultiUpload(selectedUris)
+            Log.d("uploadButton", "editRequest: $editRequest")
+            processMultiUpload(selectedUris, editRequest)
         }
 
         // Options Button
@@ -130,11 +153,41 @@ class UploadMultiFragment : Fragment() {
             Log.d("optionsButton", "setOnClickListener: navigate: nav_item_settings")
             navController.navigate(R.id.nav_item_settings)
         }
+
+        // Albums Button
+        // TODO: Duplicate from UploadFragment
+        binding.albumButton.setOnClickListener {
+            Log.d("File[albumButton]", "Album Button")
+            Log.d("File[albumButton]", "editRequest: $editRequest")
+
+            val sharedPreferences =
+                requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
+            val savedUrl = sharedPreferences.getString("saved_url", null).toString()
+            Log.d("File[albumButton]", "savedUrl: $savedUrl")
+
+            val dao = AlbumDatabase.getInstance(requireContext(), savedUrl).albumDao()
+            lifecycleScope.launch {
+                setFragmentResultListener("albums_result") { _, bundle ->
+                    val albums = bundle.getIntegerArrayList("albums")
+                    Log.d("File[albumButton]", "albums: $albums")
+                    if (albums != null) {
+                        editRequest.albums = albums.toList()
+                    }
+                }
+
+                val albums = withContext(Dispatchers.IO) { dao.getAll() }
+                Log.d("File[albumButton]", "albums: $albums")
+                val albumFragment = AlbumFragment()
+                albumFragment.setAlbumData(albums, listOf(), editRequest.albums)
+                albumFragment.show(parentFragmentManager, "AlbumFragment")
+            }
+        }
     }
 
-    private fun processMultiUpload(fileUris: Set<Uri>) {
+    private fun processMultiUpload(fileUris: Set<Uri>, editRequest: FileEditRequest? = null) {
         Log.d("processMultiUpload", "fileUris: $fileUris")
         Log.d("processMultiUpload", "fileUris.size: ${fileUris.size}")
+        Log.d("processMultiUpload", "editRequest: $editRequest")
         val sharedPreferences =
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = sharedPreferences.getString("saved_url", null)
@@ -155,11 +208,12 @@ class UploadMultiFragment : Fragment() {
         val api = ServerApi(requireContext(), savedUrl)
         Log.d("processMultiUpload", "api: $api")
         val results: MutableList<ServerApi.UploadResponse> = mutableListOf()
+        // TODO: Determine why we have to set currentContext here...
         val currentContext = requireContext()
         lifecycleScope.launch {
             for (fileUri in fileUris) {
                 Log.d("processMultiUpload", "fileUri: $fileUri")
-                val fileName = getFileNameFromUri(currentContext, fileUri)
+                val fileName = currentContext.getFileNameFromUri(fileUri)
                 Log.d("processMultiUpload", "fileName: $fileName")
                 try {
                     val inputStream = currentContext.contentResolver.openInputStream(fileUri)
@@ -167,7 +221,8 @@ class UploadMultiFragment : Fragment() {
                         Log.w("processMultiUpload", "inputStream is null")
                         continue
                     }
-                    val response = api.upload(fileName!!, inputStream)
+                    val response =
+                        api.upload(fileName!!, inputStream, editRequest ?: FileEditRequest())
                     Log.d("processMultiUpload", "response: $response")
                     if (response.isSuccessful) {
                         val uploadResponse = response.body()

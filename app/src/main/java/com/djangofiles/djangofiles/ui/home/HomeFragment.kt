@@ -28,9 +28,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
+import com.djangofiles.djangofiles.databinding.FragmentHomeBinding
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
-import com.djangofiles.djangofiles.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 

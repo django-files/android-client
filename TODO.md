@@ -5,6 +5,9 @@
 
 ## Authentication
 
+> [!NOTE]  
+> We have set mobile session length to 6 months user configurable and added session management.
+
 Options for persistent authentication are:
 
 1. Implement secure scoped token authentication.
@@ -17,7 +20,6 @@ Options for persistent authentication are:
 
 ## File List
 
-- Add Multi-Select
 - Add Swiper to Preview
 
 ## File Preview
@@ -37,7 +39,6 @@ Options for persistent authentication are:
 
 ## Room
 
-- Move Room to Directory
 - Implement Room Active Server
 
 ---
@@ -51,9 +52,12 @@ Options for persistent authentication are:
 
 ## Uploads
 
+- Album Selector
+
 ### File
 
 - File Previews
+- File Name
 
 ### Multiple Files
 

@@ -22,10 +22,10 @@ class AlbumFragment : DialogFragment() {
     private var fileIds: List<Int> = emptyList()
     private var selectedIds: List<Int> = emptyList()
 
-    fun setAlbumData(albums: List<AlbumEntity>, fileIds: List<Int>, selectedIds: List<Int>) {
+    fun setAlbumData(albums: List<AlbumEntity>, fileIds: List<Int>, selectedIds: List<Int>?) {
         this.albums = albums
         this.fileIds = fileIds
-        this.selectedIds = selectedIds
+        this.selectedIds = selectedIds ?: emptyList()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -51,8 +51,10 @@ class AlbumFragment : DialogFragment() {
                     if (selected[i]) album.id else null
                 }
                 Log.d("dialog[setButton]", "selectedIds: $selectedIds")
-                val request = FilesEditRequest(ids = fileIds, albums = selectedIds)
-                CoroutineScope(Dispatchers.IO).launch { api.filesEdit(request) }
+                if (!fileIds.isEmpty()) {
+                    val request = FilesEditRequest(ids = fileIds, albums = selectedIds)
+                    CoroutineScope(Dispatchers.IO).launch { api.filesEdit(request) }
+                }
                 Log.d("dialog[setButton]", "selectedIds: $selectedIds")
                 setFragmentResult("albums_result", bundleOf("albums" to selectedIds))
                 dismiss()

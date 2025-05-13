@@ -193,7 +193,7 @@ class FilesFragment : Fragment() {
                 "viewModel.selectedUris.value: ${viewModel.selected.value}"
             )
             binding.filesSelectedHeader.visibility = View.VISIBLE
-            Log.w("updateCheckButton", "DEBUG 1")
+            Log.i("updateCheckButton", "DEBUG 1 - updateCheckButton")
             updateCheckButton()
         }
 
@@ -217,8 +217,11 @@ class FilesFragment : Fragment() {
         }
 
         viewModel.filesData.observe(viewLifecycleOwner) { list ->
-            Log.d("filesData[observe]", "list: ${list?.size}")
-            updateCheckButton()
+            if (list != null) {
+                Log.d("filesData[observe]", "list: ${list.size}")
+                Log.i("updateCheckButton", "DEBUG 2 - updateCheckButton")
+                updateCheckButton()
+            }
         }
         viewModel.selected.observe(viewLifecycleOwner) { selected ->
             Log.d("selected[observe]", "selected.size: ${selected?.size}")
@@ -229,7 +232,7 @@ class FilesFragment : Fragment() {
                 binding.filesSelectedHeader.visibility = View.GONE
             }
             //binding.filesSelectedText.text = getString(R.string.files_selected, selected.size)
-            Log.w("updateCheckButton", "DEBUG 3")
+            Log.i("updateCheckButton", "DEBUG 3 - updateCheckButton")
             updateCheckButton()
         }
         viewModel.atEnd.observe(viewLifecycleOwner) {
@@ -329,7 +332,7 @@ class FilesFragment : Fragment() {
                 Log.d("File[filesSelectAll]", "size: ${viewModel.selected.value?.size}")
                 //binding.filesSelectedText.text =
                 //    getString(R.string.files_selected, viewModel.selected.value?.size)
-                Log.w("updateCheckButton", "DEBUG 4")
+                Log.i("updateCheckButton", "DEBUG 4 - updateCheckButton")
                 updateCheckButton()
 
                 if (positionIds.isNotEmpty()) {
@@ -576,60 +579,6 @@ class FilesFragment : Fragment() {
     }
 }
 
-fun Context.showExpireDialog(
-    fileIds: List<Int>,
-    callback: (newExpr: String) -> Unit,
-    currentValue: String? = null,
-) {
-    // TODO: Refactor this function to not use a callback or not exist at all...
-    Log.d("showExpireDialog", "$fileIds: $fileIds")
-
-    val layout = LinearLayout(this)
-    layout.orientation = LinearLayout.VERTICAL
-    layout.setPadding(10, 0, 10, 40)
-
-    val input = EditText(this)
-    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
-    input.maxLines = 1
-    input.hint = "6mo"
-
-    if (currentValue != null) {
-        Log.d("showExpireDialog", "input.setText: currentValue: $currentValue")
-        input.setText(currentValue)
-        input.setSelection(0, currentValue.length)
-    }
-    input.requestFocus()
-    layout.addView(input)
-
-    val savedUrl =
-        this.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
-            .toString()
-    MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
-        .setView(layout)
-        .setTitle("Set Expiration")
-        .setIcon(R.drawable.md_timer_24)
-        .setMessage("Leave Blank for None")
-        .setNegativeButton("Cancel", null)
-        .setPositiveButton("Save") { _, _ ->
-            val newExpire = input.text.toString().trim()
-            Log.d("showExpireDialog", "newExpire: $newExpire")
-            val api = ServerApi(this, savedUrl)
-            CoroutineScope(Dispatchers.IO).launch {
-                val response =
-                    api.filesEdit(FilesEditRequest(ids = fileIds, expr = newExpire))
-                Log.d("showExpireDialog", "response: $response")
-                if (response.isSuccessful) {
-                    withContext(Dispatchers.Main) {
-                        callback(newExpire)
-                    }
-                } else {
-                    Log.w("showExpireDialog", "RESPONSE FAILURE")
-                }
-            }
-        }
-        .show()
-}
-
 private fun Context.deleteConfirmDialog(
     fileIds: List<Int>,
     selectedPositions: List<Int>,
@@ -692,6 +641,60 @@ suspend fun Context.getAlbums(savedUrl: String) {
             Log.d("getAlbums", "DONE")
         }
     }
+}
+
+fun Context.showExpireDialog(
+    fileIds: List<Int>,
+    callback: (newExpr: String) -> Unit,
+    currentValue: String? = null,
+) {
+    // TODO: Refactor this function to not use a callback or not exist at all...
+    Log.d("showExpireDialog", "$fileIds: $fileIds")
+
+    val layout = LinearLayout(this)
+    layout.orientation = LinearLayout.VERTICAL
+    layout.setPadding(10, 0, 10, 40)
+
+    val input = EditText(this)
+    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+    input.maxLines = 1
+    input.hint = "6mo"
+
+    if (currentValue != null) {
+        Log.d("showExpireDialog", "input.setText: currentValue: $currentValue")
+        input.setText(currentValue)
+        input.setSelection(0, currentValue.length)
+    }
+    input.requestFocus()
+    layout.addView(input)
+
+    val savedUrl =
+        this.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
+            .toString()
+    MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+        .setView(layout)
+        .setTitle("Set Expiration")
+        .setIcon(R.drawable.md_timer_24)
+        .setMessage("Leave Blank for None")
+        .setNegativeButton("Cancel", null)
+        .setPositiveButton("Save") { _, _ ->
+            val newExpire = input.text.toString().trim()
+            Log.d("showExpireDialog", "newExpire: $newExpire")
+            val api = ServerApi(this, savedUrl)
+            CoroutineScope(Dispatchers.IO).launch {
+                val response =
+                    api.filesEdit(FilesEditRequest(ids = fileIds, expr = newExpire))
+                Log.d("showExpireDialog", "response: $response")
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        callback(newExpire)
+                    }
+                } else {
+                    Log.w("showExpireDialog", "RESPONSE FAILURE")
+                }
+            }
+        }
+        .show()
 }
 
 fun Context.openUrl(url: String) {

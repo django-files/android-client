@@ -68,7 +68,7 @@ class UploadMultiAdapter(
             holder.imageView.setImageResource(getGenericIcon(mimeType!!))
         }
 
-        val fileName = getFileNameFromUri(context, data)
+        val fileName = context.getFileNameFromUri(data)
         //Log.d("Multi[onBindViewHolder]", "fileName: $fileName")
         holder.fileText.text = fileName
 

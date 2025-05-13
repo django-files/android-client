@@ -30,6 +30,8 @@ The URL to the file is automatically copied to the clipboard and the preview is 
 
 - Supports Android 8 (API 26) 2017 or Newer.
 
+Screenshots can be found on the website: https://django-files.github.io/android/
+
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
 | Website           | https://django-files.github.io/               |
@@ -88,21 +90,17 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 
 - Share or Open any files and automatically copy the URL to the clipboard.
 - Upload Previews for Media with File Selector when uploading multiple files.
-- Native File List with Options, Infinite Scroll, and Live Previews for Media.
+- Native File List with Options, Infinite Scroll, and Multi-Select with options.
 - Supports Native Local Login, GitHub OAuth, Google OAuth, and Discord OAuth.
 - Ability to add multiple servers and switch on the fly from the Server List menu.
 
 ### Planned
 
-- Add Default Upload Options.
-- Option to Disable Preview Page.
-- Ability to Auto Authenticate when your session expires.
-- Upload Preview
-  - Upload Options
+- File Upload
+  - Add More Upload Options
 - File List
-  - Multi-Select with File Options
   - Response Caching for Infinite Scroll
-- File Preview
+- File List Preview
   - File Options
   - PDF Previews
 
