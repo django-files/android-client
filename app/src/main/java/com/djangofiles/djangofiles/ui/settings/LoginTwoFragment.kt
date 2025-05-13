@@ -158,6 +158,21 @@ class LoginTwoFragment : Fragment() {
                             .build()
                     )
                 }
+                //// TODO: Determine how to allow password manager save prompt after login...
+                //withContext(Dispatchers.Main) {
+                //    binding.loginUsername.clearFocus()
+                //    binding.loginPassword.clearFocus()
+                //    val imm = requireContext().getSystemService(InputMethodManager::class.java)
+                //    imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
+                //
+                //    Handler(Looper.getMainLooper()).post {
+                //        findNavController().navigate(
+                //            R.id.nav_item_home, null, NavOptions.Builder()
+                //                .setPopUpTo(R.id.nav_item_login, true)
+                //                .build()
+                //        )
+                //    }
+                //}
                 Log.d("loginFunction", "DONE")
             }
         }
