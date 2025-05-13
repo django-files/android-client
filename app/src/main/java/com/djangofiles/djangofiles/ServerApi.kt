@@ -391,10 +391,23 @@ class ServerApi(val context: Context, host: String) {
     private fun createRetrofit(): Retrofit {
         val baseUrl = "${hostname}/api/"
         Log.d("createRetrofit", "baseUrl: $baseUrl")
+
+        val versionName = context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        Log.d("Home[onViewCreated]", "versionName: $versionName")
+        val userAgent = "DjangoFiles Android/${versionName}"
+        Log.d("createRetrofit", "userAgent: $userAgent")
+
         cookieJar = SimpleCookieJar()
         client = OkHttpClient.Builder()
             .cookieJar(cookieJar)
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .header("User-Agent", userAgent)
+                    .build()
+                chain.proceed(request)
+            }
             .build()
+
         val gson = GsonBuilder().create()
         return Retrofit.Builder()
             .baseUrl(baseUrl)
