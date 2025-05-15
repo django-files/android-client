@@ -26,13 +26,20 @@
             android:summary="For File List"/>
     </PreferenceCategory>
 
-    <PreferenceCategory>
+    <PreferenceCategory android:key="app_options">
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:icon="@drawable/md_share_24"
             android:key="share_after_short"
             android:title="Share URL After Generation"
             android:summary="For URL Shortening" />
+
+<!--        <Preference-->
+<!--            android:key="battery_unrestricted"-->
+<!--            android:icon="@drawable/md_timer_24"-->
+<!--            android:title="Grant Unrestricted Background Access"-->
+<!--            android:shouldDisableView="true"-->
+<!--            android:summary="For Updating the Widget"/>-->
 
         <Preference
             android:key="add_server_btn"

@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.media3.ui)
     implementation(libs.media3.ui.compose)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.work.runtime.ktx)
     //ksp(libs.glide.compiler)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)

@@ -22,16 +22,19 @@ import kotlinx.coroutines.withContext
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var dao: ServerDao
-    private lateinit var versionName: String
+    //private lateinit var versionName: String
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.settings, rootKey)
 
-        versionName = requireContext()
-            .packageManager
-            .getPackageInfo(requireContext().packageName, 0)
-            .versionName ?: "Invalid Version"
+        //val packageName = requireContext().packageName
+        //Log.i("Main[onCreate]", "packageName: $packageName")
+
+        //versionName = requireContext()
+        //    .packageManager
+        //    .getPackageInfo(packageName, 0)
+        //    .versionName ?: "Invalid Version"
 
         dao = ServerDatabase.getInstance(requireContext()).serverDao()
 
@@ -55,6 +58,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 false
             }
         }
+
+        //val pm = requireContext().getSystemService(PowerManager::class.java)
+        //val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
+        //Log.d("Main[onCreate]", "isIgnoring: $isIgnoring")
+        //val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
+        //val category = findPreference<PreferenceCategory>("app_options")
+        //if (batteryRestrictedButton != null && isIgnoring) {
+        //    Log.i("Main[onCreate]", "REMOVING IT")
+        //    category?.removePreference(batteryRestrictedButton)
+        //}
+        //batteryRestrictedButton?.setOnPreferenceClickListener {
+        //    val uri = "package:$packageName".toUri()
+        //    Log.i("Main[onCreate]", "uri: $uri")
+        //    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+        //        data = uri
+        //    }
+        //    Log.i("Main[onCreate]", "intent: $intent")
+        //    startActivity(intent)
+        //    false
+        //}
 
         findPreference<Preference>("add_server_btn")?.setOnPreferenceClickListener {
             Log.d("onCreatePreferences", "addServerBtn: $it")

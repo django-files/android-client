@@ -35,6 +35,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
@@ -45,6 +50,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URL
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -60,6 +66,35 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val workRequest = PeriodicWorkRequestBuilder<DailyWorker>(15, TimeUnit.MINUTES)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiresBatteryNotLow(true)
+                    .setRequiresCharging(false)
+                    .setRequiresDeviceIdle(false)
+                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                    .build()
+            )
+            .build()
+        Log.d("Main[onCreate]", "workRequest: $workRequest")
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "daily_worker",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+
+        //val savedUrl =
+        //    getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
+        //        .toString()
+        //Log.i("Main[onCreate]", "savedUrl: $savedUrl")
+
+        //lifecycleScope.launch {
+        //    val api = DiscordApi(applicationContext)
+        //    val response = api.sendMessage("APP STARTUP")
+        //    Log.i("Main[onCreate]", "response: $response")
+        //}
 
         // Note: This is used over findNavController to use androidx.fragment.app.FragmentContainerView
         navController =
@@ -267,6 +302,16 @@ class MainActivity : AppCompatActivity() {
                 Log.d("handleIntent", "filePickerLauncher.launch")
                 filePickerLauncher.launch(arrayOf("*/*"))
             }
+
+        } else if ("UPLOAD_FILE" == action) {
+            Log.d("handleIntent", "UPLOAD_FILE")
+
+            filePickerLauncher.launch(arrayOf("*/*"))
+
+        } else if ("FILE_LIST" == action) {
+            Log.d("handleIntent", "FILE_LIST")
+
+            navController.navigate(R.id.nav_item_files)
 
         } else if (Intent.ACTION_SEND == action) {
             Log.d("handleIntent", "ACTION_SEND")
