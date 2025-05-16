@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URL
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -67,28 +68,42 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val workRequest = PeriodicWorkRequestBuilder<DailyWorker>(15, TimeUnit.MINUTES)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiresBatteryNotLow(true)
-                    .setRequiresCharging(false)
-                    .setRequiresDeviceIdle(false)
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+        val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+
+        val uniqueID = sharedPreferences.getString("unique_id", null)
+        Log.d("Main[onCreate]", "uniqueID: $uniqueID")
+        if (uniqueID.isNullOrEmpty()) {
+            val uuid = UUID.randomUUID().toString()
+            Log.i("Main[onCreate]", "SETTING NEW UUID: $uuid")
+            sharedPreferences.edit {
+                putString("unique_id", uuid)
+            }
+        }
+
+        val workInterval = sharedPreferences.getString("work_interval", null)
+        Log.i("Main[onCreate]", "workInterval: $workInterval")
+        if (!workInterval.isNullOrEmpty() && workInterval != "0") {
+            Log.i("Main[onCreate]", "ENSURING SCHEDULED WORK")
+            val workRequest =
+                PeriodicWorkRequestBuilder<DailyWorker>(workInterval.toLong(), TimeUnit.MINUTES)
+                    .setConstraints(
+                        Constraints.Builder()
+                            .setRequiresBatteryNotLow(true)
+                            .setRequiresCharging(false)
+                            .setRequiresDeviceIdle(false)
+                            .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                            .build()
+                    )
                     .build()
+            Log.d("Main[onCreate]", "workRequest: $workRequest")
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "daily_worker",
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
             )
-            .build()
-        Log.d("Main[onCreate]", "workRequest: $workRequest")
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "daily_worker",
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
-        )
-
-        //val savedUrl =
-        //    getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
-        //        .toString()
-        //Log.i("Main[onCreate]", "savedUrl: $savedUrl")
+        } else {
+            Log.i("Main[onCreate]", "NOT SCHEDULING WORK")
+        }
 
         //lifecycleScope.launch {
         //    val api = DiscordApi(applicationContext)

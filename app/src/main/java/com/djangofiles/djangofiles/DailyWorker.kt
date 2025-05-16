@@ -21,7 +21,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         val savedUrl = sharedPreferences.getString("saved_url", null).toString()
         Log.d("DailyWorker", "savedUrl: $savedUrl")
 
-        // Update Albums
+        Log.d("DailyWorker", "--- Update Albums")
         try {
             applicationContext.getAlbums(savedUrl)
             Log.d("DailyWorker", "getAlbums: DONE")
@@ -29,14 +29,14 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
             Log.e("DailyWorker", "getAlbums: Exception: $e")
         }
 
-        // Update Stats
+        Log.d("DailyWorker", "--- Update Stats")
         try {
             val api = ServerApi(applicationContext, savedUrl)
             val statsResponse = api.current()
-            Log.i("DailyWorker", "statsResponse: $statsResponse")
+            Log.d("DailyWorker", "statsResponse: $statsResponse")
             if (statsResponse.isSuccessful) {
                 val stats = statsResponse.body()
-                Log.i("DailyWorker", "stats: $stats")
+                Log.d("DailyWorker", "stats: $stats")
                 if (stats != null) {
                     val dao: ServerDao = ServerDatabase.getInstance(applicationContext).serverDao()
                     dao.addOrUpdate(
@@ -48,7 +48,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
                             humanSize = stats.humanSize,
                         )
                     )
-                    Log.i("DailyWorker", "dao.addOrUpdate: DONE")
+                    Log.d("DailyWorker", "dao.addOrUpdate: DONE")
                 }
             }
         } catch (e: Exception) {
@@ -64,7 +64,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         //appWidgetManager.updateAppWidget(componentName, remoteViews)
 
         // Update Widget
-        Log.d("DailyWorker", "updateAppWidget")
+        Log.d("DailyWorker", "--- Update Widget")
         val componentName = ComponentName(applicationContext, ExampleAppWidgetProvider::class.java)
         Log.d("DailyWorker", "componentName: $componentName")
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).setClassName(
@@ -79,11 +79,18 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         Log.d("DailyWorker", "sendBroadcast: $intent")
         applicationContext.sendBroadcast(intent)
 
-        // Send Discord Message
+        // TODO: Debugging and Testing Only...
+        Log.d("DailyWorker", "--- Send Discord Message")
         try {
-            val discordApi = DiscordApi(applicationContext)
-            val response = discordApi.sendMessage("DAILY WORK")
-            Log.d("DailyWorker", "response: $response")
+            val url = BuildConfig.DISCORD_WEBHOOK
+            Log.d("DailyWorker", "url: $url")
+            if (url.isNotEmpty()) {
+                val discordApi = DiscordApi(applicationContext, url)
+                val uniqueID = sharedPreferences.getString("unique_id", null)
+                Log.d("DailyWorker", "uniqueID: $uniqueID")
+                val response = discordApi.sendMessage("DAILY WORK: `$uniqueID`")
+                Log.d("DailyWorker", "response: $response")
+            }
         } catch (e: Exception) {
             Log.e("DailyWorker", "discordApi: Exception: $e")
         }

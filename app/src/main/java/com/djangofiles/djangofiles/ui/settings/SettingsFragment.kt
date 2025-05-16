@@ -5,10 +5,17 @@ import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.djangofiles.djangofiles.DailyWorker
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
@@ -18,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -35,6 +43,45 @@ class SettingsFragment : PreferenceFragmentCompat() {
         //    .packageManager
         //    .getPackageInfo(packageName, 0)
         //    .versionName ?: "Invalid Version"
+
+        val workInterval = findPreference<ListPreference>("work_interval")
+        workInterval?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+        //workInterval?.setOnPreferenceClickListener {
+        workInterval?.setOnPreferenceChangeListener { _, newValue ->
+            Log.d("setOnPreferenceClickListener", "workInterval.value: ${workInterval.value}")
+            Log.d("setOnPreferenceClickListener", "newValue: $newValue")
+            if (workInterval.value != newValue) {
+                Log.i("setOnPreferenceClickListener", "RESCHEDULING WORK")
+                val interval = (newValue as? String)?.toLongOrNull()
+                Log.i("setOnPreferenceClickListener", "interval: $interval")
+                if (interval != null) {
+                    val newRequest =
+                        PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
+                            .setConstraints(
+                                Constraints.Builder()
+                                    .setRequiresBatteryNotLow(true)
+                                    .setRequiresCharging(false)
+                                    .setRequiresDeviceIdle(false)
+                                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                                    .build()
+                            )
+                            .build()
+                    WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+                        "daily_worker",
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        newRequest
+                    )
+                } else {
+                    Log.i("setOnPreferenceClickListener", "DISABLING WORK")
+                    WorkManager.getInstance(requireContext()).cancelUniqueWork("daily_worker")
+                }
+                Log.d("setOnPreferenceClickListener", "true: ACCEPTED")
+                true
+            } else {
+                Log.d("setOnPreferenceClickListener", "false: REJECTED")
+                false
+            }
+        }
 
         dao = ServerDatabase.getInstance(requireContext()).serverDao()
 

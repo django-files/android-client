@@ -25,4 +25,25 @@
     <string name="vanity">Vanity</string>
     <string name="file_name">File Name</string>
     <string name="shorten_url">Shorten URL</string>
+
+    <string-array name="dropdown_entries">
+        <item>Every 15 Minutes</item>
+        <item>Every 30 Minutes</item>
+        <item>Hourly</item>
+        <item>Every 2 Hours</item>
+        <item>Every 4 Hours</item>
+        <item>Twice a Day</item>
+        <item>Once Daily</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="dropdown_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+        <item>240</item>
+        <item>720</item>
+        <item>1440</item>
+        <item>0</item>
+    </string-array>
 </resources>
