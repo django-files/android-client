@@ -1,11 +1,14 @@
 package com.djangofiles.djangofiles
 
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetManager
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -56,8 +59,37 @@ import java.util.concurrent.TimeUnit
 class MainActivity : AppCompatActivity() {
 
     internal lateinit var binding: ActivityMainBinding
+
     private lateinit var navController: NavController
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
+
+    private val preferences by lazy { getSharedPreferences("AppPreferences", MODE_PRIVATE) }
+
+    private val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+        Log.d("SharedPreferences", "OnSharedPreferenceChangeListener: $key")
+        //val value = prefs.getString(key, "")
+        if (key == "saved_url") {
+            val value = prefs.getString(key, "")
+            Log.i("SharedPreferences", "value: $value")
+
+            Log.i("SharedPreferences", "Updating Widget")
+            val appWidgetManager = AppWidgetManager.getInstance(this)
+            val widgetComponent = ComponentName(this, WidgetProvider::class.java)
+            val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
+            val intent = Intent(this, WidgetProvider::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+            }
+            this.sendBroadcast(intent)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("Main[onDestroy]", "ON DESTROY")
+        // TODO: Determine if this is necessary...
+        preferences.unregisterOnSharedPreferenceChangeListener(listener)
+    }
 
     @OptIn(UnstableApi::class)
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
@@ -68,19 +100,21 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        Log.d("Main[onCreate]", "registerOnSharedPreferenceChangeListener")
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        //val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
-        val uniqueID = sharedPreferences.getString("unique_id", null)
+        val uniqueID = preferences.getString("unique_id", null)
         Log.d("Main[onCreate]", "uniqueID: $uniqueID")
         if (uniqueID.isNullOrEmpty()) {
             val uuid = UUID.randomUUID().toString()
             Log.i("Main[onCreate]", "SETTING NEW UUID: $uuid")
-            sharedPreferences.edit {
+            preferences.edit {
                 putString("unique_id", uuid)
             }
         }
 
-        val workInterval = sharedPreferences.getString("work_interval", null)
+        val workInterval = preferences.getString("work_interval", null)
         Log.i("Main[onCreate]", "workInterval: $workInterval")
         if (!workInterval.isNullOrEmpty() && workInterval != "0") {
             Log.i("Main[onCreate]", "ENSURING SCHEDULED WORK")

@@ -19,6 +19,8 @@ class WidgetProvider : AppWidgetProvider() {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        Log.i("Widget[onReceive]", "intent: $intent")
+
         //if (intent.action == "com.djangofiles.djangofiles.REFRESH_WIDGET") {
         //    val appWidgetManager = AppWidgetManager.getInstance(context)
         //    val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
@@ -26,7 +28,7 @@ class WidgetProvider : AppWidgetProvider() {
         //        onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
         //    }
         //}
-        Log.i("Widget[onReceive]", "intent: $intent")
+
         if (intent.action == "com.djangofiles.djangofiles.REFRESH_WIDGET") {
             val appWidgetId = intent.getIntExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
@@ -35,13 +37,12 @@ class WidgetProvider : AppWidgetProvider() {
             if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
                 return
             }
-            Log.d("Widget[onReceive]", "GlobalScope.launch")
+            Log.d("Widget[onReceive]", "GlobalScope.launch: START")
             GlobalScope.launch(Dispatchers.IO) {
                 updateStats(context)
                 val appWidgetManager = AppWidgetManager.getInstance(context)
-                //val views = buildUpdatedViews(context, appWidgetId)
-                //appWidgetManager.updateAppWidget(appWidgetId, views)
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+                Log.d("Widget[onReceive]", "GlobalScope.launch: DONE")
             }
         }
     }
@@ -56,21 +57,6 @@ class WidgetProvider : AppWidgetProvider() {
 
         appWidgetIds.forEach { appWidgetId ->
             Log.d("Widget[onUpdate]", "appWidgetId: $appWidgetId")
-            // Create an Intent to launch ExampleActivity.
-            //val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            //    /* context = */ context,
-            //    /* requestCode = */  0,
-            //    /* intent = */ Intent(context, MainActivity::class.java),
-            //    /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            //)
-            //val views: RemoteViews = RemoteViews(
-            //    context.packageName,
-            //    R.layout.widget_layout
-            //).apply {
-            //    Log.d("Widget[onUpdate]", "debug 1")
-            //    //setOnClickPendingIntent(R.id.button, pendingIntent)
-            //}
-            ////views.setOnClickPendingIntent(R.id.widget_upload_button, pendingIntent)
 
             // Widget Root
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
@@ -119,10 +105,6 @@ class WidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.file_list_button, pendingIntent3)
 
-            //val time = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HHmm"))
-            //Log.d("Widget[onUpdate]", "time: $time")
-            //views.setTextViewText(R.id.files_count, time)
-
             val sharedPreferences = context.applicationContext.getSharedPreferences(
                 "AppPreferences",
                 Context.MODE_PRIVATE
@@ -137,21 +119,24 @@ class WidgetProvider : AppWidgetProvider() {
                 val server = dao.getByUrl(savedUrl)
                 Log.d("Widget[onUpdate]", "server: $server")
                 if (server != null) {
-                    Log.d("Widget[onUpdate]", "files_count: ${server.count.toString()}")
-                    views.setTextViewText(R.id.files_count, server.count.toString())
-                    Log.d("Widget[onUpdate]", "files_size: ${server.humanSize}")
-                    views.setTextViewText(R.id.files_size, server.humanSize)
-                    //Log.d("Widget[onUpdate]", "shorts_count: ${server.shorts.toString()}")
-                    //views.setTextViewText(R.id.shorts_count, server.shorts.toString())
-                    Log.d("Widget[onUpdate]", "server: DONE")
+                    Log.d("Widget[onUpdate]", "server.count: ${server.count}")
+                    val filesCount =
+                        if (server.count == null) "Unknown" else server.count.toString()
+                    Log.d("Widget[onUpdate]", "filesCount: $filesCount")
+                    views.setTextViewText(R.id.files_count, filesCount)
+
+                    Log.d("Widget[onUpdate]", "server.humanSize: ${server.humanSize}")
+                    val humanSize =
+                        if (server.humanSize.isNullOrEmpty()) "Unknown" else server.humanSize
+                    Log.d("Widget[onUpdate]", "humanSize: $humanSize")
+                    views.setTextViewText(R.id.files_size, humanSize)
                 }
                 Log.d("Widget[onUpdate]", "updateAppWidget")
                 appWidgetManager.updateAppWidget(appWidgetId, views)
                 Log.d("Widget[onUpdate]", "updateAppWidget: DONE")
             }
 
-            // Tell the AppWidgetManager to perform an update on the current
-            // widget.
+            // This is done at the end of the GlobalScope above
             //appWidgetManager.updateAppWidget(appWidgetId, views)
             Log.d("Widget[onUpdate]", "appWidgetIds.forEach: DONE")
         }

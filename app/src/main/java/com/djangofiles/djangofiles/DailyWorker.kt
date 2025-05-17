@@ -104,6 +104,18 @@ suspend fun updateStats(context: Context): Boolean {
                 )
             )
             Log.d("updateStats", "dao.addOrUpdate: DONE")
+
+            // TODO: Make this a reusable function with an event trigger...
+            Log.i("updateStats", "Updating Widget")
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val widgetComponent = ComponentName(context, WidgetProvider::class.java)
+            val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
+            val intent = Intent(context, WidgetProvider::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+            }
+            context.sendBroadcast(intent)
+
             return true
         }
     }

@@ -1,8 +1,5 @@
 package com.djangofiles.djangofiles.ui.settings
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +17,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.djangofiles.djangofiles.DailyWorker
 import com.djangofiles.djangofiles.R
-import com.djangofiles.djangofiles.WidgetProvider
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
@@ -50,7 +46,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val workInterval = findPreference<ListPreference>("work_interval")
         workInterval?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
-        //workInterval?.setOnPreferenceClickListener {
         workInterval?.setOnPreferenceChangeListener { _, newValue ->
             Log.d("setOnPreferenceClickListener", "workInterval.value: ${workInterval.value}")
             Log.d("setOnPreferenceClickListener", "newValue: $newValue")
@@ -94,7 +89,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         buildServerList()
 
-        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 0)
+        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 25)
         Log.d("onCreatePreferences", "filesPerPage: $filesPerPage")
         val seekBar = findPreference<SeekBarPreference>("files_per_page")
         seekBar?.summary = "Current Value: $filesPerPage"
@@ -176,17 +171,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             apply()
         }
         buildServerList()
-
-        Log.i("activateServer", "Updating Widget")
-        val appContext = requireContext()
-        val appWidgetManager = AppWidgetManager.getInstance(appContext)
-        val widgetComponent = ComponentName(appContext, WidgetProvider::class.java)
-        val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
-        val intent = Intent(appContext, WidgetProvider::class.java).apply {
-            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
-        }
-        appContext.sendBroadcast(intent)
     }
 
     private fun showDeleteDialog(server: Server) {

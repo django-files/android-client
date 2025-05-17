@@ -117,7 +117,7 @@ class FilesPreviewFragment : Fragment() {
 
         val sharedPreferences =
             requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val autoPlay = sharedPreferences.getBoolean("file_preview_autoplay", false)
+        val autoPlay = sharedPreferences.getBoolean("file_preview_autoplay", true)
         Log.d("FilesPreviewFragment", "autoPlay: $autoPlay")
         val savedUrl = sharedPreferences.getString("saved_url", null)
         Log.d("FilesPreviewFragment", "savedUrl: $savedUrl")
