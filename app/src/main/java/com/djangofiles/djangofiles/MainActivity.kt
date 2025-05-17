@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                             .setRequiresBatteryNotLow(true)
                             .setRequiresCharging(false)
                             .setRequiresDeviceIdle(false)
-                            .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
                             .build()
                     )
                     .build()

@@ -68,7 +68,7 @@
         </activity>
 
 
-        <receiver android:name="ExampleAppWidgetProvider"
+        <receiver android:name="WidgetProvider"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

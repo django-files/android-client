@@ -31,26 +31,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
 
         Log.d("DailyWorker", "--- Update Stats")
         try {
-            val api = ServerApi(applicationContext, savedUrl)
-            val statsResponse = api.current()
-            Log.d("DailyWorker", "statsResponse: $statsResponse")
-            if (statsResponse.isSuccessful) {
-                val stats = statsResponse.body()
-                Log.d("DailyWorker", "stats: $stats")
-                if (stats != null) {
-                    val dao: ServerDao = ServerDatabase.getInstance(applicationContext).serverDao()
-                    dao.addOrUpdate(
-                        Server(
-                            url = savedUrl,
-                            size = stats.size,
-                            count = stats.count,
-                            shorts = stats.shorts,
-                            humanSize = stats.humanSize,
-                        )
-                    )
-                    Log.d("DailyWorker", "dao.addOrUpdate: DONE")
-                }
-            }
+            updateStats(applicationContext)
         } catch (e: Exception) {
             Log.e("DailyWorker", "ServerApi: Exception: $e")
         }
@@ -58,18 +39,18 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         //// Update Widget
         //Log.d("DailyWorker", "updateAppWidget")
         //val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-        //val componentName = ComponentName(applicationContext, ExampleAppWidgetProvider::class.java)
+        //val componentName = ComponentName(applicationContext, WidgetProvider::class.java)
         //Log.d("DailyWorker", "componentName: $componentName")
         //val remoteViews = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
         //appWidgetManager.updateAppWidget(componentName, remoteViews)
 
         // Update Widget
         Log.d("DailyWorker", "--- Update Widget")
-        val componentName = ComponentName(applicationContext, ExampleAppWidgetProvider::class.java)
+        val componentName = ComponentName(applicationContext, WidgetProvider::class.java)
         Log.d("DailyWorker", "componentName: $componentName")
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).setClassName(
             applicationContext.packageName,
-            "com.djangofiles.djangofiles.ExampleAppWidgetProvider"
+            "com.djangofiles.djangofiles.WidgetProvider"
         ).apply {
             val ids =
                 AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(componentName)
@@ -97,4 +78,34 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
 
         return Result.success()
     }
+}
+
+suspend fun updateStats(context: Context): Boolean {
+    Log.d("updateStats", "updateStats")
+    val sharedPreferences =
+        context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+    val savedUrl = sharedPreferences.getString("saved_url", null).toString()
+    Log.d("updateStats", "savedUrl: $savedUrl")
+    val api = ServerApi(context, savedUrl)
+    val statsResponse = api.current()
+    Log.d("updateStats", "statsResponse: $statsResponse")
+    if (statsResponse.isSuccessful) {
+        val stats = statsResponse.body()
+        Log.d("updateStats", "stats: $stats")
+        if (stats != null) {
+            val dao: ServerDao = ServerDatabase.getInstance(context).serverDao()
+            dao.addOrUpdate(
+                Server(
+                    url = savedUrl,
+                    size = stats.size,
+                    count = stats.count,
+                    shorts = stats.shorts,
+                    humanSize = stats.humanSize,
+                )
+            )
+            Log.d("updateStats", "dao.addOrUpdate: DONE")
+            return true
+        }
+    }
+    return false
 }

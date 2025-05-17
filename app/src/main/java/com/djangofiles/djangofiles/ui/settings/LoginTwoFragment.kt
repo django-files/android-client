@@ -24,6 +24,7 @@ import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.files.getAlbums
+import com.djangofiles.djangofiles.updateStats
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -146,6 +147,8 @@ class LoginTwoFragment : Fragment() {
                 GlobalScope.launch(Dispatchers.IO) {
                     Log.d("loginFunction", "getAlbums: $hostname")
                     requireContext().getAlbums(hostname)
+                    Log.d("loginFunction", "updateStats")
+                    updateStats(requireContext())
                 }
 
                 Log.d("loginFunction", "MainActivity: setDrawerLockMode(true)")

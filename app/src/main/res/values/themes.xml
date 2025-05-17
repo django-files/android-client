@@ -14,7 +14,7 @@
     <style name="WidgetStyle" parent="Theme.MaterialComponents.DayNight">
 <!--        <item name="android:background">@color/ic_launcher_background</item>-->
         <item name="android:textColor">@android:color/white</item>
-<!--        <item name="android:textAppearance">@android:style/TextAppearance.Material.Large</item>-->
-        <item name="android:textSize">18sp</item>
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Large</item>
+<!--        <item name="android:textSize">16sp</item>-->
     </style>
 </resources>
