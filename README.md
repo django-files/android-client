@@ -88,11 +88,12 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 
 ## Features
 
-- Share or Open any files and automatically copy the URL to the clipboard.
-- Upload Previews for Media with File Selector when uploading multiple files.
-- Native File List with Options, Infinite Scroll, and Multi-Select with options.
+- Share or Open any file(s) and automatically copy the URL to the clipboard.
+- Upload Previews for single media and scrolling selection for multiple files.
+- Native File List with Options, Infinite Scroll, and Multi-Select Options.
 - Supports Native Local Login, GitHub OAuth, Google OAuth, and Discord OAuth.
 - Ability to add multiple servers and switch on the fly from the Server List menu.
+- Widget with Stats, Upload Shortcut, Custom Background Update Interval, and More...
 
 ### Planned
 
