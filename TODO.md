@@ -1,7 +1,14 @@
-# TODO
-
+- [Issues](#Issues)
 - [TODO](#TODO)
 - [Status](#Status)
+
+# Issues
+
+- File List does not work as expected with 0 files.
+- Widget displays Unknown until stats are generated.
+- The password manager prompt is not displayed after login.
+
+# TODO
 
 ## Authentication
 

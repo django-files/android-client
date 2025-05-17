@@ -5,10 +5,17 @@ import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.djangofiles.djangofiles.DailyWorker
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
@@ -18,20 +25,62 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var dao: ServerDao
-    private lateinit var versionName: String
+    //private lateinit var versionName: String
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.settings, rootKey)
 
-        versionName = requireContext()
-            .packageManager
-            .getPackageInfo(requireContext().packageName, 0)
-            .versionName ?: "Invalid Version"
+        //val packageName = requireContext().packageName
+        //Log.i("Main[onCreate]", "packageName: $packageName")
+
+        //versionName = requireContext()
+        //    .packageManager
+        //    .getPackageInfo(packageName, 0)
+        //    .versionName ?: "Invalid Version"
+
+        val workInterval = findPreference<ListPreference>("work_interval")
+        workInterval?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+        workInterval?.setOnPreferenceChangeListener { _, newValue ->
+            Log.d("setOnPreferenceClickListener", "workInterval.value: ${workInterval.value}")
+            Log.d("setOnPreferenceClickListener", "newValue: $newValue")
+            if (workInterval.value != newValue) {
+                Log.i("setOnPreferenceClickListener", "RESCHEDULING WORK")
+                val interval = (newValue as? String)?.toLongOrNull()
+                Log.i("setOnPreferenceClickListener", "interval: $interval")
+                if (interval != null) {
+                    val newRequest =
+                        PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
+                            .setConstraints(
+                                Constraints.Builder()
+                                    .setRequiresBatteryNotLow(true)
+                                    .setRequiresCharging(false)
+                                    .setRequiresDeviceIdle(false)
+                                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                                    .build()
+                            )
+                            .build()
+                    WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+                        "daily_worker",
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        newRequest
+                    )
+                } else {
+                    Log.i("setOnPreferenceClickListener", "DISABLING WORK")
+                    WorkManager.getInstance(requireContext()).cancelUniqueWork("daily_worker")
+                }
+                Log.d("setOnPreferenceClickListener", "true: ACCEPTED")
+                true
+            } else {
+                Log.d("setOnPreferenceClickListener", "false: REJECTED")
+                false
+            }
+        }
 
         dao = ServerDatabase.getInstance(requireContext()).serverDao()
 
@@ -40,7 +89,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         buildServerList()
 
-        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 0)
+        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 25)
         Log.d("onCreatePreferences", "filesPerPage: $filesPerPage")
         val seekBar = findPreference<SeekBarPreference>("files_per_page")
         seekBar?.summary = "Current Value: $filesPerPage"
@@ -55,6 +104,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 false
             }
         }
+
+        //val pm = requireContext().getSystemService(PowerManager::class.java)
+        //val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
+        //Log.d("Main[onCreate]", "isIgnoring: $isIgnoring")
+        //val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
+        //val category = findPreference<PreferenceCategory>("app_options")
+        //if (batteryRestrictedButton != null && isIgnoring) {
+        //    Log.i("Main[onCreate]", "REMOVING IT")
+        //    category?.removePreference(batteryRestrictedButton)
+        //}
+        //batteryRestrictedButton?.setOnPreferenceClickListener {
+        //    val uri = "package:$packageName".toUri()
+        //    Log.i("Main[onCreate]", "uri: $uri")
+        //    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+        //        data = uri
+        //    }
+        //    Log.i("Main[onCreate]", "intent: $intent")
+        //    startActivity(intent)
+        //    false
+        //}
 
         findPreference<Preference>("add_server_btn")?.setOnPreferenceClickListener {
             Log.d("onCreatePreferences", "addServerBtn: $it")
@@ -115,9 +184,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     dao.delete(server)
                     val servers = dao.getAll()
                     if (!servers.isEmpty()) {
-                        Log.d("processLogout", "ACTIVATE FIRST SERVER")
+                        Log.d("showDeleteDialog", "ACTIVATE FIRST SERVER")
                         val newServer = servers.first()
-                        Log.d("processLogout", "newServer: $newServer")
+                        Log.d("showDeleteDialog", "newServer: $newServer")
                         dao.activate(newServer.url)
                         preferenceManager.sharedPreferences!!.edit().apply {
                             putString("saved_url", newServer.url)
@@ -125,7 +194,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             apply()
                         }
                     } else {
-                        Log.d("processLogout", "NO SERVERS - LOCK OUT")
+                        Log.d("showDeleteDialog", "NO SERVERS - LOCK OUT")
                         // TODO: Confirm this removes history and locks user to login
                         findNavController().navigate(
                             R.id.nav_item_login, null, NavOptions.Builder()

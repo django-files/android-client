@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 
-# Logging
+## Logging
 -assumenosideeffects class android.util.Log {
     public static int d(...);
     public static int v(...);
@@ -31,7 +31,7 @@
 }
 
 
-# Retrofit
+## Retrofit
 -keep class com.djangofiles.djangofiles.ServerApi$* { *; }
 
 -keepclassmembers class * {
@@ -39,7 +39,7 @@
 }
 
 
-# https://github.com/square/retrofit/blob/trunk/retrofit/src/main/resources/META-INF/proguard/retrofit2.pro
+## https://github.com/square/retrofit/blob/trunk/retrofit/src/main/resources/META-INF/proguard/retrofit2.pro
 # Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
 # EnclosingMethod is required to use InnerClasses.
 -keepattributes Signature, InnerClasses, EnclosingMethod
@@ -90,7 +90,7 @@
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
 
 
-# https://github.com/bumptech/glide/blob/master/library/proguard-rules.txt
+## https://github.com/bumptech/glide/blob/master/library/proguard-rules.txt
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep class * extends com.bumptech.glide.module.AppGlideModule {
  <init>(...);

@@ -1,11 +1,14 @@
 package com.djangofiles.djangofiles
 
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetManager
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -35,6 +38,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
@@ -45,12 +53,43 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URL
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
     internal lateinit var binding: ActivityMainBinding
+
     private lateinit var navController: NavController
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
+
+    private val preferences by lazy { getSharedPreferences("AppPreferences", MODE_PRIVATE) }
+
+    private val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+        Log.d("SharedPreferences", "OnSharedPreferenceChangeListener: $key")
+        //val value = prefs.getString(key, "")
+        if (key == "saved_url") {
+            val value = prefs.getString(key, "")
+            Log.i("SharedPreferences", "value: $value")
+
+            Log.i("SharedPreferences", "Updating Widget")
+            val appWidgetManager = AppWidgetManager.getInstance(this)
+            val widgetComponent = ComponentName(this, WidgetProvider::class.java)
+            val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
+            val intent = Intent(this, WidgetProvider::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+            }
+            this.sendBroadcast(intent)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("Main[onDestroy]", "ON DESTROY")
+        // TODO: Determine if this is necessary...
+        preferences.unregisterOnSharedPreferenceChangeListener(listener)
+    }
 
     @OptIn(UnstableApi::class)
     @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
@@ -60,6 +99,54 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        Log.d("Main[onCreate]", "registerOnSharedPreferenceChangeListener")
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        //val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+
+        val uniqueID = preferences.getString("unique_id", null)
+        Log.d("Main[onCreate]", "uniqueID: $uniqueID")
+        if (uniqueID.isNullOrEmpty()) {
+            val uuid = UUID.randomUUID().toString()
+            Log.i("Main[onCreate]", "SETTING NEW UUID: $uuid")
+            preferences.edit {
+                putString("unique_id", uuid)
+            }
+        }
+
+        // TODO: Improve initialization of the WorkRequest
+        //  Currently no work is added on first start because this is null
+        //  Work will not get added until the 2nd start after a user adds a server
+        val workInterval = preferences.getString("work_interval", null)
+        Log.i("Main[onCreate]", "workInterval: $workInterval")
+        if (!workInterval.isNullOrEmpty() && workInterval != "0") {
+            Log.i("Main[onCreate]", "ENSURING SCHEDULED WORK")
+            val workRequest =
+                PeriodicWorkRequestBuilder<DailyWorker>(workInterval.toLong(), TimeUnit.MINUTES)
+                    .setConstraints(
+                        Constraints.Builder()
+                            .setRequiresBatteryNotLow(true)
+                            .setRequiresCharging(false)
+                            .setRequiresDeviceIdle(false)
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+                    )
+                    .build()
+            Log.d("Main[onCreate]", "workRequest: $workRequest")
+            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "daily_worker",
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+            )
+        } else {
+            Log.i("Main[onCreate]", "NOT SCHEDULING WORK")
+        }
+
+        //lifecycleScope.launch {
+        //    val api = DiscordApi(applicationContext)
+        //    val response = api.sendMessage("APP STARTUP")
+        //    Log.i("Main[onCreate]", "response: $response")
+        //}
 
         // Note: This is used over findNavController to use androidx.fragment.app.FragmentContainerView
         navController =
@@ -267,6 +354,16 @@ class MainActivity : AppCompatActivity() {
                 Log.d("handleIntent", "filePickerLauncher.launch")
                 filePickerLauncher.launch(arrayOf("*/*"))
             }
+
+        } else if ("UPLOAD_FILE" == action) {
+            Log.d("handleIntent", "UPLOAD_FILE")
+
+            filePickerLauncher.launch(arrayOf("*/*"))
+
+        } else if ("FILE_LIST" == action) {
+            Log.d("handleIntent", "FILE_LIST")
+
+            navController.navigate(R.id.nav_item_files)
 
         } else if (Intent.ACTION_SEND == action) {
             Log.d("handleIntent", "ACTION_SEND")

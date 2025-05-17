@@ -7,8 +7,13 @@
     <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="shapeAppearanceOverlay">@style/AlertDialogCorner</item>
     </style>
+
     <style name="AlertDialogCorner" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="WidgetStyle" parent="Theme.MaterialComponents">
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Large</item>
     </style>
 </resources>

@@ -45,7 +45,11 @@ interface ServerDao {
 data class Server(
     @PrimaryKey val url: String,
     val token: String = "",
-    val active: Boolean = false
+    val active: Boolean = false,
+    val size: Long? = null,
+    val count: Int? = null,
+    val shorts: Int? = null,
+    val humanSize: String? = null,
 )
 
 

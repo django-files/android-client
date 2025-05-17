@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -35,6 +37,16 @@ android {
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
+
+            // Debugging Only
+            val localProperties = Properties().apply {
+                val localPropertiesFile = rootProject.file("local.properties")
+                if (localPropertiesFile.exists()) {
+                    localPropertiesFile.inputStream().use { load(it) }
+                }
+            }
+            val discordWebhook = localProperties.getProperty("DISCORD_WEBHOOK", "")
+            buildConfigField("String", "DISCORD_WEBHOOK", "\"$discordWebhook\"")
         }
     }
 
@@ -47,6 +59,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
         //dataBinding = true
     }
 }
@@ -73,6 +86,7 @@ dependencies {
     implementation(libs.media3.ui)
     implementation(libs.media3.ui.compose)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.work.runtime.ktx)
     //ksp(libs.glide.compiler)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)

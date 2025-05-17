@@ -1,6 +1,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <PreferenceCategory android:title="App Settings">
+        <ListPreference
+            android:key="work_interval"
+            android:title="Background Update Interval"
+            android:defaultValue="1440"
+            android:entries="@array/dropdown_entries"
+            android:entryValues="@array/dropdown_values"
+            android:icon="@drawable/md_timer_24" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="File List">
         <SwitchPreferenceCompat
             android:defaultValue="true"
@@ -26,13 +36,20 @@
             android:summary="For File List"/>
     </PreferenceCategory>
 
-    <PreferenceCategory>
+    <PreferenceCategory android:key="app_options">
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:icon="@drawable/md_share_24"
             android:key="share_after_short"
             android:title="Share URL After Generation"
             android:summary="For URL Shortening" />
+
+<!--        <Preference-->
+<!--            android:key="battery_unrestricted"-->
+<!--            android:icon="@drawable/md_timer_24"-->
+<!--            android:title="Grant Unrestricted Background Access"-->
+<!--            android:shouldDisableView="true"-->
+<!--            android:summary="For Updating the Widget"/>-->
 
         <Preference
             android:key="add_server_btn"

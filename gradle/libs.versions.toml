@@ -21,6 +21,7 @@ ksp = "2.1.20-1.0.32"
 glide = "5.0.0-rc01"
 media3 = "1.6.1"
 swiperefreshlayout = "1.1.0"
+workRuntimeKtx = "2.10.1"
 
 #navigationSafeargsVersion = "2.8.9"
 #roomRuntime = "2.6.1"
@@ -56,6 +57,7 @@ media3-exoplayer-dash = { group = "androidx.media3", name = "media3-exoplayer-da
 media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 media3-ui-compose = { group = "androidx.media3", name = "media3-ui-compose", version.ref = "media3" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
 #androidx-androidx-navigation-safeargs-kotlin-gradle-plugin = { group = "androidx.navigation.safeargs.kotlin", name = "androidx.navigation.safeargs.kotlin.gradle.plugin", version.ref = "androidxNavigationSafeargsKotlinGradlePlugin" }
 #androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:background="@color/ic_launcher_background"
+    android:gravity="center_vertical"
+    tools:layout_height="wrap_content"
+    android:theme="@style/WidgetStyle">
+
+    <GridLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="16dp"
+        android:columnCount="2">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="Files Count"
+            android:src="@drawable/md_description_24px" />
+        <TextView
+            android:id="@+id/files_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="0" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="Files Size"
+            android:src="@drawable/md_storage_24px" />
+        <TextView
+            android:id="@+id/files_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="0" />
+    </GridLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="end"
+        android:layout_weight="0">
+        <ImageButton
+            android:id="@+id/widget_refresh_button"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/md_refresh_24px"
+            android:contentDescription="Refresh" />
+        <ImageButton
+            android:id="@+id/widget_upload_button"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/md_upload_24px"
+            android:contentDescription="Upload" />
+        <ImageButton
+            android:id="@+id/file_list_button"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/md_format_list_bulleted_24px"
+            android:contentDescription="File List" />
+    </LinearLayout>
+
+</LinearLayout>

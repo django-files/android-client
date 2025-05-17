@@ -179,6 +179,12 @@ class ServerApi(val context: Context, host: String) {
         return response
     }
 
+    suspend fun current(): Response<StatsResponse> {
+        Log.d("Api[current]", "current")
+        val response = api.getStatsCurrent(authToken)
+        return response
+    }
+
     suspend fun deleteFile(fileId: Int): Response<ResponseBody> {
         Log.d("Api[deleteFile]", "fileId: $fileId")
         return api.fileDelete(authToken, fileId)
@@ -244,6 +250,11 @@ class ServerApi(val context: Context, host: String) {
             @Header("Authorization") token: String,
         ): Response<AlbumResponse>
 
+        @GET("stats/current/")
+        suspend fun getStatsCurrent(
+            @Header("Authorization") token: String,
+        ): Response<StatsResponse>
+
         @POST("file/{id}")
         suspend fun fileEdit(
             @Header("Authorization") token: String,
@@ -304,6 +315,14 @@ class ServerApi(val context: Context, host: String) {
         val vanity: String,
         @SerializedName("max-views") val maxViews: Int,
     )
+
+    data class StatsResponse(
+        val size: Long,
+        val count: Int,
+        val shorts: Int,
+        @SerializedName("human_size") val humanSize: String
+    )
+
 
     data class VersionRequest(val version: String)
     data class VersionResponse(

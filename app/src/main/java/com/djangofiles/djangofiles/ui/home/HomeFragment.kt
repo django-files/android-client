@@ -20,6 +20,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.edit
 import androidx.core.net.toUri
@@ -131,6 +132,19 @@ class HomeFragment : Fragment() {
                 Log.i("Home[webView.apply]", "DOING NOTHING - NO currentUrl")
             }
         }
+
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.webView.canGoBack()) {
+                    binding.webView.goBack()
+                } else {
+                    isEnabled = false
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
         //viewModel.urlToLoad.observe(viewLifecycleOwner) { url ->
         //    Log.i("Home[viewModel]", "TO THE MOON BABY: $url")
