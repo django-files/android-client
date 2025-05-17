@@ -8,15 +8,15 @@
     android:orientation="horizontal"
     android:background="@color/ic_launcher_background"
     android:gravity="center_vertical"
-    tools:layout_height="wrap_content">
+    tools:layout_height="wrap_content"
+    android:theme="@style/WidgetStyle">
 
     <GridLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="4dp"
-        android:columnCount="2"
-        android:theme="@style/WidgetStyle">
+        android:columnCount="2">
 
         <ImageView
             android:layout_width="wrap_content"

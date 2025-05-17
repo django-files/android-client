@@ -60,20 +60,22 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         Log.d("DailyWorker", "sendBroadcast: $intent")
         applicationContext.sendBroadcast(intent)
 
-        // TODO: Debugging and Testing Only...
-        Log.d("DailyWorker", "--- Send Discord Message")
-        try {
-            val url = BuildConfig.DISCORD_WEBHOOK
-            Log.d("DailyWorker", "url: $url")
-            if (url.isNotEmpty()) {
-                val discordApi = DiscordApi(applicationContext, url)
-                val uniqueID = sharedPreferences.getString("unique_id", null)
-                Log.d("DailyWorker", "uniqueID: $uniqueID")
-                val response = discordApi.sendMessage("DAILY WORK: `$uniqueID`")
-                Log.d("DailyWorker", "response: $response")
+        // Debugging and Testing Only...
+        if (BuildConfig.DEBUG) {
+            Log.d("DailyWorker", "--- Send Discord Message")
+            try {
+                val url = BuildConfig.DISCORD_WEBHOOK
+                Log.d("DailyWorker", "url: $url")
+                if (url.isNotEmpty()) {
+                    val discordApi = DiscordApi(applicationContext, url)
+                    val uniqueID = sharedPreferences.getString("unique_id", null)
+                    Log.d("DailyWorker", "uniqueID: $uniqueID")
+                    val response = discordApi.sendMessage("DAILY WORK: `$uniqueID`")
+                    Log.d("DailyWorker", "response: $response")
+                }
+            } catch (e: Exception) {
+                Log.e("DailyWorker", "discordApi: Exception: $e")
             }
-        } catch (e: Exception) {
-            Log.e("DailyWorker", "discordApi: Exception: $e")
         }
 
         return Result.success()
