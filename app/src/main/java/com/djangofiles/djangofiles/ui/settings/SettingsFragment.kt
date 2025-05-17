@@ -1,5 +1,8 @@
 package com.djangofiles.djangofiles.ui.settings
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +20,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.djangofiles.djangofiles.DailyWorker
 import com.djangofiles.djangofiles.R
+import com.djangofiles.djangofiles.WidgetProvider
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
@@ -172,6 +176,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
             apply()
         }
         buildServerList()
+
+        Log.i("activateServer", "Updating Widget")
+        val appContext = requireContext()
+        val appWidgetManager = AppWidgetManager.getInstance(appContext)
+        val widgetComponent = ComponentName(appContext, WidgetProvider::class.java)
+        val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
+        val intent = Intent(appContext, WidgetProvider::class.java).apply {
+            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+        }
+        appContext.sendBroadcast(intent)
     }
 
     private fun showDeleteDialog(server: Server) {
@@ -185,9 +200,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     dao.delete(server)
                     val servers = dao.getAll()
                     if (!servers.isEmpty()) {
-                        Log.d("processLogout", "ACTIVATE FIRST SERVER")
+                        Log.d("showDeleteDialog", "ACTIVATE FIRST SERVER")
                         val newServer = servers.first()
-                        Log.d("processLogout", "newServer: $newServer")
+                        Log.d("showDeleteDialog", "newServer: $newServer")
                         dao.activate(newServer.url)
                         preferenceManager.sharedPreferences!!.edit().apply {
                             putString("saved_url", newServer.url)
@@ -195,7 +210,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             apply()
                         }
                     } else {
-                        Log.d("processLogout", "NO SERVERS - LOCK OUT")
+                        Log.d("showDeleteDialog", "NO SERVERS - LOCK OUT")
                         // TODO: Confirm this removes history and locks user to login
                         findNavController().navigate(
                             R.id.nav_item_login, null, NavOptions.Builder()
