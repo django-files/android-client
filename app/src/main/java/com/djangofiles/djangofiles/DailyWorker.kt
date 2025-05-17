@@ -36,7 +36,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
             Log.e("DailyWorker", "ServerApi: Exception: $e")
         }
 
-        //// Update Widget
+        //// Update Widget (Old Unknown Block - Test or Remove)
         //Log.d("DailyWorker", "updateAppWidget")
         //val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
         //val componentName = ComponentName(applicationContext, WidgetProvider::class.java)
@@ -60,23 +60,21 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         Log.d("DailyWorker", "sendBroadcast: $intent")
         applicationContext.sendBroadcast(intent)
 
-        // Debugging and Testing Only...
-        if (BuildConfig.DEBUG) {
-            Log.d("DailyWorker", "--- Send Discord Message")
-            try {
-                val url = BuildConfig.DISCORD_WEBHOOK
-                Log.d("DailyWorker", "url: $url")
-                if (url.isNotEmpty()) {
-                    val discordApi = DiscordApi(applicationContext, url)
-                    val uniqueID = sharedPreferences.getString("unique_id", null)
-                    Log.d("DailyWorker", "uniqueID: $uniqueID")
-                    val response = discordApi.sendMessage("DAILY WORK: `$uniqueID`")
-                    Log.d("DailyWorker", "response: $response")
-                }
-            } catch (e: Exception) {
-                Log.e("DailyWorker", "discordApi: Exception: $e")
-            }
-        }
+        //// Debugging Only
+        //Log.d("DailyWorker", "--- Send Discord Message")
+        //try {
+        //    val url = BuildConfig.DISCORD_WEBHOOK
+        //    Log.d("DailyWorker", "url: $url")
+        //    if (url.isNotEmpty()) {
+        //        val discordApi = DiscordApi(applicationContext, url)
+        //        val uniqueID = sharedPreferences.getString("unique_id", null)
+        //        Log.d("DailyWorker", "uniqueID: $uniqueID")
+        //        val response = discordApi.sendMessage("DAILY WORK: `$uniqueID`")
+        //        Log.d("DailyWorker", "response: $response")
+        //    }
+        //} catch (e: Exception) {
+        //    Log.e("DailyWorker", "discordApi: Exception: $e")
+        //}
 
         return Result.success()
     }

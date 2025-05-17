@@ -60,8 +60,9 @@ class LoginTwoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Login[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
+        val appContext = requireContext()
         val packageInfo =
-            requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+            appContext.packageManager.getPackageInfo(appContext.packageName, 0)
         val versionName = packageInfo.versionName
         Log.d("Login[onCreate]", "versionName: $versionName")
 
@@ -90,8 +91,7 @@ class LoginTwoFragment : Fragment() {
             binding.loginUsername.requestFocus()
         }
 
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val sharedPreferences = appContext.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
         val loginFunction = View.OnClickListener {
             Log.d("OnClickListener", "it: ${it.id}")
@@ -112,18 +112,18 @@ class LoginTwoFragment : Fragment() {
             if (!valid) return@OnClickListener
 
             lifecycleScope.launch {
-                val api = ServerApi(requireContext(), hostname!!)
+                val api = ServerApi(appContext, hostname!!)
                 val token = api.login(username, password)
                 Log.d("loginFunction", "token: $token")
                 if (token == null) {
                     Log.d("loginFunction", "LOGIN FAILED")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Login Failed", Toast.LENGTH_LONG).show()
+                        Toast.makeText(appContext, "Login Failed", Toast.LENGTH_LONG).show()
                     }
                     return@launch
                 }
                 Log.d("loginFunction", "SUCCESS")
-                val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()
+                val dao: ServerDao = ServerDatabase.getInstance(appContext).serverDao()
                 Log.d("loginFunction", "dao.add Server url = $hostname")
                 try {
                     withContext(Dispatchers.IO) {
@@ -134,7 +134,7 @@ class LoginTwoFragment : Fragment() {
                     val msg = e.message ?: "Unknown Error"
                     Log.e("loginFunction", "Exception: msg: $msg")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+                        Toast.makeText(appContext, msg, Toast.LENGTH_LONG).show()
                     }
                     return@launch
                 }
@@ -146,9 +146,9 @@ class LoginTwoFragment : Fragment() {
                 Log.d("loginFunction", "GlobalScope.launch")
                 GlobalScope.launch(Dispatchers.IO) {
                     Log.d("loginFunction", "getAlbums: $hostname")
-                    requireContext().getAlbums(hostname)
+                    appContext.getAlbums(hostname)
                     Log.d("loginFunction", "updateStats")
-                    updateStats(requireContext())
+                    updateStats(appContext)
                 }
 
                 Log.d("loginFunction", "MainActivity: setDrawerLockMode(true)")
@@ -188,7 +188,7 @@ class LoginTwoFragment : Fragment() {
             Log.d("OnClickListener", "url: $url")
 
             if (url == null) {
-                Toast.makeText(requireContext(), "Error. Report as Bug!", Toast.LENGTH_LONG).show()
+                Toast.makeText(appContext, "Error. Report as Bug!", Toast.LENGTH_LONG).show()
                 return@OnClickListener
             }
 

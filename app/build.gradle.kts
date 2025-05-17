@@ -38,7 +38,7 @@ android {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
 
-            // Debugging and Testing Only...
+            // Debugging Only
             val localProperties = Properties().apply {
                 val localPropertiesFile = rootProject.file("local.properties")
                 if (localPropertiesFile.exists()) {
