@@ -114,6 +114,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // TODO: Improve initialization of the WorkRequest
+        //  Currently no work is added on first start because this is null
+        //  Work will not get added until the 2nd start after a user adds a server
         val workInterval = preferences.getString("work_interval", null)
         Log.i("Main[onCreate]", "workInterval: $workInterval")
         if (!workInterval.isNullOrEmpty() && workInterval != "0") {
