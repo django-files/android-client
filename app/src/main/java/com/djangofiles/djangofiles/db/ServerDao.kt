@@ -53,7 +53,7 @@ data class Server(
 )
 
 
-@Database(entities = [Server::class], version = 1)
+@Database(entities = [Server::class], version = 2)
 abstract class ServerDatabase : RoomDatabase() {
     abstract fun serverDao(): ServerDao
 
