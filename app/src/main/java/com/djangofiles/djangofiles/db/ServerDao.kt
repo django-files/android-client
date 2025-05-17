@@ -67,7 +67,9 @@ abstract class ServerDatabase : RoomDatabase() {
                     context.applicationContext,
                     ServerDatabase::class.java,
                     "server-database"
-                ).build().also { instance = it }
+                )
+                    .fallbackToDestructiveMigration(true) // TODO: NOT THIS!!!
+                    .build().also { instance = it }
             }
     }
 }
