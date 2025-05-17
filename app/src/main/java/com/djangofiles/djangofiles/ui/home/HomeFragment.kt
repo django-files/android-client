@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.ValueCallback
+import android.webkit.WebBackForwardList
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -135,9 +136,16 @@ class HomeFragment : Fragment() {
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (binding.webView.canGoBack()) {
+                val mWebBackForwardList: WebBackForwardList = binding.webView.copyBackForwardList()
+                val historyUrl: String? =
+                    mWebBackForwardList.getItemAtIndex(mWebBackForwardList.currentIndex - 1)?.url
+                Log.d("Home[OnBackPressedCallback]", "historyUrl: $historyUrl")
+                Log.d("Home[OnBackPressedCallback]", "currentUrl: $currentUrl")
+                if (binding.webView.canGoBack() && historyUrl?.startsWith(currentUrl) == true) {
+                    Log.d("Home[OnBackPressedCallback]", "binding.webView.goBack")
                     binding.webView.goBack()
                 } else {
+                    Log.d("Home[OnBackPressedCallback]", "onBackPressedDispatcher.onBackPressed")
                     isEnabled = false
                     requireActivity().onBackPressedDispatcher.onBackPressed()
 
