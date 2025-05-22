@@ -65,30 +65,30 @@ class MainActivity : AppCompatActivity() {
 
     private val preferences by lazy { getSharedPreferences("AppPreferences", MODE_PRIVATE) }
 
-    private val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-        Log.d("SharedPreferences", "OnSharedPreferenceChangeListener: $key")
-        //val value = prefs.getString(key, "")
-        if (key == "saved_url") {
-            val value = prefs.getString(key, "")
-            Log.i("SharedPreferences", "value: $value")
-
-            Log.i("SharedPreferences", "Updating Widget")
-            val appWidgetManager = AppWidgetManager.getInstance(this)
-            val widgetComponent = ComponentName(this, WidgetProvider::class.java)
-            val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
-            val intent = Intent(this, WidgetProvider::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
-            }
-            this.sendBroadcast(intent)
-        }
-    }
+    //private val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+    //    Log.d("SharedPreferences", "OnSharedPreferenceChangeListener: $key")
+    //    //val value = prefs.getString(key, "")
+    //    if (key == "saved_url") {
+    //        val value = prefs.getString(key, "")
+    //        Log.i("SharedPreferences", "value: $value")
+    //
+    //        Log.i("SharedPreferences", "Updating Widget")
+    //        val appWidgetManager = AppWidgetManager.getInstance(this)
+    //        val widgetComponent = ComponentName(this, WidgetProvider::class.java)
+    //        val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
+    //        val intent = Intent(this, WidgetProvider::class.java).apply {
+    //            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+    //            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+    //        }
+    //        this.sendBroadcast(intent)
+    //    }
+    //}
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("Main[onDestroy]", "ON DESTROY")
         // TODO: Determine if this is necessary...
-        preferences.unregisterOnSharedPreferenceChangeListener(listener)
+        //preferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
     @OptIn(UnstableApi::class)
@@ -100,8 +100,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Log.d("Main[onCreate]", "registerOnSharedPreferenceChangeListener")
-        preferences.registerOnSharedPreferenceChangeListener(listener)
+        //Log.d("Main[onCreate]", "registerOnSharedPreferenceChangeListener")
+        //preferences.registerOnSharedPreferenceChangeListener(listener)
         //val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
         val uniqueID = preferences.getString("unique_id", null)
@@ -300,6 +300,16 @@ class MainActivity : AppCompatActivity() {
         Log.d("handleIntent", "data: $data")
         Log.d("handleIntent", "type: $type")
         Log.d("handleIntent", "action: $action")
+
+        val isCalendarUri = data != null &&
+                data.authority?.contains("calendar") == true &&
+                listOf("/events", "/calendars", "/time").any { data.path?.contains(it) == true }
+        Log.d("handleIntent", "isCalendarUri: $isCalendarUri")
+        if (isCalendarUri) {
+            Log.i("handleIntent", "Calendar Links Not Supported!")
+            Toast.makeText(this, "Calendar Links Not Supported!", Toast.LENGTH_LONG).show()
+            return
+        }
 
         val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
         Log.d("handleIntent", "extraText: $extraText")
@@ -600,6 +610,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("Main[onStop]", "MainActivity - onStop")
+        this.updateWidget()
+    }
 }
 
 @UnstableApi
@@ -621,6 +637,22 @@ object MediaCache {
         }
     }
 }
+
+fun Context.updateWidget() {
+    Log.d("updateWidget", "Context.updateWidget")
+
+    //val appWidgetManager = AppWidgetManager.getInstance(this)
+    //val componentName = ComponentName(this, WidgetProvider::class.java)
+    //val ids = appWidgetManager.getAppWidgetIds(componentName)
+    //appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widget_list_view)
+    //WidgetProvider().onUpdate(this, appWidgetManager, ids)
+
+    val appWidgetManager = AppWidgetManager.getInstance(this)
+    val componentName = ComponentName(this, WidgetProvider::class.java)
+    val ids = appWidgetManager.getAppWidgetIds(componentName)
+    WidgetProvider().onUpdate(this, appWidgetManager, ids)
+}
+
 
 fun copyToClipboard(context: Context, text: String, msg: String? = null) {
     //Log.d("copyToClipboard", "text: $text")
