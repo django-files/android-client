@@ -41,7 +41,6 @@ class HomeFragment : Fragment() {
 
     private var webViewState: Bundle = Bundle()
     private var currentUrl: String = ""
-    //private var clearHistory = false
 
     val viewModel: HomeViewModel by activityViewModels()
 
@@ -77,8 +76,7 @@ class HomeFragment : Fragment() {
         // TODO: Not sure when this method is triggered...
         if (savedInstanceState != null) {
             Log.i("Home[onViewCreated]", "SETTING webViewState FROM savedInstanceState")
-            webViewState =
-                savedInstanceState.getBundle("webViewState") ?: Bundle()  // Ensure non-null
+            webViewState = savedInstanceState.getBundle("webViewState") ?: Bundle()
             Log.d("Home[onViewCreated]", "webViewState: ${webViewState.size()}")
         }
 
@@ -341,5 +339,27 @@ class HomeFragment : Fragment() {
                 Log.d("receiveAuthToken", "Auth Token Not Changes.")
             }
         }
+
+        //@JavascriptInterface
+        //fun receiveStats(files: String?, size: String?, human: String?, shorts: String?) {
+        //    Log.d("receiveStats", "files: $files")
+        //    Log.d("receiveStats", "size: $size")
+        //    Log.d("receiveStats", "human: $human")
+        //    Log.d("receiveStats", "shorts: $shorts")
+        //    if (files != null && size != null && human != null && shorts != null) {
+        //        Log.i("receiveStats", "UPDATE STATS")
+        //        val dao: ServerDao = ServerDatabase.getInstance(context).serverDao()
+        //        dao.addOrUpdate(
+        //            Server(
+        //                url = currentUrl,
+        //                size = size.toLong(),
+        //                count = files.toInt(),
+        //                shorts = shorts.toInt(),
+        //                humanSize = human,
+        //            )
+        //        )
+        //        Log.d("receiveStats", "dao.addOrUpdate: DONE")
+        //    }
+        //}
     }
 }
