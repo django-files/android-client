@@ -63,6 +63,12 @@
         tools:layout="@layout/fragment_login_two" />
 
     <fragment
+        android:id="@+id/nav_item_authorize"
+        android:name="com.djangofiles.djangofiles.ui.settings.AuthorizeFragment"
+        android:label="Login Step 2"
+        tools:layout="@layout/fragment_authorize" />
+
+    <fragment
         android:id="@+id/nav_item_short"
         android:name="com.djangofiles.djangofiles.ui.upload.ShortFragment"
         android:label="Shorts" />

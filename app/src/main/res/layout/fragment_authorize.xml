@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="8dp">
+
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/site_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="36dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <TextView
+            android:id="@+id/loading_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Authorizing..."
+            android:textColor="@android:color/holo_green_light"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:gravity="center">
+
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="@+id/refresh_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:visibility="visible" />
+        </LinearLayout>
+
+<!--        <Button-->
+<!--            android:id="@+id/go_back_btn"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:paddingEnd="36dp"-->
+<!--            android:paddingStart="36dp"-->
+<!--            android:text="Go Back"-->
+<!--            android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+<!--            android:textColor="?android:attr/colorActivatedHighlight"-->
+<!--            android:drawableEnd="@drawable/md_undo_24px"-->
+<!--            android:drawableTint="?android:attr/colorActivatedHighlight"-->
+<!--            app:backgroundTint="@android:color/transparent"-->
+<!--            app:rippleColor="#33FFFF00"-->
+<!--            app:strokeColor="?android:attr/colorActivatedHighlight"-->
+<!--            app:strokeWidth="2dp" />-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/website_link"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="32dp"-->
+<!--            android:text="https://django-files.github.io"-->
+<!--            android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+<!--            android:textColor="@android:color/holo_blue_dark"-->
+<!--            android:drawablePadding="8dp"-->
+<!--            app:drawableStartCompat="@drawable/md_captive_portal_24px" />-->
+
+    </LinearLayout>
+</ScrollView>

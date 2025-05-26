@@ -8,7 +8,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -448,6 +447,26 @@ class MainActivity : AppCompatActivity() {
                     processLogout()
                 } else if ("oauth" == data.host) {
                     processOauth(data)
+                } else if ("authorize" == data.host) {
+                    Log.w("handleIntent", "AUTHORIZE QR CODE - DO IT MAN!")
+                    val url = data.getQueryParameter("url")
+                    val authorization = data.getQueryParameter("authorization")
+                    Log.d("handleIntent", "url: $url")
+                    Log.d("handleIntent", "authorization: $authorization")
+
+                    val bundle = Bundle().apply {
+                        putString("url", url)
+                        putString("authorization", authorization)
+                    }
+                    //navController.navigate(R.id.nav_item_authorize, bundle)
+                    navController.popBackStack(R.id.nav_graph, true)
+                    navController.navigate(
+                        R.id.nav_item_authorize, bundle, NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_item_home, true)
+                            .setLaunchSingleTop(true)
+                            .build()
+                    )
+
                 } else {
                     Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
                     Log.w("handleIntent", "Unknown DeepLink!")
