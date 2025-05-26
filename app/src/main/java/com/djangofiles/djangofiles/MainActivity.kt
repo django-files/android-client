@@ -267,7 +267,7 @@ class MainActivity : AppCompatActivity() {
 
         // Only Handel Intent Once Here after App Start
         if (savedInstanceState?.getBoolean("intentHandled") != true) {
-            handleIntent(intent)
+            onNewIntent(intent)
         }
     }
 
@@ -288,11 +288,6 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Log.d("onNewIntent", "intent: $intent")
-        handleIntent(intent)
-    }
-
-    private fun handleIntent(intent: Intent) {
-        //Log.d("handleIntent", "intent: $intent")
         val data = intent.data
         val type = intent.type
         val action = intent.action
@@ -320,8 +315,8 @@ class MainActivity : AppCompatActivity() {
         //Log.d("handleIntent", "authToken: $authToken")
 
         Log.d("handleIntent", "data?.host: ${data?.host}")
-
-        if (data?.host != "oauth" && savedUrl.isNullOrEmpty()) {
+        val noAuthHosts = setOf("oauth", "authorize")
+        if (data?.host !in noAuthHosts && savedUrl.isNullOrEmpty()) {
             Log.i("handleIntent", "Missing Saved URL or Token! Showing Login...")
 
             setDrawerLockMode(false)
@@ -450,13 +445,13 @@ class MainActivity : AppCompatActivity() {
                 } else if ("authorize" == data.host) {
                     Log.w("handleIntent", "AUTHORIZE QR CODE - DO IT MAN!")
                     val url = data.getQueryParameter("url")
-                    val authorization = data.getQueryParameter("authorization")
+                    val signature = data.getQueryParameter("signature")
                     Log.d("handleIntent", "url: $url")
-                    Log.d("handleIntent", "authorization: $authorization")
+                    Log.d("handleIntent", "signature: $signature")
 
                     val bundle = Bundle().apply {
                         putString("url", url)
-                        putString("authorization", authorization)
+                        putString("signature", signature)
                     }
                     //navController.navigate(R.id.nav_item_authorize, bundle)
                     navController.popBackStack(R.id.nav_graph, true)

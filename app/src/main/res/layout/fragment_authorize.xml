@@ -34,59 +34,44 @@
             android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
-        <TextView
-            android:id="@+id/loading_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Authorizing..."
-            android:textColor="@android:color/holo_green_light"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
         <LinearLayout
+            android:id="@+id/loading_layout"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:gravity="center">
-
-        <ProgressBar
-            android:id="@+id/loading_spinner"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="visible"
-            app:layout_constraintTop_toTopOf="@+id/refresh_layout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:visibility="visible" />
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/loading_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Authorizing..."
+                android:textColor="@android:color/holo_green_light"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+            <ProgressBar
+                android:id="@+id/loading_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="visible"
+                app:layout_constraintTop_toTopOf="@+id/refresh_layout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:visibility="visible" />
         </LinearLayout>
 
-<!--        <Button-->
-<!--            android:id="@+id/go_back_btn"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:layout_marginTop="16dp"-->
-<!--            android:paddingEnd="36dp"-->
-<!--            android:paddingStart="36dp"-->
-<!--            android:text="Go Back"-->
-<!--            android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
-<!--            android:textColor="?android:attr/colorActivatedHighlight"-->
-<!--            android:drawableEnd="@drawable/md_undo_24px"-->
-<!--            android:drawableTint="?android:attr/colorActivatedHighlight"-->
-<!--            app:backgroundTint="@android:color/transparent"-->
-<!--            app:rippleColor="#33FFFF00"-->
-<!--            app:strokeColor="?android:attr/colorActivatedHighlight"-->
-<!--            app:strokeWidth="2dp" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/website_link"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="32dp"-->
-<!--            android:text="https://django-files.github.io"-->
-<!--            android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
-<!--            android:textColor="@android:color/holo_blue_dark"-->
-<!--            android:drawablePadding="8dp"-->
-<!--            app:drawableStartCompat="@drawable/md_captive_portal_24px" />-->
+        <TextView
+            android:id="@+id/auth_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Authentication Failed.\nPlease Try Again."
+            android:textColor="@android:color/holo_red_light"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </LinearLayout>
 </ScrollView>

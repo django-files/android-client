@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles.ui.settings
 
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.util.Log
@@ -55,11 +56,12 @@ class AuthorizeFragment : Fragment() {
 
         val authUrl = arguments?.getString("url")
         Log.d("Authorize[onViewCreated]", "authUrl: $authUrl")
-        val authorization = arguments?.getString("authorization")
-        Log.d("Authorize[onViewCreated]", "authorization: $authorization")
+        val signature = arguments?.getString("signature")
+        Log.d("Authorize[onViewCreated]", "signature: $signature")
 
-        if (authUrl == null || authorization == null) {
-            Log.w("Authorize[onViewCreated]", "Missing URL or Authorization")
+        if (authUrl == null || signature == null) {
+            Log.w("Authorize[onViewCreated]", "Missing URL or Signature")
+            ctx.authError("Error Parsing URL or Code.")
             return
         }
 
@@ -69,11 +71,11 @@ class AuthorizeFragment : Fragment() {
             val api = ServerApi(ctx, authUrl)
             Log.d("Authorize[onViewCreated]", "api: $api")
             // TODO: All Verification BEFORE this, successful auth adds the cookie...
-            val token = api.authorize(authorization)
+            val token = api.authorize(signature)
             Log.d("Authorize[onViewCreated]", "token: $token")
             if (token.isNullOrEmpty()) {
                 Log.w("Authorize[onViewCreated]", "AUTH FAILED")
-                Toast.makeText(requireContext(), "Authorization Failed!", Toast.LENGTH_LONG).show()
+                ctx.authError("Authentication Failed.")
                 return@launch
             }
 
@@ -96,5 +98,11 @@ class AuthorizeFragment : Fragment() {
                 )
             }
         }
+    }
+
+    fun Context.authError(message: String = "Authentication Error.") {
+        binding.loadingLayout.visibility = View.GONE
+        binding.authError.visibility = View.VISIBLE
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 }

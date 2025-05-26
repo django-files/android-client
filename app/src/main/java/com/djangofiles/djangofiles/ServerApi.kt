@@ -120,10 +120,10 @@ class ServerApi(val context: Context, host: String) {
         }
     }
 
-    suspend fun authorize(authorization: String): String? {
-        Log.d("Api[authorize]", "authorization: $authorization")
+    suspend fun authorize(signature: String): String? {
+        Log.d("Api[authorize]", "signature: $signature")
         // TODO: Make a function from the code in login to handle this response...
-        val tokenResponse = api.authorize(authorization)
+        val tokenResponse = api.authorize(signature)
         Log.d("Api[authorize]", "tokenResponse: $tokenResponse")
         if (tokenResponse.isSuccessful) {
             val tokenData = tokenResponse.body()
@@ -233,7 +233,7 @@ class ServerApi(val context: Context, host: String) {
         @FormUrlEncoded
         @POST("auth/application/")
         suspend fun authorize(
-            @Field("authorization") username: String,
+            @Field("signature") signature: String,
         ): Response<TokenResponse>
 
         @GET("auth/methods/")
