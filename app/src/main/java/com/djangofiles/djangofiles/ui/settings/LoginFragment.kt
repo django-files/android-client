@@ -120,10 +120,13 @@ class LoginFragment : Fragment() {
 
                     val methodsResponse = api.methods()
                     Log.d("loginFunction", "methodsResponse: $methodsResponse")
-
+                    val methodsData = methodsResponse.body()
+                    if (methodsData == null) {
+                        throw Exception("methodsData is null")
+                    }
                     viewModel.hostname.value = host
-                    viewModel.siteName.value = methodsResponse.siteName
-                    viewModel.authMethods.value = methodsResponse.authMethods
+                    viewModel.siteName.value = methodsData.siteName
+                    viewModel.authMethods.value = methodsData.authMethods
                     findNavController().navigate(R.id.nav_item_login_action_next)
 
                 } catch (e: Exception) {

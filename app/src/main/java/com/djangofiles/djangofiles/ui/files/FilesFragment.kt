@@ -614,6 +614,7 @@ private fun Context.deleteConfirmDialog(
 }
 
 suspend fun Context.getAlbums(savedUrl: String) {
+    Log.d("getAlbums", "getAlbums: $savedUrl")
     val api = ServerApi(this, savedUrl)
     val response = api.albums()
     Log.d("getAlbums", "response: $response")

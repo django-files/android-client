@@ -67,19 +67,7 @@ class ServerApi(val context: Context, host: String) {
             if (loginResponse.isSuccessful) {
                 val token = api.getToken().token
                 Log.d("Api[login]", "token: $token")
-                val cookies = cookieJar.loadForRequest(hostname.toHttpUrl())
-                val cookieManager = CookieManager.getInstance()
-                for (cookie in cookies) {
-                    //Log.d("Api[login]", "setCookie: $cookie")
-                    //cookieManager.setCookie(host, cookie.toString())
-                    if (cookie.name == "sessionid") {
-                        Log.i("Api[login]", "ADDING: ${cookie.name}")
-                        cookieManager.setCookie(hostname, cookie.toString()) {
-                            Log.i("Api[login]", "cookieManager.flush")
-                            cookieManager.flush()
-                        }
-                    }
-                }
+                addCookie(token)
                 Log.i("Api[login]", "SUCCESS")
                 token
             } else {
@@ -89,6 +77,23 @@ class ServerApi(val context: Context, host: String) {
         } catch (e: Exception) {
             Log.e("Api[login]", "Exception: ${e.message}")
             null
+        }
+    }
+
+    private fun addCookie(token: String) {
+        Log.d("Api[addCookie]", "token: $token")
+        val cookies = cookieJar.loadForRequest(hostname.toHttpUrl())
+        val cookieManager = CookieManager.getInstance()
+        for (cookie in cookies) {
+            //Log.d("Api[login]", "setCookie: $cookie")
+            //cookieManager.setCookie(host, cookie.toString())
+            if (cookie.name == "sessionid") {
+                Log.i("Api[addCookie]", "ADDING: ${cookie.name}")
+                cookieManager.setCookie(hostname, cookie.toString()) {
+                    Log.i("Api[addCookie]", "cookieManager.flush")
+                    cookieManager.flush()
+                }
+            }
         }
     }
 
@@ -115,7 +120,24 @@ class ServerApi(val context: Context, host: String) {
         }
     }
 
-    suspend fun methods(): MethodsResponse {
+    suspend fun authorize(signature: String): String? {
+        Log.d("Api[authorize]", "signature: $signature")
+        // TODO: Make a function from the code in login to handle this response...
+        val tokenResponse = api.authorize(signature)
+        Log.d("Api[authorize]", "tokenResponse: $tokenResponse")
+        if (tokenResponse.isSuccessful) {
+            val tokenData = tokenResponse.body()
+            Log.d("Api[authorize]", "tokenData: $tokenData")
+            if (tokenData != null) {
+                Log.d("Api[authorize]", "token: ${tokenData.token}")
+                addCookie(tokenData.token)
+                return tokenData.token
+            }
+        }
+        return null
+    }
+
+    suspend fun methods(): Response<MethodsResponse> {
         Log.d("Api[methods]", "getMethods")
         return api.getMethods()
     }
@@ -208,8 +230,14 @@ class ServerApi(val context: Context, host: String) {
             @Field("password") password: String
         ): Response<ResponseBody>
 
+        @FormUrlEncoded
+        @POST("auth/application/")
+        suspend fun authorize(
+            @Field("signature") signature: String,
+        ): Response<TokenResponse>
+
         @GET("auth/methods/")
-        suspend fun getMethods(): MethodsResponse
+        suspend fun getMethods(): Response<MethodsResponse>
 
         @POST("auth/token/")
         suspend fun getToken(): TokenResponse

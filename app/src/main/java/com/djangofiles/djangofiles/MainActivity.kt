@@ -8,7 +8,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -268,7 +267,7 @@ class MainActivity : AppCompatActivity() {
 
         // Only Handel Intent Once Here after App Start
         if (savedInstanceState?.getBoolean("intentHandled") != true) {
-            handleIntent(intent)
+            onNewIntent(intent)
         }
     }
 
@@ -289,11 +288,6 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Log.d("onNewIntent", "intent: $intent")
-        handleIntent(intent)
-    }
-
-    private fun handleIntent(intent: Intent) {
-        //Log.d("handleIntent", "intent: $intent")
         val data = intent.data
         val type = intent.type
         val action = intent.action
@@ -320,12 +314,19 @@ class MainActivity : AppCompatActivity() {
         //val authToken = sharedPreferences.getString("auth_token", null)
         //Log.d("handleIntent", "authToken: $authToken")
 
-        Log.d("handleIntent", "data?.host: ${data?.host}")
+        if (savedUrl.isNullOrEmpty()) {
+            Log.i("handleIntent", "LOCK DRAWER: savedUrl.isNullOrEmpty")
+            setDrawerLockMode(false)
+        }
+        Log.i("handleIntent", "drawerLayout.closeDrawers")
+        binding.drawerLayout.closeDrawers()
 
-        if (data?.host != "oauth" && savedUrl.isNullOrEmpty()) {
+        Log.d("handleIntent", "data?.host: ${data?.host}")
+        val noAuthHosts = setOf("oauth", "authorize")
+        if (data?.host !in noAuthHosts && savedUrl.isNullOrEmpty()) {
             Log.i("handleIntent", "Missing Saved URL or Token! Showing Login...")
 
-            setDrawerLockMode(false)
+            //setDrawerLockMode(false)
             navController.navigate(
                 R.id.nav_item_login, null, NavOptions.Builder()
                     .setPopUpTo(R.id.nav_item_home, true)
@@ -335,7 +336,7 @@ class MainActivity : AppCompatActivity() {
         } else if (Intent.ACTION_MAIN == action) {
             Log.d("handleIntent", "ACTION_MAIN")
 
-            binding.drawerLayout.closeDrawers()
+            //binding.drawerLayout.closeDrawers()
 
             // TODO: Cleanup the logic for handling MAIN intent...
             //val currentDestinationId = navController.currentDestination?.id
@@ -392,7 +393,6 @@ class MainActivity : AppCompatActivity() {
                 //if (Patterns.WEB_URL.matcher(extraText).matches()) {
                 if (isURL(extraText)) {
                     Log.d("handleIntent", "URL DETECTED: $extraText")
-                    binding.drawerLayout.closeDrawers()
                     val bundle = Bundle().apply {
                         putString("url", extraText)
                     }
@@ -448,6 +448,26 @@ class MainActivity : AppCompatActivity() {
                     processLogout()
                 } else if ("oauth" == data.host) {
                     processOauth(data)
+                } else if ("authorize" == data.host) {
+                    Log.w("handleIntent", "AUTHORIZE QR CODE - DO IT MAN!")
+                    val url = data.getQueryParameter("url")
+                    val signature = data.getQueryParameter("signature")
+                    Log.d("handleIntent", "url: $url")
+                    Log.d("handleIntent", "signature: $signature")
+
+                    val bundle = Bundle().apply {
+                        putString("url", url)
+                        putString("signature", signature)
+                    }
+                    //navController.navigate(R.id.nav_item_authorize, bundle)
+                    navController.popBackStack(R.id.nav_graph, true)
+                    navController.navigate(
+                        R.id.nav_item_authorize, bundle, NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_item_home, true)
+                            .setLaunchSingleTop(true)
+                            .build()
+                    )
+
                 } else {
                     Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
                     Log.w("handleIntent", "Unknown DeepLink!")
@@ -477,7 +497,7 @@ class MainActivity : AppCompatActivity() {
     private fun showMultiPreview(fileUris: ArrayList<Uri>) {
         Log.d("Main[showMultiPreview]", "fileUris: $fileUris")
         //fileUris.sort()
-        binding.drawerLayout.closeDrawers()
+        //binding.drawerLayout.closeDrawers()
         val bundle = Bundle().apply { putParcelableArrayList("fileUris", fileUris) }
         navController.popBackStack(R.id.nav_graph, true)
         navController.navigate(
@@ -490,7 +510,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showPreview(uri: Uri?) {
         Log.d("Main[showPreview]", "uri: $uri")
-        binding.drawerLayout.closeDrawers()
+        //binding.drawerLayout.closeDrawers()
         val bundle = Bundle().apply { putString("uri", uri.toString()) }
         navController.popBackStack(R.id.nav_graph, true)
         navController.navigate(
@@ -578,8 +598,7 @@ class MainActivity : AppCompatActivity() {
             val servers = withContext(Dispatchers.IO) { dao.getAll() }
             Log.d("processLogout", "servers: $servers")
             if (servers.isEmpty()) {
-                Log.d("processLogout", "NO MORE SERVERS - LOCK TO LOGIN")
-                //(requireActivity() as MainActivity).setDrawerLockMode(false)
+                Log.i("handleIntent", "LOCK DRAWER: NO MORE SERVERS")
                 setDrawerLockMode(false)
                 navController.navigate(
                     R.id.nav_item_login, null, NavOptions.Builder()
