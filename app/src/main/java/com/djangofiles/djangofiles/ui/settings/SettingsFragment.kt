@@ -1,7 +1,15 @@
 package com.djangofiles.djangofiles.ui.settings
 
+import android.content.Context
 import android.os.Bundle
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.view.LayoutInflater
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -17,6 +25,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.djangofiles.djangofiles.DailyWorker
 import com.djangofiles.djangofiles.R
+import com.djangofiles.djangofiles.api.FeedbackApi
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
@@ -30,20 +39,29 @@ import java.util.concurrent.TimeUnit
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var dao: ServerDao
-    //private lateinit var versionName: String
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
-        setPreferencesFromResource(R.xml.settings, rootKey)
+        setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        //val packageName = requireContext().packageName
-        //Log.i("Main[onCreate]", "packageName: $packageName")
+        // Files Per Page
+        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 25)
+        Log.d("onCreatePreferences", "filesPerPage: $filesPerPage")
+        val seekBar = findPreference<SeekBarPreference>("files_per_page")
+        seekBar?.summary = "Current Value: $filesPerPage"
+        seekBar?.apply {
+            setOnPreferenceChangeListener { pref, newValue ->
+                val intValue = (newValue as Int)
+                var stepped = ((intValue + 2) / 5) * 5
+                if (stepped < 10) stepped = 10
+                Log.d("onCreatePreferences", "stepped: $stepped")
+                value = stepped
+                pref.summary = "Current Value: $stepped"
+                false
+            }
+        }
 
-        //versionName = requireContext()
-        //    .packageManager
-        //    .getPackageInfo(packageName, 0)
-        //    .versionName ?: "Invalid Version"
-
+        // Background Update Interval
         val workInterval = findPreference<ListPreference>("work_interval")
         workInterval?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
         workInterval?.setOnPreferenceChangeListener { _, newValue ->
@@ -82,52 +100,32 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
-        dao = ServerDatabase.getInstance(requireContext()).serverDao()
+        // Add Server Button
+        findPreference<Preference>("add_server_btn")?.setOnPreferenceClickListener {
+            Log.d("onCreatePreferences", "addServerBtn: $it")
+            findNavController().navigate(R.id.nav_item_settings_action_login)
+            false
+        }
 
+        // Server List
+        dao = ServerDatabase.getInstance(requireContext()).serverDao()
         parentFragmentManager.setFragmentResultListener("servers_updated", this) { _, _ ->
             buildServerList()
         }
         buildServerList()
 
-        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 25)
-        Log.d("onCreatePreferences", "filesPerPage: $filesPerPage")
-        val seekBar = findPreference<SeekBarPreference>("files_per_page")
-        seekBar?.summary = "Current Value: $filesPerPage"
-        seekBar?.apply {
-            setOnPreferenceChangeListener { pref, newValue ->
-                val intValue = (newValue as Int)
-                var stepped = ((intValue + 2) / 5) * 5
-                if (stepped < 10) stepped = 10
-                Log.d("onCreatePreferences", "stepped: $stepped")
-                value = stepped
-                pref.summary = "Current Value: $stepped"
-                false
-            }
+        // Send Feedback
+        val sendFeedback = findPreference<Preference>("send_feedback")
+        sendFeedback?.setOnPreferenceClickListener {
+            Log.d("sendFeedback", "setOnPreferenceClickListener")
+            requireContext().showFeedbackDialog()
+            false
         }
 
-        //val pm = requireContext().getSystemService(PowerManager::class.java)
-        //val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
-        //Log.d("Main[onCreate]", "isIgnoring: $isIgnoring")
-        //val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
-        //val category = findPreference<PreferenceCategory>("app_options")
-        //if (batteryRestrictedButton != null && isIgnoring) {
-        //    Log.i("Main[onCreate]", "REMOVING IT")
-        //    category?.removePreference(batteryRestrictedButton)
-        //}
-        //batteryRestrictedButton?.setOnPreferenceClickListener {
-        //    val uri = "package:$packageName".toUri()
-        //    Log.i("Main[onCreate]", "uri: $uri")
-        //    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-        //        data = uri
-        //    }
-        //    Log.i("Main[onCreate]", "intent: $intent")
-        //    startActivity(intent)
-        //    false
-        //}
-
-        findPreference<Preference>("add_server_btn")?.setOnPreferenceClickListener {
-            Log.d("onCreatePreferences", "addServerBtn: $it")
-            findNavController().navigate(R.id.nav_item_settings_action_login)
+        // Show App Info
+        findPreference<Preference>("app_info")?.setOnPreferenceClickListener {
+            Log.d("app_info", "showAppInfoDialog")
+            requireContext().showAppInfoDialog()
             false
         }
     }
@@ -207,4 +205,121 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             .show()
     }
+
+    fun Context.showFeedbackDialog() {
+        val inflater = LayoutInflater.from(this)
+        val view = inflater.inflate(R.layout.dialog_feedback, null)
+        val input = view.findViewById<EditText>(R.id.feedback_input)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(view)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Send", null)
+            .create()
+
+        dialog.setOnShowListener {
+            val sendButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            sendButton.setOnClickListener {
+                sendButton.isEnabled = false
+                val message = input.text.toString().trim()
+                Log.d("showFeedbackDialog", "message: $message")
+                if (message.isNotEmpty()) {
+                    val api = FeedbackApi(this)
+                    lifecycleScope.launch {
+                        val response = withContext(Dispatchers.IO) { api.sendFeedback(message) }
+                        Log.d("showFeedbackDialog", "response: $response")
+                        val msg = if (response.isSuccessful) {
+                            findPreference<Preference>("send_feedback")?.isEnabled = false
+                            dialog.dismiss()
+                            "Feedback Sent. Thank You!"
+                        } else {
+                            sendButton.isEnabled = true
+                            //val params = Bundle().apply {
+                            //    putString("message", response.message())
+                            //    putString("code", response.code().toString())
+                            //}
+                            //Firebase.analytics.logEvent("feedback_failed", params)
+                            "Error: ${response.code()}"
+                        }
+                        Log.d("showFeedbackDialog", "msg: $msg")
+                        Toast.makeText(this@showFeedbackDialog, msg, Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    sendButton.isEnabled = true
+                    input.error = "Feedback is Required"
+                }
+            }
+
+            input.requestFocus()
+
+            val link = view.findViewById<TextView>(R.id.github_link)
+            val linkText = getString(R.string.github_link, link.tag)
+            link.text = Html.fromHtml(linkText, Html.FROM_HTML_MODE_LEGACY)
+            link.movementMethod = LinkMovementMethod.getInstance()
+
+            //val imm = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            //imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
+        }
+
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Send") { _, _ -> }
+        dialog.show()
+    }
+
+    fun Context.showAppInfoDialog() {
+        val inflater = LayoutInflater.from(this)
+        val view = inflater.inflate(R.layout.dialog_app_info, null)
+        val appId = view.findViewById<TextView>(R.id.app_identifier)
+        val appVersion = view.findViewById<TextView>(R.id.app_version)
+        val sourceLink = view.findViewById<TextView>(R.id.source_link)
+        val websiteLink = view.findViewById<TextView>(R.id.website_link)
+
+        val sourceText = getString(R.string.github_link, sourceLink.tag)
+        Log.d("showAppInfoDialog", "sourceText: $sourceText")
+
+        val websiteText = getString(R.string.website_link, websiteLink.tag)
+        Log.d("showAppInfoDialog", "websiteText: $websiteText")
+
+        val packageInfo = this.packageManager.getPackageInfo(this.packageName, 0)
+        val versionName = packageInfo.versionName
+        Log.d("showAppInfoDialog", "versionName: $versionName")
+
+        val formattedVersion = getString(R.string.version_string, versionName)
+        Log.d("showAppInfoDialog", "formattedVersion: $formattedVersion")
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(view)
+            .setNegativeButton("Close", null)
+            .create()
+
+        dialog.setOnShowListener {
+            appId.text = this.packageName
+            appVersion.text = formattedVersion
+
+            sourceLink.text = Html.fromHtml(sourceText, Html.FROM_HTML_MODE_LEGACY)
+            sourceLink.movementMethod = LinkMovementMethod.getInstance()
+            websiteLink.text = Html.fromHtml(websiteText, Html.FROM_HTML_MODE_LEGACY)
+            websiteLink.movementMethod = LinkMovementMethod.getInstance()
+        }
+        dialog.show()
+    }
 }
+
+//val pm = requireContext().getSystemService(PowerManager::class.java)
+//val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
+//Log.d("Main[onCreate]", "isIgnoring: $isIgnoring")
+//val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
+//val category = findPreference<PreferenceCategory>("app_options")
+//if (batteryRestrictedButton != null && isIgnoring) {
+//    Log.i("Main[onCreate]", "REMOVING IT")
+//    category?.removePreference(batteryRestrictedButton)
+//}
+//batteryRestrictedButton?.setOnPreferenceClickListener {
+//    val uri = "package:$packageName".toUri()
+//    Log.i("Main[onCreate]", "uri: $uri")
+//    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+//        data = uri
+//    }
+//    Log.i("Main[onCreate]", "intent: $intent")
+//    startActivity(intent)
+//    false
+//}

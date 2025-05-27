@@ -67,6 +67,9 @@
 
         </activity>
 
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="${firebaseAnalyticsDeactivated}" />
 
         <receiver android:name="WidgetProvider"
             android:exported="false">
@@ -76,7 +79,6 @@
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/widget" />
         </receiver>
-
 
     </application>
 

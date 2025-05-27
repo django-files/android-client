@@ -35,6 +35,7 @@ import com.djangofiles.djangofiles.ServerApi.FilesEditRequest
 import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
 import com.djangofiles.djangofiles.db.AlbumDao
 import com.djangofiles.djangofiles.db.AlbumDatabase
+import com.djangofiles.djangofiles.getUserAgent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -130,6 +131,7 @@ class FilesFragment : Fragment() {
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
                     .addHeader("Cookie", cookie)
+                    .header("User-Agent", requireContext().getUserAgent())
                     .build()
                 chain.proceed(request)
             }

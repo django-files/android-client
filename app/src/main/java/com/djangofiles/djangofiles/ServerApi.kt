@@ -439,17 +439,12 @@ class ServerApi(val context: Context, host: String) {
         val baseUrl = "${hostname}/api/"
         Log.d("createRetrofit", "baseUrl: $baseUrl")
 
-        val versionName = context.packageManager.getPackageInfo(context.packageName, 0).versionName
-        Log.d("Home[onViewCreated]", "versionName: $versionName")
-        val userAgent = "DjangoFiles Android/${versionName}"
-        Log.d("createRetrofit", "userAgent: $userAgent")
-
         cookieJar = SimpleCookieJar()
         client = OkHttpClient.Builder()
             .cookieJar(cookieJar)
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .header("User-Agent", userAgent)
+                    .header("User-Agent", context.getUserAgent())
                     .build()
                 chain.proceed(request)
             }
@@ -479,4 +474,12 @@ class ServerApi(val context: Context, host: String) {
             cookieStore[url.host] = cookies
         }
     }
+}
+
+fun Context.getUserAgent(): String {
+    val versionName = this.packageManager.getPackageInfo(this.packageName, 0).versionName
+    Log.d("getUserAgent", "versionName: $versionName")
+    val userAgent = "DjangoFiles Android/${versionName}"
+    Log.d("getUserAgent", "userAgent: $userAgent")
+    return userAgent
 }
