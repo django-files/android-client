@@ -76,7 +76,9 @@ should take you to the settings area to allow installation if not already enable
 
 1. [Install](#Install) and open the app on your device.
 2. Go to User Settings and Scan the QR Code. Done.
+
    or
+
 3. Enter the URL to your Django Files server.
 4. Log in as you normally would on the website.
 5. All Done! You can now share and open files with Django Files.
