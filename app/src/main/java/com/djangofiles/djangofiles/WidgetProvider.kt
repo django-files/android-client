@@ -39,7 +39,7 @@ class WidgetProvider : AppWidgetProvider() {
             }
             Log.d("Widget[onReceive]", "GlobalScope.launch: START")
             GlobalScope.launch(Dispatchers.IO) {
-                updateStats(context)
+                context.updateStats()
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
                 Log.d("Widget[onReceive]", "GlobalScope.launch: DONE")

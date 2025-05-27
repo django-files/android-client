@@ -31,7 +31,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
 
         Log.d("DailyWorker", "--- Update Stats")
         try {
-            updateStats(applicationContext)
+            applicationContext.updateStats()
         } catch (e: Exception) {
             Log.e("DailyWorker", "ServerApi: Exception: $e")
         }
@@ -80,20 +80,20 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
     }
 }
 
-suspend fun updateStats(context: Context): Boolean {
+suspend fun Context.updateStats(): Boolean {
     Log.d("updateStats", "updateStats")
     val sharedPreferences =
-        context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        this.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
     val savedUrl = sharedPreferences.getString("saved_url", null).toString()
     Log.d("updateStats", "savedUrl: $savedUrl")
-    val api = ServerApi(context, savedUrl)
+    val api = ServerApi(this, savedUrl)
     val statsResponse = api.current()
     Log.d("updateStats", "statsResponse: $statsResponse")
     if (statsResponse.isSuccessful) {
         val stats = statsResponse.body()
         Log.d("updateStats", "stats: $stats")
         if (stats != null) {
-            val dao: ServerDao = ServerDatabase.getInstance(context).serverDao()
+            val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
             dao.addOrUpdate(
                 Server(
                     url = savedUrl,
@@ -107,14 +107,14 @@ suspend fun updateStats(context: Context): Boolean {
 
             // TODO: Make this a reusable function with an event trigger...
             Log.i("updateStats", "Updating Widget")
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val widgetComponent = ComponentName(context, WidgetProvider::class.java)
+            val appWidgetManager = AppWidgetManager.getInstance(this)
+            val widgetComponent = ComponentName(this, WidgetProvider::class.java)
             val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
-            val intent = Intent(context, WidgetProvider::class.java).apply {
+            val intent = Intent(this, WidgetProvider::class.java).apply {
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
             }
-            context.sendBroadcast(intent)
+            this.sendBroadcast(intent)
 
             return true
         }

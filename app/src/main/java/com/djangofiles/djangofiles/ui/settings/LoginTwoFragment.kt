@@ -145,10 +145,8 @@ class LoginTwoFragment : Fragment() {
 
                 Log.d("loginFunction", "GlobalScope.launch")
                 GlobalScope.launch(Dispatchers.IO) {
-                    Log.d("loginFunction", "getAlbums: $hostname")
                     appContext.getAlbums(hostname)
-                    Log.d("loginFunction", "updateStats")
-                    updateStats(appContext)
+                    appContext.updateStats()
                 }
 
                 Log.d("loginFunction", "MainActivity: setDrawerLockMode(true)")

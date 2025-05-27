@@ -21,7 +21,11 @@ import com.djangofiles.djangofiles.databinding.FragmentAuthorizeBinding
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.ui.files.getAlbums
+import com.djangofiles.djangofiles.updateStats
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -46,6 +50,7 @@ class AuthorizeFragment : Fragment() {
         return root
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Authorize[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
@@ -114,6 +119,11 @@ class AuthorizeFragment : Fragment() {
                 Log.d("Authorize[addServerBtn]", "server: $server")
                 val dao: ServerDao = ServerDatabase.getInstance(ctx).serverDao()
                 withContext(Dispatchers.IO) { dao.addOrUpdate(server) }
+                Log.d("loginFunction", "GlobalScope.launch")
+                GlobalScope.launch(Dispatchers.IO) {
+                    ctx.getAlbums(authUrl)
+                    ctx.updateStats()
+                }
                 Toast.makeText(requireContext(), "Login Successful", Toast.LENGTH_LONG).show()
                 withContext(Dispatchers.Main) {
                     Log.d("Authorize[addServerBtn]", "navigate: nav_item_home")
