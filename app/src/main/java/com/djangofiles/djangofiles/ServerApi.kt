@@ -137,7 +137,7 @@ class ServerApi(val context: Context, host: String) {
         return null
     }
 
-    suspend fun methods(): MethodsResponse {
+    suspend fun methods(): Response<MethodsResponse> {
         Log.d("Api[methods]", "getMethods")
         return api.getMethods()
     }
@@ -237,7 +237,7 @@ class ServerApi(val context: Context, host: String) {
         ): Response<TokenResponse>
 
         @GET("auth/methods/")
-        suspend fun getMethods(): MethodsResponse
+        suspend fun getMethods(): Response<MethodsResponse>
 
         @POST("auth/token/")
         suspend fun getToken(): TokenResponse

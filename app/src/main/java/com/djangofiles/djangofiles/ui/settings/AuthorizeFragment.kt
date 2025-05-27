@@ -54,6 +54,8 @@ class AuthorizeFragment : Fragment() {
         val versionName = packageInfo.versionName
         Log.d("Authorize[onViewCreated]", "versionName: $versionName")
 
+        binding.versionName.text = versionName
+
         val authUrl = arguments?.getString("url")
         Log.d("Authorize[onViewCreated]", "authUrl: $authUrl")
         val signature = arguments?.getString("signature")
@@ -61,47 +63,69 @@ class AuthorizeFragment : Fragment() {
 
         if (authUrl == null || signature == null) {
             Log.w("Authorize[onViewCreated]", "Missing URL or Signature")
-            ctx.authError("Error Parsing URL or Code.")
+            //ctx.authError("Error Parsing URL or Code.")
             return
         }
 
         val preferences = ctx.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
+        val api = ServerApi(ctx, authUrl)
+
         lifecycleScope.launch {
-            val api = ServerApi(ctx, authUrl)
-            Log.d("Authorize[onViewCreated]", "api: $api")
-            // TODO: All Verification BEFORE this, successful auth adds the cookie...
-            val token = api.authorize(signature)
-            Log.d("Authorize[onViewCreated]", "token: $token")
-            if (token.isNullOrEmpty()) {
-                Log.w("Authorize[onViewCreated]", "AUTH FAILED")
-                ctx.authError("Authentication Failed.")
-                return@launch
+            val methodsResponse = api.methods()
+            Log.d("Authorize[onViewCreated]", "methodsResponse: $methodsResponse")
+            if (methodsResponse.isSuccessful) {
+                val methodsData = methodsResponse.body()
+                Log.d("Authorize[onViewCreated]", "methodsData: $methodsData")
+                if (methodsData != null) {
+                    Log.d("Authorize[onViewCreated]", "siteName: ${methodsData.siteName}")
+                    binding.siteName.text = methodsData.siteName
+                    binding.loadingLayout.visibility = View.GONE
+                    binding.addServerLayout.visibility = View.VISIBLE
+                }
             }
+        }
 
-            preferences.edit {
-                putString("saved_url", authUrl)
-                putString("auth_token", token)
+        binding.addServerBtn.setOnClickListener {
+            lifecycleScope.launch {
+                Log.d("Authorize[addServerBtn]", "api: $api")
+                // TODO: All Verification BEFORE this, successful auth adds the cookie...
+                val token = api.authorize(signature)
+                Log.d("Authorize[addServerBtn]", "token: $token")
+                if (token.isNullOrEmpty()) {
+                    Log.w("Authorize[addServerBtn]", "AUTH FAILED")
+                    ctx.authError("Authentication Failed.")
+                    return@launch
+                }
+                preferences.edit {
+                    putString("saved_url", authUrl)
+                    putString("auth_token", token)
+                }
+                val server = Server(url = authUrl, token = token, active = true)
+                Log.d("Authorize[addServerBtn]", "server: $server")
+                val dao: ServerDao = ServerDatabase.getInstance(ctx).serverDao()
+                withContext(Dispatchers.IO) { dao.addOrUpdate(server) }
+                Toast.makeText(requireContext(), "Login Successful", Toast.LENGTH_LONG).show()
+                withContext(Dispatchers.Main) {
+                    Log.d("Authorize[addServerBtn]", "navigate: nav_item_home")
+                    findNavController().navigate(
+                        R.id.nav_item_home, null, NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_item_authorize, true)
+                            .build()
+                    )
+                }
             }
+        }
 
-            val server = Server(url = authUrl, token = token, active = true)
-            Log.d("reAuthenticate", "server: $server")
-            val dao: ServerDao = ServerDatabase.getInstance(ctx).serverDao()
-            withContext(Dispatchers.IO) { dao.addOrUpdate(server) }
-            Toast.makeText(requireContext(), "Login Successful", Toast.LENGTH_LONG).show()
-            withContext(Dispatchers.Main) {
-                Log.d("loginFunction", "navigate: nav_item_home")
-                findNavController().navigate(
-                    R.id.nav_item_home, null, NavOptions.Builder()
-                        .setPopUpTo(R.id.nav_item_authorize, true)
-                        .build()
-                )
-            }
+
+        binding.gotoLoginBtn.setOnClickListener {
+            Log.d("Authorize[gotoLoginBtn]", "setOnClickListener")
+            findNavController().navigate(R.id.nav_item_login)
         }
     }
 
     fun Context.authError(message: String = "Authentication Error.") {
-        binding.loadingLayout.visibility = View.GONE
+        binding.addServerBtn.visibility = View.GONE
         binding.authError.visibility = View.VISIBLE
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }

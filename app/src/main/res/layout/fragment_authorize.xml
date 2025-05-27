@@ -28,27 +28,37 @@
             android:id="@+id/site_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="36dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
+        <TextView
+            android:id="@+id/version_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="36dp"
+            tools:text="v0.0.1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:orientation="vertical">
         <LinearLayout
             android:id="@+id/loading_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical">
-
+            android:orientation="vertical"
+            android:visibility="visible"
+            tools:visibility="visible">
             <TextView
                 android:id="@+id/loading_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Authorizing..."
+                android:text="Loading..."
                 android:textColor="@android:color/holo_green_light"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
             <ProgressBar
                 android:id="@+id/loading_spinner"
                 android:layout_width="wrap_content"
@@ -62,16 +72,58 @@
                 tools:visibility="visible" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/auth_error"
-            android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/auth_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Authentication Failed.\nPlease Try Again."
+                    android:textColor="@android:color/holo_red_light"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/add_server_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Authentication Failed.\nPlease Try Again."
-            android:textColor="@android:color/holo_red_light"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:orientation="vertical"
             android:visibility="gone"
-            tools:visibility="visible" />
+            tools:visibility="visible">
+            <Button
+                android:id="@+id/add_server_btn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="8dp"
+                android:paddingStart="48dp"
+                android:drawableEnd="@drawable/md_login_24px"
+                android:text="Add Server"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                tools:ignore="RtlSymmetry" />
+            <Button
+                android:id="@+id/goto_login_btn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:paddingStart="48dp"
+                android:text="Login Normally"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/colorActivatedHighlight"
+                android:drawableEnd="@drawable/md_undo_24px"
+                android:drawableTint="?android:attr/colorActivatedHighlight"
+                app:backgroundTint="@android:color/transparent"
+                app:rippleColor="#33FFFF00"
+                app:strokeColor="?android:attr/colorActivatedHighlight"
+                app:strokeWidth="2dp"
+                tools:ignore="RtlSymmetry" />
+        </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
