@@ -65,7 +65,7 @@
     <fragment
         android:id="@+id/nav_item_authorize"
         android:name="com.djangofiles.djangofiles.ui.settings.AuthorizeFragment"
-        android:label="Login Step 2"
+        android:label="App Authentication"
         tools:layout="@layout/fragment_authorize" />
 
     <fragment
