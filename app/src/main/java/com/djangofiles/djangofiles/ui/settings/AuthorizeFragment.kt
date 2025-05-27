@@ -3,6 +3,8 @@ package com.djangofiles.djangofiles.ui.settings
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -63,9 +65,13 @@ class AuthorizeFragment : Fragment() {
 
         if (authUrl == null || signature == null) {
             Log.w("Authorize[onViewCreated]", "Missing URL or Signature")
-            //ctx.authError("Error Parsing URL or Code.")
+            ctx.authError("Error Parsing URL or Code.")
             return
         }
+
+        val authLink = "<a href=\"${authUrl}\">${authUrl}</a>"
+        binding.siteUrl.text = Html.fromHtml(authLink, Html.FROM_HTML_MODE_LEGACY)
+        binding.siteUrl.movementMethod = LinkMovementMethod.getInstance()
 
         val preferences = ctx.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
@@ -81,12 +87,15 @@ class AuthorizeFragment : Fragment() {
                     Log.d("Authorize[onViewCreated]", "siteName: ${methodsData.siteName}")
                     binding.siteName.text = methodsData.siteName
                     binding.loadingLayout.visibility = View.GONE
-                    binding.addServerLayout.visibility = View.VISIBLE
+                    binding.gotoLoginBtn.visibility = View.VISIBLE
+                    binding.addServerBtn.visibility = View.VISIBLE
                 }
             }
         }
 
         binding.addServerBtn.setOnClickListener {
+            binding.addServerBtn.visibility = View.GONE
+            binding.loadingLayout.visibility = View.VISIBLE
             lifecycleScope.launch {
                 Log.d("Authorize[addServerBtn]", "api: $api")
                 // TODO: All Verification BEFORE this, successful auth adds the cookie...
@@ -125,8 +134,9 @@ class AuthorizeFragment : Fragment() {
     }
 
     fun Context.authError(message: String = "Authentication Error.") {
+        binding.loadingLayout.visibility = View.GONE
         binding.addServerBtn.visibility = View.GONE
-        binding.authError.visibility = View.VISIBLE
+        binding.errorMessage.visibility = View.VISIBLE
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 }
