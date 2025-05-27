@@ -314,12 +314,19 @@ class MainActivity : AppCompatActivity() {
         //val authToken = sharedPreferences.getString("auth_token", null)
         //Log.d("handleIntent", "authToken: $authToken")
 
+        if (savedUrl.isNullOrEmpty()) {
+            Log.i("handleIntent", "LOCK DRAWER: savedUrl.isNullOrEmpty")
+            setDrawerLockMode(false)
+        }
+        Log.i("handleIntent", "drawerLayout.closeDrawers")
+        binding.drawerLayout.closeDrawers()
+
         Log.d("handleIntent", "data?.host: ${data?.host}")
         val noAuthHosts = setOf("oauth", "authorize")
         if (data?.host !in noAuthHosts && savedUrl.isNullOrEmpty()) {
             Log.i("handleIntent", "Missing Saved URL or Token! Showing Login...")
 
-            setDrawerLockMode(false)
+            //setDrawerLockMode(false)
             navController.navigate(
                 R.id.nav_item_login, null, NavOptions.Builder()
                     .setPopUpTo(R.id.nav_item_home, true)
@@ -329,7 +336,7 @@ class MainActivity : AppCompatActivity() {
         } else if (Intent.ACTION_MAIN == action) {
             Log.d("handleIntent", "ACTION_MAIN")
 
-            binding.drawerLayout.closeDrawers()
+            //binding.drawerLayout.closeDrawers()
 
             // TODO: Cleanup the logic for handling MAIN intent...
             //val currentDestinationId = navController.currentDestination?.id
@@ -386,7 +393,6 @@ class MainActivity : AppCompatActivity() {
                 //if (Patterns.WEB_URL.matcher(extraText).matches()) {
                 if (isURL(extraText)) {
                     Log.d("handleIntent", "URL DETECTED: $extraText")
-                    binding.drawerLayout.closeDrawers()
                     val bundle = Bundle().apply {
                         putString("url", extraText)
                     }
@@ -491,7 +497,7 @@ class MainActivity : AppCompatActivity() {
     private fun showMultiPreview(fileUris: ArrayList<Uri>) {
         Log.d("Main[showMultiPreview]", "fileUris: $fileUris")
         //fileUris.sort()
-        binding.drawerLayout.closeDrawers()
+        //binding.drawerLayout.closeDrawers()
         val bundle = Bundle().apply { putParcelableArrayList("fileUris", fileUris) }
         navController.popBackStack(R.id.nav_graph, true)
         navController.navigate(
@@ -504,7 +510,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showPreview(uri: Uri?) {
         Log.d("Main[showPreview]", "uri: $uri")
-        binding.drawerLayout.closeDrawers()
+        //binding.drawerLayout.closeDrawers()
         val bundle = Bundle().apply { putString("uri", uri.toString()) }
         navController.popBackStack(R.id.nav_graph, true)
         navController.navigate(
@@ -592,8 +598,7 @@ class MainActivity : AppCompatActivity() {
             val servers = withContext(Dispatchers.IO) { dao.getAll() }
             Log.d("processLogout", "servers: $servers")
             if (servers.isEmpty()) {
-                Log.d("processLogout", "NO MORE SERVERS - LOCK TO LOGIN")
-                //(requireActivity() as MainActivity).setDrawerLockMode(false)
+                Log.i("handleIntent", "LOCK DRAWER: NO MORE SERVERS")
                 setDrawerLockMode(false)
                 navController.navigate(
                     R.id.nav_item_login, null, NavOptions.Builder()

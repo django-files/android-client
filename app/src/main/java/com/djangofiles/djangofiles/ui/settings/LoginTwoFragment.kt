@@ -149,7 +149,7 @@ class LoginTwoFragment : Fragment() {
                     appContext.updateStats()
                 }
 
-                Log.d("loginFunction", "MainActivity: setDrawerLockMode(true)")
+                Log.i("loginFunction", "UNLOCK DRAWER: MainActivity: setDrawerLockMode(true)")
                 (requireActivity() as MainActivity).setDrawerLockMode(true)
                 withContext(Dispatchers.Main) {
                     Log.d("loginFunction", "navigate: nav_item_home")

@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentAuthorizeBinding
@@ -124,6 +125,8 @@ class AuthorizeFragment : Fragment() {
                     ctx.getAlbums(authUrl)
                     ctx.updateStats()
                 }
+                Log.i("loginFunction", "UNLOCK DRAWER: MainActivity: setDrawerLockMode(true)")
+                (requireActivity() as MainActivity).setDrawerLockMode(true)
                 Toast.makeText(requireContext(), "Login Successful", Toast.LENGTH_LONG).show()
                 withContext(Dispatchers.Main) {
                     Log.d("Authorize[addServerBtn]", "navigate: nav_item_home")
