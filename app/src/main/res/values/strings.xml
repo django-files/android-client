@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Django Files</string>
+    <string name="version_string">v%s</string>
+    <string name="github_link"><![CDATA[<a href="https://github.com/django-files/android-client">%s</a>]]></string>
+    <string name="website_link"><![CDATA[<a href="https://django-files.github.io/">%s</a>]]></string>
 
     <string name="setup_host_placeholder">your.django-files.com</string>
 
@@ -25,6 +28,8 @@
     <string name="vanity">Vanity</string>
     <string name="file_name">File Name</string>
     <string name="shorten_url">Shorten URL</string>
+
+    <string name="feedback_message">**%s** `v%s` API **%s**\n```\n%s\n```</string>
 
     <string-array name="dropdown_entries">
         <item>Every 15 Minutes</item>

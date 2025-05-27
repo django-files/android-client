@@ -46,17 +46,12 @@ class DiscordApi(
     }
 
     private fun createRetrofit(): Retrofit {
-        val versionName = context.packageManager.getPackageInfo(context.packageName, 0).versionName
-        Log.d("createRetrofit", "versionName: $versionName")
-        val userAgent = "DjangoFiles Android/${versionName}"
-        Log.d("createRetrofit", "userAgent: $userAgent")
-
         cookieJar = SimpleCookieJar()
         client = OkHttpClient.Builder()
             .cookieJar(cookieJar)
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                    .header("User-Agent", userAgent)
+                    .header("User-Agent", context.getUserAgent())
                     .build()
                 chain.proceed(request)
             }

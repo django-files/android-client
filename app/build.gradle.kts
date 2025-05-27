@@ -3,8 +3,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.ksp)
     //alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
+
     //alias(libs.plugins.kotlin.parcelize)
     //alias(libs.plugins.androidx.navigation.safeargs.kotlin-gradle-plugin)
     //id("androidx.navigation.safeargs.kotlin") version "2.8.9" // Use the correct version
@@ -32,11 +33,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["firebaseAnalyticsDeactivated"] = false
         }
 
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
+            manifestPlaceholders["firebaseAnalyticsDeactivated"] = true
 
             // Debugging Only
             val localProperties = Properties().apply {
@@ -77,6 +80,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
+    implementation(libs.converter.moshi)
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
     implementation(libs.glide)
@@ -87,7 +91,9 @@ dependencies {
     implementation(libs.media3.ui.compose)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.work.runtime.ktx)
-    //ksp(libs.glide.compiler)
+    //noinspection KaptUsageInsteadOfKsp
+    //kapt(libs.glide.compiler)
+    ksp(libs.moshi.kotlin.codegen)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

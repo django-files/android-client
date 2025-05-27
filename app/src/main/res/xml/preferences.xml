@@ -1,15 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <PreferenceCategory android:title="App Settings">
-        <ListPreference
-            android:key="work_interval"
-            android:title="Background Update Interval"
-            android:defaultValue="1440"
-            android:entries="@array/dropdown_entries"
-            android:entryValues="@array/dropdown_values"
-            android:icon="@drawable/md_timer_24" />
-    </PreferenceCategory>
 
     <PreferenceCategory android:title="File List">
         <SwitchPreferenceCompat
@@ -36,20 +27,24 @@
             android:summary="For File List"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="app_options">
+    <PreferenceCategory android:title="Upload Options"
+        android:key="app_options">
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:icon="@drawable/md_share_24"
             android:key="share_after_short"
             android:title="Share URL After Generation"
             android:summary="For URL Shortening" />
+    </PreferenceCategory>
 
-<!--        <Preference-->
-<!--            android:key="battery_unrestricted"-->
-<!--            android:icon="@drawable/md_timer_24"-->
-<!--            android:title="Grant Unrestricted Background Access"-->
-<!--            android:shouldDisableView="true"-->
-<!--            android:summary="For Updating the Widget"/>-->
+    <PreferenceCategory android:title="App Settings">
+        <ListPreference
+            android:key="work_interval"
+            android:title="Background Update Interval"
+            android:defaultValue="1440"
+            android:entries="@array/dropdown_entries"
+            android:entryValues="@array/dropdown_values"
+            android:icon="@drawable/md_timer_24" />
 
         <Preference
             android:key="add_server_btn"
@@ -62,4 +57,17 @@
         android:key="server_list"
         android:title="Saved Servers" />
 
+    <PreferenceCategory android:title="App Information">
+        <Preference
+            android:key="send_feedback"
+            android:title="Send Feedback"
+            android:summary="Submit Suggestions or Bugs"
+            android:icon="@drawable/md_bug_report_24px" />
+
+        <Preference
+            android:key="app_info"
+            android:title="Application Information"
+            android:summary="View Mobile App Details"
+            android:icon="@drawable/md_mobile_info_24px" />
+    </PreferenceCategory>
 </PreferenceScreen>
