@@ -132,6 +132,11 @@ class WidgetProvider : AppWidgetProvider() {
                     Log.d("Widget[onUpdate]", "humanSize: $humanSize")
                     views.setTextViewText(R.id.files_size, humanSize)
                 }
+
+                val time = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                Log.d("Widget[onUpdate]", "time: $time")
+                views.setTextViewText(R.id.update_time, time)
+
                 Log.d("Widget[onUpdate]", "updateAppWidget")
                 appWidgetManager.updateAppWidget(appWidgetId, views)
                 Log.d("Widget[onUpdate]", "updateAppWidget: DONE")
