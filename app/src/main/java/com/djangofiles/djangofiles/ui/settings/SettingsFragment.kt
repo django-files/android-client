@@ -1,7 +1,12 @@
 package com.djangofiles.djangofiles.ui.settings
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -10,6 +15,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -40,6 +46,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var dao: ServerDao
 
+    @SuppressLint("BatteryLife")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences, rootKey)
@@ -100,6 +107,36 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
+        // Background Restriction
+        val packageName = requireContext().packageName
+        Log.i("onCreatePreferences", "packageName: $packageName")
+        val pm = requireContext().getSystemService(PowerManager::class.java)
+        val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
+        fun checkBackground(): Boolean {
+            val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
+            Log.i("onCreatePreferences", "isIgnoring: $isIgnoring")
+            if (isIgnoring) {
+                Log.i("onCreatePreferences", "DISABLING BACKGROUND BUTTON")
+                batteryRestrictedButton?.setSummary("Permission Already Granted")
+                batteryRestrictedButton?.isEnabled = false
+            }
+            return isIgnoring
+        }
+        checkBackground()
+        batteryRestrictedButton?.setOnPreferenceClickListener {
+            Log.d("onCreatePreferences", "batteryRestrictedButton?.setOnPreferenceClickListener")
+            if (!checkBackground()) {
+                val uri = "package:$packageName".toUri()
+                Log.d("onCreatePreferences", "uri: $uri")
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = uri
+                }
+                Log.d("onCreatePreferences", "intent: $intent")
+                startActivity(intent)
+            }
+            false
+        }
+
         // Add Server Button
         findPreference<Preference>("add_server_btn")?.setOnPreferenceClickListener {
             Log.d("onCreatePreferences", "addServerBtn: $it")
@@ -126,6 +163,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("app_info")?.setOnPreferenceClickListener {
             Log.d("app_info", "showAppInfoDialog")
             requireContext().showAppInfoDialog()
+            false
+        }
+
+        // Open App Settings
+        findPreference<Preference>("android_settings")?.setOnPreferenceClickListener {
+            Log.d("android_settings", "setOnPreferenceClickListener")
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", packageName, null)
+            }
+            startActivity(intent)
             false
         }
     }
@@ -272,6 +319,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val appVersion = view.findViewById<TextView>(R.id.app_version)
         val sourceLink = view.findViewById<TextView>(R.id.source_link)
         val websiteLink = view.findViewById<TextView>(R.id.website_link)
+        //val appInfo = view.findViewById<TextView>(R.id.open_app_info)
 
         val sourceText = getString(R.string.github_link, sourceLink.tag)
         Log.d("showAppInfoDialog", "sourceText: $sourceText")
@@ -299,6 +347,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             sourceLink.movementMethod = LinkMovementMethod.getInstance()
             websiteLink.text = Html.fromHtml(websiteText, Html.FROM_HTML_MODE_LEGACY)
             websiteLink.movementMethod = LinkMovementMethod.getInstance()
+
+            //appInfo.setOnClickListener {
+            //    Log.d("appInfo", "setOnClickListener")
+            //    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            //        data = Uri.fromParts("package", packageName, null)
+            //    }
+            //    startActivity(intent)
+            //}
         }
         dialog.show()
     }

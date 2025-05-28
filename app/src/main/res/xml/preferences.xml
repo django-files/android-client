@@ -47,6 +47,13 @@
             android:icon="@drawable/md_timer_24" />
 
         <Preference
+            android:key="battery_unrestricted"
+            android:title="Remove Background Restriction"
+            android:summary="To Improve Widget Updates"
+            android:icon="@drawable/md_battery_profile_24px"
+            android:shouldDisableView="true" />
+
+        <Preference
             android:key="add_server_btn"
             android:title="Add Server"
             android:icon="@android:drawable/ic_input_add"
@@ -62,12 +69,18 @@
             android:key="send_feedback"
             android:title="Send Feedback"
             android:summary="Submit Suggestions or Bugs"
-            android:icon="@drawable/md_bug_report_24px" />
+            android:icon="@drawable/md_thumb_up_24px" />
 
         <Preference
             android:key="app_info"
             android:title="Application Information"
             android:summary="View Mobile App Details"
             android:icon="@drawable/md_mobile_info_24px" />
+
+        <Preference
+            android:key="android_settings"
+            android:title="Android Settings"
+            android:summary="Edit Android Settings"
+            android:icon="@drawable/md_mobile_gear_24px" />
     </PreferenceCategory>
 </PreferenceScreen>

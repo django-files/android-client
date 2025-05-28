@@ -45,6 +45,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         //appWidgetManager.updateAppWidget(componentName, remoteViews)
 
         // Update Widget
+        // TODO: WidgetUpdate: Consolidate to a function...
         Log.d("DailyWorker", "--- Update Widget")
         val componentName = ComponentName(applicationContext, WidgetProvider::class.java)
         Log.d("DailyWorker", "componentName: $componentName")
@@ -105,16 +106,17 @@ suspend fun Context.updateStats(): Boolean {
             )
             Log.d("updateStats", "dao.addOrUpdate: DONE")
 
-            // TODO: Make this a reusable function with an event trigger...
-            Log.i("updateStats", "Updating Widget")
-            val appWidgetManager = AppWidgetManager.getInstance(this)
-            val widgetComponent = ComponentName(this, WidgetProvider::class.java)
-            val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
-            val intent = Intent(this, WidgetProvider::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
-            }
-            this.sendBroadcast(intent)
+            // TODO: WidgetUpdate: Consolidate to a function...
+            //  This seems to run a double update, disabling until turned into a function
+            //Log.i("updateStats", "Updating Widget")
+            //val appWidgetManager = AppWidgetManager.getInstance(this)
+            //val widgetComponent = ComponentName(this, WidgetProvider::class.java)
+            //val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
+            //val intent = Intent(this, WidgetProvider::class.java).apply {
+            //    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            //    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+            //}
+            //this.sendBroadcast(intent)
 
             return true
         }

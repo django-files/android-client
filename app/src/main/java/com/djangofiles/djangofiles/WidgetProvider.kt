@@ -40,6 +40,7 @@ class WidgetProvider : AppWidgetProvider() {
             Log.d("Widget[onReceive]", "GlobalScope.launch: START")
             GlobalScope.launch(Dispatchers.IO) {
                 context.updateStats()
+                // TODO: WidgetUpdate: Consolidate to a function...
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
                 Log.d("Widget[onReceive]", "GlobalScope.launch: DONE")

@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:ignore="HardcodedText">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,6 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
+            android:gravity="end"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
@@ -81,8 +83,8 @@
                 android:paddingVertical="@dimen/dialog_vertical_margin"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:maxLines="1"
-                android:ellipsize="end"
-                tools:text="com.djangofiles.djangofiles" />
+                android:ellipsize="start"
+                tools:text="com.djangofiles.djangofiles.dev" />
             <TextView
                 android:id="@+id/app_name"
                 android:layout_width="wrap_content"
@@ -113,4 +115,13 @@
         </LinearLayout>
     </LinearLayout>
 
+<!--    <TextView-->
+<!--        android:id="@+id/open_app_info"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_gravity="center_horizontal"-->
+<!--        android:textAppearance="@style/TextAppearance.AppCompat.Medium"-->
+<!--        android:textColor="@android:color/holo_blue_light"-->
+<!--        android:text="Open Android Settings" />-->
 </LinearLayout>
