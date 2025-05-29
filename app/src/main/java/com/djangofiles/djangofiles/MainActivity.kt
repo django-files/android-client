@@ -666,6 +666,7 @@ fun Context.updateWidget() {
     //appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widget_list_view)
     //WidgetProvider().onUpdate(this, appWidgetManager, ids)
 
+    // TODO: WidgetUpdate: Consolidate to a function...
     val appWidgetManager = AppWidgetManager.getInstance(this)
     val componentName = ComponentName(this, WidgetProvider::class.java)
     val ids = appWidgetManager.getAppWidgetIds(componentName)

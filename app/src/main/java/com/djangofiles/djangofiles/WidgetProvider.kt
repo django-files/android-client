@@ -40,6 +40,7 @@ class WidgetProvider : AppWidgetProvider() {
             Log.d("Widget[onReceive]", "GlobalScope.launch: START")
             GlobalScope.launch(Dispatchers.IO) {
                 context.updateStats()
+                // TODO: WidgetUpdate: Consolidate to a function...
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
                 Log.d("Widget[onReceive]", "GlobalScope.launch: DONE")
@@ -131,6 +132,11 @@ class WidgetProvider : AppWidgetProvider() {
                     Log.d("Widget[onUpdate]", "humanSize: $humanSize")
                     views.setTextViewText(R.id.files_size, humanSize)
                 }
+
+                val time = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                Log.d("Widget[onUpdate]", "time: $time")
+                views.setTextViewText(R.id.update_time, time)
+
                 Log.d("Widget[onUpdate]", "updateAppWidget")
                 appWidgetManager.updateAppWidget(appWidgetId, views)
                 Log.d("Widget[onUpdate]", "updateAppWidget: DONE")
