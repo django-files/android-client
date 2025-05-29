@@ -14,26 +14,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="130dp"
+        android:layout_marginEnd="128dp"
         android:columnCount="2">
 
         <ImageView
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:layout_marginTop="1dp"
-            android:layout_marginEnd="4dp"
+            android:layout_marginEnd="2dp"
             android:layout_gravity="center_vertical"
             android:contentDescription="Files Count"
             android:src="@drawable/md_description_24px" />
         <TextView
             android:id="@+id/files_count"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textSize="20sp"
+            android:maxLines="1"
             android:text="0"
-            tools:text="4096" />
+            tools:text="0123456789" />
 
         <ImageView
             android:layout_width="18dp"
@@ -42,14 +42,28 @@
             android:layout_gravity="center_vertical"
             android:contentDescription="Files Size"
             android:src="@drawable/md_storage_24px" />
-        <TextView
-            android:id="@+id/files_size"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:text="0"
-            tools:text="69.9 GB" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/files_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="20sp"
+                android:maxLines="1"
+                android:text="0"
+                tools:text="9.99" />
+
+            <TextView
+                android:id="@+id/files_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:maxLines="1"
+                android:text="MB"
+                tools:text="GB" />
+        </LinearLayout>
     </GridLayout>
 
     <LinearLayout
@@ -61,38 +75,32 @@
             android:id="@+id/widget_refresh_button"
             android:layout_width="48dp"
             android:layout_height="match_parent"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:src="@drawable/md_refresh_24px"
-            android:tint="@android:color/white"
             android:contentDescription="Refresh"
-            tools:ignore="UseAppTint" />
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/md_refresh_24px" />
         <ImageButton
             android:id="@+id/widget_upload_button"
             android:layout_width="48dp"
             android:layout_height="match_parent"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:src="@drawable/md_outbox_24px"
-            android:tint="@android:color/white"
             android:contentDescription="Upload"
-            tools:ignore="UseAppTint" />
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/md_upload_24px" />
         <ImageButton
             android:id="@+id/file_list_button"
             android:layout_width="48dp"
             android:layout_height="match_parent"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:src="@drawable/md_list_alt_24px"
-            android:tint="@android:color/white"
             android:contentDescription="File List"
-            tools:ignore="UseAppTint" />
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/md_list_alt_24px" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/update_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
         android:layout_gravity="center_horizontal|bottom"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="12sp"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
         android:text="--:--"
         tools:text="23:59" />
 

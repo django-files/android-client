@@ -127,13 +127,16 @@ class WidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.files_count, filesCount)
 
                     Log.d("Widget[onUpdate]", "server.humanSize: ${server.humanSize}")
-                    val humanSize =
-                        if (server.humanSize.isNullOrEmpty()) "Unknown" else server.humanSize
-                    Log.d("Widget[onUpdate]", "humanSize: $humanSize")
-                    views.setTextViewText(R.id.files_size, humanSize)
+
+                    val split =
+                        server.humanSize?.split(' ')?.filter { it.isNotEmpty() } ?: emptyList()
+                    Log.d("Widget[onUpdate]", "split: $split")
+                    views.setTextViewText(R.id.files_size, split.getOrElse(0) { "Unknown" })
+                    views.setTextViewText(R.id.files_unit, split.getOrElse(1) { "" })
                 }
 
-                val time = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                val time = java.time.LocalTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
                 Log.d("Widget[onUpdate]", "time: $time")
                 views.setTextViewText(R.id.update_time, time)
 

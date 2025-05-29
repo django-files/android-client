@@ -33,6 +33,7 @@ import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.databinding.FragmentHomeBinding
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.getUserAgent
 
 class HomeFragment : Fragment() {
 
@@ -87,12 +88,8 @@ class HomeFragment : Fragment() {
             arguments?.remove("url")
         }
 
-        val versionName = requireContext()
-            .packageManager
-            .getPackageInfo(requireContext().packageName, 0).versionName
-        Log.d("Home[onViewCreated]", "versionName: $versionName")
         val userAgent =
-            "${binding.webView.settings.userAgentString} DjangoFiles Android/${versionName}"
+            "${binding.webView.settings.userAgentString} ${requireContext().getUserAgent()}"
         Log.d("Home[onViewCreated]", "UA: $userAgent")
 
         //Log.d("Home[onViewCreated]", "BEFORE - currentUrl: $currentUrl")
