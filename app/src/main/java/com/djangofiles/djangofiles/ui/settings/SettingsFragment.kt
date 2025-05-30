@@ -24,6 +24,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
+import androidx.preference.SwitchPreferenceCompat
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -36,6 +37,8 @@ import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -150,6 +153,30 @@ class SettingsFragment : PreferenceFragmentCompat() {
             buildServerList()
         }
         buildServerList()
+
+        // Toggle Analytics
+        val toggleAnalytics = findPreference<SwitchPreferenceCompat>("analytics_enabled")
+        toggleAnalytics?.setOnPreferenceChangeListener { _, newValue ->
+            Log.d("toggleAnalytics", "analytics_enabled: $newValue")
+            if (newValue as Boolean) {
+                Log.d("toggleAnalytics", "ENABLE Analytics")
+                Firebase.analytics.setAnalyticsCollectionEnabled(true)
+                toggleAnalytics.isChecked = true
+            } else {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Please Reconsider")
+                    .setMessage("Analytics are only used to fix bugs and make improvements.")
+                    .setPositiveButton("Disable Anyway") { _, _ ->
+                        Log.d("toggleAnalytics", "DISABLE Analytics")
+                        Firebase.analytics.logEvent("disable_analytics", null)
+                        Firebase.analytics.setAnalyticsCollectionEnabled(false)
+                        toggleAnalytics.isChecked = false
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+            false
+        }
 
         // Send Feedback
         val sendFeedback = findPreference<Preference>("send_feedback")
