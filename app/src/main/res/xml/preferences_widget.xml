@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <PreferenceCategory
+        android:key="widget_settings"
+        android:title="Widget Settings">
+
+        <ListPreference
+            android:key="widget_text_color"
+            android:title="Text Color"
+            android:icon="@drawable/md_text_fields_24px"
+            android:defaultValue="white"
+            android:entries="@array/widget_text_entries"
+            android:entryValues="@array/widget_text_values"
+            tools:summary="White" />
+
+        <ListPreference
+            android:key="widget_bg_color"
+            android:title="Background Color"
+            android:icon="@drawable/md_texture_24px"
+            android:defaultValue="transparent"
+            android:entries="@array/widget_bg_entries"
+            android:entryValues="@array/widget_bg_values"
+            tools:summary="Transparent" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

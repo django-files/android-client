@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles.ui.settings
+package com.djangofiles.djangofiles.ui.login
 
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
@@ -36,8 +36,8 @@ class LoginTwoFragment : Fragment() {
     private var _binding: FragmentLoginTwoBinding? = null
     private val binding get() = _binding!!
 
-    //private val viewModel: SettingsViewModel by viewModels()
-    private val viewModel: SettingsViewModel by activityViewModels()
+    //private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: LoginViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

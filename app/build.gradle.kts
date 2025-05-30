@@ -25,6 +25,8 @@ android {
         versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["firebaseAnalyticsDeactivated"] = false
+        manifestPlaceholders["firebaseCrashlyticsEnabled"] = true
     }
 
     buildTypes {
@@ -35,13 +37,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            manifestPlaceholders["firebaseAnalyticsDeactivated"] = false
         }
 
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            manifestPlaceholders["firebaseAnalyticsDeactivated"] = false
+            manifestPlaceholders["firebaseAnalyticsDeactivated"] = true
+            manifestPlaceholders["firebaseCrashlyticsEnabled"] = false
 
             // Debugging Only
             val localProperties = Properties().apply {

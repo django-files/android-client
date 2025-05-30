@@ -154,6 +154,23 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         buildServerList()
 
+        // Widget Settings
+        findPreference<Preference>("open_widget_settings")?.setOnPreferenceClickListener {
+            Log.d("open_widget_settings", "setOnPreferenceClickListener")
+            findNavController().navigate(R.id.nav_item_settings_action_widget)
+            //findNavController().navigate(
+            //    R.id.nav_item_settings_action_widget,
+            //    null,
+            //    NavOptions.Builder()
+            //        .setEnterAnim(R.anim.slide_in_left)
+            //        .setExitAnim(R.anim.slide_out_left)
+            //        .setPopEnterAnim(R.anim.slide_in_right)
+            //        .setPopExitAnim(R.anim.slide_out_right)
+            //        .build()
+            //)
+            false
+        }
+
         // Toggle Analytics
         val toggleAnalytics = findPreference<SwitchPreferenceCompat>("analytics_enabled")
         toggleAnalytics?.setOnPreferenceChangeListener { _, newValue ->
@@ -308,11 +325,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             "Feedback Sent. Thank You!"
                         } else {
                             sendButton.isEnabled = true
-                            //val params = Bundle().apply {
-                            //    putString("message", response.message())
-                            //    putString("code", response.code().toString())
-                            //}
-                            //Firebase.analytics.logEvent("feedback_failed", params)
+                            val params = Bundle().apply {
+                                putString("message", response.message())
+                                putString("code", response.code().toString())
+                            }
+                            Firebase.analytics.logEvent("send_feedback_failed", params)
                             "Error: ${response.code()}"
                         }
                         Log.d("showFeedbackDialog", "msg: $msg")
