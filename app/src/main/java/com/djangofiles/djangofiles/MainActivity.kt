@@ -47,6 +47,7 @@ import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.home.HomeViewModel
+import com.djangofiles.djangofiles.widget.WidgetProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -234,9 +235,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 val handled = NavigationUI.onNavDestinationSelected(menuItem, navController)
                 Log.d("Drawer", "ELSE - handled: $handled")
-                if (handled) {
-                    binding.drawerLayout.closeDrawers()
-                }
+                //if (handled) {
+                binding.drawerLayout.closeDrawers()
+                //}
                 handled
             }
         }

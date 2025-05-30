@@ -33,6 +33,15 @@
         android:id="@+id/nav_item_settings"
         android:name="com.djangofiles.djangofiles.ui.settings.SettingsFragment"
         android:label="Settings">
+        <!-- Widget Settings -->
+        <action
+            android:id="@+id/nav_item_settings_action_widget"
+            app:destination="@id/nav_item_widget_settings"
+            app:exitAnim="@anim/slide_out_left"
+            app:enterAnim="@anim/slide_in_left"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_right" />
+        <!-- Add Server -->
         <action
             android:id="@+id/nav_item_settings_action_login"
             app:destination="@id/nav_item_login"
@@ -42,10 +51,16 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
+    <!-- Widget Settings -->
+    <fragment
+        android:id="@+id/nav_item_widget_settings"
+        android:name="com.djangofiles.djangofiles.ui.settings.WidgetSettingsFragment"
+        android:label="Widget Settings" />
+    <!-- Add Server Part 1 -->
     <fragment
         android:id="@+id/nav_item_login"
-        android:name="com.djangofiles.djangofiles.ui.settings.LoginFragment"
-        android:label="Login"
+        android:name="com.djangofiles.djangofiles.ui.login.LoginFragment"
+        android:label="Add Server"
         tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/nav_item_login_action_next"
@@ -56,15 +71,16 @@
             app:popEnterAnim="@anim/slide_in_right"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
+    <!-- Add Server Part 1 -->
     <fragment
         android:id="@+id/nav_item_login_two"
-        android:name="com.djangofiles.djangofiles.ui.settings.LoginTwoFragment"
-        android:label="Login Step 2"
+        android:name="com.djangofiles.djangofiles.ui.login.LoginTwoFragment"
+        android:label="Login"
         tools:layout="@layout/fragment_login_two" />
 
     <fragment
         android:id="@+id/nav_item_authorize"
-        android:name="com.djangofiles.djangofiles.ui.settings.AuthorizeFragment"
+        android:name="com.djangofiles.djangofiles.ui.login.AuthorizeFragment"
         android:label="App Authentication"
         tools:layout="@layout/fragment_authorize" />
 

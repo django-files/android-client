@@ -124,6 +124,10 @@ For more planned features you can check out the internal [TODO.md](TODO.md).
 
 This section briefly covers running and building in [Android Studio](#Android-Studio) and the [Command Line](#Command-Line).
 
+> [!NOTE]  
+> Building requires an `app/google-services.json` file.
+> See [Google Services](#Google-Services) for more info...
+
 ## Android Studio
 
 1. Download and Install Android Studio.
@@ -217,6 +221,30 @@ $ adb -s RF9M33Z1Q0M install app-release-unsigned.apk
 _Note: you may have to uninstall before installing due to different certificate signatures._
 
 For more details, see the [ADB Documentation](https://developer.android.com/tools/adb#move).
+
+## Google Services
+
+This app uses Firebase Google Services. Building requires a valid `google-services.json` file in the `app` directory.  
+You must add `com.djangofiles.djangofiles.dev` to a Firebase campaign here: https://firebase.google.com/
+
+To enable/disable Firebase DebugView use the following commands:
+
+```shell
+# set
+adb shell setprop debug.firebase.analytics.app com.djangofiles.djangofiles.dev
+
+# unset
+adb shell setprop debug.firebase.analytics.app .none.
+
+# check
+adb shell getprop debug.firebase.analytics.app
+```
+
+Only 1 app can be in debug mode at a time and this must be set every restart.
+
+> [!NOTE]  
+> Note: To disable/enable Analytics or Crashlytics set the `manifestPlaceholders`
+> in the [build.gradle.kts](app/build.gradle.kts) file to the respective values.
 
 # Support
 

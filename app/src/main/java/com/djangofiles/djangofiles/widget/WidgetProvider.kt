@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles
+package com.djangofiles.djangofiles.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -7,12 +7,17 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.RemoteViews
+import com.djangofiles.djangofiles.MainActivity
+import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.updateStats
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class WidgetProvider : AppWidgetProvider() {
 
@@ -115,7 +120,7 @@ class WidgetProvider : AppWidgetProvider() {
 
             GlobalScope.launch(Dispatchers.IO) {
                 val dao: ServerDao =
-                    ServerDatabase.getInstance(context.applicationContext).serverDao()
+                    ServerDatabase.Companion.getInstance(context.applicationContext).serverDao()
                 Log.d("Widget[onUpdate]", "dao: $dao")
                 val server = dao.getByUrl(savedUrl)
                 Log.d("Widget[onUpdate]", "server: $server")
@@ -135,8 +140,8 @@ class WidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.files_unit, split.getOrElse(1) { "" })
                 }
 
-                val time = java.time.LocalTime.now()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                val time = LocalTime.now()
+                    .format(DateTimeFormatter.ofPattern("HH:mm"))
                 Log.d("Widget[onUpdate]", "time: $time")
                 views.setTextViewText(R.id.update_time, time)
 

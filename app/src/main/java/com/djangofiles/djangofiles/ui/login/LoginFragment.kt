@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles.ui.settings
+package com.djangofiles.djangofiles.ui.login
 
 import android.content.Intent
 import android.os.Bundle
@@ -25,8 +25,8 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
-    //private val viewModel: SettingsViewModel by viewModels()
-    private val viewModel: SettingsViewModel by activityViewModels()
+    //private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: LoginViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles.ui.settings
+package com.djangofiles.djangofiles.ui.login
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -6,7 +6,7 @@ import com.djangofiles.djangofiles.ServerApi
 
 //import androidx.databinding.Bindable
 
-class SettingsViewModel : ViewModel() {
+class LoginViewModel : ViewModel() {
     val hostname = MutableLiveData<String>()
     val siteName = MutableLiveData<String>()
     val authMethods = MutableLiveData<List<ServerApi.Methods>>()

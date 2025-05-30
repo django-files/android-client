@@ -11,6 +11,7 @@ import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.files.getAlbums
+import com.djangofiles.djangofiles.widget.WidgetProvider
 
 class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
@@ -51,7 +52,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         Log.d("DailyWorker", "componentName: $componentName")
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).setClassName(
             applicationContext.packageName,
-            "com.djangofiles.djangofiles.WidgetProvider"
+            "com.djangofiles.djangofiles.widget.WidgetProvider"
         ).apply {
             val ids =
                 AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(componentName)

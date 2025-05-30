@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles.ui.settings
+package com.djangofiles.djangofiles.ui.login
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
