@@ -7,8 +7,10 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.graphics.Color
+import android.text.format.DateFormat
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.core.graphics.toColorInt
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.db.ServerDao
@@ -18,9 +20,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import androidx.core.graphics.toColorInt
+import java.util.Date
 
 class WidgetProvider : AppWidgetProvider() {
 
@@ -149,7 +149,7 @@ class WidgetProvider : AppWidgetProvider() {
 
             val sharedPreferences = context.applicationContext.getSharedPreferences(
                 "AppPreferences",
-                Context.MODE_PRIVATE
+                MODE_PRIVATE
             )
             val savedUrl = sharedPreferences.getString("saved_url", null).toString()
             Log.d("Widget[onUpdate]", "savedUrl: $savedUrl")
@@ -176,8 +176,7 @@ class WidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.files_unit, split.getOrElse(1) { "" })
                 }
 
-                val time = LocalTime.now()
-                    .format(DateTimeFormatter.ofPattern("HH:mm"))
+                val time = DateFormat.getTimeFormat(context).format(Date())
                 Log.d("Widget[onUpdate]", "time: $time")
                 views.setTextViewText(R.id.update_time, time)
 
