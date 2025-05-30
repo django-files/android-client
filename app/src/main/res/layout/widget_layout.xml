@@ -4,7 +4,7 @@
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="?android:attr/colorBackground"
     android:theme="@style/WidgetStyle"
     tools:layout_width="240dp"
     tools:layout_height="60dp"
@@ -19,6 +19,7 @@
         android:columnCount="2">
 
         <ImageView
+            android:id="@+id/files_icon"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginTop="1dp"
@@ -38,6 +39,7 @@
             tools:text="0123456789" />
 
         <ImageView
+            android:id="@+id/size_icon"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginTop="1dp"

@@ -11,7 +11,7 @@ class WidgetSettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         Log.d("WidgetSettingsFragment", "onCreatePreferences: rootKey: $rootKey")
 
-        preferenceManager.sharedPreferencesName = "org.cssnr.noaaweather"
+        preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences_widget, rootKey)
 
         // Text Color

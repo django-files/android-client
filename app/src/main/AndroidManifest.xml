@@ -74,6 +74,14 @@
             android:name="firebase_crashlytics_collection_enabled"
             android:value="${firebaseCrashlyticsEnabled}" />
 
+        <activity android:name=".widget.WidgetConfiguration"
+            android:theme="@style/Theme.WidgetConfig.Transparent"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+        
         <receiver android:name=".widget.WidgetProvider"
             android:exported="false">
             <intent-filter>

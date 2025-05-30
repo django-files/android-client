@@ -4,7 +4,9 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
+import android.graphics.Color
 import android.util.Log
 import android.widget.RemoteViews
 import com.djangofiles.djangofiles.MainActivity
@@ -18,6 +20,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import androidx.core.graphics.toColorInt
 
 class WidgetProvider : AppWidgetProvider() {
 
@@ -61,6 +64,24 @@ class WidgetProvider : AppWidgetProvider() {
     ) {
         Log.i("Widget[onUpdate]", "appWidgetIds: $appWidgetIds")
 
+        val sharedPreferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val bgColor = sharedPreferences.getString("widget_bg_color", null) ?: "transparent"
+        Log.i("Widget[onUpdate]", "bgColor: $bgColor")
+        val textColor = sharedPreferences.getString("widget_text_color", null) ?: "transparent"
+        Log.i("Widget[onUpdate]", "textColor: $textColor")
+
+        val colorMap = mapOf(
+            "white" to Color.WHITE,
+            "black" to Color.BLACK,
+            "liberty" to "#565AA9".toColorInt(),
+            "transparent" to Color.TRANSPARENT
+        )
+
+        val selectedBgColor = colorMap[bgColor] ?: Color.TRANSPARENT
+        Log.d("Widget[onUpdate]", "selectedBgColor: $selectedBgColor")
+        val selectedTextColor = colorMap[textColor] ?: Color.WHITE
+        Log.d("Widget[onUpdate]", "selectedTextColor: $selectedTextColor")
+
         appWidgetIds.forEach { appWidgetId ->
             Log.d("Widget[onUpdate]", "appWidgetId: $appWidgetId")
 
@@ -86,6 +107,21 @@ class WidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.widget_refresh_button, pendingIntent1)
             appWidgetManager.updateAppWidget(appWidgetId, views)
+
+            // Set Colors
+            views.setInt(R.id.widget_root, "setBackgroundColor", selectedBgColor)
+
+            views.setTextColor(R.id.files_count, selectedTextColor)
+            views.setTextColor(R.id.files_size, selectedTextColor)
+            views.setTextColor(R.id.files_unit, selectedTextColor)
+            views.setTextColor(R.id.update_time, selectedTextColor)
+
+            views.setInt(R.id.files_icon, "setColorFilter", selectedTextColor)
+            views.setInt(R.id.size_icon, "setColorFilter", selectedTextColor)
+
+            views.setInt(R.id.widget_refresh_button, "setColorFilter", selectedTextColor)
+            views.setInt(R.id.widget_upload_button, "setColorFilter", selectedTextColor)
+            views.setInt(R.id.file_list_button, "setColorFilter", selectedTextColor)
 
             // Upload File
             val intent2 = Intent(context, MainActivity::class.java).apply {
