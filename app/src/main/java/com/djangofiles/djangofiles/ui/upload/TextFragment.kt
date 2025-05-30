@@ -102,9 +102,13 @@ class TextFragment : Fragment() {
         binding.uploadButton.setOnClickListener {
             val finalText = binding.textContent.text.toString().trim()
             Log.d("uploadButton", "finalText: $finalText")
-            val fileNameText = binding.vanityName.text.toString().trim()
-            Log.d("uploadButton", "fileNameText: $fileNameText")
-            val fileName = if (fileNameText.isNotEmpty()) fileNameText else "paste.txt"
+            val fileNameInput = binding.vanityName.text.toString().trim()
+            Log.d("uploadButton", "fileNameInput: $fileNameInput")
+            val fileName = when {
+                fileNameInput.isEmpty() -> "paste.txt" // TODO: Add Default Name Option...
+                !fileNameInput.contains('.') -> "${fileNameInput}.txt"
+                else -> fileNameInput
+            }
             Log.d("uploadButton", "fileName: $fileName")
             processUpload(finalText, fileName)
         }
