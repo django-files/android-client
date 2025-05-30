@@ -389,7 +389,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("handleIntent", "File URI: $fileUri")
 
             if (fileUri == null && !extraText.isNullOrEmpty()) {
-                Log.d("handleIntent", "SEND TEXT DETECTED: $extraText")
+                Log.d("handleIntent", "SEND TEXT DETECTED")
                 //if (extraText.lowercase().startsWith("http")) {
                 //if (Patterns.WEB_URL.matcher(extraText).matches()) {
                 if (isURL(extraText)) {
@@ -407,8 +407,18 @@ class MainActivity : AppCompatActivity() {
                             .build()
                     )
                 } else {
-                    Toast.makeText(this, "Not Yet Implemented!", Toast.LENGTH_LONG).show()
-                    Log.w("handleIntent", "NOT IMPLEMENTED")
+                    Log.i("handleIntent", "PLAIN TEXT DETECTED")
+                    val bundle = Bundle().apply {
+                        putString("text", extraText)
+                    }
+                    // TODO: Determine how to properly navigate on new intent...
+                    navController.popBackStack(R.id.nav_graph, true)
+                    navController.navigate(
+                        R.id.nav_item_text, bundle, NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_item_home, true)
+                            .setLaunchSingleTop(true)
+                            .build()
+                    )
                 }
             } else {
                 showPreview(fileUri)

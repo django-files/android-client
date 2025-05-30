@@ -85,18 +85,20 @@
         tools:layout="@layout/fragment_authorize" />
 
     <fragment
-        android:id="@+id/nav_item_short"
-        android:name="com.djangofiles.djangofiles.ui.upload.ShortFragment"
-        android:label="Shorts" />
-
-    <fragment
         android:id="@+id/nav_item_upload"
         android:name="com.djangofiles.djangofiles.ui.upload.UploadFragment"
         android:label="Preview" />
-
     <fragment
         android:id="@+id/nav_item_upload_multi"
         android:name="com.djangofiles.djangofiles.ui.upload.UploadMultiFragment"
         android:label="Preview" />
+    <fragment
+        android:id="@+id/nav_item_short"
+        android:name="com.djangofiles.djangofiles.ui.upload.ShortFragment"
+        android:label="Shorts" />
+    <fragment
+        android:id="@+id/nav_item_text"
+        android:name="com.djangofiles.djangofiles.ui.upload.TextFragment"
+        android:label="Text" />
 
 </navigation>
