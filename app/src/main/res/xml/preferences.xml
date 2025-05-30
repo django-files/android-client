@@ -65,6 +65,14 @@
         android:title="Saved Servers" />
 
     <PreferenceCategory android:title="App Information">
+
+        <SwitchPreferenceCompat
+            android:key="analytics_enabled"
+            android:title="Enable Analytics"
+            android:summary="Help Fix Bugs"
+            android:icon="@drawable/md_monitoring_24px"
+            android:defaultValue="true" />
+
         <Preference
             android:key="send_feedback"
             android:title="Send Feedback"
