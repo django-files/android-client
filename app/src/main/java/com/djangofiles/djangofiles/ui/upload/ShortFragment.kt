@@ -19,6 +19,8 @@ import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentShortBinding
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -151,6 +153,7 @@ class ShortFragment : Fragment() {
                     Log.d("processShort", "shortResponse: $shortResponse")
                     withContext(Dispatchers.Main) {
                         if (shortResponse != null) {
+                            Firebase.analytics.logEvent("short_url", null)
                             copyToClipboard(requireContext(), shortResponse.url)
                             val shareUrl = sharedPreferences.getBoolean("share_after_short", true)
                             Log.d("processShort", "shareUrl: $shareUrl")

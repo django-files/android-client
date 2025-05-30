@@ -43,6 +43,8 @@ import com.djangofiles.djangofiles.ui.files.AlbumFragment
 import com.djangofiles.djangofiles.ui.files.getGenericIcon
 import com.djangofiles.djangofiles.ui.files.isCodeMime
 import com.djangofiles.djangofiles.ui.files.isGlideMime
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -297,6 +299,7 @@ class UploadFragment : Fragment() {
         Log.d("processUpload", "api: $api")
         Toast.makeText(requireContext(), getString(R.string.tst_uploading_file), Toast.LENGTH_SHORT)
             .show()
+        Firebase.analytics.logEvent("upload_file", null)
         lifecycleScope.launch {
             try {
                 val response = api.upload(fileName, inputStream, editRequest ?: FileEditRequest())

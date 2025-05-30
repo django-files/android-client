@@ -325,11 +325,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             "Feedback Sent. Thank You!"
                         } else {
                             sendButton.isEnabled = true
-                            //val params = Bundle().apply {
-                            //    putString("message", response.message())
-                            //    putString("code", response.code().toString())
-                            //}
-                            //Firebase.analytics.logEvent("feedback_failed", params)
+                            val params = Bundle().apply {
+                                putString("message", response.message())
+                                putString("code", response.code().toString())
+                            }
+                            Firebase.analytics.logEvent("send_feedback_failed", params)
                             "Error: ${response.code()}"
                         }
                         Log.d("showFeedbackDialog", "msg: $msg")

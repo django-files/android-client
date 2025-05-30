@@ -25,6 +25,8 @@ import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.databinding.FragmentUploadMultiBinding
 import com.djangofiles.djangofiles.db.AlbumDatabase
 import com.djangofiles.djangofiles.ui.files.AlbumFragment
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -245,6 +247,8 @@ class UploadMultiFragment : Fragment() {
                 Toast.makeText(requireContext(), "All Uploads Failed!", Toast.LENGTH_SHORT).show()
                 return@launch
             }
+            val params = Bundle().apply { putString("multi", "true") }
+            Firebase.analytics.logEvent("upload_file", params)
             val destUrl = if (results.size != 1) "${savedUrl}/files/" else results[0].url
             Log.d("processMultiUpload", "destUrl: $destUrl")
             val msg = "Uploaded ${results.size} Files."
