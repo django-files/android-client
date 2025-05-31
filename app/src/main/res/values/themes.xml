@@ -15,13 +15,8 @@
 
     <style name="WidgetStyle" parent="Theme.MaterialComponents.DayNight" />
     <style name="Theme.WidgetConfig.Transparent" parent="Theme.djangofiles">
-        <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
 </resources>
