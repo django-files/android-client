@@ -19,8 +19,6 @@ class WidgetConfiguration : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.widget_configure)
 
-        window.statusBarColor = Color.TRANSPARENT
-
         setResult(RESULT_CANCELED)
 
         val intent = intent
