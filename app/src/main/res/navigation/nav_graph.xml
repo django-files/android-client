@@ -35,7 +35,7 @@
         android:label="Settings">
         <!-- Widget Settings -->
         <action
-            android:id="@+id/nav_item_settings_action_widget"
+            android:id="@+id/nav_action_widget_settings"
             app:destination="@id/nav_item_widget_settings"
             app:exitAnim="@anim/slide_out_left"
             app:enterAnim="@anim/slide_in_left"

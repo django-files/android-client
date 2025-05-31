@@ -157,7 +157,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // Widget Settings
         findPreference<Preference>("open_widget_settings")?.setOnPreferenceClickListener {
             Log.d("open_widget_settings", "setOnPreferenceClickListener")
-            findNavController().navigate(R.id.nav_item_settings_action_widget)
+            findNavController().navigate(R.id.nav_action_widget_settings)
             //findNavController().navigate(
             //    R.id.nav_item_settings_action_widget,
             //    null,
