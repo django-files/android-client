@@ -53,6 +53,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences, rootKey)
+        
+        val ctx = requireContext()
 
         // Files Per Page
         val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 25)
@@ -93,14 +95,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                     .build()
                             )
                             .build()
-                    WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+                    WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
                         "daily_worker",
                         ExistingPeriodicWorkPolicy.REPLACE,
                         newRequest
                     )
                 } else {
                     Log.i("setOnPreferenceClickListener", "DISABLING WORK")
-                    WorkManager.getInstance(requireContext()).cancelUniqueWork("daily_worker")
+                    WorkManager.getInstance(ctx).cancelUniqueWork("daily_worker")
                 }
                 Log.d("setOnPreferenceClickListener", "true: ACCEPTED")
                 true
@@ -111,9 +113,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // Background Restriction
-        val packageName = requireContext().packageName
+        val packageName = ctx.packageName
         Log.i("onCreatePreferences", "packageName: $packageName")
-        val pm = requireContext().getSystemService(PowerManager::class.java)
+        val pm = ctx.getSystemService(PowerManager::class.java)
         val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
         fun checkBackground(): Boolean {
             val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
@@ -148,7 +150,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // Server List
-        dao = ServerDatabase.getInstance(requireContext()).serverDao()
+        dao = ServerDatabase.getInstance(ctx).serverDao()
         parentFragmentManager.setFragmentResultListener("servers_updated", this) { _, _ ->
             buildServerList()
         }
@@ -180,7 +182,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 Firebase.analytics.setAnalyticsCollectionEnabled(true)
                 toggleAnalytics.isChecked = true
             } else {
-                MaterialAlertDialogBuilder(requireContext())
+                MaterialAlertDialogBuilder(ctx)
                     .setTitle("Please Reconsider")
                     .setMessage("Analytics are only used to fix bugs and make improvements.")
                     .setPositiveButton("Disable Anyway") { _, _ ->
@@ -199,14 +201,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val sendFeedback = findPreference<Preference>("send_feedback")
         sendFeedback?.setOnPreferenceClickListener {
             Log.d("sendFeedback", "setOnPreferenceClickListener")
-            requireContext().showFeedbackDialog()
+            ctx.showFeedbackDialog()
             false
         }
 
         // Show App Info
         findPreference<Preference>("app_info")?.setOnPreferenceClickListener {
             Log.d("app_info", "showAppInfoDialog")
-            requireContext().showAppInfoDialog()
+            ctx.showAppInfoDialog()
             false
         }
 
@@ -239,7 +241,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     requireContext(),
                     server = server,
                     onEdit = { s -> activateServer(s, savedUrl) },
-                    onDelete = { s -> showDeleteDialog(s) },
+                    onDelete = { s -> requireContext().showDeleteDialog(s) },
                     savedUrl = savedUrl
                 )
                 category.addPreference(pref)
@@ -262,8 +264,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         buildServerList()
     }
 
-    private fun showDeleteDialog(server: Server) {
-        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
+    private fun Context.showDeleteDialog(server: Server) {
+        MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
             .setTitle("Delete Server?")
             .setIcon(R.drawable.md_delete_24px)
             .setMessage("Are you sure you want to delete this server?")
@@ -404,7 +406,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 }
 
-//val pm = requireContext().getSystemService(PowerManager::class.java)
+//val pm = ctx.getSystemService(PowerManager::class.java)
 //val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
 //Log.d("Main[onCreate]", "isIgnoring: $isIgnoring")
 //val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
