@@ -54,7 +54,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         Log.d("SettingsFragment", "rootKey: $rootKey - sharedPreferencesName: AppPreferences")
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences, rootKey)
-        
+
         val ctx = requireContext()
 
         // Files Per Page
@@ -78,39 +78,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val workInterval = findPreference<ListPreference>("work_interval")
         workInterval?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
         workInterval?.setOnPreferenceChangeListener { _, newValue ->
-            Log.d("setOnPreferenceClickListener", "workInterval.value: ${workInterval.value}")
-            Log.d("setOnPreferenceClickListener", "newValue: $newValue")
-            if (workInterval.value != newValue) {
-                Log.i("setOnPreferenceClickListener", "RESCHEDULING WORK")
-                val interval = (newValue as? String)?.toLongOrNull()
-                Log.i("setOnPreferenceClickListener", "interval: $interval")
-                if (interval != null) {
-                    val newRequest =
-                        PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
-                            .setConstraints(
-                                Constraints.Builder()
-                                    .setRequiresBatteryNotLow(true)
-                                    .setRequiresCharging(false)
-                                    .setRequiresDeviceIdle(false)
-                                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                                    .build()
-                            )
-                            .build()
-                    WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
-                        "daily_worker",
-                        ExistingPeriodicWorkPolicy.REPLACE,
-                        newRequest
-                    )
-                } else {
-                    Log.i("setOnPreferenceClickListener", "DISABLING WORK")
-                    WorkManager.getInstance(ctx).cancelUniqueWork("daily_worker")
-                }
-                Log.d("setOnPreferenceClickListener", "true: ACCEPTED")
-                true
-            } else {
-                Log.d("setOnPreferenceClickListener", "false: REJECTED")
-                false
-            }
+            Log.d("work_interval", "newValue: $newValue")
+            ctx.toggleWorkManager(workInterval, newValue)
         }
 
         // Background Restriction
@@ -246,6 +215,46 @@ class SettingsFragment : PreferenceFragmentCompat() {
             apply()
         }
         buildServerList()
+    }
+
+    fun Context.toggleWorkManager(pref: ListPreference, newValue: Any): Boolean {
+        Log.d("toggleWorkManager", "newValue: $newValue")
+        val value = newValue as? String
+        Log.d("toggleWorkManager", "String value: $value")
+        if (value.isNullOrEmpty()) {
+            Log.w("toggleWorkManager", "NULL OR EMPTY - false")
+            return false
+        } else if (pref.value != value) {
+            Log.i("toggleWorkManager", "RESCHEDULING WORK - true")
+            val interval = value.toLongOrNull()
+            Log.i("toggleWorkManager", "interval: $interval")
+            if (interval != null) {
+                val newRequest =
+                    PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
+                        .setConstraints(
+                            Constraints.Builder()
+                                .setRequiresBatteryNotLow(true)
+                                .setRequiresCharging(false)
+                                .setRequiresDeviceIdle(false)
+                                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                                .build()
+                        )
+                        .build()
+                WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                    "daily_worker",
+                    ExistingPeriodicWorkPolicy.REPLACE,
+                    newRequest
+                )
+                return true
+            } else {
+                Log.i("toggleWorkManager", "DISABLING WORK - true")
+                WorkManager.getInstance(this).cancelUniqueWork("daily_worker")
+                return true
+            }
+        } else {
+            Log.i("toggleWorkManager", "NO CHANGE - false")
+            return false
+        }
     }
 
     fun Context.toggleAnalytics(switchPreference: SwitchPreferenceCompat, newValue: Any) {
