@@ -51,8 +51,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     @SuppressLint("BatteryLife")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        Log.d("SettingsFragment", "rootKey: $rootKey - sharedPreferencesName: AppPreferences")
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences, rootKey)
+
+        val ctx = requireContext()
 
         // Files Per Page
         val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 25)
@@ -75,48 +78,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val workInterval = findPreference<ListPreference>("work_interval")
         workInterval?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
         workInterval?.setOnPreferenceChangeListener { _, newValue ->
-            Log.d("setOnPreferenceClickListener", "workInterval.value: ${workInterval.value}")
-            Log.d("setOnPreferenceClickListener", "newValue: $newValue")
-            if (workInterval.value != newValue) {
-                Log.i("setOnPreferenceClickListener", "RESCHEDULING WORK")
-                val interval = (newValue as? String)?.toLongOrNull()
-                Log.i("setOnPreferenceClickListener", "interval: $interval")
-                if (interval != null) {
-                    val newRequest =
-                        PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
-                            .setConstraints(
-                                Constraints.Builder()
-                                    .setRequiresBatteryNotLow(true)
-                                    .setRequiresCharging(false)
-                                    .setRequiresDeviceIdle(false)
-                                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                                    .build()
-                            )
-                            .build()
-                    WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
-                        "daily_worker",
-                        ExistingPeriodicWorkPolicy.REPLACE,
-                        newRequest
-                    )
-                } else {
-                    Log.i("setOnPreferenceClickListener", "DISABLING WORK")
-                    WorkManager.getInstance(requireContext()).cancelUniqueWork("daily_worker")
-                }
-                Log.d("setOnPreferenceClickListener", "true: ACCEPTED")
-                true
-            } else {
-                Log.d("setOnPreferenceClickListener", "false: REJECTED")
-                false
-            }
+            Log.d("work_interval", "newValue: $newValue")
+            ctx.toggleWorkManager(workInterval, newValue)
         }
 
         // Background Restriction
-        val packageName = requireContext().packageName
-        Log.i("onCreatePreferences", "packageName: $packageName")
-        val pm = requireContext().getSystemService(PowerManager::class.java)
+        Log.i("onCreatePreferences", "ctx.packageName: ${ctx.packageName}")
+        val pm = ctx.getSystemService(PowerManager::class.java)
         val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
         fun checkBackground(): Boolean {
-            val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
+            val isIgnoring = pm.isIgnoringBatteryOptimizations(ctx.packageName)
             Log.i("onCreatePreferences", "isIgnoring: $isIgnoring")
             if (isIgnoring) {
                 Log.i("onCreatePreferences", "DISABLING BACKGROUND BUTTON")
@@ -129,7 +100,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         batteryRestrictedButton?.setOnPreferenceClickListener {
             Log.d("onCreatePreferences", "batteryRestrictedButton?.setOnPreferenceClickListener")
             if (!checkBackground()) {
-                val uri = "package:$packageName".toUri()
+                val uri = "package:${ctx.packageName}".toUri()
                 Log.d("onCreatePreferences", "uri: $uri")
                 val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                     data = uri
@@ -148,7 +119,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // Server List
-        dao = ServerDatabase.getInstance(requireContext()).serverDao()
+        dao = ServerDatabase.getInstance(ctx).serverDao()
         parentFragmentManager.setFragmentResultListener("servers_updated", this) { _, _ ->
             buildServerList()
         }
@@ -172,26 +143,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // Toggle Analytics
-        val toggleAnalytics = findPreference<SwitchPreferenceCompat>("analytics_enabled")
-        toggleAnalytics?.setOnPreferenceChangeListener { _, newValue ->
-            Log.d("toggleAnalytics", "analytics_enabled: $newValue")
-            if (newValue as Boolean) {
-                Log.d("toggleAnalytics", "ENABLE Analytics")
-                Firebase.analytics.setAnalyticsCollectionEnabled(true)
-                toggleAnalytics.isChecked = true
-            } else {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Please Reconsider")
-                    .setMessage("Analytics are only used to fix bugs and make improvements.")
-                    .setPositiveButton("Disable Anyway") { _, _ ->
-                        Log.d("toggleAnalytics", "DISABLE Analytics")
-                        Firebase.analytics.logEvent("disable_analytics", null)
-                        Firebase.analytics.setAnalyticsCollectionEnabled(false)
-                        toggleAnalytics.isChecked = false
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            }
+        val analyticsEnabled = findPreference<SwitchPreferenceCompat>("analytics_enabled")
+        analyticsEnabled?.setOnPreferenceChangeListener { _, newValue ->
+            Log.d("analyticsEnabled", "analytics_enabled: $newValue")
+            ctx.toggleAnalytics(analyticsEnabled, newValue)
             false
         }
 
@@ -199,14 +154,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val sendFeedback = findPreference<Preference>("send_feedback")
         sendFeedback?.setOnPreferenceClickListener {
             Log.d("sendFeedback", "setOnPreferenceClickListener")
-            requireContext().showFeedbackDialog()
+            ctx.showFeedbackDialog()
             false
         }
 
         // Show App Info
         findPreference<Preference>("app_info")?.setOnPreferenceClickListener {
             Log.d("app_info", "showAppInfoDialog")
-            requireContext().showAppInfoDialog()
+            ctx.showAppInfoDialog()
             false
         }
 
@@ -214,7 +169,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("android_settings")?.setOnPreferenceClickListener {
             Log.d("android_settings", "setOnPreferenceClickListener")
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", packageName, null)
+                data = Uri.fromParts("package", ctx.packageName, null)
             }
             startActivity(intent)
             false
@@ -239,7 +194,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     requireContext(),
                     server = server,
                     onEdit = { s -> activateServer(s, savedUrl) },
-                    onDelete = { s -> showDeleteDialog(s) },
+                    onDelete = { s -> requireContext().showDeleteDialog(s) },
                     savedUrl = savedUrl
                 )
                 category.addPreference(pref)
@@ -262,8 +217,69 @@ class SettingsFragment : PreferenceFragmentCompat() {
         buildServerList()
     }
 
-    private fun showDeleteDialog(server: Server) {
-        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
+    fun Context.toggleWorkManager(pref: ListPreference, newValue: Any): Boolean {
+        Log.d("toggleWorkManager", "newValue: $newValue")
+        val value = newValue as? String
+        Log.d("toggleWorkManager", "String value: $value")
+        if (value.isNullOrEmpty()) {
+            Log.w("toggleWorkManager", "NULL OR EMPTY - false")
+            return false
+        } else if (pref.value != value) {
+            Log.i("toggleWorkManager", "RESCHEDULING WORK - true")
+            val interval = value.toLongOrNull()
+            Log.i("toggleWorkManager", "interval: $interval")
+            if (interval != null) {
+                val newRequest =
+                    PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
+                        .setConstraints(
+                            Constraints.Builder()
+                                .setRequiresBatteryNotLow(true)
+                                .setRequiresCharging(false)
+                                .setRequiresDeviceIdle(false)
+                                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                                .build()
+                        )
+                        .build()
+                WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                    "daily_worker",
+                    ExistingPeriodicWorkPolicy.REPLACE,
+                    newRequest
+                )
+                return true
+            } else {
+                Log.i("toggleWorkManager", "DISABLING WORK - true")
+                WorkManager.getInstance(this).cancelUniqueWork("daily_worker")
+                return true
+            }
+        } else {
+            Log.i("toggleWorkManager", "NO CHANGE - false")
+            return false
+        }
+    }
+
+    fun Context.toggleAnalytics(switchPreference: SwitchPreferenceCompat, newValue: Any) {
+        Log.d("toggleAnalytics", "newValue: $newValue")
+        if (newValue as Boolean) {
+            Log.d("toggleAnalytics", "ENABLE Analytics")
+            Firebase.analytics.setAnalyticsCollectionEnabled(true)
+            switchPreference.isChecked = true
+        } else {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Please Reconsider")
+                .setMessage("Analytics are only used to fix bugs and make improvements.")
+                .setPositiveButton("Disable Anyway") { _, _ ->
+                    Log.d("toggleAnalytics", "DISABLE Analytics")
+                    Firebase.analytics.logEvent("disable_analytics", null)
+                    Firebase.analytics.setAnalyticsCollectionEnabled(false)
+                    switchPreference.isChecked = false
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
+    private fun Context.showDeleteDialog(server: Server) {
+        MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
             .setTitle("Delete Server?")
             .setIcon(R.drawable.md_delete_24px)
             .setMessage("Are you sure you want to delete this server?")
@@ -404,7 +420,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 }
 
-//val pm = requireContext().getSystemService(PowerManager::class.java)
+//val pm = ctx.getSystemService(PowerManager::class.java)
 //val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
 //Log.d("Main[onCreate]", "isIgnoring: $isIgnoring")
 //val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")

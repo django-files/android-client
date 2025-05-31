@@ -25,8 +25,8 @@ android {
         versionName = "0.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["firebaseAnalyticsDeactivated"] = false
-        manifestPlaceholders["firebaseCrashlyticsEnabled"] = true
+        manifestPlaceholders["firebaseAnalyticsDeactivated"] = false // enabled
+        manifestPlaceholders["firebaseCrashlyticsEnabled"] = true // enabled
     }
 
     buildTypes {
@@ -42,8 +42,8 @@ android {
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            manifestPlaceholders["firebaseAnalyticsDeactivated"] = true
-            manifestPlaceholders["firebaseCrashlyticsEnabled"] = false
+            manifestPlaceholders["firebaseAnalyticsDeactivated"] = true // disabled
+            manifestPlaceholders["firebaseCrashlyticsEnabled"] = false // disabled
 
             // Debugging Only
             val localProperties = Properties().apply {
@@ -76,14 +76,17 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
-    implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+    //implementation(libs.firebase.messaging)
     implementation(libs.okhttp)
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
@@ -96,8 +99,6 @@ dependencies {
     implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.ui)
     implementation(libs.media3.ui.compose)
-    implementation(libs.androidx.swiperefreshlayout)
-    implementation(libs.androidx.work.runtime.ktx)
     //noinspection KaptUsageInsteadOfKsp
     //kapt(libs.glide.compiler)
     ksp(libs.moshi.kotlin.codegen)
