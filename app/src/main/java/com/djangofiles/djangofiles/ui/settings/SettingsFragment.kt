@@ -51,6 +51,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     @SuppressLint("BatteryLife")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        Log.d("SettingsFragment", "rootKey: $rootKey - sharedPreferencesName: AppPreferences")
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences, rootKey)
         
@@ -113,12 +114,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // Background Restriction
-        val packageName = ctx.packageName
-        Log.i("onCreatePreferences", "packageName: $packageName")
+        Log.i("onCreatePreferences", "ctx.packageName: ${ctx.packageName}")
         val pm = ctx.getSystemService(PowerManager::class.java)
         val batteryRestrictedButton = findPreference<Preference>("battery_unrestricted")
         fun checkBackground(): Boolean {
-            val isIgnoring = pm.isIgnoringBatteryOptimizations(packageName)
+            val isIgnoring = pm.isIgnoringBatteryOptimizations(ctx.packageName)
             Log.i("onCreatePreferences", "isIgnoring: $isIgnoring")
             if (isIgnoring) {
                 Log.i("onCreatePreferences", "DISABLING BACKGROUND BUTTON")
@@ -131,7 +131,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         batteryRestrictedButton?.setOnPreferenceClickListener {
             Log.d("onCreatePreferences", "batteryRestrictedButton?.setOnPreferenceClickListener")
             if (!checkBackground()) {
-                val uri = "package:$packageName".toUri()
+                val uri = "package:${ctx.packageName}".toUri()
                 Log.d("onCreatePreferences", "uri: $uri")
                 val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                     data = uri
@@ -216,7 +216,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("android_settings")?.setOnPreferenceClickListener {
             Log.d("android_settings", "setOnPreferenceClickListener")
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", packageName, null)
+                data = Uri.fromParts("package", ctx.packageName, null)
             }
             startActivity(intent)
             false
