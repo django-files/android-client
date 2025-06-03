@@ -67,9 +67,9 @@ class WidgetProvider : AppWidgetProvider() {
         val preferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = preferences.getString("saved_url", null).toString()
         Log.d("Widget[onUpdate]", "savedUrl: $savedUrl")
-        val bgColor = preferences.getString("widget_bg_color", null) ?: "transparent"
+        val bgColor = preferences.getString("widget_bg_color", null) ?: "black"
         Log.d("Widget[onUpdate]", "bgColor: $bgColor")
-        val textColor = preferences.getString("widget_text_color", null) ?: "transparent"
+        val textColor = preferences.getString("widget_text_color", null) ?: "white"
         Log.d("Widget[onUpdate]", "textColor: $textColor")
         val bgOpacity = preferences.getInt("widget_bg_opacity", 35)
         Log.d("Widget[onUpdate]", "bgOpacity: $bgOpacity")
