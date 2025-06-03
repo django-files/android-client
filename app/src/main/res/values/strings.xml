@@ -31,6 +31,8 @@
 
     <string name="feedback_message">**%s** `v%s` API **%s**\n```\n%s\n```</string>
 
+    <string name="background_opacity">Background Opacity %d</string>
+
     <string-array name="dropdown_entries">
         <item>Every 15 Minutes</item>
         <item>Every 30 Minutes</item>
@@ -52,26 +54,14 @@
         <item>0</item>
     </string-array>
 
-    <string-array name="widget_text_entries">
+    <string-array name="widget_color_entries">
         <item>White</item>
         <item>Black</item>
         <item>Liberty</item>
     </string-array>
-    <string-array name="widget_text_values">
+    <string-array name="widget_color_values">
         <item>white</item>
         <item>black</item>
         <item>liberty</item>
-    </string-array>
-    <string-array name="widget_bg_entries">
-        <item>White</item>
-        <item>Black</item>
-        <item>Liberty</item>
-        <item>Transparent</item>
-    </string-array>
-    <string-array name="widget_bg_values">
-        <item>white</item>
-        <item>black</item>
-        <item>liberty</item>
-        <item>transparent</item>
     </string-array>
 </resources>

@@ -37,9 +37,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import androidx.work.Constraints
+import androidx.preference.PreferenceManager
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
@@ -48,6 +47,8 @@ import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.home.HomeViewModel
 import com.djangofiles.djangofiles.widget.WidgetProvider
+import com.djangofiles.djangofiles.work.DAILY_WORKER_CONSTRAINTS
+import com.djangofiles.djangofiles.work.DailyWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -100,6 +101,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Note: This is used over findNavController to use androidx.fragment.app.FragmentContainerView
+        navController =
+            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
+        NavigationUI.setupWithNavController(binding.navigationView, navController)
+
+        // Set Default Preferences
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
+        PreferenceManager.setDefaultValues(this, R.xml.preferences_widget, false)
+
         //Log.d("Main[onCreate]", "registerOnSharedPreferenceChangeListener")
         //preferences.registerOnSharedPreferenceChangeListener(listener)
         //val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -123,14 +133,7 @@ class MainActivity : AppCompatActivity() {
             Log.i("Main[onCreate]", "ENSURING SCHEDULED WORK")
             val workRequest =
                 PeriodicWorkRequestBuilder<DailyWorker>(workInterval.toLong(), TimeUnit.MINUTES)
-                    .setConstraints(
-                        Constraints.Builder()
-                            .setRequiresBatteryNotLow(true)
-                            .setRequiresCharging(false)
-                            .setRequiresDeviceIdle(false)
-                            .setRequiredNetworkType(NetworkType.CONNECTED)
-                            .build()
-                    )
+                    .setConstraints(DAILY_WORKER_CONSTRAINTS)
                     .build()
             Log.d("Main[onCreate]", "workRequest: $workRequest")
             WorkManager.getInstance(this).enqueueUniquePeriodicWork(
@@ -147,11 +150,6 @@ class MainActivity : AppCompatActivity() {
         //    val response = api.sendMessage("APP STARTUP")
         //    Log.i("Main[onCreate]", "response: $response")
         //}
-
-        // Note: This is used over findNavController to use androidx.fragment.app.FragmentContainerView
-        navController =
-            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
-        NavigationUI.setupWithNavController(binding.navigationView, navController)
 
         // Note: This does not work as expected and has many bugs
         //val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -275,15 +273,6 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("intentHandled", true)
-    }
-
-    fun setDrawerLockMode(enabled: Boolean) {
-        // TODO: Update with a ViewModel...
-        Log.d("setDrawerLockMode", "enabled: $enabled")
-        val lockMode =
-            if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-        Log.d("setDrawerLockMode", "setDrawerLockMode: $lockMode")
-        binding.drawerLayout.setDrawerLockMode(lockMode)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -493,6 +482,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        Log.d("Main[onStop]", "MainActivity - onStop")
+        this.updateWidget()
+    }
+
+    private fun Context.updateWidget() {
+        Log.d("updateWidget", "Context.updateWidget")
+
+        //val appWidgetManager = AppWidgetManager.getInstance(this)
+        //val componentName = ComponentName(this, WidgetProvider::class.java)
+        //val ids = appWidgetManager.getAppWidgetIds(componentName)
+        //appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widget_list_view)
+        //WidgetProvider().onUpdate(this, appWidgetManager, ids)
+
+        // TODO: WidgetUpdate: Consolidate to a function...
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val componentName = ComponentName(this, WidgetProvider::class.java)
+        val ids = appWidgetManager.getAppWidgetIds(componentName)
+        WidgetProvider().onUpdate(this, appWidgetManager, ids)
+    }
+
     //private fun navigateIntent(destination: Int){
     //    val args = Bundle().apply { putParcelable("intent", intent) }
     //    Log.d("Main[onCreate]", "args: $args")
@@ -641,10 +652,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        Log.d("Main[onStop]", "MainActivity - onStop")
-        this.updateWidget()
+    fun setDrawerLockMode(enabled: Boolean) {
+        // TODO: Update with a ViewModel...
+        Log.d("setDrawerLockMode", "enabled: $enabled")
+        val lockMode =
+            if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        Log.d("setDrawerLockMode", "setDrawerLockMode: $lockMode")
+        binding.drawerLayout.setDrawerLockMode(lockMode)
     }
 }
 
@@ -666,22 +680,6 @@ object MediaCache {
                 .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
         }
     }
-}
-
-fun Context.updateWidget() {
-    Log.d("updateWidget", "Context.updateWidget")
-
-    //val appWidgetManager = AppWidgetManager.getInstance(this)
-    //val componentName = ComponentName(this, WidgetProvider::class.java)
-    //val ids = appWidgetManager.getAppWidgetIds(componentName)
-    //appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widget_list_view)
-    //WidgetProvider().onUpdate(this, appWidgetManager, ids)
-
-    // TODO: WidgetUpdate: Consolidate to a function...
-    val appWidgetManager = AppWidgetManager.getInstance(this)
-    val componentName = ComponentName(this, WidgetProvider::class.java)
-    val ids = appWidgetManager.getAppWidgetIds(componentName)
-    WidgetProvider().onUpdate(this, appWidgetManager, ids)
 }
 
 

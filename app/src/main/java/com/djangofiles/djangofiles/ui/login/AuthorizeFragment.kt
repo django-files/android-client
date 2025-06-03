@@ -23,7 +23,7 @@ import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.files.getAlbums
-import com.djangofiles.djangofiles.updateStats
+import com.djangofiles.djangofiles.work.updateStats
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

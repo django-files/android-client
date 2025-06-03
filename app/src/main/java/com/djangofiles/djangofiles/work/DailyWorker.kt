@@ -1,4 +1,4 @@
-package com.djangofiles.djangofiles
+package com.djangofiles.djangofiles.work
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -7,6 +7,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
@@ -34,7 +35,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         try {
             applicationContext.updateStats()
         } catch (e: Exception) {
-            Log.e("DailyWorker", "ServerApi: Exception: $e")
+            Log.e("DailyWorker", "updateStats: Exception: $e")
         }
 
         //// Update Widget (Old Unknown Block - Test or Remove)
