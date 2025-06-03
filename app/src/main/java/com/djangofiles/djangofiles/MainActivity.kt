@@ -37,9 +37,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
@@ -48,6 +46,8 @@ import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.home.HomeViewModel
 import com.djangofiles.djangofiles.widget.WidgetProvider
+import com.djangofiles.djangofiles.work.DAILY_WORKER_CONSTRAINTS
+import com.djangofiles.djangofiles.work.DailyWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -123,14 +123,7 @@ class MainActivity : AppCompatActivity() {
             Log.i("Main[onCreate]", "ENSURING SCHEDULED WORK")
             val workRequest =
                 PeriodicWorkRequestBuilder<DailyWorker>(workInterval.toLong(), TimeUnit.MINUTES)
-                    .setConstraints(
-                        Constraints.Builder()
-                            .setRequiresBatteryNotLow(true)
-                            .setRequiresCharging(false)
-                            .setRequiresDeviceIdle(false)
-                            .setRequiredNetworkType(NetworkType.CONNECTED)
-                            .build()
-                    )
+                    .setConstraints(DAILY_WORKER_CONSTRAINTS)
                     .build()
             Log.d("Main[onCreate]", "workRequest: $workRequest")
             WorkManager.getInstance(this).enqueueUniquePeriodicWork(
@@ -646,6 +639,22 @@ class MainActivity : AppCompatActivity() {
         Log.d("Main[onStop]", "MainActivity - onStop")
         this.updateWidget()
     }
+
+    fun Context.updateWidget() {
+        Log.d("updateWidget", "Context.updateWidget")
+
+        //val appWidgetManager = AppWidgetManager.getInstance(this)
+        //val componentName = ComponentName(this, WidgetProvider::class.java)
+        //val ids = appWidgetManager.getAppWidgetIds(componentName)
+        //appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widget_list_view)
+        //WidgetProvider().onUpdate(this, appWidgetManager, ids)
+
+        // TODO: WidgetUpdate: Consolidate to a function...
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val componentName = ComponentName(this, WidgetProvider::class.java)
+        val ids = appWidgetManager.getAppWidgetIds(componentName)
+        WidgetProvider().onUpdate(this, appWidgetManager, ids)
+    }
 }
 
 @UnstableApi
@@ -666,22 +675,6 @@ object MediaCache {
                 .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
         }
     }
-}
-
-fun Context.updateWidget() {
-    Log.d("updateWidget", "Context.updateWidget")
-
-    //val appWidgetManager = AppWidgetManager.getInstance(this)
-    //val componentName = ComponentName(this, WidgetProvider::class.java)
-    //val ids = appWidgetManager.getAppWidgetIds(componentName)
-    //appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widget_list_view)
-    //WidgetProvider().onUpdate(this, appWidgetManager, ids)
-
-    // TODO: WidgetUpdate: Consolidate to a function...
-    val appWidgetManager = AppWidgetManager.getInstance(this)
-    val componentName = ComponentName(this, WidgetProvider::class.java)
-    val ids = appWidgetManager.getAppWidgetIds(componentName)
-    WidgetProvider().onUpdate(this, appWidgetManager, ids)
 }
 
 

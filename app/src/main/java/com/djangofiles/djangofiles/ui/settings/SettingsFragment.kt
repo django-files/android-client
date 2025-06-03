@@ -25,17 +25,16 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import androidx.preference.SwitchPreferenceCompat
-import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.djangofiles.djangofiles.DailyWorker
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.api.FeedbackApi
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.work.DAILY_WORKER_CONSTRAINTS
+import com.djangofiles.djangofiles.work.DailyWorker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -51,7 +50,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     @SuppressLint("BatteryLife")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        Log.d("SettingsFragment", "rootKey: $rootKey - sharedPreferencesName: AppPreferences")
+        Log.d("SettingsFragment", "rootKey: $rootKey - name: AppPreferences")
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
@@ -231,14 +230,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             if (interval != null) {
                 val newRequest =
                     PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
-                        .setConstraints(
-                            Constraints.Builder()
-                                .setRequiresBatteryNotLow(true)
-                                .setRequiresCharging(false)
-                                .setRequiresDeviceIdle(false)
-                                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                                .build()
-                        )
+                        .setConstraints(DAILY_WORKER_CONSTRAINTS)
                         .build()
                 WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                     "daily_worker",

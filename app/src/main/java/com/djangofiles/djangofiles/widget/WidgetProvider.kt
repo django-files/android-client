@@ -10,12 +10,13 @@ import android.graphics.Color
 import android.text.format.DateFormat
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
-import com.djangofiles.djangofiles.updateStats
+import com.djangofiles.djangofiles.work.updateStats
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -48,7 +49,6 @@ class WidgetProvider : AppWidgetProvider() {
             Log.d("Widget[onReceive]", "GlobalScope.launch: START")
             GlobalScope.launch(Dispatchers.IO) {
                 context.updateStats()
-                // TODO: WidgetUpdate: Consolidate to a function...
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
                 Log.d("Widget[onReceive]", "GlobalScope.launch: DONE")
@@ -62,28 +62,38 @@ class WidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        Log.i("Widget[onUpdate]", "appWidgetIds: $appWidgetIds")
+        Log.i("Widget[onUpdate]", "BEGIN - appWidgetIds: $appWidgetIds")
 
-        val sharedPreferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val bgColor = sharedPreferences.getString("widget_bg_color", null) ?: "transparent"
-        Log.i("Widget[onUpdate]", "bgColor: $bgColor")
-        val textColor = sharedPreferences.getString("widget_text_color", null) ?: "transparent"
-        Log.i("Widget[onUpdate]", "textColor: $textColor")
+        val preferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val savedUrl = preferences.getString("saved_url", null).toString()
+        Log.d("Widget[onUpdate]", "savedUrl: $savedUrl")
+        val bgColor = preferences.getString("widget_bg_color", null) ?: "transparent"
+        Log.d("Widget[onUpdate]", "bgColor: $bgColor")
+        val textColor = preferences.getString("widget_text_color", null) ?: "transparent"
+        Log.d("Widget[onUpdate]", "textColor: $textColor")
+        val bgOpacity = preferences.getInt("widget_bg_opacity", 35)
+        Log.d("Widget[onUpdate]", "bgOpacity: $bgOpacity")
+        val workInterval = preferences.getString("work_interval", null) ?: "0"
+        Log.d("Widget[onUpdate]", "workInterval: $workInterval")
 
         val colorMap = mapOf(
             "white" to Color.WHITE,
             "black" to Color.BLACK,
             "liberty" to "#565AA9".toColorInt(),
-            "transparent" to Color.TRANSPARENT
         )
 
-        val selectedBgColor = colorMap[bgColor] ?: Color.TRANSPARENT
+        val selectedBgColor = colorMap[bgColor] ?: Color.BLACK
         Log.d("Widget[onUpdate]", "selectedBgColor: $selectedBgColor")
         val selectedTextColor = colorMap[textColor] ?: Color.WHITE
         Log.d("Widget[onUpdate]", "selectedTextColor: $selectedTextColor")
 
+        val opacityPercent = bgOpacity
+        val alpha = (opacityPercent * 255 / 100).coerceIn(1, 255)
+        val finalBgColor = ColorUtils.setAlphaComponent(selectedBgColor, alpha)
+        Log.d("Widget[onUpdate]", "finalBgColor: $finalBgColor")
+
         appWidgetIds.forEach { appWidgetId ->
-            Log.d("Widget[onUpdate]", "appWidgetId: $appWidgetId")
+            Log.i("Widget[onUpdate]", "START appWidgetId: $appWidgetId")
 
             // Widget Root
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
@@ -93,6 +103,21 @@ class WidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent0)
+
+            // Set Colors
+            views.setInt(R.id.widget_root, "setBackgroundColor", finalBgColor)
+
+            views.setTextColor(R.id.files_count, selectedTextColor)
+            views.setTextColor(R.id.files_size, selectedTextColor)
+            views.setTextColor(R.id.files_unit, selectedTextColor)
+            views.setTextColor(R.id.update_time, selectedTextColor)
+
+            views.setInt(R.id.files_icon, "setColorFilter", selectedTextColor)
+            views.setInt(R.id.size_icon, "setColorFilter", selectedTextColor)
+
+            views.setInt(R.id.widget_refresh_button, "setColorFilter", selectedTextColor)
+            views.setInt(R.id.widget_upload_button, "setColorFilter", selectedTextColor)
+            views.setInt(R.id.file_list_button, "setColorFilter", selectedTextColor)
 
             // Refresh
             val intent1 = Intent(context, WidgetProvider::class.java).apply {
@@ -107,21 +132,6 @@ class WidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.widget_refresh_button, pendingIntent1)
             appWidgetManager.updateAppWidget(appWidgetId, views)
-
-            // Set Colors
-            views.setInt(R.id.widget_root, "setBackgroundColor", selectedBgColor)
-
-            views.setTextColor(R.id.files_count, selectedTextColor)
-            views.setTextColor(R.id.files_size, selectedTextColor)
-            views.setTextColor(R.id.files_unit, selectedTextColor)
-            views.setTextColor(R.id.update_time, selectedTextColor)
-
-            views.setInt(R.id.files_icon, "setColorFilter", selectedTextColor)
-            views.setInt(R.id.size_icon, "setColorFilter", selectedTextColor)
-
-            views.setInt(R.id.widget_refresh_button, "setColorFilter", selectedTextColor)
-            views.setInt(R.id.widget_upload_button, "setColorFilter", selectedTextColor)
-            views.setInt(R.id.file_list_button, "setColorFilter", selectedTextColor)
 
             // Upload File
             val intent2 = Intent(context, MainActivity::class.java).apply {
@@ -147,13 +157,7 @@ class WidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.file_list_button, pendingIntent3)
 
-            val sharedPreferences = context.applicationContext.getSharedPreferences(
-                "AppPreferences",
-                MODE_PRIVATE
-            )
-            val savedUrl = sharedPreferences.getString("saved_url", null).toString()
-            Log.d("Widget[onUpdate]", "savedUrl: $savedUrl")
-
+            // Room Data
             GlobalScope.launch(Dispatchers.IO) {
                 val dao: ServerDao =
                     ServerDatabase.Companion.getInstance(context.applicationContext).serverDao()
@@ -180,15 +184,14 @@ class WidgetProvider : AppWidgetProvider() {
                 Log.d("Widget[onUpdate]", "time: $time")
                 views.setTextViewText(R.id.update_time, time)
 
-                Log.d("Widget[onUpdate]", "updateAppWidget")
+                Log.i("Widget[onUpdate]", "appWidgetManager.updateAppWidget: $appWidgetId")
                 appWidgetManager.updateAppWidget(appWidgetId, views)
-                Log.d("Widget[onUpdate]", "updateAppWidget: DONE")
             }
 
             // This is done at the end of the GlobalScope above
             //appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d("Widget[onUpdate]", "appWidgetIds.forEach: DONE")
+            Log.i("Widget[onUpdate]", "DONE appWidgetId: $appWidgetId")
         }
-        Log.d("Widget[onUpdate]", "onUpdate: DONE")
+        Log.i("Widget[onUpdate]", "END - all done")
     }
 }
