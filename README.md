@@ -28,9 +28,9 @@
 Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
-- Supports Android 8 (API 26) 2017 or Newer.
-
 Screenshots can be found on the website: https://django-files.github.io/android/
+
+- Supports Android 8 (API 26) 2017 or Newer.
 
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
@@ -62,6 +62,7 @@ _Note: Until published on the play store, you may need to allow installation of 
 
 Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 should take you to the settings area to allow installation if not already enabled.
+For more information, see [Release through a website](https://developer.android.com/studio/publish#publishing-website).
 
 <details><summary>View Manual Steps to Install from Unknown Sources</summary>
 
@@ -80,13 +81,17 @@ should take you to the settings area to allow installation if not already enable
 ### Setup
 
 1. [Install](#Install) and open the app on your device.
-2. Go to User Settings and Scan the QR Code. Done.
+2. Go to the Django Files User Settings, and
+   - Scan the QR Code with your Phone
+   - Click the link from your Phone
+3. Done.
 
 or
 
 1. [Install](#Install) and open the app on your device.
 2. Enter the URL to your Django Files server.
-3. Log in as you normally would on the website. Done.
+3. Log in as you normally would on the website.
+4. Done.
 
 To use, share or open any file and choose the Django Files app.
 The app will then upload the file to your Django Files server.
