@@ -1,4 +1,4 @@
-[![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=github)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+[![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=github)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
 [![Lint](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=github&logoColor=white&label=lint)](https://github.com/django-files/android-client/actions/workflows/lint.yaml)
 [![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
@@ -12,7 +12,7 @@
 
 # Django Files Android App
 
-[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 
 - [Install](#Install)
   - [Setup](#Setup)
@@ -43,19 +43,24 @@ Screenshots can be found on the website: https://django-files.github.io/android/
 ## Install
 
 > [!TIP]  
-> To install, download and open the [latest release](https://github.com/django-files/android-client/releases/latest).
->
-> [![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+> Google Play is starting Closed Testing. To be included contact us on [Discord](https://discord.gg/wXy6m2X8wY).
 
-<details><summary>View QR Code</summary>
+<a title="Get on GitHub" href="https://github.com/django-files/android-client/releases/latest/download/app-release.apk">
+    <img alt="GitHub" height="76" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android/get/github.png"></a>
+<a title="Get onObtainium" href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/django-files/android-client">
+    <img alt="Obtainium" height="76" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android/get/obtainium.png"></a>
 
-[![QR Code](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/qr-code-download.png)](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+<details><summary>📲 Click to View QR Codes 📸</summary>
+
+[![QR Code GitHub](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/qr-code-github.png)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+
+[![QR Code Obtainium](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/qr-code-obtainium.png)](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/django-files/android-client)
 
 </details>
 
 _Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
 
-Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/django-files.apk)
+Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 should take you to the settings area to allow installation if not already enabled.
 
 <details><summary>View Manual Steps to Install from Unknown Sources</summary>
@@ -65,7 +70,7 @@ should take you to the settings area to allow installation if not already enable
 3. Choose the app you will install the apk file from.
    - Select your web browser to install directly from it.
    - Select your file manager to open it, locate the apk and install from there.
-4. Download the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/django-files.apk).
+4. Download the [Latest Release](https://github.com/django-files/android-client/releases/latest/download/app-release.apk).
 5. Open the download apk in the app you selected in step #3.
 6. Choose Install and Accept any Play Protect notifications.
 7. The app is now installed. Proceed to the [Setup](#Setup) section below.
@@ -160,9 +165,9 @@ You will need to have [ADB](https://developer.android.com/tools/adb) installed.
 <details><summary>Click Here to Download and Install a Release</summary>
 
 ```shell
-$ wget https://github.com/django-files/android-client/releases/latest/download/django-files.apk
+$ wget https://github.com/django-files/android-client/releases/latest/download/app-release.apk
 $ ls
-django-files.apk
+app-release.apk
 
 $ which adb
 C:\Users\Shane\Android\sdk\platform-tools\adb.EXE
@@ -171,7 +176,7 @@ $ adb devices
 List of devices attached
 RF9M33Z1Q0M     device
 
-$ adb -s RF9M33Z1Q0M install django-files.apk
+$ adb -s RF9M33Z1Q0M install app-release.apk
 Performing Incremental Install
 Serving...
 All files should be loaded. Notifying the device.
