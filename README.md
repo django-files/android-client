@@ -16,6 +16,7 @@
 
 - [Install](#Install)
   - [Setup](#Setup)
+  - [Usage](#Usage)
 - [Features](#Features)
   - [Planned](#Planned)
   - [Known Issues](#Known-Issues)
@@ -86,7 +87,7 @@ For more information, see [Release through a website](https://developer.android.
 
 You can log in via password, OAuth, or QR Code.
 
-### QR Code Authentication
+#### QR Code Authentication
 
 1. [Install](#Install) and open the app on your device.
 2. Go to the Django Files User Settings, and
@@ -94,12 +95,14 @@ You can log in via password, OAuth, or QR Code.
    - Click the link from your Phone
 3. Done.
 
-### Normal Login
+#### Normal Login
 
 1. [Install](#Install) and open the app on your device.
 2. Enter the URL to your Django Files server.
 3. Log in as you normally would on the website.
 4. Done.
+
+### Usage
 
 To use, share or open any file and choose the Django Files app.
 The app will then upload the file to your Django Files server.
