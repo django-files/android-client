@@ -11,8 +11,9 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Upsert
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+
+//import androidx.room.migration.Migration
+//import androidx.sqlite.db.SupportSQLiteDatabase
 
 
 @Dao
@@ -35,6 +36,9 @@ interface ServerDao {
     @Upsert
     fun addOrUpdate(server: Server)
 
+    @Query("UPDATE server SET size = :size, count = :count, shorts = :shorts, humanSize = :humanSize WHERE url = :url")
+    fun updateStats(url: String, size: Long, count: Int, shorts: Int, humanSize: String)
+
     @Query("UPDATE server SET active = 1 WHERE url = :url")
     fun activate(url: String)
 
@@ -55,7 +59,7 @@ data class Server(
 )
 
 
-@Database(entities = [Server::class], version = 2)
+@Database(entities = [Server::class], version = 3)
 abstract class ServerDatabase : RoomDatabase() {
     abstract fun serverDao(): ServerDao
 
@@ -63,14 +67,14 @@ abstract class ServerDatabase : RoomDatabase() {
         @Volatile
         private var instance: ServerDatabase? = null
 
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE Server ADD COLUMN size INTEGER")
-                database.execSQL("ALTER TABLE Server ADD COLUMN count INTEGER")
-                database.execSQL("ALTER TABLE Server ADD COLUMN shorts INTEGER")
-                database.execSQL("ALTER TABLE Server ADD COLUMN humanSize TEXT")
-            }
-        }
+        //private val MIGRATION_1_2 = object : Migration(1, 2) {
+        //    override fun migrate(database: SupportSQLiteDatabase) {
+        //        database.execSQL("ALTER TABLE Server ADD COLUMN size INTEGER")
+        //        database.execSQL("ALTER TABLE Server ADD COLUMN count INTEGER")
+        //        database.execSQL("ALTER TABLE Server ADD COLUMN shorts INTEGER")
+        //        database.execSQL("ALTER TABLE Server ADD COLUMN humanSize TEXT")
+        //    }
+        //}
 
         fun getInstance(context: Context): ServerDatabase =
             instance ?: synchronized(this) {
@@ -79,8 +83,8 @@ abstract class ServerDatabase : RoomDatabase() {
                     ServerDatabase::class.java,
                     "server-database"
                 )
-                    //.fallbackToDestructiveMigration(true) // Destructive Operation
-                    .addMigrations(MIGRATION_1_2)
+                    //.addMigrations(MIGRATION_1_2)
+                    .fallbackToDestructiveMigration(true) // Destructive Operation
                     .build().also { instance = it }
             }
     }

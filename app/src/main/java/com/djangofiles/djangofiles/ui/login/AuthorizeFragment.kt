@@ -36,6 +36,7 @@ class AuthorizeFragment : Fragment() {
     private var _binding: FragmentAuthorizeBinding? = null
     private val binding get() = _binding!!
 
+    private val navController by lazy { findNavController() }
     private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,19 +145,18 @@ class AuthorizeFragment : Fragment() {
                 Toast.makeText(requireContext(), "Login Successful", Toast.LENGTH_LONG).show()
                 withContext(Dispatchers.Main) {
                     Log.d("Authorize[addServerBtn]", "navigate: nav_item_home")
-                    findNavController().navigate(
-                        R.id.nav_item_home, null, NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_item_authorize, true)
+                    navController.navigate(
+                        navController.graph.startDestinationId, null, NavOptions.Builder()
+                            .setPopUpTo(navController.graph.id, true)
                             .build()
                     )
                 }
             }
         }
 
-
         binding.gotoLoginBtn.setOnClickListener {
             Log.d("Authorize[gotoLoginBtn]", "setOnClickListener")
-            findNavController().navigate(R.id.nav_item_login)
+            navController.navigate(R.id.nav_item_login)
         }
     }
 

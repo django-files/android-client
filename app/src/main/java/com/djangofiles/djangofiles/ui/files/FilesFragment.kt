@@ -77,7 +77,7 @@ class FilesFragment : Fragment() {
         Log.d("File[onCreateView]", "savedInstanceState: ${savedInstanceState?.size()}")
 
         //enterTransition = Slide(Gravity.END)
-        returnTransition = Slide(Gravity.END)
+        //returnTransition = Slide(Gravity.END)
 
         _binding = FragmentFilesBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -88,6 +88,30 @@ class FilesFragment : Fragment() {
         Log.d("File[onDestroyView]", "ON DESTROY")
         super.onDestroyView()
         _binding = null
+    }
+
+    //override fun onStart() {
+    //    Log.d("File[onStart]", "ON START")
+    //    super.onStart()
+    //    val request = NetworkRequest.Builder().build()
+    //    connectivityManager.registerNetworkCallback(request, networkCallback)
+    //}
+
+    //override fun onStop() {
+    //    Log.d("File[onStop]", "ON STOP")
+    //    super.onStop()
+    //    connectivityManager.unregisterNetworkCallback(networkCallback)
+    //}
+
+    override fun onPause() {
+        Log.d("File[onPause]", "ON PAUSE")
+        super.onPause()
+    }
+
+    override fun onResume() {
+        Log.d("File[onResume]", "ON RESUME")
+        super.onResume()
+        checkMetered()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -499,7 +523,7 @@ class FilesFragment : Fragment() {
             }
         }
         Log.d("loadingSpinner", "loadingSpinner: View.GONE")
-        binding.loadingSpinner.visibility = View.GONE
+        _binding?.loadingSpinner?.visibility = View.GONE
         if (errorCount > 5) {
             atEnd = true
             viewModel.atEnd.value = atEnd
@@ -508,30 +532,6 @@ class FilesFragment : Fragment() {
                 Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    //override fun onStart() {
-    //    Log.d("File[onStart]", "ON START")
-    //    super.onStart()
-    //    val request = NetworkRequest.Builder().build()
-    //    connectivityManager.registerNetworkCallback(request, networkCallback)
-    //}
-
-    //override fun onStop() {
-    //    Log.d("File[onStop]", "ON STOP")
-    //    super.onStop()
-    //    connectivityManager.unregisterNetworkCallback(networkCallback)
-    //}
-
-    override fun onPause() {
-        Log.d("File[onPause]", "ON PAUSE")
-        super.onPause()
-    }
-
-    override fun onResume() {
-        Log.d("File[onResume]", "ON RESUME")
-        super.onResume()
-        checkMetered()
     }
 
     private fun checkMetered(metered: Boolean? = null) {
