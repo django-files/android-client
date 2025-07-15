@@ -19,6 +19,7 @@
 - [Features](#Features)
   - [Planned](#Planned)
   - [Known Issues](#Known-Issues)
+- [Screenshots](#Screenshots)
 - [Development](#Development)
   - [Android Studio](#Android-Studio)
   - [Command Line](#Command-Line)
@@ -129,6 +130,39 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 Note: If the app gets in a bad state, clear the app data or reinstall the application.
 
 For more planned features you can check out the internal [TODO.md](TODO.md).
+
+## Screenshots
+
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/1.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/1.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/2.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/2.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/3.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/3.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/4.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/4.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/5.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/5.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/6.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/6.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/7.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/7.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/8.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/8.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/9.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/9.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/10.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/10.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/11.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/11.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/12.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/12.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/13.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/13.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/14.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/14.jpg"></a>
+<a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/15.jpg">
+    <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/15.jpg"></a>
 
 # Development
 
