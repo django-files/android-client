@@ -9,7 +9,6 @@ import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.djangofiles.djangofiles.ServerApi
-import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.files.getAlbums
@@ -96,14 +95,13 @@ suspend fun Context.updateStats(): Boolean {
         Log.d("updateStats", "stats: $stats")
         if (stats != null) {
             val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
-            dao.addOrUpdate(
-                Server(
-                    url = savedUrl,
-                    size = stats.size,
-                    count = stats.count,
-                    shorts = stats.shorts,
-                    humanSize = stats.humanSize,
-                )
+            // TODO: Add a helper function for this...
+            dao.updateStats(
+                url = savedUrl,
+                size = stats.size,
+                count = stats.count,
+                shorts = stats.shorts,
+                humanSize = stats.humanSize,
             )
             Log.d("updateStats", "dao.addOrUpdate: DONE")
 
