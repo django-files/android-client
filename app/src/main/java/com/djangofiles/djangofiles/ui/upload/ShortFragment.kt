@@ -1,6 +1,5 @@
 package com.djangofiles.djangofiles.ui.upload
 
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,9 +11,9 @@ import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.copyToClipboard
@@ -31,7 +30,8 @@ class ShortFragment : Fragment() {
     private var _binding: FragmentShortBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var navController: NavController
+    private val navController by lazy { findNavController() }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,11 +67,8 @@ class ShortFragment : Fragment() {
         Log.d("Short[onViewCreated]", "savedInstanceState: $savedInstanceState")
         Log.d("Short[onViewCreated]", "arguments: $arguments")
 
-        navController = findNavController()
-
-        val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences?.getString("saved_url", null)
-        val authToken = sharedPreferences?.getString("auth_token", null)
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
         Log.d("Short[onViewCreated]", "savedUrl: $savedUrl - authToken: $authToken")
         if (savedUrl.isNullOrEmpty() || authToken.isNullOrEmpty()) {
             Log.w("Short[onViewCreated]", "Missing Saved URL or Auth Token!")
@@ -131,23 +128,21 @@ class ShortFragment : Fragment() {
     private fun processShort(url: String, vanity: String?) {
         Log.d("processShort", "url: $url")
         Log.d("processShort", "vanity: $vanity")
-        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", null)
-        Log.d("processShort", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences.getString("auth_token", null)
-        Log.d("processShort", "authToken: $authToken")
+
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
+        Log.d("processShort", "savedUrl: $savedUrl - authToken: $authToken")
+        val shareUrl = preferences.getBoolean("share_after_short", true)
+        Log.d("processShort", "shareUrl: $shareUrl")
+
         if (savedUrl == null || authToken == null) {
-            // TODO: Show settings dialog here...
             Log.w("processShort", "Missing OR savedUrl/authToken")
             Toast.makeText(requireContext(), getString(R.string.tst_no_url), Toast.LENGTH_SHORT)
                 .show()
             return
         }
+
         val api = ServerApi(requireContext(), savedUrl)
-        Log.d("processShort", "api: $api")
-        Toast.makeText(requireContext(), "Creating Short URL…", Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
             try {
                 val response = api.shorten(url, vanity)
@@ -159,8 +154,6 @@ class ShortFragment : Fragment() {
                         if (shortResponse != null) {
                             Firebase.analytics.logEvent("short_url", null)
                             copyToClipboard(requireContext(), shortResponse.url)
-                            val shareUrl = sharedPreferences.getBoolean("share_after_short", true)
-                            Log.d("processShort", "shareUrl: $shareUrl")
                             if (shareUrl) {
                                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                     type = "text/plain"
@@ -168,7 +161,8 @@ class ShortFragment : Fragment() {
                                 }
                                 startActivity(Intent.createChooser(shareIntent, null))
                             }
-                            val bundle = bundleOf("url" to "${savedUrl}/shorts/#shorts-table_wrapper")
+                            val bundle =
+                                bundleOf("url" to "${savedUrl}/shorts/#shorts-table_wrapper")
                             navController.navigate(
                                 R.id.nav_item_home, bundle, NavOptions.Builder()
                                     .setPopUpTo(navController.graph.id, true)

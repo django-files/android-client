@@ -30,8 +30,6 @@ class WidgetSettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         Log.d("SettingsFragment", "rootKey: $rootKey")
-        // TODO: Migrate to PreferenceManager.getDefaultSharedPreferences
-        preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences_widget, rootKey)
 
         // Text Color

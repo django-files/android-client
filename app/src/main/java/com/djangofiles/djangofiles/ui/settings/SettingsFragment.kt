@@ -72,8 +72,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     @SuppressLint("BatteryLife")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         Log.d("SettingsFragment", "rootKey: $rootKey")
-        // TODO: Migrate to PreferenceManager.getDefaultSharedPreferences
-        preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
         val ctx = requireContext()
@@ -83,7 +81,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         startDestination?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
 
         // Files Per Page
-        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 25)
+        val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 30)
         Log.d("onCreatePreferences", "filesPerPage: $filesPerPage")
         val seekBar = findPreference<SeekBarPreference>("files_per_page")
         seekBar?.summary = "Current Value: $filesPerPage"

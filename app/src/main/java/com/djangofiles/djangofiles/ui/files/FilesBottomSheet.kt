@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles.ui.files
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +16,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
@@ -37,11 +37,10 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
     private var _binding: FragmentFilesBottomBinding? = null
     private val binding get() = _binding!!
 
-    //private val viewModel: FilesViewModel by viewModels()
-    private val viewModel: FilesViewModel by activityViewModels()
-
     private lateinit var savedUrl: String
     private lateinit var filePassword: String
+
+    private val viewModel: FilesViewModel by activityViewModels()
 
     companion object {
         fun newInstance(bundle: Bundle) = FilesBottomSheet().apply {
@@ -70,9 +69,8 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("File[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        savedUrl = sharedPreferences.getString("saved_url", "").toString()
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        savedUrl = preferences.getString("saved_url", "").toString()
 
         Log.d("Bottom[onCreateView]", "arguments: $arguments")
         val position = requireArguments().getInt("position")

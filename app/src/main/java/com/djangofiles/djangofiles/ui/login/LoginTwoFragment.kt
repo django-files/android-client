@@ -1,6 +1,5 @@
 package com.djangofiles.djangofiles.ui.login
 
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +15,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
@@ -37,10 +37,10 @@ class LoginTwoFragment : Fragment() {
     private var _binding: FragmentLoginTwoBinding? = null
     private val binding get() = _binding!!
 
-    //private val viewModel: LoginViewModel by viewModels()
     private val viewModel: LoginViewModel by activityViewModels()
 
     private val navController by lazy { findNavController() }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,8 +107,6 @@ class LoginTwoFragment : Fragment() {
             binding.loginUsername.requestFocus()
         }
 
-        val sharedPreferences = appContext.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-
         val loginFunction = View.OnClickListener {
             Log.d("OnClickListener", "it: ${it.id}")
 
@@ -154,7 +152,7 @@ class LoginTwoFragment : Fragment() {
                     }
                     return@launch
                 }
-                sharedPreferences.edit {
+                preferences.edit {
                     putString("saved_url", hostname)
                     putString("auth_token", token)
                 }
@@ -192,9 +190,7 @@ class LoginTwoFragment : Fragment() {
             }
 
             Log.d("OnClickListener", "oauth_host: $hostname")
-            sharedPreferences.edit {
-                putString("oauth_host", hostname)
-            }
+            preferences.edit { putString("oauth_host", hostname) }
 
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             startActivity(intent)

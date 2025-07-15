@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles.ui.login
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -15,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
@@ -35,6 +35,8 @@ class AuthorizeFragment : Fragment() {
 
     private var _binding: FragmentAuthorizeBinding? = null
     private val binding get() = _binding!!
+
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,8 +94,6 @@ class AuthorizeFragment : Fragment() {
         val authLink = "<a href=\"${authUrl}\">${authUrl}</a>"
         binding.siteUrl.text = Html.fromHtml(authLink, Html.FROM_HTML_MODE_LEGACY)
         binding.siteUrl.movementMethod = LinkMovementMethod.getInstance()
-
-        val preferences = ctx.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
         val api = ServerApi(ctx, authUrl)
 

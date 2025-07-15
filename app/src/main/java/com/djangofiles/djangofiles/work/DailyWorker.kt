@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.djangofiles.djangofiles.ServerApi
@@ -18,9 +19,8 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
         Log.d("DailyWorker", "doWork: START")
-        val sharedPreferences =
-            applicationContext.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", null).toString()
+        val preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val savedUrl = preferences.getString("saved_url", null).toString()
         Log.d("DailyWorker", "savedUrl: $savedUrl")
 
         Log.d("DailyWorker", "--- Update Albums")
@@ -70,7 +70,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         //    Log.d("DailyWorker", "url: $url")
         //    if (url.isNotEmpty()) {
         //        val discordApi = DiscordApi(applicationContext, url)
-        //        val uniqueID = sharedPreferences.getString("unique_id", null)
+        //        val uniqueID = preferences.getString("unique_id", null)
         //        Log.d("DailyWorker", "uniqueID: $uniqueID")
         //        val response = discordApi.sendMessage("DAILY WORK: `$uniqueID`")
         //        Log.d("DailyWorker", "response: $response")
@@ -85,9 +85,8 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
 
 suspend fun Context.updateStats(): Boolean {
     Log.d("updateStats", "updateStats")
-    val sharedPreferences =
-        this.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-    val savedUrl = sharedPreferences.getString("saved_url", null).toString()
+    val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+    val savedUrl = preferences.getString("saved_url", null).toString()
     Log.d("updateStats", "savedUrl: $savedUrl")
     val api = ServerApi(this, savedUrl)
     val statsResponse = api.current()

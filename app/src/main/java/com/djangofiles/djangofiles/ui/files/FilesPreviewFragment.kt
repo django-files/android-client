@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles.ui.files
 
 import android.annotation.SuppressLint
-import android.content.Context.MODE_PRIVATE
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +21,7 @@ import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -29,10 +29,8 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.MediaCache
-import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -94,8 +92,8 @@ class FilesPreviewFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.d("Authorize[onStart]", "onStart - Hide UI")
-        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+        //Log.d("Authorize[onStart]", "onStart - Hide UI")
+        //requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
     }
 
     override fun onStop() {
@@ -105,9 +103,8 @@ class FilesPreviewFragment : Fragment() {
             isPlaying = player.isPlaying
             player.pause()
         }
-        Log.d("Authorize[onStop]", "onStop - Show UI")
-        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
-            View.VISIBLE
+        //Log.d("Authorize[onStop]", "onStop - Show UI")
+        //requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.VISIBLE
         super.onStop()
     }
 
@@ -136,11 +133,10 @@ class FilesPreviewFragment : Fragment() {
 
         binding.fileName.text = fileName
 
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val autoPlay = sharedPreferences.getBoolean("file_preview_autoplay", true)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val autoPlay = preferences.getBoolean("file_preview_autoplay", true)
         Log.d("FilesPreviewFragment", "autoPlay: $autoPlay")
-        val savedUrl = sharedPreferences.getString("saved_url", null)
+        val savedUrl = preferences.getString("saved_url", null)
         Log.d("FilesPreviewFragment", "savedUrl: $savedUrl")
 
         binding.playerView.transitionName = fileId.toString()

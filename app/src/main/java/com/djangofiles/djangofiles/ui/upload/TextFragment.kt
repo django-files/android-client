@@ -1,6 +1,5 @@
 package com.djangofiles.djangofiles.ui.upload
 
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,9 +10,9 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerApi.FileEditRequest
@@ -31,7 +30,8 @@ class TextFragment : Fragment() {
     private var _binding: FragmentTextBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var navController: NavController
+    private val navController by lazy { findNavController() }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,11 +67,8 @@ class TextFragment : Fragment() {
         Log.d("Text[onViewCreated]", "savedInstanceState: $savedInstanceState")
         Log.d("Text[onViewCreated]", "arguments: $arguments")
 
-        navController = findNavController()
-
-        val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences?.getString("saved_url", null)
-        val authToken = sharedPreferences?.getString("auth_token", null)
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
         Log.d("Text[onViewCreated]", "savedUrl: $savedUrl - authToken: $authToken")
         if (savedUrl.isNullOrEmpty() || authToken.isNullOrEmpty()) {
             Log.w("Text[onViewCreated]", "Missing Saved URL or Auth Token!")
@@ -133,18 +130,19 @@ class TextFragment : Fragment() {
         Log.d("processUpload", "textContent: $textContent")
         Log.d("processUpload", "fileName: $fileName")
 
-        val preferences = requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
         val savedUrl = preferences.getString("saved_url", null)
-        Log.d("processUpload", "savedUrl: $savedUrl")
         val authToken = preferences.getString("auth_token", null)
-        Log.d("processUpload", "authToken: $authToken")
+        Log.d("processUpload", "savedUrl: $savedUrl - authToken: $authToken")
+        val shareUrl = preferences.getBoolean("share_after_upload", true)
+        Log.d("processUpload", "shareUrl: $shareUrl")
+
         if (savedUrl == null || authToken == null) {
-            // TODO: Show settings dialog here...
-            Log.w("processUpload", "Missing OR savedUrl/authToken/fileName")
+            Log.w("processUpload", "Missing OR savedUrl/authToken")
             Toast.makeText(requireContext(), getString(R.string.tst_no_url), Toast.LENGTH_SHORT)
                 .show()
             return
         }
+
         val inputStream = textContent.byteInputStream()
         val api = ServerApi(requireContext(), savedUrl)
         Log.d("processUpload", "api: $api")
@@ -164,6 +162,13 @@ class TextFragment : Fragment() {
                             val params = Bundle().apply { putString("text", "true") }
                             Firebase.analytics.logEvent("upload_file", params)
                             copyToClipboard(requireContext(), uploadResponse.url)
+                            if (shareUrl) {
+                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, uploadResponse.url)
+                                }
+                                startActivity(Intent.createChooser(shareIntent, null))
+                            }
                             val bundle = bundleOf("url" to uploadResponse.url)
                             navController.navigate(
                                 R.id.nav_item_home, bundle, NavOptions.Builder()

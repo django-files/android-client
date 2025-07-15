@@ -1,12 +1,12 @@
 package com.djangofiles.djangofiles.ui.files
 
 import android.app.Dialog
-import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerApi.FilesEditRequest
@@ -29,9 +29,8 @@ class AlbumFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", "").orEmpty()
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val savedUrl = preferences.getString("saved_url", "").orEmpty()
         val api = ServerApi(requireContext(), savedUrl)
 
         val selected = BooleanArray(albums.size) { i -> albums[i].id in selectedIds }

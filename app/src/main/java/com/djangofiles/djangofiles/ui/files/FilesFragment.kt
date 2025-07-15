@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles.ui.files
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Bundle
@@ -22,6 +21,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
@@ -65,8 +65,9 @@ class FilesFragment : Fragment() {
     private lateinit var api: ServerApi
     private lateinit var filesAdapter: FilesViewAdapter
 
-    //private val viewModel: FilesViewModel by viewModels()
     private val viewModel: FilesViewModel by activityViewModels()
+
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -106,15 +107,13 @@ class FilesFragment : Fragment() {
             }
         )
 
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", "").toString()
+        val savedUrl = preferences.getString("saved_url", "").toString()
         //Log.d("File[onViewCreated]", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences.getString("auth_token", "")
+        val authToken = preferences.getString("auth_token", "")
         //Log.d("File[onViewCreated]", "authToken: $authToken")
-        val perPage = sharedPreferences.getInt("files_per_page", 25)
+        val perPage = preferences.getInt("files_per_page", 30)
         //Log.d("File[onViewCreated]", "perPage: $perPage")
-        val previewMetered = sharedPreferences.getBoolean("file_preview_metered", false)
+        val previewMetered = preferences.getBoolean("file_preview_metered", false)
         //Log.d("File[checkMetered]", "previewMetered: $previewMetered")
 
         if (authToken.isNullOrEmpty()) {
@@ -537,13 +536,7 @@ class FilesFragment : Fragment() {
 
     private fun checkMetered(metered: Boolean? = null) {
         Log.d("File[checkMetered]", "checkMetered")
-        val previewMetered = if (metered != null) {
-            metered
-        } else {
-            val sharedPreferences =
-                requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            sharedPreferences.getBoolean("file_preview_metered", false)
-        }
+        val previewMetered = metered ?: preferences.getBoolean("file_preview_metered", false)
         Log.d("File[checkMetered]", "previewMetered: $previewMetered")
         val connectivityManager =
             requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -579,36 +572,87 @@ class FilesFragment : Fragment() {
             binding.meteredText.visibility = View.GONE
         }
     }
+
+    private fun Context.deleteConfirmDialog(
+        fileIds: List<Int>,
+        selectedPositions: List<Int>,
+        callback: (deletePositions: List<Int>) -> Unit,
+    ) {
+        // TODO: Refactor this function to not use a callback or not exist at all...
+        Log.d("deleteConfirmDialog", "fileIds: $fileIds - selectedPositions: $selectedPositions")
+        val savedUrl = preferences.getString("saved_url", "").toString()
+        val count = fileIds.count()
+        Log.d("deleteConfirmDialog", "savedUrl: $savedUrl")
+        MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+            .setTitle("Delete $count Files?")
+            .setIcon(R.drawable.md_delete_24px)
+            .setMessage("This action can not be undone!\nConfirm deleting $count files…")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete $count Files") { _, _ ->
+                Log.d("deleteConfirmDialog", "Delete Confirm: fileIds $fileIds")
+                val api = ServerApi(this, savedUrl)
+                CoroutineScope(Dispatchers.IO).launch {
+                    val response = api.filesDelete(FilesEditRequest(ids = fileIds))
+                    Log.d("File[deleteAllButton]", "response: $response")
+                    if (response.isSuccessful) {
+                        Log.d("File[deleteAllButton]", "filesAdapter.deleteIds: $selectedPositions")
+                        withContext(Dispatchers.Main) {
+                            callback(selectedPositions)
+                        }
+                    }
+                }
+            }
+            .show()
+    }
 }
 
-private fun Context.deleteConfirmDialog(
+fun Context.showExpireDialog(
     fileIds: List<Int>,
-    selectedPositions: List<Int>,
-    callback: (deletePositions: List<Int>) -> Unit,
+    callback: (newExpr: String) -> Unit,
+    currentValue: String? = null,
 ) {
     // TODO: Refactor this function to not use a callback or not exist at all...
-    Log.d("deleteConfirmDialog", "fileIds: $fileIds - selectedPositions: $selectedPositions")
-    val savedUrl =
-        this.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
-            .toString()
-    val count = fileIds.count()
-    Log.d("deleteConfirmDialog", "savedUrl: $savedUrl")
+    Log.d("showExpireDialog", "$fileIds: $fileIds")
+
+    val layout = LinearLayout(this)
+    layout.orientation = LinearLayout.VERTICAL
+    layout.setPadding(10, 0, 10, 40)
+
+    val input = EditText(this)
+    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+    input.maxLines = 1
+    input.hint = "6mo"
+
+    if (currentValue != null) {
+        Log.d("showExpireDialog", "input.setText: currentValue: $currentValue")
+        input.setText(currentValue)
+        input.setSelection(0, currentValue.length)
+    }
+    input.requestFocus()
+    layout.addView(input)
+
+    val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+    val savedUrl = preferences.getString("saved_url", "").toString()
     MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
-        .setTitle("Delete $count Files?")
-        .setIcon(R.drawable.md_delete_24px)
-        .setMessage("This action can not be undone!\nConfirm deleting $count files...")
+        .setView(layout)
+        .setTitle("Set Expiration")
+        .setIcon(R.drawable.md_timer_24)
+        .setMessage("Leave Blank for None")
         .setNegativeButton("Cancel", null)
-        .setPositiveButton("Delete $count Files") { _, _ ->
-            Log.d("deleteConfirmDialog", "Delete Confirm: fileIds $fileIds")
+        .setPositiveButton("Save") { _, _ ->
+            val newExpire = input.text.toString().trim()
+            Log.d("showExpireDialog", "newExpire: $newExpire")
             val api = ServerApi(this, savedUrl)
             CoroutineScope(Dispatchers.IO).launch {
-                val response = api.filesDelete(FilesEditRequest(ids = fileIds))
-                Log.d("File[deleteAllButton]", "response: $response")
+                val response =
+                    api.filesEdit(FilesEditRequest(ids = fileIds, expr = newExpire))
+                Log.d("showExpireDialog", "response: $response")
                 if (response.isSuccessful) {
-                    Log.d("File[deleteAllButton]", "filesAdapter.deleteIds: $selectedPositions")
                     withContext(Dispatchers.Main) {
-                        callback(selectedPositions)
+                        callback(newExpire)
                     }
+                } else {
+                    Log.w("showExpireDialog", "RESPONSE FAILURE")
                 }
             }
         }
@@ -644,60 +688,6 @@ suspend fun Context.getAlbums(savedUrl: String) {
             Log.d("getAlbums", "DONE")
         }
     }
-}
-
-fun Context.showExpireDialog(
-    fileIds: List<Int>,
-    callback: (newExpr: String) -> Unit,
-    currentValue: String? = null,
-) {
-    // TODO: Refactor this function to not use a callback or not exist at all...
-    Log.d("showExpireDialog", "$fileIds: $fileIds")
-
-    val layout = LinearLayout(this)
-    layout.orientation = LinearLayout.VERTICAL
-    layout.setPadding(10, 0, 10, 40)
-
-    val input = EditText(this)
-    input.inputType = android.text.InputType.TYPE_CLASS_TEXT
-    input.maxLines = 1
-    input.hint = "6mo"
-
-    if (currentValue != null) {
-        Log.d("showExpireDialog", "input.setText: currentValue: $currentValue")
-        input.setText(currentValue)
-        input.setSelection(0, currentValue.length)
-    }
-    input.requestFocus()
-    layout.addView(input)
-
-    val savedUrl =
-        this.getSharedPreferences("AppPreferences", MODE_PRIVATE).getString("saved_url", "")
-            .toString()
-    MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
-        .setView(layout)
-        .setTitle("Set Expiration")
-        .setIcon(R.drawable.md_timer_24)
-        .setMessage("Leave Blank for None")
-        .setNegativeButton("Cancel", null)
-        .setPositiveButton("Save") { _, _ ->
-            val newExpire = input.text.toString().trim()
-            Log.d("showExpireDialog", "newExpire: $newExpire")
-            val api = ServerApi(this, savedUrl)
-            CoroutineScope(Dispatchers.IO).launch {
-                val response =
-                    api.filesEdit(FilesEditRequest(ids = fileIds, expr = newExpire))
-                Log.d("showExpireDialog", "response: $response")
-                if (response.isSuccessful) {
-                    withContext(Dispatchers.Main) {
-                        callback(newExpire)
-                    }
-                } else {
-                    Log.w("showExpireDialog", "RESPONSE FAILURE")
-                }
-            }
-        }
-        .show()
 }
 
 fun Context.openUrl(url: String) {

@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navHostFragment: NavHostFragment
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
 
-    private val preferences by lazy { getSharedPreferences("AppPreferences", MODE_PRIVATE) }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
     //private val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
     //    Log.d("SharedPreferences", "OnSharedPreferenceChangeListener: $key")
@@ -169,9 +169,7 @@ class MainActivity : AppCompatActivity() {
         if (uniqueID.isNullOrEmpty()) {
             val uuid = UUID.randomUUID().toString()
             Log.i("Main[onCreate]", "SETTING NEW UUID: $uuid")
-            preferences.edit {
-                putString("unique_id", uuid)
-            }
+            preferences.edit { putString("unique_id", uuid) }
         }
 
         // Setup Nav Drawer Header
@@ -220,8 +218,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("setNavigationItemSelectedListener", "path: $path")
             if (path != null) {
                 Log.d("Drawer", "path: $path")
-                val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-                val savedUrl = sharedPreferences.getString("saved_url", null)
+                val savedUrl = preferences.getString("saved_url", null)
                 Log.d("Drawer", "savedUrl: $savedUrl")
                 val url = "${savedUrl}/${path}"
                 Log.d("Drawer", "Click URL: $url")
@@ -537,8 +534,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("processOauth", "error: $error")
 
         // TODO: Determine how to better get oauthUrl
-        val sharedPreferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val oauthUrl = sharedPreferences.getString("oauth_host", null)
+        val oauthUrl = preferences.getString("oauth_host", null)
         Log.d("processOauth", "oauthUrl: $oauthUrl")
         if (oauthUrl == null) {
             // TODO: Handle this error...
@@ -546,7 +542,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        sharedPreferences.edit {
+        preferences.edit {
             putString("saved_url", oauthUrl)
             putString("auth_token", token)
         }
@@ -583,10 +579,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun processLogout() {
-        val sharedPreferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", null)
+        val savedUrl = preferences.getString("saved_url", null)
         Log.d("processLogout", "savedUrl: $savedUrl")
-        sharedPreferences.edit {
+        preferences.edit {
             remove("saved_url")
             remove("auth_token")
         }
@@ -615,7 +610,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("processLogout", "server: $server")
                 withContext(Dispatchers.IO) { dao.activate(server.url) }
 
-                sharedPreferences.edit().apply {
+                preferences.edit().apply {
                     putString("saved_url", server.url)
                     putString("auth_token", server.token)
                     apply()

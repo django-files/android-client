@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.graphics.Color
 import android.text.format.DateFormat
@@ -12,6 +11,7 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.db.ServerDao
@@ -64,7 +64,7 @@ class WidgetProvider : AppWidgetProvider() {
     ) {
         Log.i("Widget[onUpdate]", "BEGIN - appWidgetIds: $appWidgetIds")
 
-        val preferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val savedUrl = preferences.getString("saved_url", null).toString()
         Log.d("Widget[onUpdate]", "savedUrl: $savedUrl")
         val bgColor = preferences.getString("widget_bg_color", null) ?: "black"
@@ -159,8 +159,7 @@ class WidgetProvider : AppWidgetProvider() {
 
             // Room Data
             GlobalScope.launch(Dispatchers.IO) {
-                val dao: ServerDao =
-                    ServerDatabase.Companion.getInstance(context.applicationContext).serverDao()
+                val dao: ServerDao = ServerDatabase.Companion.getInstance(context).serverDao()
                 Log.d("Widget[onUpdate]", "dao: $dao")
                 val server = dao.getByUrl(savedUrl)
                 Log.d("Widget[onUpdate]", "server: $server")

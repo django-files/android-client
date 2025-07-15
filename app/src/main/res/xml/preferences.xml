@@ -3,17 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <PreferenceCategory>
-        <Preference
-            android:key="add_server_btn"
-            android:title="Add Server"
-            android:icon="@android:drawable/ic_input_add"
-            android:summary="Add More Django Files Servers" />
-    </PreferenceCategory>
-    <PreferenceCategory
-        android:key="server_list"
-        android:title="Saved Servers" />
-
     <PreferenceCategory android:title="Application Settings">
         <ListPreference
             android:key="start_destination"
@@ -35,14 +24,24 @@
             android:key="share_after_short"
             android:icon="@drawable/md_add_link_24px"
             android:defaultValue="true" />
+
+        <Preference
+            android:key="add_server_btn"
+            android:title="Add Server"
+            android:icon="@android:drawable/ic_input_add"
+            android:summary="Add More Django Files Servers" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="server_list"
+        android:title="Saved Servers" />
 
     <PreferenceCategory android:title="File List">
         <androidx.preference.SeekBarPreference
             android:key="files_per_page"
             android:title="Files Per Page"
             android:icon="@drawable/md_format_list_numbered_24"
-            android:defaultValue="25"
+            android:defaultValue="30"
             android:max="100"
             app:min="10"
             app:showSeekBarValue="true" />

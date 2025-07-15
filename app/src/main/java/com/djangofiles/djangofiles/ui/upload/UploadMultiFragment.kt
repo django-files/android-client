@@ -1,6 +1,5 @@
 package com.djangofiles.djangofiles.ui.upload
 
-import android.content.Context.MODE_PRIVATE
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
@@ -15,9 +14,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
@@ -39,8 +38,10 @@ class UploadMultiFragment : Fragment() {
 
     private val viewModel: UploadViewModel by activityViewModels()
 
-    private lateinit var navController: NavController
     private lateinit var adapter: UploadMultiAdapter
+
+    private val navController by lazy { findNavController() }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,11 +81,8 @@ class UploadMultiFragment : Fragment() {
         Log.d("Multi[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
         Log.d("Multi[onViewCreated]", "arguments: $arguments")
 
-        navController = findNavController()
-
-        val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences?.getString("saved_url", null)
-        val authToken = sharedPreferences?.getString("auth_token", null)
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
         Log.d("Multi[onViewCreated]", "savedUrl: $savedUrl - authToken: $authToken")
         if (savedUrl.isNullOrEmpty() || authToken.isNullOrEmpty()) {
             Log.w("Multi[onViewCreated]", "Missing Saved URL or Auth Token!")
@@ -175,9 +173,7 @@ class UploadMultiFragment : Fragment() {
             Log.d("File[albumButton]", "Album Button")
             Log.d("File[albumButton]", "editRequest: $editRequest")
 
-            val sharedPreferences =
-                requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            val savedUrl = sharedPreferences.getString("saved_url", null).toString()
+            val savedUrl = preferences.getString("saved_url", null).toString()
             Log.d("File[albumButton]", "savedUrl: $savedUrl")
 
             val dao = AlbumDatabase.getInstance(requireContext(), savedUrl).albumDao()
@@ -203,20 +199,20 @@ class UploadMultiFragment : Fragment() {
         Log.d("processMultiUpload", "fileUris: $fileUris")
         Log.d("processMultiUpload", "fileUris.size: ${fileUris.size}")
         Log.d("processMultiUpload", "editRequest: $editRequest")
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", null)
-        Log.d("processMultiUpload", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences.getString("auth_token", null)
-        Log.d("processMultiUpload", "authToken: $authToken")
+
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
+        Log.d("processMultiUpload", "savedUrl: $savedUrl - authToken: $authToken")
+        val shareUrl = preferences.getBoolean("share_after_upload", true)
+        Log.d("processMultiUpload", "shareUrl: $shareUrl")
 
         if (savedUrl == null || authToken == null) {
-            // TODO: Show settings dialog here...
-            Log.w("processMultiUpload", "Missing OR savedUrl/authToken/fileName")
+            Log.w("processMultiUpload", "Missing OR savedUrl/authToken")
             Toast.makeText(requireContext(), getString(R.string.tst_no_url), Toast.LENGTH_SHORT)
                 .show()
             return
         }
+
         val msg = "Uploading ${fileUris.size} Files…"
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 
