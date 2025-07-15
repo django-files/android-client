@@ -11,6 +11,7 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -35,6 +36,7 @@ import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.work.DAILY_WORKER_CONSTRAINTS
 import com.djangofiles.djangofiles.work.DailyWorker
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -48,13 +50,37 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var dao: ServerDao
 
+    private val navController by lazy { findNavController() }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Settings[onStart]", "onStart: $arguments")
+        if (arguments?.getBoolean("hide_bottom_nav") == true) {
+            Log.d("Settings[onStart]", "BottomNavigationView = View.GONE")
+            requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+                View.GONE
+        }
+    }
+
+    override fun onStop() {
+        Log.d("Login[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
+    }
+
     @SuppressLint("BatteryLife")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        Log.d("SettingsFragment", "rootKey: $rootKey - name: AppPreferences")
+        Log.d("SettingsFragment", "rootKey: $rootKey")
+        // TODO: Migrate to PreferenceManager.getDefaultSharedPreferences
         preferenceManager.sharedPreferencesName = "AppPreferences"
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
         val ctx = requireContext()
+
+        // Start Destination
+        val startDestination = findPreference<ListPreference>("start_destination")
+        startDestination?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
 
         // Files Per Page
         val filesPerPage = preferenceManager.sharedPreferences?.getInt("files_per_page", 25)
@@ -113,7 +139,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // Add Server Button
         findPreference<Preference>("add_server_btn")?.setOnPreferenceClickListener {
             Log.d("onCreatePreferences", "addServerBtn: $it")
-            findNavController().navigate(R.id.nav_item_settings_action_login)
+            navController.navigate(R.id.nav_item_settings_action_login)
             false
         }
 
@@ -127,17 +153,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // Widget Settings
         findPreference<Preference>("open_widget_settings")?.setOnPreferenceClickListener {
             Log.d("open_widget_settings", "setOnPreferenceClickListener")
-            findNavController().navigate(R.id.nav_action_widget_settings)
-            //findNavController().navigate(
-            //    R.id.nav_item_settings_action_widget,
-            //    null,
-            //    NavOptions.Builder()
-            //        .setEnterAnim(R.anim.slide_in_left)
-            //        .setExitAnim(R.anim.slide_out_left)
-            //        .setPopEnterAnim(R.anim.slide_in_right)
-            //        .setPopExitAnim(R.anim.slide_out_right)
-            //        .build()
-            //)
+            navController.navigate(R.id.nav_action_settings_widget, arguments)
             false
         }
 
@@ -294,11 +310,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     } else {
                         Log.d("showDeleteDialog", "NO SERVERS - LOCK OUT")
                         // TODO: Confirm this removes history and locks user to login
-                        findNavController().navigate(
-                            R.id.nav_item_login, null, NavOptions.Builder()
-                                .setPopUpTo(R.id.nav_item_settings, true)
-                                .build()
-                        )
+                        preferenceManager.sharedPreferences!!.edit().apply {
+                            putString("saved_url", "")
+                            putString("auth_token", "")
+                            apply()
+                        }
+                        withContext(Dispatchers.Main) {
+                            navController.navigate(
+                                R.id.nav_item_login, null, NavOptions.Builder()
+                                    .setPopUpTo(navController.graph.id, true)
+                                    .build()
+                            )
+                        }
+                        return@launch
                     }
                     buildServerList()
                 }

@@ -43,6 +43,7 @@ import com.djangofiles.djangofiles.ui.files.AlbumFragment
 import com.djangofiles.djangofiles.ui.files.getGenericIcon
 import com.djangofiles.djangofiles.ui.files.isCodeMime
 import com.djangofiles.djangofiles.ui.files.isGlideMime
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +74,6 @@ class UploadFragment : Fragment() {
 
     override fun onDestroyView() {
         Log.d("UploadFragment", "onDestroyView")
-        super.onDestroyView()
         if (::player.isInitialized) {
             Log.d("UploadFragment", "player.release")
             player.release()
@@ -82,7 +82,29 @@ class UploadFragment : Fragment() {
             Log.d("UploadFragment", "webView.destroy")
             webView.destroy()
         }
+        super.onDestroyView()
         _binding = null
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Upload[onStart]", "onStart - Hide UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+    }
+
+    override fun onStop() {
+        Log.d("Upload[onStop]", "1 - ON STOP")
+        if (::player.isInitialized) {
+            Log.d("Upload[onStop]", "player.isPlaying: ${player.isPlaying}")
+            if (player.isPlaying) {
+                Log.d("Upload[onStop]", "player.pause")
+                player.pause()
+            }
+        }
+        Log.d("Upload[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -93,24 +115,24 @@ class UploadFragment : Fragment() {
 
         navController = findNavController()
 
-        //val callback = object : OnBackPressedCallback(true) {
-        //    override fun handleOnBackPressed() {
-        //        requireActivity().finish()
-        //    }
-        //}
-        //requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
-
-        //val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        //    requireArguments().getParcelable("EXTRA_INTENT", Intent::class.java)
-        //} else {
-        //    @Suppress("DEPRECATION")
-        //    requireArguments().getParcelable("EXTRA_INTENT") as? Intent
-        //}
-        //Log.d("Upload[onViewCreated]", "intent: $intent")
+        val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
+        val savedUrl = sharedPreferences?.getString("saved_url", null)
+        val authToken = sharedPreferences?.getString("auth_token", null)
+        Log.d("Upload[onViewCreated]", "savedUrl: $savedUrl - authToken: $authToken")
+        if (savedUrl.isNullOrEmpty() || authToken.isNullOrEmpty()) {
+            Log.w("Upload[onViewCreated]", "Missing Saved URL or Auth Token!")
+            Toast.makeText(requireContext(), "Invalid Authentication!", Toast.LENGTH_LONG)
+                .show()
+            navController.navigate(
+                R.id.nav_item_login, null, NavOptions.Builder()
+                    .setPopUpTo(navController.graph.id, true)
+                    .build()
+            )
+            return
+        }
 
         val uri = requireArguments().getString("uri")?.toUri()
         Log.d("Upload[onViewCreated]", "uri: $uri")
-
         if (uri == null) {
             // TODO: Better Handle this Error
             Log.e("Upload[onViewCreated]", "URI is null")
@@ -154,7 +176,7 @@ class UploadFragment : Fragment() {
         } else if (mimeType?.startsWith("text/") == true || isCodeMime(mimeType!!)) {
             Log.d("Upload[onViewCreated]", "WEBVIEW")
             webView = WebView(requireContext())
-            binding.frameLayout.addView(webView)
+            binding.contentLayout.addView(webView)
 
             val url = "file:///android_asset/preview/preview.html"
             Log.d("Upload[onViewCreated]", "url: $url")
@@ -216,7 +238,7 @@ class UploadFragment : Fragment() {
 
         binding.optionsButton.setOnClickListener {
             Log.d("optionsButton", "setOnClickListener")
-            navController.navigate(R.id.nav_item_settings)
+            navController.navigate(R.id.nav_item_settings, bundleOf("hide_bottom_nav" to true))
         }
 
         binding.openButton.setOnClickListener {
@@ -310,11 +332,10 @@ class UploadFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         if (uploadResponse != null) {
                             copyToClipboard(requireContext(), uploadResponse.url)
+                            val bundle = bundleOf("url" to uploadResponse.url)
                             navController.navigate(
-                                R.id.nav_item_home,
-                                bundleOf("url" to uploadResponse.url),
-                                NavOptions.Builder()
-                                    .setPopUpTo(R.id.nav_graph, inclusive = true)
+                                R.id.nav_item_home, bundle, NavOptions.Builder()
+                                    .setPopUpTo(navController.graph.id, true)
                                     .build()
                             )
                         } else {
@@ -337,18 +358,6 @@ class UploadFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                 }
-            }
-        }
-    }
-
-    override fun onStop() {
-        Log.d("Upload[onStop]", "1 - ON STOP")
-        super.onStop()
-        if (::player.isInitialized) {
-            Log.d("Upload[onStop]", "player.isPlaying: ${player.isPlaying}")
-            if (player.isPlaying) {
-                Log.d("Upload[onStop]", "player.pause")
-                player.pause()
             }
         }
     }

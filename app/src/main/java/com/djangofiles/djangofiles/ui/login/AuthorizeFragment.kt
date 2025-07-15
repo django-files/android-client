@@ -24,6 +24,7 @@ import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.files.getAlbums
 import com.djangofiles.djangofiles.work.updateStats
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -49,6 +50,19 @@ class AuthorizeFragment : Fragment() {
         _binding = FragmentAuthorizeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Authorize[onStart]", "onStart - Hide UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+    }
+
+    override fun onStop() {
+        Log.d("Authorize[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
     }
 
     @OptIn(DelicateCoroutinesApi::class)

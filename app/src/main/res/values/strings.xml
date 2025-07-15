@@ -33,6 +33,15 @@
 
     <string name="background_opacity">Background Opacity %d</string>
 
+    <string-array name="launcher_entries">
+        <item>Home Web View</item>
+        <item>Show File List</item>
+    </string-array>
+    <string-array name="launcher_values">
+        <item>home</item>
+        <item>files</item>
+    </string-array>
+
     <string-array name="dropdown_entries">
         <item>Every 15 Minutes</item>
         <item>Every 30 Minutes</item>

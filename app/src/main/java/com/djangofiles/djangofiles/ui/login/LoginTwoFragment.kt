@@ -25,6 +25,7 @@ import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.files.getAlbums
 import com.djangofiles.djangofiles.work.updateStats
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -38,6 +39,8 @@ class LoginTwoFragment : Fragment() {
 
     //private val viewModel: LoginViewModel by viewModels()
     private val viewModel: LoginViewModel by activityViewModels()
+
+    private val navController by lazy { findNavController() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +56,19 @@ class LoginTwoFragment : Fragment() {
         _binding = FragmentLoginTwoBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Login[onStart]", "onStart - Hide UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+    }
+
+    override fun onStop() {
+        Log.d("Login[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -152,28 +168,13 @@ class LoginTwoFragment : Fragment() {
                 Log.i("loginFunction", "UNLOCK DRAWER: MainActivity: setDrawerLockMode(true)")
                 (requireActivity() as MainActivity).setDrawerLockMode(true)
                 withContext(Dispatchers.Main) {
-                    Log.d("loginFunction", "navigate: nav_item_home")
-                    findNavController().navigate(
-                        R.id.nav_item_home, null, NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_item_login, true)
+                    Log.d("loginFunction", "navigate: startDestinationId")
+                    navController.navigate(
+                        navController.graph.startDestinationId, null, NavOptions.Builder()
+                            .setPopUpTo(navController.graph.id, true)
                             .build()
                     )
                 }
-                //// TODO: Determine how to allow password manager save prompt after login...
-                //withContext(Dispatchers.Main) {
-                //    binding.loginUsername.clearFocus()
-                //    binding.loginPassword.clearFocus()
-                //    val imm = requireContext().getSystemService(InputMethodManager::class.java)
-                //    imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
-                //
-                //    Handler(Looper.getMainLooper()).post {
-                //        findNavController().navigate(
-                //            R.id.nav_item_home, null, NavOptions.Builder()
-                //                .setPopUpTo(R.id.nav_item_login, true)
-                //                .build()
-                //        )
-                //    }
-                //}
                 Log.d("loginFunction", "DONE")
             }
         }
@@ -204,11 +205,6 @@ class LoginTwoFragment : Fragment() {
         binding.loginDiscord.setOnClickListener(oauthFunction)
         binding.loginGithub.setOnClickListener(oauthFunction)
         binding.loginGoogle.setOnClickListener(oauthFunction)
-        binding.goBack.setOnClickListener {
-            findNavController().navigateUp()
-            //if (!findNavController().popBackStack()) {
-            //    requireActivity().finishAffinity()
-            //}
-        }
+        binding.goBack.setOnClickListener { navController.navigateUp() }
     }
 }
