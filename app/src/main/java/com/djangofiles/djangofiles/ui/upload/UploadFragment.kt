@@ -2,7 +2,6 @@ package com.djangofiles.djangofiles.ui.upload
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.graphics.PorterDuff
 import android.net.Uri
@@ -29,9 +28,9 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
@@ -43,6 +42,7 @@ import com.djangofiles.djangofiles.ui.files.AlbumFragment
 import com.djangofiles.djangofiles.ui.files.getGenericIcon
 import com.djangofiles.djangofiles.ui.files.isCodeMime
 import com.djangofiles.djangofiles.ui.files.isGlideMime
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -55,10 +55,11 @@ class UploadFragment : Fragment() {
     private var _binding: FragmentUploadBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var navController: NavController
-
     private lateinit var player: ExoPlayer
     private lateinit var webView: WebView
+
+    private val navController by lazy { findNavController() }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,7 +74,6 @@ class UploadFragment : Fragment() {
 
     override fun onDestroyView() {
         Log.d("UploadFragment", "onDestroyView")
-        super.onDestroyView()
         if (::player.isInitialized) {
             Log.d("UploadFragment", "player.release")
             player.release()
@@ -82,7 +82,29 @@ class UploadFragment : Fragment() {
             Log.d("UploadFragment", "webView.destroy")
             webView.destroy()
         }
+        super.onDestroyView()
         _binding = null
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Upload[onStart]", "onStart - Hide UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+    }
+
+    override fun onStop() {
+        Log.d("Upload[onStop]", "1 - ON STOP")
+        if (::player.isInitialized) {
+            Log.d("Upload[onStop]", "player.isPlaying: ${player.isPlaying}")
+            if (player.isPlaying) {
+                Log.d("Upload[onStop]", "player.pause")
+                player.pause()
+            }
+        }
+        Log.d("Upload[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -91,26 +113,23 @@ class UploadFragment : Fragment() {
         Log.d("Upload[onViewCreated]", "savedInstanceState: $savedInstanceState")
         Log.d("Upload[onViewCreated]", "arguments: $arguments")
 
-        navController = findNavController()
-
-        //val callback = object : OnBackPressedCallback(true) {
-        //    override fun handleOnBackPressed() {
-        //        requireActivity().finish()
-        //    }
-        //}
-        //requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
-
-        //val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        //    requireArguments().getParcelable("EXTRA_INTENT", Intent::class.java)
-        //} else {
-        //    @Suppress("DEPRECATION")
-        //    requireArguments().getParcelable("EXTRA_INTENT") as? Intent
-        //}
-        //Log.d("Upload[onViewCreated]", "intent: $intent")
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
+        Log.d("Upload[onViewCreated]", "savedUrl: $savedUrl - authToken: $authToken")
+        if (savedUrl.isNullOrEmpty() || authToken.isNullOrEmpty()) {
+            Log.w("Upload[onViewCreated]", "Missing Saved URL or Auth Token!")
+            Toast.makeText(requireContext(), "Invalid Authentication!", Toast.LENGTH_LONG)
+                .show()
+            navController.navigate(
+                R.id.nav_item_login, null, NavOptions.Builder()
+                    .setPopUpTo(navController.graph.id, true)
+                    .build()
+            )
+            return
+        }
 
         val uri = requireArguments().getString("uri")?.toUri()
         Log.d("Upload[onViewCreated]", "uri: $uri")
-
         if (uri == null) {
             // TODO: Better Handle this Error
             Log.e("Upload[onViewCreated]", "URI is null")
@@ -154,7 +173,7 @@ class UploadFragment : Fragment() {
         } else if (mimeType?.startsWith("text/") == true || isCodeMime(mimeType!!)) {
             Log.d("Upload[onViewCreated]", "WEBVIEW")
             webView = WebView(requireContext())
-            binding.frameLayout.addView(webView)
+            binding.contentLayout.addView(webView)
 
             val url = "file:///android_asset/preview/preview.html"
             Log.d("Upload[onViewCreated]", "url: $url")
@@ -216,7 +235,7 @@ class UploadFragment : Fragment() {
 
         binding.optionsButton.setOnClickListener {
             Log.d("optionsButton", "setOnClickListener")
-            navController.navigate(R.id.nav_item_settings)
+            navController.navigate(R.id.nav_item_settings, bundleOf("hide_bottom_nav" to true))
         }
 
         binding.openButton.setOnClickListener {
@@ -239,9 +258,7 @@ class UploadFragment : Fragment() {
             Log.d("File[albumButton]", "Album Button")
             Log.d("File[albumButton]", "editRequest: $editRequest")
 
-            val sharedPreferences =
-                requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            val savedUrl = sharedPreferences.getString("saved_url", null).toString()
+            val savedUrl = preferences.getString("saved_url", null).toString()
             Log.d("File[albumButton]", "savedUrl: $savedUrl")
 
             val dao = AlbumDatabase.getInstance(requireContext(), savedUrl).albumDao()
@@ -270,22 +287,20 @@ class UploadFragment : Fragment() {
         editRequest: FileEditRequest? = null,
     ) {
         Log.d("processUpload", "fileUri: $fileUri")
-        //val preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", null)
-        Log.d("processUpload", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences.getString("auth_token", null)
-        Log.d("processUpload", "authToken: $authToken")
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
+        Log.d("processUpload", "savedUrl: $savedUrl - authToken: $authToken")
         val fileName = fileName ?: requireContext().getFileNameFromUri(fileUri)
         Log.d("processUpload", "fileName: $fileName")
+        val shareUrl = preferences.getBoolean("share_after_upload", true)
+        Log.d("processUpload", "shareUrl: $shareUrl")
         if (savedUrl == null || authToken == null || fileName == null) {
-            // TODO: Show settings dialog here...
             Log.w("processUpload", "Missing OR savedUrl/authToken/fileName")
             Toast.makeText(requireContext(), getString(R.string.tst_no_url), Toast.LENGTH_SHORT)
                 .show()
             return
         }
+
         //val contentType = URLConnection.guessContentTypeFromName(fileName)
         //Log.d("processUpload", "contentType: $contentType")
         val inputStream = requireContext().contentResolver.openInputStream(fileUri)
@@ -295,6 +310,7 @@ class UploadFragment : Fragment() {
             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
             return
         }
+
         val api = ServerApi(requireContext(), savedUrl)
         Log.d("processUpload", "api: $api")
         Toast.makeText(requireContext(), getString(R.string.tst_uploading_file), Toast.LENGTH_SHORT)
@@ -309,12 +325,19 @@ class UploadFragment : Fragment() {
                     Log.d("processUpload", "uploadResponse: $uploadResponse")
                     withContext(Dispatchers.Main) {
                         if (uploadResponse != null) {
+                            Log.d("processUpload", "url: ${uploadResponse.url}")
                             copyToClipboard(requireContext(), uploadResponse.url)
+                            if (shareUrl) {
+                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, uploadResponse.url)
+                                }
+                                startActivity(Intent.createChooser(shareIntent, null))
+                            }
+                            val bundle = bundleOf("url" to uploadResponse.url)
                             navController.navigate(
-                                R.id.nav_item_home,
-                                bundleOf("url" to uploadResponse.url),
-                                NavOptions.Builder()
-                                    .setPopUpTo(R.id.nav_graph, inclusive = true)
+                                R.id.nav_item_home, bundle, NavOptions.Builder()
+                                    .setPopUpTo(navController.graph.id, true)
                                     .build()
                             )
                         } else {
@@ -337,18 +360,6 @@ class UploadFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                 }
-            }
-        }
-    }
-
-    override fun onStop() {
-        Log.d("Upload[onStop]", "1 - ON STOP")
-        super.onStop()
-        if (::player.isInitialized) {
-            Log.d("Upload[onStop]", "player.isPlaying: ${player.isPlaying}")
-            if (player.isPlaying) {
-                Log.d("Upload[onStop]", "player.pause")
-                player.pause()
             }
         }
     }

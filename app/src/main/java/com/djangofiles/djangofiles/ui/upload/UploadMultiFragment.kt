@@ -1,6 +1,5 @@
 package com.djangofiles.djangofiles.ui.upload
 
-import android.content.Context.MODE_PRIVATE
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
@@ -15,9 +14,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
@@ -25,6 +24,7 @@ import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.databinding.FragmentUploadMultiBinding
 import com.djangofiles.djangofiles.db.AlbumDatabase
 import com.djangofiles.djangofiles.ui.files.AlbumFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -38,8 +38,10 @@ class UploadMultiFragment : Fragment() {
 
     private val viewModel: UploadViewModel by activityViewModels()
 
-    private lateinit var navController: NavController
     private lateinit var adapter: UploadMultiAdapter
+
+    private val navController by lazy { findNavController() }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,25 +64,33 @@ class UploadMultiFragment : Fragment() {
         _binding = null
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.d("Multi[onStart]", "onStart - Hide UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+    }
+
+    override fun onStop() {
+        Log.d("Multi[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d("Multi[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
         Log.d("Multi[onViewCreated]", "arguments: $arguments")
 
-        navController = findNavController()
-
-        val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences?.getString("saved_url", null)
-        Log.d("Multi[onViewCreated]", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences?.getString("auth_token", null)
-        Log.d("Multi[onViewCreated]", "authToken: $authToken")
-
-        if (savedUrl == null) {
-            Log.w("Multi[onViewCreated]", "savedUrl is null")
-            Toast.makeText(requireContext(), "Missing URL!", Toast.LENGTH_LONG)
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
+        Log.d("Multi[onViewCreated]", "savedUrl: $savedUrl - authToken: $authToken")
+        if (savedUrl.isNullOrEmpty() || authToken.isNullOrEmpty()) {
+            Log.w("Multi[onViewCreated]", "Missing Saved URL or Auth Token!")
+            Toast.makeText(requireContext(), "Invalid Authentication!", Toast.LENGTH_LONG)
                 .show()
             navController.navigate(
-                R.id.nav_item_login_two, null, NavOptions.Builder()
-                    .setPopUpTo(R.id.nav_item_home, true)
+                R.id.nav_item_login, null, NavOptions.Builder()
+                    .setPopUpTo(navController.graph.id, true)
                     .build()
             )
             return
@@ -93,6 +103,7 @@ class UploadMultiFragment : Fragment() {
             requireArguments().getParcelableArrayList("fileUris")
         }
         if (fileUris == null) {
+            // TODO: Better Handle this Error
             Log.w("Multi[onCreate]", "fileUris is null")
             return
         }
@@ -153,7 +164,7 @@ class UploadMultiFragment : Fragment() {
         // Options Button
         binding.optionsButton.setOnClickListener {
             Log.d("optionsButton", "setOnClickListener: navigate: nav_item_settings")
-            navController.navigate(R.id.nav_item_settings)
+            navController.navigate(R.id.nav_item_settings, bundleOf("hide_bottom_nav" to true))
         }
 
         // Albums Button
@@ -162,9 +173,7 @@ class UploadMultiFragment : Fragment() {
             Log.d("File[albumButton]", "Album Button")
             Log.d("File[albumButton]", "editRequest: $editRequest")
 
-            val sharedPreferences =
-                requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-            val savedUrl = sharedPreferences.getString("saved_url", null).toString()
+            val savedUrl = preferences.getString("saved_url", null).toString()
             Log.d("File[albumButton]", "savedUrl: $savedUrl")
 
             val dao = AlbumDatabase.getInstance(requireContext(), savedUrl).albumDao()
@@ -190,20 +199,20 @@ class UploadMultiFragment : Fragment() {
         Log.d("processMultiUpload", "fileUris: $fileUris")
         Log.d("processMultiUpload", "fileUris.size: ${fileUris.size}")
         Log.d("processMultiUpload", "editRequest: $editRequest")
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", null)
-        Log.d("processMultiUpload", "savedUrl: $savedUrl")
-        val authToken = sharedPreferences.getString("auth_token", null)
-        Log.d("processMultiUpload", "authToken: $authToken")
+
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
+        Log.d("processMultiUpload", "savedUrl: $savedUrl - authToken: $authToken")
+        val shareUrl = preferences.getBoolean("share_after_upload", true)
+        Log.d("processMultiUpload", "shareUrl: $shareUrl")
 
         if (savedUrl == null || authToken == null) {
-            // TODO: Show settings dialog here...
-            Log.w("processMultiUpload", "Missing OR savedUrl/authToken/fileName")
+            Log.w("processMultiUpload", "Missing OR savedUrl/authToken")
             Toast.makeText(requireContext(), getString(R.string.tst_no_url), Toast.LENGTH_SHORT)
                 .show()
             return
         }
+
         val msg = "Uploading ${fileUris.size} Files…"
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
 
@@ -253,11 +262,10 @@ class UploadMultiFragment : Fragment() {
             Log.d("processMultiUpload", "destUrl: $destUrl")
             val msg = "Uploaded ${results.size} Files."
             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+            val bundle = bundleOf("url" to destUrl)
             navController.navigate(
-                R.id.nav_item_home,
-                bundleOf("url" to destUrl),
-                NavOptions.Builder()
-                    .setPopUpTo(R.id.nav_graph, inclusive = true)
+                R.id.nav_item_home, bundle, NavOptions.Builder()
+                    .setPopUpTo(navController.graph.id, true)
                     .build()
             )
         }

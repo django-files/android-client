@@ -2,16 +2,34 @@ package com.djangofiles.djangofiles.ui.settings
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import com.djangofiles.djangofiles.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class WidgetSettingsFragment : PreferenceFragmentCompat() {
 
+    override fun onStart() {
+        super.onStart()
+        Log.d("Settings[onStart]", "onStart: $arguments")
+        if (arguments?.getBoolean("hide_bottom_nav") == true) {
+            Log.d("Settings[onStart]", "BottomNavigationView = View.GONE")
+            requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+                View.GONE
+        }
+    }
+
+    override fun onStop() {
+        Log.d("Login[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        Log.d("WidgetSettingsFragment", "rootKey: $rootKey - name: AppPreferences")
-        preferenceManager.sharedPreferencesName = "AppPreferences"
+        Log.d("SettingsFragment", "rootKey: $rootKey")
         setPreferencesFromResource(R.xml.preferences_widget, rootKey)
 
         // Text Color

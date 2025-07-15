@@ -25,6 +25,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
+import androidx.core.view.get
+import androidx.core.view.size
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
@@ -37,6 +39,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -62,9 +65,10 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var binding: ActivityMainBinding
 
     private lateinit var navController: NavController
+    private lateinit var navHostFragment: NavHostFragment
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
 
-    private val preferences by lazy { getSharedPreferences("AppPreferences", MODE_PRIVATE) }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
     //private val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
     //    Log.d("SharedPreferences", "OnSharedPreferenceChangeListener: $key")
@@ -86,10 +90,10 @@ class MainActivity : AppCompatActivity() {
     //}
 
     override fun onDestroy() {
-        super.onDestroy()
         Log.d("Main[onDestroy]", "ON DESTROY")
         // TODO: Determine if this is necessary...
         //preferences.unregisterOnSharedPreferenceChangeListener(listener)
+        super.onDestroy()
     }
 
     @OptIn(UnstableApi::class)
@@ -101,95 +105,105 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Note: This is used over findNavController to use androidx.fragment.app.FragmentContainerView
-        navController =
-            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
-        NavigationUI.setupWithNavController(binding.navigationView, navController)
+        // NavHostFragment
+        navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        navController = navHostFragment.navController
+        // Start Destination
+        if (savedInstanceState == null) {
+            val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
+            val startPreference = preferences.getString("start_destination", null)
+            Log.d("Main[onCreate]", "startPreference: $startPreference")
+            val startDestination =
+                if (startPreference == "files") R.id.nav_item_files else R.id.nav_item_home
+            navGraph.setStartDestination(startDestination)
+            navController.graph = navGraph
+        }
+        // Bottom Navigation
+        val bottomNav = binding.appBarMain.contentMain.bottomNav
+        bottomNav.setupWithNavController(navController)
+        // Navigation Drawer
+        binding.navView.setupWithNavController(navController)
+        // Destinations w/ a Parent Item
+        val destinationToBottomNavItem = mapOf(
+            R.id.nav_item_file_preview to R.id.nav_item_files,
+            R.id.nav_item_settings_widget to R.id.nav_item_settings
+        )
+        // Destination w/ No Parent
+        val hiddenDestinations = setOf(
+            R.id.nav_item_upload,
+            R.id.nav_item_upload_multi,
+            R.id.nav_item_short,
+            R.id.nav_item_text
+        )
+        // Implement Navigation Hacks Because.......Android?
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            Log.d("addOnDestinationChangedListener", "destination: ${destination.label}")
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+
+            val destinationId = destination.id
+
+            if (destinationId in hiddenDestinations) {
+                Log.d("addOnDestinationChangedListener", "Set bottomNav to Hidden Item")
+                bottomNav.menu.findItem(R.id.nav_wtf).isChecked = true
+                return@addOnDestinationChangedListener
+            }
+
+            val matchedItem = destinationToBottomNavItem[destinationId]
+            if (matchedItem != null) {
+                Log.d("addOnDestinationChangedListener", "matched nav item: $matchedItem")
+                bottomNav.menu.findItem(matchedItem).isChecked = true
+                val menu = binding.navView.menu
+                for (i in 0 until menu.size) {
+                    val item = menu[i]
+                    item.isChecked = item.itemId == matchedItem
+                }
+            }
+        }
 
         // Set Default Preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         PreferenceManager.setDefaultValues(this, R.xml.preferences_widget, false)
-
-        //Log.d("Main[onCreate]", "registerOnSharedPreferenceChangeListener")
-        //preferences.registerOnSharedPreferenceChangeListener(listener)
-        //val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-
         val uniqueID = preferences.getString("unique_id", null)
         Log.d("Main[onCreate]", "uniqueID: $uniqueID")
         if (uniqueID.isNullOrEmpty()) {
             val uuid = UUID.randomUUID().toString()
             Log.i("Main[onCreate]", "SETTING NEW UUID: $uuid")
-            preferences.edit {
-                putString("unique_id", uuid)
-            }
+            preferences.edit { putString("unique_id", uuid) }
         }
 
+        // Setup Nav Drawer Header
+        val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
+        val versionName = packageInfo.versionName
+        Log.d("Main[onCreate]", "versionName: $versionName")
+
+        val headerView = binding.navView.getHeaderView(0)
+        val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
+        versionTextView.text = "v${versionName}"
+
+        binding.drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
+
         // TODO: Improve initialization of the WorkRequest
-        //  Currently no work is added on first start because this is null
-        //  Work will not get added until the 2nd start after a user adds a server
-        val workInterval = preferences.getString("work_interval", null)
+        val workInterval = preferences.getString("work_interval", null) ?: "0"
         Log.i("Main[onCreate]", "workInterval: $workInterval")
-        if (!workInterval.isNullOrEmpty() && workInterval != "0") {
-            Log.i("Main[onCreate]", "ENSURING SCHEDULED WORK")
+        if (workInterval != "0") {
             val workRequest =
                 PeriodicWorkRequestBuilder<DailyWorker>(workInterval.toLong(), TimeUnit.MINUTES)
                     .setConstraints(DAILY_WORKER_CONSTRAINTS)
                     .build()
-            Log.d("Main[onCreate]", "workRequest: $workRequest")
+            Log.i("Main[onCreate]", "workRequest: $workRequest")
             WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 "daily_worker",
                 ExistingPeriodicWorkPolicy.KEEP,
                 workRequest
             )
         } else {
-            Log.i("Main[onCreate]", "NOT SCHEDULING WORK")
+            // TODO: Confirm this is necessary...
+            Log.i("Main[onCreate]", "Ensuring Work is Disabled")
+            WorkManager.getInstance(this).cancelUniqueWork("app_worker")
         }
 
-        //lifecycleScope.launch {
-        //    val api = DiscordApi(applicationContext)
-        //    val response = api.sendMessage("APP STARTUP")
-        //    Log.i("Main[onCreate]", "response: $response")
-        //}
-
-        // Note: This does not work as expected and has many bugs
-        //val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        //navController = navHostFragment.navController
-        //val inflater = navController.navInflater
-        //val originalGraph = inflater.inflate(R.navigation.nav_graph)
-        //Log.d("Main[onCreate]", "intent?.action: ${intent?.action}")
-        //val startDest = when (intent?.action) {
-        //    Intent.ACTION_VIEW -> R.id.nav_item_upload
-        //    Intent.ACTION_SEND -> R.id.nav_item_upload
-        //    Intent.ACTION_SEND_MULTIPLE -> R.id.nav_item_upload_multi
-        //    else -> R.id.nav_item_home
-        //}
-        //Log.d("Main[onCreate]", "startDest: $startDest")
-        //val navState = NavGraphNavigator(navController.navigatorProvider)
-        //val newGraph = NavGraph(navState).apply {
-        //    id = originalGraph.id
-        //    addAll(originalGraph)
-        //    setStartDestination(startDest)
-        //}
-        //val args = if (startDest != R.id.nav_item_home) {
-        //    Bundle().apply {
-        //        putParcelable("EXTRA_INTENT", intent)
-        //    }
-        //} else null
-        //Log.d("Main[onCreate]", "args: $args")
-        //navController.setGraph(newGraph, args)
-        //Log.d("Main[onCreate]", "DONE - navController")
-
-        val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
-        val versionName = packageInfo.versionName
-
-        val headerView = binding.navigationView.getHeaderView(0)
-        val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
-        versionTextView.text = "v${versionName}"
-
-        binding.drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
-
-        MediaCache.initialize(this)
-
+        // Handle Custom Navigation Items
         val itemPathMap = mapOf(
             R.id.nav_site_home to "",
             R.id.nav_site_files to "files/",
@@ -199,14 +213,12 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_site_settings_user to "settings/user/",
             R.id.nav_site_settings_site to "settings/site/",
         )
-
-        // Handle Custom Navigation Items
-        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
+        binding.navView.setNavigationItemSelectedListener { menuItem ->
             val path = itemPathMap[menuItem.itemId]
+            Log.d("setNavigationItemSelectedListener", "path: $path")
             if (path != null) {
                 Log.d("Drawer", "path: $path")
-                val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-                val savedUrl = sharedPreferences.getString("saved_url", null)
+                val savedUrl = preferences.getString("saved_url", null)
                 Log.d("Drawer", "savedUrl: $savedUrl")
                 val url = "${savedUrl}/${path}"
                 Log.d("Drawer", "Click URL: $url")
@@ -220,12 +232,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (navController.currentDestination?.id != R.id.nav_item_home) {
                     Log.d("Drawer", "NAVIGATE: nav_item_home")
-                    navController.navigate(R.id.nav_item_home)
+                    // NOTE: This is the correct navigation call...
+                    val homeMenuItem = binding.navView.menu.findItem(R.id.nav_item_home)
+                    NavigationUI.onNavDestinationSelected(homeMenuItem, navController)
                 }
                 binding.drawerLayout.closeDrawers()
                 true
-            }
-            if (menuItem.itemId == R.id.nav_item_upload) {
+            } else if (menuItem.itemId == R.id.nav_item_upload) {
                 Log.d("Drawer", "nav_item_upload")
                 filePickerLauncher.launch(arrayOf("*/*"))
                 binding.drawerLayout.closeDrawers()
@@ -240,15 +253,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // TODO: Better handle navigation when preview/login fragments are open
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            Log.d("DestinationChanged", "destination: $destination")
-            when (destination.id) {
-                R.id.nav_item_file_preview -> binding.drawerLayout.closeDrawer(GravityCompat.START)
-                R.id.nav_item_login -> binding.drawerLayout.closeDrawer(GravityCompat.START)
-            }
-        }
-
+        // File Picker for UPLOAD_FILE Intent and Shortcut
         filePickerLauncher =
             registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
                 Log.d("filePickerLauncher", "uris: $uris")
@@ -263,6 +268,9 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "No Files Selected!", Toast.LENGTH_SHORT).show()
                 }
             }
+
+
+        MediaCache.initialize(this)
 
         // Only Handel Intent Once Here after App Start
         if (savedInstanceState?.getBoolean("intentHandled") != true) {
@@ -279,95 +287,87 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         Log.d("onNewIntent", "intent: $intent")
         val data = intent.data
-        val type = intent.type
         val action = intent.action
-        Log.d("handleIntent", "data: $data")
-        Log.d("handleIntent", "type: $type")
-        Log.d("handleIntent", "action: $action")
+        Log.d("onNewIntent", "${action}: $data")
 
+        val savedUrl = preferences.getString("saved_url", null)
+        val authToken = preferences.getString("auth_token", null)
+        Log.d("onNewIntent", "savedUrl: $savedUrl")
+        Log.d("onNewIntent", "authToken: $authToken")
+
+        Log.i("onNewIntent", "drawerLayout.closeDrawers")
+        binding.drawerLayout.closeDrawers()
+
+        // Check Auth First
+        if (savedUrl.isNullOrEmpty()) {
+            Log.i("onNewIntent", "LOCK DRAWER: savedUrl.isNullOrEmpty")
+            setDrawerLockMode(false)
+        }
+        Log.d("onNewIntent", "data?.host: ${data?.host}")
+        val noAuthHosts = setOf("oauth", "authorize")
+        Log.d("onNewIntent", "noAuthHosts: $noAuthHosts")
+        if (data?.host !in noAuthHosts && savedUrl.isNullOrEmpty()) {
+            Log.i("onNewIntent", "Missing Saved URL or Token! Showing Login...")
+            //setDrawerLockMode(false)
+            navController.navigate(
+                R.id.nav_item_login, null, NavOptions.Builder()
+                    .setPopUpTo(navController.graph.id, true)
+                    .build()
+            )
+            return
+        }
+
+        // Reject Calendar URI due to permissions
         val isCalendarUri = data != null &&
                 data.authority?.contains("calendar") == true &&
                 listOf("/events", "/calendars", "/time").any { data.path?.contains(it) == true }
-        Log.d("handleIntent", "isCalendarUri: $isCalendarUri")
+        Log.d("onNewIntent", "isCalendarUri: $isCalendarUri")
         if (isCalendarUri) {
-            Log.i("handleIntent", "Calendar Links Not Supported!")
+            Log.i("onNewIntent", "Calendar Links Not Supported!")
             Toast.makeText(this, "Calendar Links Not Supported!", Toast.LENGTH_LONG).show()
             return
         }
 
-        val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
-        Log.d("handleIntent", "extraText: $extraText")
-
-        val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", null)
-        Log.d("handleIntent", "savedUrl: $savedUrl")
-        //val authToken = sharedPreferences.getString("auth_token", null)
-        //Log.d("handleIntent", "authToken: $authToken")
-
-        if (savedUrl.isNullOrEmpty()) {
-            Log.i("handleIntent", "LOCK DRAWER: savedUrl.isNullOrEmpty")
-            setDrawerLockMode(false)
-        }
-        Log.i("handleIntent", "drawerLayout.closeDrawers")
-        binding.drawerLayout.closeDrawers()
-
-        Log.d("handleIntent", "data?.host: ${data?.host}")
-        val noAuthHosts = setOf("oauth", "authorize")
-        if (data?.host !in noAuthHosts && savedUrl.isNullOrEmpty()) {
-            Log.i("handleIntent", "Missing Saved URL or Token! Showing Login...")
-
-            //setDrawerLockMode(false)
-            navController.navigate(
-                R.id.nav_item_login, null, NavOptions.Builder()
-                    .setPopUpTo(R.id.nav_item_home, true)
-                    .build()
-            )
-
-        } else if (Intent.ACTION_MAIN == action) {
-            Log.d("handleIntent", "ACTION_MAIN")
-
-            //binding.drawerLayout.closeDrawers()
+        if (action == Intent.ACTION_MAIN) {
+            Log.d("onNewIntent", "ACTION_MAIN")
 
             // TODO: Cleanup the logic for handling MAIN intent...
-            //val currentDestinationId = navController.currentDestination?.id
-            //Log.d("handleIntent", "currentDestinationId: $currentDestinationId")
-            //val launcherAction = sharedPreferences.getString("launcher_action", null)
-            //Log.d("handleIntent", "launcherAction: $launcherAction")
-            //Log.d("handleIntent", "nav_item_preview: ${R.id.nav_item_preview}")
-            //Log.d("handleIntent", "nav_item_short: ${R.id.nav_item_short}")
-            //if (currentDestinationId == R.id.nav_item_preview || currentDestinationId == R.id.nav_item_short) {
-            //    Log.i("handleIntent", "ON PREVIEW/SHORT - Navigating to HomeFragment w/ setPopUpTo")
-            //    // TODO: Determine the correct navigation call here...
-            //    //navController.navigate(R.id.nav_item_home)
-            //    navController.navigate(
-            //        R.id.nav_item_home, null, NavOptions.Builder()
-            //            .setPopUpTo(navController.graph.id, true)
-            //            .build()
-            //    )
-            //} else if (currentDestinationId != R.id.nav_item_home && launcherAction != "previous") {
-            //    Log.i("handleIntent", "HOME SETTING SET - Navigating to HomeFragment")
-            //    navController.navigate(R.id.nav_item_home)
-            //}
-
+            val currentDestinationId = navController.currentDestination?.id
+            Log.d("onNewIntent", "currentDestinationId: $currentDestinationId")
             val fromShortcut = intent.getStringExtra("fromShortcut")
-            Log.d("handleIntent", "fromShortcut: $fromShortcut")
+            Log.d("onNewIntent", "fromShortcut: $fromShortcut")
+
+            when (currentDestinationId) {
+                R.id.nav_item_upload, R.id.nav_item_upload_multi, R.id.nav_item_short, R.id.nav_item_text -> {
+                    Log.i("onNewIntent", "Navigating away from preview page...")
+                    navController.navigate(
+                        navController.graph.startDestinationId, null, NavOptions.Builder()
+                            .setPopUpTo(navController.graph.id, true)
+                            .build()
+                    )
+                }
+            }
+
+            // TODO: Determine if this needs to be in the above if/else
             if (fromShortcut == "upload") {
-                Log.d("handleIntent", "filePickerLauncher.launch")
+                Log.d("onNewIntent", "filePickerLauncher.launch")
                 filePickerLauncher.launch(arrayOf("*/*"))
             }
 
-        } else if ("UPLOAD_FILE" == action) {
-            Log.d("handleIntent", "UPLOAD_FILE")
+        } else if (action == "UPLOAD_FILE") {
+            Log.d("onNewIntent", "UPLOAD_FILE")
 
             filePickerLauncher.launch(arrayOf("*/*"))
 
-        } else if ("FILE_LIST" == action) {
-            Log.d("handleIntent", "FILE_LIST")
+        } else if (action == "FILE_LIST") {
+            Log.d("onNewIntent", "FILE_LIST")
 
-            navController.navigate(R.id.nav_item_files)
+            if (navController.currentDestination?.id != R.id.nav_item_files) {
+                navController.navigate(R.id.nav_item_files)
+            }
 
-        } else if (Intent.ACTION_SEND == action) {
-            Log.d("handleIntent", "ACTION_SEND")
+        } else if (action == Intent.ACTION_SEND) {
+            Log.d("onNewIntent", "ACTION_SEND")
 
             val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
@@ -375,36 +375,30 @@ class MainActivity : AppCompatActivity() {
                 @Suppress("DEPRECATION")
                 intent.getParcelableExtra(Intent.EXTRA_STREAM)
             }
-            Log.d("handleIntent", "File URI: $fileUri")
+            Log.d("onNewIntent", "File URI: $fileUri")
+
+            val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
+            Log.d("onNewIntent", "extraText: ${extraText?.take(100)}")
 
             if (fileUri == null && !extraText.isNullOrEmpty()) {
-                Log.d("handleIntent", "SEND TEXT DETECTED")
+                Log.d("onNewIntent", "SEND TEXT DETECTED")
                 //if (extraText.lowercase().startsWith("http")) {
                 //if (Patterns.WEB_URL.matcher(extraText).matches()) {
                 if (isURL(extraText)) {
-                    Log.d("handleIntent", "URL DETECTED: $extraText")
-                    val bundle = Bundle().apply {
-                        putString("url", extraText)
-                    }
-                    // TODO: Determine how to properly navigate on new intent...
-                    //navController.navigate(R.id.nav_item_short, bundle)
-                    navController.popBackStack(R.id.nav_graph, true)
+                    Log.d("onNewIntent", "URL DETECTED: $extraText")
+                    val bundle = Bundle().apply { putString("url", extraText) }
                     navController.navigate(
                         R.id.nav_item_short, bundle, NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_item_home, true)
+                            .setPopUpTo(navController.graph.id, true)
                             .setLaunchSingleTop(true)
                             .build()
                     )
                 } else {
-                    Log.i("handleIntent", "PLAIN TEXT DETECTED")
-                    val bundle = Bundle().apply {
-                        putString("text", extraText)
-                    }
-                    // TODO: Determine how to properly navigate on new intent...
-                    navController.popBackStack(R.id.nav_graph, true)
+                    Log.i("onNewIntent", "PLAIN TEXT DETECTED")
+                    val bundle = Bundle().apply { putString("text", extraText) }
                     navController.navigate(
                         R.id.nav_item_text, bundle, NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_item_home, true)
+                            .setPopUpTo(navController.graph.id, true)
                             .setLaunchSingleTop(true)
                             .build()
                     )
@@ -413,8 +407,8 @@ class MainActivity : AppCompatActivity() {
                 showPreview(fileUri)
             }
 
-        } else if (Intent.ACTION_SEND_MULTIPLE == action) {
-            Log.d("handleIntent", "ACTION_SEND_MULTIPLE")
+        } else if (action == Intent.ACTION_SEND_MULTIPLE) {
+            Log.d("onNewIntent", "ACTION_SEND_MULTIPLE")
 
             val fileUris = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)
@@ -422,86 +416,74 @@ class MainActivity : AppCompatActivity() {
                 @Suppress("DEPRECATION")
                 intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM)
             }
-            Log.d("handleIntent", "fileUris: $fileUris")
+            Log.d("onNewIntent", "fileUris: $fileUris")
             if (fileUris == null) {
                 Toast.makeText(this, "Error Parsing URI!", Toast.LENGTH_LONG).show()
-                Log.w("handleIntent", "fileUris is null")
+                Log.w("onNewIntent", "fileUris is null")
                 return
             }
             showMultiPreview(fileUris)
 
-        } else if (Intent.ACTION_VIEW == action) {
-            Log.d("handleIntent", "ACTION_VIEW")
+        } else if (action == Intent.ACTION_VIEW) {
+            Log.d("onNewIntent", "ACTION_VIEW")
 
             if (data == null) {
                 Toast.makeText(this, "That's a Bug!", Toast.LENGTH_LONG).show()
-                Log.e("handleIntent", "BUG: UNKNOWN action: $action")
+                Log.e("onNewIntent", "BUG: UNKNOWN action: $action")
                 return
             }
             if ("djangofiles" == data.scheme) {
-                Log.d("handleIntent", "scheme: ${data.scheme}")
-                Log.d("handleIntent", "host: ${data.host}")
+                Log.d("onNewIntent", "scheme: ${data.scheme}")
+                Log.d("onNewIntent", "host: ${data.host}")
                 if ("serverlist" == data.host) {
-                    Log.d("handleIntent", "djangofiles://serverlist")
-                    navController.navigate(R.id.nav_item_settings)
+                    Log.d("onNewIntent", "djangofiles://serverlist")
+                    if (navController.currentDestination?.id != R.id.nav_item_settings) {
+                        navController.navigate(R.id.nav_item_settings)
+                    }
                 } else if ("logout" == data.host) {
                     processLogout()
                 } else if ("oauth" == data.host) {
                     processOauth(data)
                 } else if ("authorize" == data.host) {
-                    Log.w("handleIntent", "AUTHORIZE QR CODE - DO IT MAN!")
+                    Log.w("onNewIntent", "AUTHORIZE QR CODE - DO IT MAN!")
                     val url = data.getQueryParameter("url")
                     val signature = data.getQueryParameter("signature")
-                    Log.d("handleIntent", "url: $url")
-                    Log.d("handleIntent", "signature: $signature")
+                    Log.d("onNewIntent", "url: $url")
+                    Log.d("onNewIntent", "signature: $signature")
 
                     val bundle = Bundle().apply {
                         putString("url", url)
                         putString("signature", signature)
                     }
-                    //navController.navigate(R.id.nav_item_authorize, bundle)
-                    navController.popBackStack(R.id.nav_graph, true)
                     navController.navigate(
                         R.id.nav_item_authorize, bundle, NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_item_home, true)
+                            .setPopUpTo(navController.graph.id, true)
                             .setLaunchSingleTop(true)
                             .build()
                     )
 
                 } else {
                     Toast.makeText(this, "Unknown DeepLink!", Toast.LENGTH_LONG).show()
-                    Log.w("handleIntent", "Unknown DeepLink!")
+                    Log.w("onNewIntent", "Unknown DeepLink!")
                 }
             } else {
-                Log.d("handleIntent", "File URI: $data")
+                Log.d("onNewIntent", "File URI: $data")
                 showPreview(data)
             }
         } else {
             Toast.makeText(this, "That's a Bug!", Toast.LENGTH_LONG).show()
-            Log.e("handleIntent", "BUG: UNKNOWN action: $action")
+            Log.e("onNewIntent", "BUG: UNKNOWN action: $action")
         }
     }
 
     override fun onStop() {
-        super.onStop()
         Log.d("Main[onStop]", "MainActivity - onStop")
-        this.updateWidget()
-    }
-
-    private fun Context.updateWidget() {
-        Log.d("updateWidget", "Context.updateWidget")
-
-        //val appWidgetManager = AppWidgetManager.getInstance(this)
-        //val componentName = ComponentName(this, WidgetProvider::class.java)
-        //val ids = appWidgetManager.getAppWidgetIds(componentName)
-        //appWidgetManager.notifyAppWidgetViewDataChanged(ids, R.id.widget_list_view)
-        //WidgetProvider().onUpdate(this, appWidgetManager, ids)
-
-        // TODO: WidgetUpdate: Consolidate to a function...
+        // Update Widget
         val appWidgetManager = AppWidgetManager.getInstance(this)
         val componentName = ComponentName(this, WidgetProvider::class.java)
         val ids = appWidgetManager.getAppWidgetIds(componentName)
         WidgetProvider().onUpdate(this, appWidgetManager, ids)
+        super.onStop()
     }
 
     //private fun navigateIntent(destination: Int){
@@ -519,12 +501,10 @@ class MainActivity : AppCompatActivity() {
     private fun showMultiPreview(fileUris: ArrayList<Uri>) {
         Log.d("Main[showMultiPreview]", "fileUris: $fileUris")
         //fileUris.sort()
-        //binding.drawerLayout.closeDrawers()
         val bundle = Bundle().apply { putParcelableArrayList("fileUris", fileUris) }
-        navController.popBackStack(R.id.nav_graph, true)
         navController.navigate(
             R.id.nav_item_upload_multi, bundle, NavOptions.Builder()
-                .setPopUpTo(R.id.nav_item_home, true)
+                .setPopUpTo(navController.graph.id, true)
                 .setLaunchSingleTop(true)
                 .build()
         )
@@ -532,12 +512,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun showPreview(uri: Uri?) {
         Log.d("Main[showPreview]", "uri: $uri")
-        //binding.drawerLayout.closeDrawers()
         val bundle = Bundle().apply { putString("uri", uri.toString()) }
-        navController.popBackStack(R.id.nav_graph, true)
         navController.navigate(
             R.id.nav_item_upload, bundle, NavOptions.Builder()
-                .setPopUpTo(R.id.nav_item_home, true)
+                .setPopUpTo(navController.graph.id, true)
                 .setLaunchSingleTop(true)
                 .build()
         )
@@ -556,8 +534,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("processOauth", "error: $error")
 
         // TODO: Determine how to better get oauthUrl
-        val sharedPreferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val oauthUrl = sharedPreferences.getString("oauth_host", null)
+        val oauthUrl = preferences.getString("oauth_host", null)
         Log.d("processOauth", "oauthUrl: $oauthUrl")
         if (oauthUrl == null) {
             // TODO: Handle this error...
@@ -565,7 +542,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        sharedPreferences.edit {
+        preferences.edit {
             putString("saved_url", oauthUrl)
             putString("auth_token", token)
         }
@@ -592,20 +569,19 @@ class MainActivity : AppCompatActivity() {
         Log.d("processOauth", "origin: $origin")
         cookieManager.setCookie(origin, cookie) { cookieManager.flush() }
 
-        Log.d("processOauth", "navigate: nav_item_home - setPopUpTo: nav_item_login")
+        Log.d("processOauth", "navigate: startDestinationId")
         setDrawerLockMode(true)
         navController.navigate(
-            R.id.nav_item_home, null, NavOptions.Builder()
-                .setPopUpTo(R.id.nav_item_login, true)
+            navController.graph.startDestinationId, null, NavOptions.Builder()
+                .setPopUpTo(navController.graph.id, true)
                 .build()
         )
     }
 
     private fun processLogout() {
-        val sharedPreferences = this.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val savedUrl = sharedPreferences.getString("saved_url", null)
+        val savedUrl = preferences.getString("saved_url", null)
         Log.d("processLogout", "savedUrl: $savedUrl")
-        sharedPreferences.edit {
+        preferences.edit {
             remove("saved_url")
             remove("auth_token")
         }
@@ -620,11 +596,11 @@ class MainActivity : AppCompatActivity() {
             val servers = withContext(Dispatchers.IO) { dao.getAll() }
             Log.d("processLogout", "servers: $servers")
             if (servers.isEmpty()) {
-                Log.i("handleIntent", "LOCK DRAWER: NO MORE SERVERS")
+                Log.i("processLogout", "LOCK DRAWER: NO MORE SERVERS")
                 setDrawerLockMode(false)
                 navController.navigate(
                     R.id.nav_item_login, null, NavOptions.Builder()
-                        .setPopUpTo(R.id.nav_item_home, true)
+                        .setPopUpTo(navController.graph.id, true)
                         .build()
                 )
             } else {
@@ -634,7 +610,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("processLogout", "server: $server")
                 withContext(Dispatchers.IO) { dao.activate(server.url) }
 
-                sharedPreferences.edit().apply {
+                preferences.edit().apply {
                     putString("saved_url", server.url)
                     putString("auth_token", server.token)
                     apply()
@@ -642,18 +618,17 @@ class MainActivity : AppCompatActivity() {
 
                 Log.d("processLogout", "navigate: nav_item_login")
                 // TODO: Determine proper navigate call here...
-                navController.navigate(R.id.nav_item_settings)
-                //findNavController().navigate(
-                //    R.id.nav_item_settings, null, NavOptions.Builder()
-                //        .setPopUpTo(R.id.nav_item_home, true)
-                //        .build()
-                //)
+                //navController.navigate(R.id.nav_item_settings)
+                navController.navigate(
+                    R.id.nav_item_login, null, NavOptions.Builder()
+                        .setPopUpTo(navController.graph.startDestinationId, true)
+                        .build()
+                )
             }
         }
     }
 
     fun setDrawerLockMode(enabled: Boolean) {
-        // TODO: Update with a ViewModel...
         Log.d("setDrawerLockMode", "enabled: $enabled")
         val lockMode =
             if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
@@ -662,11 +637,13 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+
 @UnstableApi
 object MediaCache {
     lateinit var simpleCache: SimpleCache
     lateinit var cacheDataSourceFactory: CacheDataSource.Factory
 
+    // TODO: Make Cache Size User Configurable: 350 MB
     fun initialize(context: Context) {
         if (!::simpleCache.isInitialized) {
             simpleCache = SimpleCache(

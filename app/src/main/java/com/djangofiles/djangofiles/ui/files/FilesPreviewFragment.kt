@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles.ui.files
 
 import android.annotation.SuppressLint
-import android.content.Context.MODE_PRIVATE
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +21,7 @@ import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -90,6 +90,24 @@ class FilesPreviewFragment : Fragment() {
         _binding = null
     }
 
+    override fun onStart() {
+        super.onStart()
+        //Log.d("Authorize[onStart]", "onStart - Hide UI")
+        //requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+    }
+
+    override fun onStop() {
+        Log.d("Files[onStop]", "1 - ON STOP")
+        if (::player.isInitialized) {
+            Log.d("Files[onStop]", "player.isPlaying: ${player.isPlaying}")
+            isPlaying = player.isPlaying
+            player.pause()
+        }
+        //Log.d("Authorize[onStop]", "onStop - Show UI")
+        //requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.VISIBLE
+        super.onStop()
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -115,11 +133,10 @@ class FilesPreviewFragment : Fragment() {
 
         binding.fileName.text = fileName
 
-        val sharedPreferences =
-            requireContext().getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        val autoPlay = sharedPreferences.getBoolean("file_preview_autoplay", true)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val autoPlay = preferences.getBoolean("file_preview_autoplay", true)
         Log.d("FilesPreviewFragment", "autoPlay: $autoPlay")
-        val savedUrl = sharedPreferences.getString("saved_url", null)
+        val savedUrl = preferences.getString("saved_url", null)
         Log.d("FilesPreviewFragment", "savedUrl: $savedUrl")
 
         binding.playerView.transitionName = fileId.toString()
@@ -331,16 +348,6 @@ class FilesPreviewFragment : Fragment() {
     //    webView.onResume()
     //    webView.resumeTimers()
     //}
-
-    override fun onStop() {
-        Log.d("Files[onStop]", "1 - ON STOP")
-        super.onStop()
-        if (::player.isInitialized) {
-            Log.d("Files[onStop]", "player.isPlaying: ${player.isPlaying}")
-            isPlaying = player.isPlaying
-            player.pause()
-        }
-    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         Log.d("Files[onSave]", "2 - ON SAVE: outState: ${outState.size()}")

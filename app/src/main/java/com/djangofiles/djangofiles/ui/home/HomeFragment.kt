@@ -2,7 +2,6 @@ package com.djangofiles.djangofiles.ui.home
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -29,6 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.databinding.FragmentHomeBinding
 import com.djangofiles.djangofiles.db.ServerDao
@@ -44,6 +44,8 @@ class HomeFragment : Fragment() {
     private var currentUrl: String = ""
 
     val viewModel: HomeViewModel by activityViewModels()
+
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -93,8 +95,7 @@ class HomeFragment : Fragment() {
         Log.d("Home[onViewCreated]", "UA: $userAgent")
 
         //Log.d("Home[onViewCreated]", "BEFORE - currentUrl: $currentUrl")
-        val sharedPreferences = context?.getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        currentUrl = sharedPreferences?.getString("saved_url", "").toString()
+        currentUrl = preferences.getString("saved_url", "").toString()
         Log.d("Home[onViewCreated]", "Home[onViewCreated] - savedUrl/currentUrl: $currentUrl")
 
         binding.webView.apply {
@@ -304,7 +305,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // TODO: Consider passing sharedPreferences since context is only used for that...
     @Suppress("unused")
     inner class WebAppInterface(private var context: Context) {
 
@@ -317,7 +317,6 @@ class HomeFragment : Fragment() {
         fun receiveAuthToken(authToken: String) {
             Log.d("receiveAuthToken", "Received auth token: $authToken")
 
-            val preferences = context.getSharedPreferences("AppPreferences", MODE_PRIVATE)
             val currentToken = preferences.getString("auth_token", null) ?: ""
             Log.d("receiveAuthToken", "currentToken: $currentToken")
             val currentUrl = preferences.getString("saved_url", null) ?: ""

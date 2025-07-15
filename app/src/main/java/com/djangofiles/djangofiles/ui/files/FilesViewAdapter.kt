@@ -57,7 +57,7 @@ class FilesViewAdapter(
         val itemSelect: FrameLayout = view.findViewById(R.id.item_select)
         val itemBorder: LinearLayout = view.findViewById(R.id.item_border)
         val checkMark: ImageView = view.findViewById(R.id.check_mark)
-        val openMenu: LinearLayout = view.findViewById(R.id.open_menu)
+        val openMenu: LinearLayout = view.findViewById(R.id.menu_button)
         val loadingSpinner: ProgressBar = view.findViewById(R.id.loading_spinner)
     }
 
@@ -103,7 +103,7 @@ class FilesViewAdapter(
             if (data.password.isNotEmpty()) null else colorOnSecondary
 
         // Expiration
-        viewHolder.fileExpr.text = data.expr
+        //viewHolder.fileExpr.text = data.expr
         viewHolder.fileExpr.compoundDrawableTintList =
             if (data.expr.isNotEmpty()) null else colorOnSecondary
 

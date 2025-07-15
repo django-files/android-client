@@ -1,6 +1,5 @@
 package com.djangofiles.djangofiles.ui.login
 
-import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +15,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
@@ -25,6 +25,7 @@ import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.files.getAlbums
 import com.djangofiles.djangofiles.work.updateStats
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -36,8 +37,10 @@ class LoginTwoFragment : Fragment() {
     private var _binding: FragmentLoginTwoBinding? = null
     private val binding get() = _binding!!
 
-    //private val viewModel: LoginViewModel by viewModels()
     private val viewModel: LoginViewModel by activityViewModels()
+
+    private val navController by lazy { findNavController() }
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +56,19 @@ class LoginTwoFragment : Fragment() {
         _binding = FragmentLoginTwoBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Login[onStart]", "onStart - Hide UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+    }
+
+    override fun onStop() {
+        Log.d("Login[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -90,8 +106,6 @@ class LoginTwoFragment : Fragment() {
         if (binding.loginLocal.isVisible) {
             binding.loginUsername.requestFocus()
         }
-
-        val sharedPreferences = appContext.getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
         val loginFunction = View.OnClickListener {
             Log.d("OnClickListener", "it: ${it.id}")
@@ -138,7 +152,7 @@ class LoginTwoFragment : Fragment() {
                     }
                     return@launch
                 }
-                sharedPreferences.edit {
+                preferences.edit {
                     putString("saved_url", hostname)
                     putString("auth_token", token)
                 }
@@ -152,28 +166,13 @@ class LoginTwoFragment : Fragment() {
                 Log.i("loginFunction", "UNLOCK DRAWER: MainActivity: setDrawerLockMode(true)")
                 (requireActivity() as MainActivity).setDrawerLockMode(true)
                 withContext(Dispatchers.Main) {
-                    Log.d("loginFunction", "navigate: nav_item_home")
-                    findNavController().navigate(
-                        R.id.nav_item_home, null, NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_item_login, true)
+                    Log.d("loginFunction", "navigate: startDestinationId")
+                    navController.navigate(
+                        navController.graph.startDestinationId, null, NavOptions.Builder()
+                            .setPopUpTo(navController.graph.id, true)
                             .build()
                     )
                 }
-                //// TODO: Determine how to allow password manager save prompt after login...
-                //withContext(Dispatchers.Main) {
-                //    binding.loginUsername.clearFocus()
-                //    binding.loginPassword.clearFocus()
-                //    val imm = requireContext().getSystemService(InputMethodManager::class.java)
-                //    imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
-                //
-                //    Handler(Looper.getMainLooper()).post {
-                //        findNavController().navigate(
-                //            R.id.nav_item_home, null, NavOptions.Builder()
-                //                .setPopUpTo(R.id.nav_item_login, true)
-                //                .build()
-                //        )
-                //    }
-                //}
                 Log.d("loginFunction", "DONE")
             }
         }
@@ -191,9 +190,7 @@ class LoginTwoFragment : Fragment() {
             }
 
             Log.d("OnClickListener", "oauth_host: $hostname")
-            sharedPreferences.edit {
-                putString("oauth_host", hostname)
-            }
+            preferences.edit { putString("oauth_host", hostname) }
 
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             startActivity(intent)
@@ -204,11 +201,6 @@ class LoginTwoFragment : Fragment() {
         binding.loginDiscord.setOnClickListener(oauthFunction)
         binding.loginGithub.setOnClickListener(oauthFunction)
         binding.loginGoogle.setOnClickListener(oauthFunction)
-        binding.goBack.setOnClickListener {
-            findNavController().navigateUp()
-            //if (!findNavController().popBackStack()) {
-            //    requireActivity().finishAffinity()
-            //}
-        }
+        binding.goBack.setOnClickListener { navController.navigateUp() }
     }
 }

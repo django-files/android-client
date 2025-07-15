@@ -1,10 +1,10 @@
 package com.djangofiles.djangofiles
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Log
 import android.webkit.CookieManager
 import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.google.gson.GsonBuilder
@@ -38,18 +38,15 @@ import retrofit2.http.Query
 import java.io.InputStream
 import java.net.URLConnection
 
-//import android.os.Parcelable
-//import kotlinx.parcelize.Parcelize
-
 class ServerApi(val context: Context, host: String) {
-    val api: ApiService
     val hostname: String = host
     val authToken: String
-    val preferences: SharedPreferences =
-        context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+    val api: ApiService
 
     private lateinit var cookieJar: SimpleCookieJar
     private lateinit var client: OkHttpClient
+
+    private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
     init {
         api = createRetrofit().create(ApiService::class.java)

@@ -17,20 +17,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        <LinearLayout
+
+        <ImageView
             android:id="@+id/files_select_all"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
             android:layout_height="match_parent"
+            android:padding="6dp"
             android:gravity="center"
-            android:background="?attr/selectableItemBackground">
-            <ImageView
-                android:id="@+id/check_box_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginHorizontal="8dp"
-                android:contentDescription="Select All"
-                android:src="@drawable/md_check_box_outline_blank_24px" />
-        </LinearLayout>
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Select All"
+            android:src="@drawable/md_check_box_outline_blank_24px" />
+
         <TextView
             android:id="@+id/files_total_text"
             android:layout_width="wrap_content"
@@ -68,45 +65,38 @@
             android:text="@string/files_selected_total"
             tools:text="999 / 999 Files" />
 
-        <LinearLayout
+        <ImageView
             android:id="@+id/album_all_button"
             android:layout_width="48dp"
             android:layout_height="match_parent"
+            android:padding="6dp"
             android:gravity="center"
-            android:background="?attr/selectableItemBackground">
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:contentDescription="Delete All"
-                android:src="@drawable/md_imagesmode_24" />
-        </LinearLayout>
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Delete All"
+            android:src="@drawable/md_imagesmode_24" />
 
-        <LinearLayout
+        <ImageView
             android:id="@+id/expire_all_button"
             android:layout_width="48dp"
             android:layout_height="match_parent"
+            android:padding="6dp"
             android:gravity="center"
-            android:background="?attr/selectableItemBackground">
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:contentDescription="Delete All"
-                android:src="@drawable/md_timer_24" />
-        </LinearLayout>
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Delete All"
+            android:src="@drawable/md_timer_24" />
 
-        <LinearLayout
+        <ImageView
             android:id="@+id/delete_all_button"
             android:layout_width="48dp"
             android:layout_height="match_parent"
+            android:layout_marginEnd="12dp"
+            android:padding="6dp"
             android:gravity="center"
-            android:background="?attr/selectableItemBackground">
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:contentDescription="Delete All"
-                android:src="@drawable/md_delete_24px"
-                app:tint="@android:color/holo_red_dark" />
-        </LinearLayout>
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Delete All"
+            android:src="@drawable/md_delete_24px"
+            app:tint="@android:color/holo_red_dark" />
+
     </LinearLayout>
 
     <TextView
@@ -168,9 +158,9 @@
         android:layout_width="match_parent"
         android:layout_height="18dp"
         android:gravity="center"
-        android:background="?attr/colorSecondary"
+        android:background="@android:color/holo_green_dark"
         android:text="Files Reloaded."
-        android:textColor="?attr/colorOnSecondary"
+        android:textColor="@android:color/white"
         android:textSize="12sp"
         android:visibility="visible"
         android:alpha="0"

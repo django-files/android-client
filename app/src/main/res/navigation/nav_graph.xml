@@ -35,8 +35,8 @@
         android:label="Settings">
         <!-- Widget Settings -->
         <action
-            android:id="@+id/nav_action_widget_settings"
-            app:destination="@id/nav_item_widget_settings"
+            android:id="@+id/nav_action_settings_widget"
+            app:destination="@id/nav_item_settings_widget"
             app:exitAnim="@anim/slide_out_left"
             app:enterAnim="@anim/slide_in_left"
             app:popEnterAnim="@anim/slide_in_right"
@@ -53,7 +53,7 @@
     </fragment>
     <!-- Widget Settings -->
     <fragment
-        android:id="@+id/nav_item_widget_settings"
+        android:id="@+id/nav_item_settings_widget"
         android:name="com.djangofiles.djangofiles.ui.settings.WidgetSettingsFragment"
         android:label="Widget Settings" />
     <!-- Add Server Part 1 -->

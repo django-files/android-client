@@ -1,23 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <PreferenceCategory android:title="Application Settings">
+        <ListPreference
+            android:key="start_destination"
+            android:title="Start Destination on Launch"
+            android:defaultValue="home"
+            android:entries="@array/launcher_entries"
+            android:entryValues="@array/launcher_values"
+            android:icon="@drawable/md_flight_takeoff_24px"
+            tools:summary="Home Web View" />
+
+        <SwitchPreferenceCompat
+            android:title="Show Share after Upload"
+            android:key="share_after_upload"
+            android:icon="@drawable/md_attach_file_add_24px"
+            android:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            android:title="Show Share after Shorten"
+            android:key="share_after_short"
+            android:icon="@drawable/md_add_link_24px"
+            android:defaultValue="true" />
+
+        <Preference
+            android:key="add_server_btn"
+            android:title="Add Server"
+            android:icon="@android:drawable/ic_input_add"
+            android:summary="Add More Django Files Servers" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="server_list"
+        android:title="Saved Servers" />
 
     <PreferenceCategory android:title="File List">
+        <androidx.preference.SeekBarPreference
+            android:key="files_per_page"
+            android:title="Files Per Page"
+            android:icon="@drawable/md_format_list_numbered_24"
+            android:defaultValue="30"
+            android:max="100"
+            app:min="10"
+            app:showSeekBarValue="true" />
+
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:icon="@drawable/md_auto_read_play_24px"
             android:key="file_preview_autoplay"
             android:title="Auto Play Media on Preview"
             android:summary="For File Preview"/>
-
-        <androidx.preference.SeekBarPreference
-            android:key="files_per_page"
-            android:title="Files Per Page"
-            android:icon="@drawable/md_format_list_numbered_24"
-            android:defaultValue="25"
-            android:max="100"
-            app:min="10"
-            app:showSeekBarValue="true" />
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
@@ -27,17 +61,15 @@
             android:summary="For File List"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Upload Options"
-        android:key="app_options">
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:icon="@drawable/md_share_24"
-            android:key="share_after_short"
-            android:title="Share URL After Generation"
-            android:summary="For URL Shortening" />
-    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="widget_settings"
+        android:title="Widget Settings">
+        <Preference
+            android:key="open_widget_settings"
+            android:title="Edit Widget Settings"
+            android:summary="Text and Background Color"
+            android:icon="@drawable/md_widgets_24px" />
 
-    <PreferenceCategory android:title="App Settings">
         <ListPreference
             android:key="work_interval"
             android:title="Background Update Interval"
@@ -52,32 +84,9 @@
             android:summary="To Improve Widget Updates"
             android:icon="@drawable/md_battery_profile_24px"
             android:shouldDisableView="true" />
-
-        <Preference
-            android:key="add_server_btn"
-            android:title="Add Server"
-            android:icon="@android:drawable/ic_input_add"
-            android:summary="Add More Django Files Servers" />
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:key="server_list"
-        android:title="Saved Servers" />
-
-    <PreferenceCategory
-        android:key="widget_settings"
-        android:title="Widget Settings">
-
-        <Preference
-            android:key="open_widget_settings"
-            android:title="Edit Widget Settings"
-            android:summary="Text and Background Color"
-            android:icon="@drawable/md_widgets_24px" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="App Information">
-
+    <PreferenceCategory android:title="Application Information">
         <SwitchPreferenceCompat
             android:key="analytics_enabled"
             android:title="Enable Analytics"
@@ -103,4 +112,5 @@
             android:summary="Edit Android Settings"
             android:icon="@drawable/md_mobile_gear_24px" />
     </PreferenceCategory>
+
 </PreferenceScreen>
