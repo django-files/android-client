@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +24,6 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import androidx.transition.Slide
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
 import com.bumptech.glide.load.model.GlideUrl
@@ -312,30 +310,32 @@ class FilesFragment : Fragment() {
                     filesAdapter.selected.clear()
                     Log.i("File[refreshLayout]", "3 - getFiles: ON REFRESH")
                     getFiles(perPage, true)
-                    binding.refreshLayout.isRefreshing = false
-                    binding.refreshLayout.isEnabled = false
-                    Log.d("File[refreshLayout]", "DONE")
-                    // Fade In
-                    binding.refreshBanner.post {
-                        binding.refreshBanner.translationY = -binding.refreshBanner.height.toFloat()
-                        binding.refreshBanner.visibility = View.VISIBLE
-                        binding.refreshBanner.animate()
-                            .alpha(1f)
-                            .translationY(0f)
-                            .setDuration(400)
-                            .start()
+                    _binding?.let {
+                        it.refreshLayout.isRefreshing = false
+                        it.refreshLayout.isEnabled = false
+                        Log.d("File[refreshLayout]", "DONE")
+                        // Fade In
+                        it.refreshBanner.post {
+                            it.refreshBanner.translationY = -it.refreshBanner.height.toFloat()
+                            it.refreshBanner.visibility = View.VISIBLE
+                            it.refreshBanner.animate()
+                                .alpha(1f)
+                                .translationY(0f)
+                                .setDuration(400)
+                                .start()
+                        }
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            // Fade Out
+                            it.refreshBanner.animate()
+                                .alpha(0f)
+                                .translationY(-it.refreshBanner.height.toFloat())
+                                .setDuration(400)
+                                .withEndAction {
+                                    it.refreshBanner.visibility = View.GONE
+                                }
+                                .start()
+                        }, 1600)
                     }
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        // Fade Out
-                        binding.refreshBanner.animate()
-                            .alpha(0f)
-                            .translationY(-binding.refreshBanner.height.toFloat())
-                            .setDuration(400)
-                            .withEndAction {
-                                binding.refreshBanner.visibility = View.GONE
-                            }
-                            .start()
-                    }, 1600)
                 }
             }
         })
