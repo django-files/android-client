@@ -19,6 +19,7 @@
 - [Features](#Features)
   - [Planned](#Planned)
   - [Known Issues](#Known-Issues)
+  - [Troubleshooting](#Troubleshooting)
 - [Screenshots](#Screenshots)
 - [Development](#Development)
   - [Android Studio](#Android-Studio)
@@ -43,8 +44,10 @@ Screenshots can be found on the website: https://django-files.github.io/android/
 
 ## Install
 
-> [!TIP]  
+> [!IMPORTANT]  
 > Google Play is starting Closed Testing. To be included contact us on [Discord](https://discord.gg/wXy6m2X8wY).
+
+_If you are unsure how to install, [Obtainium](https://github.com/ImranR98/Obtainium) is highly recommended..._
 
 <a title="Get on GitHub" href="https://github.com/django-files/android-client/releases/latest/download/app-release.apk">
     <img alt="GitHub" height="76" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android/get/github.png"></a>
@@ -81,13 +84,17 @@ For more information, see [Release through a website](https://developer.android.
 
 ### Setup
 
+You can log in via password, OAuth, or QR Code.
+
+### QR Code Authentication
+
 1. [Install](#Install) and open the app on your device.
 2. Go to the Django Files User Settings, and
    - Scan the QR Code with your Phone
    - Click the link from your Phone
 3. Done.
 
-or
+### Normal Login
 
 1. [Install](#Install) and open the app on your device.
 2. Enter the URL to your Django Files server.
@@ -98,7 +105,7 @@ To use, share or open any file and choose the Django Files app.
 The app will then upload the file to your Django Files server.
 Additionally, the URL is copied to the clipboard and the preview show in the app.
 
-> [!NOTE]  
+> [!TIP]  
 > Swipe from the left to access the Android menu.
 
 ## Features
@@ -114,10 +121,15 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 ### Planned
 
 - File Upload
-  - Add More Upload Options
+  - Add Custom Upload Options
+  - Add Default Upload Options
 - File List
+  - Download Manager
+  - Album Filter Dropdown
+  - List or Grid Display Option
   - Response Caching for Infinite Scroll
 - File List Preview
+  - Media Swiper
   - File Options
   - PDF Previews
 
@@ -127,7 +139,13 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
 - Uploading files from the website works; however, taking picture/recording does not.
 - Logging out and deleting servers may have some unexpected results, but should work.
 
-Note: If the app gets in a bad state, clear the app data or reinstall the application.
+### Troubleshooting
+
+Try these steps in order:
+
+1. Fully close the app and re-open it again.
+2. Clear the cache storage in App Settings.
+3. Clear the App Data or re-install.
 
 For more planned features you can check out the internal [TODO.md](TODO.md).
 
