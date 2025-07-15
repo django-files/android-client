@@ -29,8 +29,10 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.MediaCache
+import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -88,6 +90,25 @@ class FilesPreviewFragment : Fragment() {
             webView.destroy()
         }
         _binding = null
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Authorize[onStart]", "onStart - Hide UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+    }
+
+    override fun onStop() {
+        Log.d("Files[onStop]", "1 - ON STOP")
+        if (::player.isInitialized) {
+            Log.d("Files[onStop]", "player.isPlaying: ${player.isPlaying}")
+            isPlaying = player.isPlaying
+            player.pause()
+        }
+        Log.d("Authorize[onStop]", "onStop - Show UI")
+        requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
+            View.VISIBLE
+        super.onStop()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -331,16 +352,6 @@ class FilesPreviewFragment : Fragment() {
     //    webView.onResume()
     //    webView.resumeTimers()
     //}
-
-    override fun onStop() {
-        Log.d("Files[onStop]", "1 - ON STOP")
-        super.onStop()
-        if (::player.isInitialized) {
-            Log.d("Files[onStop]", "player.isPlaying: ${player.isPlaying}")
-            isPlaying = player.isPlaying
-            player.pause()
-        }
-    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         Log.d("Files[onSave]", "2 - ON SAVE: outState: ${outState.size()}")

@@ -217,6 +217,7 @@ class MainActivity : AppCompatActivity() {
         )
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             val path = itemPathMap[menuItem.itemId]
+            Log.d("setNavigationItemSelectedListener", "path: $path")
             if (path != null) {
                 Log.d("Drawer", "path: $path")
                 val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
@@ -234,12 +235,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (navController.currentDestination?.id != R.id.nav_item_home) {
                     Log.d("Drawer", "NAVIGATE: nav_item_home")
-                    navController.navigate(R.id.nav_item_home)
+                    // NOTE: This is the correct navigation call...
+                    val homeMenuItem = binding.navView.menu.findItem(R.id.nav_item_home)
+                    NavigationUI.onNavDestinationSelected(homeMenuItem, navController)
                 }
                 binding.drawerLayout.closeDrawers()
                 true
-            }
-            if (menuItem.itemId == R.id.nav_item_upload) {
+            } else if (menuItem.itemId == R.id.nav_item_upload) {
                 Log.d("Drawer", "nav_item_upload")
                 filePickerLauncher.launch(arrayOf("*/*"))
                 binding.drawerLayout.closeDrawers()

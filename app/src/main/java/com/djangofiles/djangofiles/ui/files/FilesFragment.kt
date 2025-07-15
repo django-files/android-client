@@ -181,10 +181,10 @@ class FilesFragment : Fragment() {
                 getString(R.string.files_selected_total, selectedSize, filesSize)
             if (selectedSize == filesSize) {
                 //Log.i("filesData[updateCheckButton]", "ALL SELECTED")
-                binding.checkBoxIcon.setImageResource(R.drawable.md_check_box_24px)
+                binding.filesSelectAll.setImageResource(R.drawable.md_check_box_24px)
             } else {
                 //Log.i("filesData[updateCheckButton]", "NOT ALL SELECTED")
-                binding.checkBoxIcon.setImageResource(R.drawable.md_check_box_outline_blank_24px)
+                binding.filesSelectAll.setImageResource(R.drawable.md_check_box_outline_blank_24px)
             }
         }
 
