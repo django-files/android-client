@@ -112,12 +112,12 @@ class WidgetProvider : AppWidgetProvider() {
             views.setTextColor(R.id.files_unit, selectedTextColor)
             views.setTextColor(R.id.update_time, selectedTextColor)
 
-            views.setInt(R.id.files_icon, "setColorFilter", selectedTextColor)
-            views.setInt(R.id.size_icon, "setColorFilter", selectedTextColor)
+            //views.setInt(R.id.files_icon, "setColorFilter", selectedTextColor)
+            //views.setInt(R.id.size_icon, "setColorFilter", selectedTextColor)
 
             views.setInt(R.id.widget_refresh_button, "setColorFilter", selectedTextColor)
             views.setInt(R.id.widget_upload_button, "setColorFilter", selectedTextColor)
-            views.setInt(R.id.file_list_button, "setColorFilter", selectedTextColor)
+            //views.setInt(R.id.file_list_button, "setColorFilter", selectedTextColor)
 
             // Refresh
             val intent1 = Intent(context, WidgetProvider::class.java).apply {
@@ -145,17 +145,17 @@ class WidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.widget_upload_button, pendingIntent2)
 
-            // File List
-            val intent3 = Intent(context, MainActivity::class.java).apply {
-                action = "FILE_LIST"
-            }
-            val pendingIntent3 = PendingIntent.getActivity(
-                context,
-                0,
-                intent3,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.file_list_button, pendingIntent3)
+            //// File List
+            //val intent3 = Intent(context, MainActivity::class.java).apply {
+            //    action = "FILE_LIST"
+            //}
+            //val pendingIntent3 = PendingIntent.getActivity(
+            //    context,
+            //    0,
+            //    intent3,
+            //    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            //)
+            //views.setOnClickPendingIntent(R.id.file_list_button, pendingIntent3)
 
             // Room Data
             GlobalScope.launch(Dispatchers.IO) {
