@@ -4,6 +4,17 @@
     </style>
     <style name="Theme.djangofiles" parent="Base.Theme.djangofiles" />
 
+    <!--<style name="BottomNavigation.TextActive" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">-->
+    <!--    <item name="android:textSize">12sp</item>-->
+    <!--</style>-->
+    <!--<style name="BottomNavigation.TextInactive" parent="TextAppearance.AppCompat">-->
+    <!--    <item name="android:textSize">10sp</item>-->
+    <!--</style>-->
+
+    <style name="BottomNavigation.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:height">24dp</item>
+    </style>
+
     <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="shapeAppearanceOverlay">@style/AlertDialogCorner</item>
     </style>

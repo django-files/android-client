@@ -1,10 +1,10 @@
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/content_main_layout"
+<androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/content_main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment_content_main"
@@ -20,7 +20,12 @@
         android:id="@+id/bottom_nav"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
+        android:minHeight="56dp"
+        app:itemIconSize="20dp"
+        app:itemPaddingTop="8dp"
+        app:itemPaddingBottom="10dp"
+        app:itemTextAppearanceActiveBoldEnabled="false"
+        app:itemActiveIndicatorStyle="@style/BottomNavigation.Indicator"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

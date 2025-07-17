@@ -1,8 +1,10 @@
 package com.djangofiles.djangofiles.ui.files
 
+import android.app.DownloadManager
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +14,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
@@ -37,10 +40,12 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
     private var _binding: FragmentFilesBottomBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: FilesViewModel by activityViewModels()
+
+    private lateinit var downloadManager: DownloadManager
+
     private lateinit var savedUrl: String
     private lateinit var filePassword: String
-
-    private val viewModel: FilesViewModel by activityViewModels()
 
     companion object {
         fun newInstance(bundle: Bundle) = FilesBottomSheet().apply {
@@ -157,9 +162,32 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
             }
             requireContext().showExpireDialog(listOf(data.id), ::callback, data.expr)
         }
-        // Open
-        binding.openButton.setOnClickListener {
-            requireContext().openUrl(data.url)
+        //// Open
+        //binding.openButton.setOnClickListener {
+        //    requireContext().openUrl(data.url)
+        //}
+        // Download
+        downloadManager =
+            requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+
+        binding.downloadButton.setOnClickListener {
+            Log.d("downloadButton", "${data.name} - ${data.raw}")
+            binding.downloadButton.isEnabled = false
+            val request = DownloadManager.Request(data.raw.toUri()).apply {
+                setTitle(data.name)
+                setMimeType(data.mime)
+                setDescription("Django Files")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, data.name)
+                setAllowedOverMetered(true)
+                setAllowedOverRoaming(true)
+                setRequiresCharging(false)
+            }
+
+            val downloadId = downloadManager.enqueue(request)
+            Log.d("downloadButton", "Download ID: $downloadId")
+            Toast.makeText(requireContext(), "Download Started", Toast.LENGTH_SHORT).show()
+            //dismiss()
         }
 
         // Image
