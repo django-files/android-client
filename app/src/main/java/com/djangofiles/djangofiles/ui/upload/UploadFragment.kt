@@ -113,6 +113,13 @@ class UploadFragment : Fragment() {
         Log.d("Upload[onViewCreated]", "savedInstanceState: $savedInstanceState")
         Log.d("Upload[onViewCreated]", "arguments: $arguments")
 
+        //ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+        //    val bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+        //    Log.d("ViewCompat", "bottom: $bottom")
+        //    //v.updatePadding(bottom = bottom)
+        //    insets
+        //}
+
         val savedUrl = preferences.getString("saved_url", null)
         val authToken = preferences.getString("auth_token", null)
         Log.d("Upload[onViewCreated]", "savedUrl: $savedUrl - authToken: $authToken")

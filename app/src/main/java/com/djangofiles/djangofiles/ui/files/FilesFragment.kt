@@ -18,6 +18,9 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -119,6 +122,13 @@ class FilesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //Log.d("File[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            Log.d("ViewCompat", "top: $top")
+            v.updatePadding(top = top)
+            insets
+        }
 
         Log.d("File[onViewCreated]", "DELAY: postponeEnterTransition")
         postponeEnterTransition()

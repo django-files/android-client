@@ -15,12 +15,14 @@
             android:id="@+id/preview_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            android:clipToPadding="false"
             android:scrollbars="vertical"
-            tools:itemCount="8"
             tools:viewBindingType="androidx.recyclerview.widget.RecyclerView"
             tools:layoutManager="GridLayoutManager"
-            tools:spanCount="2"
-            tools:listitem="@layout/file_item_upload" />
+            tools:listitem="@layout/file_item_upload"
+            tools:itemCount="8"
+            tools:spanCount="2" />
     </FrameLayout>
 
 
@@ -28,6 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:fitsSystemWindows="true"
         android:paddingHorizontal="8dp"
         android:orientation="vertical">
         <androidx.constraintlayout.widget.ConstraintLayout

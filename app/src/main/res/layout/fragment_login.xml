@@ -4,85 +4,90 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="?android:attr/colorBackground">
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="24dp"
-        android:paddingVertical="8dp">
+        android:gravity="center_vertical"
+        android:fitsSystemWindows="true">
 
-        <ImageView
-            android:id="@+id/app_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="8dp"
-            android:contentDescription="@string/app_name"
-            android:src="@mipmap/ic_launcher" />
-
-        <TextView
-            android:id="@+id/site_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@string/app_name"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
-        <EditText
-            android:id="@+id/hostname_text"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:padding="10dp"
-            android:autofillHints="url"
-            android:hint="@string/setup_host_placeholder"
-            android:inputType="textUri"
-            android:drawableEnd="@drawable/md_http_24px"
-            android:drawableTint="?android:attr/textColorTertiary" />
-
-        <Button
-            android:id="@+id/continue_btn"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:drawableEnd="@drawable/md_login_24px"
-            android:paddingEnd="36dp"
-            android:paddingStart="36dp"
-            android:text="Continue"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-
-        <Button
-            android:id="@+id/go_back_btn"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:paddingEnd="36dp"
-            android:paddingStart="36dp"
-            android:text="Go Back"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="?android:attr/colorActivatedHighlight"
-            android:drawableEnd="@drawable/md_undo_24px"
-            android:drawableTint="?android:attr/colorActivatedHighlight"
-            app:backgroundTint="@android:color/transparent"
-            app:rippleColor="#33FFFF00"
-            app:strokeColor="?android:attr/colorActivatedHighlight"
-            app:strokeWidth="2dp" />
-
-        <TextView
-            android:id="@+id/website_link"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="https://django-files.github.io"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@android:color/holo_blue_dark"
-            android:drawablePadding="8dp"
-            app:drawableStartCompat="@drawable/md_captive_portal_24px" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="24dp">
 
+            <ImageView
+                android:id="@+id/app_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@string/app_name"
+                android:src="@mipmap/ic_launcher" />
+
+            <TextView
+                android:id="@+id/site_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/app_name"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+            <EditText
+                android:id="@+id/hostname_text"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:padding="10dp"
+                android:autofillHints="url"
+                android:hint="@string/setup_host_placeholder"
+                android:inputType="textUri"
+                android:drawableEnd="@drawable/md_http_24px"
+                android:drawableTint="?android:attr/textColorTertiary" />
+
+            <Button
+                android:id="@+id/continue_btn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:drawableEnd="@drawable/md_login_24px"
+                android:paddingEnd="36dp"
+                android:paddingStart="36dp"
+                android:text="Continue"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+            <Button
+                android:id="@+id/go_back_btn"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:paddingEnd="36dp"
+                android:paddingStart="36dp"
+                android:text="Go Back"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="?android:attr/colorActivatedHighlight"
+                android:drawableEnd="@drawable/md_undo_24px"
+                android:drawableTint="?android:attr/colorActivatedHighlight"
+                app:backgroundTint="@android:color/transparent"
+                app:rippleColor="#33FFFF00"
+                app:strokeColor="?android:attr/colorActivatedHighlight"
+                app:strokeWidth="2dp" />
+
+            <TextView
+                android:id="@+id/website_link"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="https://django-files.github.io"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@android:color/holo_blue_dark"
+                android:drawablePadding="8dp"
+                app:drawableStartCompat="@drawable/md_captive_portal_24px" />
+
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

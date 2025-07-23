@@ -24,6 +24,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
@@ -60,7 +63,6 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         Log.d("Home[onDestroyView]", "webView.destroy()")
-        super.onDestroyView()
         binding.webView.apply {
             loadUrl("about:blank")
             stopLoading()
@@ -68,6 +70,7 @@ class HomeFragment : Fragment() {
             removeAllViews()
             destroy()
         }
+        super.onDestroyView()
         _binding = null
     }
 
@@ -75,6 +78,24 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Home[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
+
+        // TODO: Determine how to apply safe-area-inset-* to WebView...
+        //view.setOnApplyWindowInsetsListener { view, insets -> insets }
+        //ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets -> insets }
+        //ViewCompat.setOnApplyWindowInsetsListener(binding.webView) { v, insets ->
+        //    val top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+        //    Log.d("WebViewInsets", "systemBars top: $top")
+        //    v.updatePadding(top = top)
+        //    insets
+        //}
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            Log.d("ViewCompat", "top: $top")
+            v.updatePadding(top = top)
+            insets
+        }
+
         Log.d("Home[onViewCreated]", "webViewState: ${webViewState.size()}")
         // TODO: Not sure when this method is triggered...
         if (savedInstanceState != null) {
