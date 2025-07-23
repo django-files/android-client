@@ -20,6 +20,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
@@ -119,12 +122,11 @@ class UploadFragment : Fragment() {
         Log.d("Upload[onViewCreated]", "savedInstanceState: $savedInstanceState")
         Log.d("Upload[onViewCreated]", "arguments: $arguments")
 
-        //ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-        //    val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-        //    Log.d("ViewCompat", "bottom: ${bars.bottom}")
-        //    v.updatePadding(bottom = bars.bottom)
-        //    insets
-        //}
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(top = bars.top, bottom = bars.bottom)
+            insets
+        }
 
         val savedUrl = preferences.getString("saved_url", null)
         val authToken = preferences.getString("auth_token", null)
