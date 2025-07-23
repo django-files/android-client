@@ -300,7 +300,7 @@ class MainActivity : AppCompatActivity() {
                     showPreview(uris[0])
                 } else {
                     Log.w("filePickerLauncher", "No Files Selected!")
-                    Toast.makeText(this, "No Files Selected!", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "No Files Selected!", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -668,6 +668,10 @@ class MainActivity : AppCompatActivity() {
             if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
         Log.d("setDrawerLockMode", "setDrawerLockMode: $lockMode")
         binding.drawerLayout.setDrawerLockMode(lockMode)
+    }
+
+    fun launchFilePicker() {
+        filePickerLauncher.launch(arrayOf("*/*"))
     }
 }
 
