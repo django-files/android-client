@@ -1,8 +1,11 @@
 package com.djangofiles.djangofiles.ui.files
 
+import android.app.Dialog
 import android.app.DownloadManager
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -28,6 +31,7 @@ import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesBottomBinding
 import com.djangofiles.djangofiles.db.AlbumDatabase
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.CornerFamily
@@ -68,6 +72,20 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         // Force max height sheet in landscape
         val behavior = BottomSheetBehavior.from(requireView().parent as View)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    // NOTE: This is to set the bottom sheet navigation bar colors...
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        dialog.setOnShowListener {
+            dialog.window?.navigationBarColor = Color.TRANSPARENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                dialog.window?.setNavigationBarContrastEnforced(false)
+            }
+            dialog.window?.decorView?.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        }
+        return dialog
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

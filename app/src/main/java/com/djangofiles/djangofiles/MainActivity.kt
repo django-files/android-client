@@ -25,8 +25,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.get
 import androidx.core.view.size
+import androidx.core.view.updatePadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
@@ -109,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         navController = navHostFragment.navController
+
         // Start Destination
         if (savedInstanceState == null) {
             val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
@@ -119,11 +123,14 @@ class MainActivity : AppCompatActivity() {
             navGraph.setStartDestination(startDestination)
             navController.graph = navGraph
         }
+
         // Bottom Navigation
         val bottomNav = binding.appBarMain.contentMain.bottomNav
         bottomNav.setupWithNavController(navController)
+
         // Navigation Drawer
         binding.navView.setupWithNavController(navController)
+
         // Destinations w/ a Parent Item
         val destinationToBottomNavItem = mapOf(
             R.id.nav_item_file_preview to R.id.nav_item_files,
@@ -140,15 +147,12 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             Log.d("addOnDestinationChangedListener", "destination: ${destination.label}")
             binding.drawerLayout.closeDrawer(GravityCompat.START)
-
             val destinationId = destination.id
-
             if (destinationId in hiddenDestinations) {
                 Log.d("addOnDestinationChangedListener", "Set bottomNav to Hidden Item")
                 bottomNav.menu.findItem(R.id.nav_wtf).isChecked = true
                 return@addOnDestinationChangedListener
             }
-
             val matchedItem = destinationToBottomNavItem[destinationId]
             if (matchedItem != null) {
                 Log.d("addOnDestinationChangedListener", "matched nav item: $matchedItem")
@@ -172,16 +176,41 @@ class MainActivity : AppCompatActivity() {
             preferences.edit { putString("unique_id", uuid) }
         }
 
-        // Setup Nav Drawer Header
+        //// Initialize Shared Preferences Listener
+        //Log.d(LOG_TAG, "Initialize Shared Preferences Listener")
+        //preferences.registerOnSharedPreferenceChangeListener(listener)
+
+        // Update Status Bar
+        window.statusBarColor = Color.TRANSPARENT
+        //WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
+
+
+        //binding.drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
+        //WindowCompat.setDecorFitsSystemWindows(window, false)
+        //window.decorView.setOnApplyWindowInsetsListener { view, insets -> insets }
+
+
+        // Update Navigation Bar
+        window.navigationBarColor = Color.TRANSPARENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.setNavigationBarContrastEnforced(false)
+        }
+
+        // Set Nav Header Top Padding
+        val headerView = binding.navView.getHeaderView(0)
+        ViewCompat.setOnApplyWindowInsetsListener(headerView) { v, insets ->
+            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            Log.d("ViewCompat", "top: $top")
+            v.updatePadding(top = top)
+            insets
+        }
+
+        // Update Header Text
         val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
         val versionName = packageInfo.versionName
         Log.d("Main[onCreate]", "versionName: $versionName")
-
-        val headerView = binding.navView.getHeaderView(0)
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
-
-        binding.drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
 
         // TODO: Improve initialization of the WorkRequest
         val workInterval = preferences.getString("work_interval", null) ?: "0"
@@ -268,7 +297,6 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "No Files Selected!", Toast.LENGTH_SHORT).show()
                 }
             }
-
 
         MediaCache.initialize(this)
 

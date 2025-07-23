@@ -22,18 +22,16 @@
   - [Known Issues](#Known-Issues)
   - [Troubleshooting](#Troubleshooting)
 - [Screenshots](#Screenshots)
+- [Support](#Support)
 - [Development](#Development)
   - [Android Studio](#Android-Studio)
   - [Command Line](#Command-Line)
-- [Support](#Support)
 - [Contributing](#Contributing)
 
 Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
-Screenshots can be found on the website: https://django-files.github.io/android/
-
-- Supports Android 8 (API 26) 2017 or Newer.
+Additional screenshots can be found on the website: https://django-files.github.io/android/
 
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
@@ -50,10 +48,8 @@ Screenshots can be found on the website: https://django-files.github.io/android/
 
 _If you are unsure how to install, [Obtainium](https://github.com/ImranR98/Obtainium) is highly recommended..._
 
-<a title="Get on GitHub" href="https://github.com/django-files/android-client/releases/latest/download/app-release.apk">
-    <img alt="GitHub" height="76" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android/get/github.png"></a>
-<a title="Get onObtainium" href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/django-files/android-client">
-    <img alt="Obtainium" height="76" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android/get/obtainium.png"></a>
+[![Get on GitHub](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android/get80/github.png)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+[![Get on Obtainium](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/android/get80/obtainium.png)](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/django-files/android-client)
 
 <details><summary>📲 Click to View QR Codes 📸</summary>
 
@@ -64,6 +60,8 @@ _If you are unsure how to install, [Obtainium](https://github.com/ImranR98/Obtai
 </details>
 
 _Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
+
+- Supports Android 8 (API 26) 2017 +
 
 Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 should take you to the settings area to allow installation if not already enabled.
@@ -184,6 +182,19 @@ For more planned features you can check out the internal [TODO.md](TODO.md).
     <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/14.jpg"></a>
 <a title="Screenshot" href="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/15.jpg">
     <img alt="Screenshot" src="https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/screenshots/15.jpg"></a>
+
+## Support
+
+For general help or to request a feature, see:
+
+- Q&A Discussion: https://github.com/django-files/android-client/discussions/categories/q-a
+- Request a Feature: https://github.com/django-files/android-client/discussions/categories/feature-requests
+
+If you are experiencing an issue/bug or getting unexpected results, you can:
+
+- Report an Issue: https://github.com/django-files/android-client/issues
+- Chat with us on Discord: https://discord.gg/wXy6m2X8wY
+- Provide General Feedback: [https://cssnr.github.io/feedback/](https://cssnr.github.io/feedback/?app=Django%20Files%20Android%20App)
 
 # Development
 
@@ -310,19 +321,6 @@ Only 1 app can be in debug mode at a time and this must be set every restart.
 > [!NOTE]  
 > Note: To disable/enable Analytics or Crashlytics set the `manifestPlaceholders`
 > in the [build.gradle.kts](app/build.gradle.kts) file to the respective values.
-
-# Support
-
-For general help or to request a feature, see:
-
-- Q&A Discussion: https://github.com/django-files/android-client/discussions/categories/q-a
-- Request a Feature: https://github.com/django-files/android-client/discussions/categories/feature-requests
-
-If you are experiencing an issue/bug or getting unexpected results, you can:
-
-- Report an Issue: https://github.com/django-files/android-client/issues
-- Chat with us on Discord: https://discord.gg/wXy6m2X8wY
-- Provide General Feedback: [https://cssnr.github.io/feedback/](https://cssnr.github.io/feedback/?app=Django%20Files%20Android%20App)
 
 # Contributing
 

@@ -17,6 +17,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -67,6 +70,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
             View.VISIBLE
         super.onStop()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            Log.d("ViewCompat", "top: $top")
+            v.updatePadding(top = top)
+
+            if (arguments?.getBoolean("hide_bottom_nav") == true) {
+                val bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                Log.d("ViewCompat", "bottom: $bottom")
+                v.updatePadding(bottom = bottom)
+            }
+            insets
+        }
     }
 
     @SuppressLint("BatteryLife")

@@ -3,6 +3,9 @@ package com.djangofiles.djangofiles.ui.settings
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
@@ -26,6 +29,22 @@ class WidgetSettingsFragment : PreferenceFragmentCompat() {
         requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
             View.VISIBLE
         super.onStop()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            Log.d("ViewCompat", "top: $top")
+            v.updatePadding(top = top)
+
+            if (arguments?.getBoolean("hide_bottom_nav") == true) {
+                val bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                Log.d("ViewCompat", "bottom: $bottom")
+                v.updatePadding(bottom = bottom)
+            }
+            insets
+        }
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
