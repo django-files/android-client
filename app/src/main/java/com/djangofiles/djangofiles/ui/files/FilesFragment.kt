@@ -32,6 +32,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
 import com.bumptech.glide.load.model.GlideUrl
+import com.djangofiles.djangofiles.MainActivity
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.ServerApi.FileResponse
@@ -124,9 +125,9 @@ class FilesFragment : Fragment() {
         //Log.d("File[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            Log.d("ViewCompat", "top: $top")
-            v.updatePadding(top = top)
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            Log.d("ViewCompat", "top: ${bars.top}")
+            v.updatePadding(top = bars.top)
             insets
         }
 
@@ -511,6 +512,11 @@ class FilesFragment : Fragment() {
             for (pos in updateRequest) {
                 filesAdapter.notifyItemChanged(pos)
             }
+        }
+
+        binding.uploadFiles.setOnClickListener {
+            Log.d("uploadFiles", "setOnClickListener")
+            (requireActivity() as MainActivity).launchFilePicker()
         }
     }
 

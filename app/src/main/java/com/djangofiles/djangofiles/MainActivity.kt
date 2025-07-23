@@ -184,11 +184,17 @@ class MainActivity : AppCompatActivity() {
         window.statusBarColor = Color.TRANSPARENT
         //WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
 
+        // Set Global Left/Right System Insets
+        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarMain.contentMain.contentMainLayout) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            Log.i("Main[ViewCompat]", "bars: $bars")
+            v.updatePadding(left = bars.left, right = bars.right)
+            insets
+        }
 
         //binding.drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
         //WindowCompat.setDecorFitsSystemWindows(window, false)
         //window.decorView.setOnApplyWindowInsetsListener { view, insets -> insets }
-
 
         // Update Navigation Bar
         window.navigationBarColor = Color.TRANSPARENT
@@ -199,9 +205,9 @@ class MainActivity : AppCompatActivity() {
         // Set Nav Header Top Padding
         val headerView = binding.navView.getHeaderView(0)
         ViewCompat.setOnApplyWindowInsetsListener(headerView) { v, insets ->
-            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            Log.d("ViewCompat", "top: $top")
-            v.updatePadding(top = top)
+            val bars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            Log.d("ViewCompat", "top: ${bars.top}")
+            v.updatePadding(top = bars.top)
             insets
         }
 
@@ -294,7 +300,7 @@ class MainActivity : AppCompatActivity() {
                     showPreview(uris[0])
                 } else {
                     Log.w("filePickerLauncher", "No Files Selected!")
-                    Toast.makeText(this, "No Files Selected!", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "No Files Selected!", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -662,6 +668,10 @@ class MainActivity : AppCompatActivity() {
             if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
         Log.d("setDrawerLockMode", "setDrawerLockMode: $lockMode")
         binding.drawerLayout.setDrawerLockMode(lockMode)
+    }
+
+    fun launchFilePicker() {
+        filePickerLauncher.launch(arrayOf("*/*"))
     }
 }
 

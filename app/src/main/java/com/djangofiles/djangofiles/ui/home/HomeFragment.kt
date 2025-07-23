@@ -90,9 +90,9 @@ class HomeFragment : Fragment() {
         //}
 
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            Log.d("ViewCompat", "top: $top")
-            v.updatePadding(top = top)
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            Log.d("ViewCompat", "top: ${bars.top}")
+            v.updatePadding(top = bars.top)
             insets
         }
 

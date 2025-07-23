@@ -16,7 +16,8 @@
         android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="UseCompoundDrawables">
 
         <ImageView
             android:id="@+id/files_select_all"
@@ -36,6 +37,29 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:text="Loading…"
             tools:text="999 Files" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/default_header"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:visibility="visible"
+        android:orientation="horizontal"
+        android:layout_marginStart="48dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_goneMarginTop="0dp"
+        tools:visibility="visible">
+        <ImageView
+            android:id="@+id/upload_files"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:padding="6dp"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Upload Files"
+            android:src="@drawable/md_upload_24px" />
     </LinearLayout>
 
     <LinearLayout

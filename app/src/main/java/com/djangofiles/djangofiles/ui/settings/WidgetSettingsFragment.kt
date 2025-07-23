@@ -34,14 +34,13 @@ class WidgetSettingsFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            Log.d("ViewCompat", "top: $top")
-            v.updatePadding(top = top)
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            Log.d("ViewCompat", "top: ${bars.top}")
+            v.updatePadding(top = bars.top)
 
             if (arguments?.getBoolean("hide_bottom_nav") == true) {
-                val bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-                Log.d("ViewCompat", "bottom: $bottom")
-                v.updatePadding(bottom = bottom)
+                Log.d("ViewCompat", "bottom: ${bars.bottom}")
+                v.updatePadding(bottom = bars.bottom)
             }
             insets
         }

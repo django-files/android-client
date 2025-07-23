@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:minHeight="60dp"
         app:itemPaddingTop="8dp"
-        app:itemPaddingBottom="0dp"
+        app:itemPaddingBottom="2dp"
         app:itemTextAppearanceActiveBoldEnabled="false"
         app:itemActiveIndicatorStyle="@style/BottomNavigation.Indicator"
         app:layout_constraintBottom_toBottomOf="parent"
