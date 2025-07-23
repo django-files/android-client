@@ -16,6 +16,8 @@
             android:id="@+id/preview_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            android:clipToPadding="false"
             android:scrollbars="vertical"
             tools:itemCount="8"
             tools:viewBindingType="androidx.recyclerview.widget.RecyclerView"
