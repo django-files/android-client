@@ -184,11 +184,17 @@ class MainActivity : AppCompatActivity() {
         window.statusBarColor = Color.TRANSPARENT
         //WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
 
+        // Set Global Left/Right System Insets
+        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarMain.contentMain.contentMainLayout) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            Log.i("Main[ViewCompat]", "bars: $bars")
+            v.updatePadding(left = bars.left, right = bars.right)
+            insets
+        }
 
         //binding.drawerLayout.setStatusBarBackgroundColor(Color.TRANSPARENT)
         //WindowCompat.setDecorFitsSystemWindows(window, false)
         //window.decorView.setOnApplyWindowInsetsListener { view, insets -> insets }
-
 
         // Update Navigation Bar
         window.navigationBarColor = Color.TRANSPARENT

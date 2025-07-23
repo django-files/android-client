@@ -90,6 +90,9 @@ class UploadFragment : Fragment() {
         super.onStart()
         Log.d("Upload[onStart]", "onStart - Hide UI")
         requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
+        //val window = requireActivity().window
+        //val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        //windowInsetsController.hide(Type.systemBars())
     }
 
     override fun onStop() {
@@ -104,6 +107,9 @@ class UploadFragment : Fragment() {
         Log.d("Upload[onStop]", "onStop - Show UI")
         requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility =
             View.VISIBLE
+        //val window = requireActivity().window
+        //val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        //windowInsetsController.show(Type.systemBars())
         super.onStop()
     }
 
