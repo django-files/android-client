@@ -120,9 +120,9 @@ class UploadFragment : Fragment() {
         Log.d("Upload[onViewCreated]", "arguments: $arguments")
 
         //ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-        //    val bottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-        //    Log.d("ViewCompat", "bottom: $bottom")
-        //    //v.updatePadding(bottom = bottom)
+        //    val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        //    Log.d("ViewCompat", "bottom: ${bars.bottom}")
+        //    v.updatePadding(bottom = bars.bottom)
         //    insets
         //}
 

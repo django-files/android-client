@@ -205,9 +205,9 @@ class MainActivity : AppCompatActivity() {
         // Set Nav Header Top Padding
         val headerView = binding.navView.getHeaderView(0)
         ViewCompat.setOnApplyWindowInsetsListener(headerView) { v, insets ->
-            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            Log.d("ViewCompat", "top: $top")
-            v.updatePadding(top = top)
+            val bars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            Log.d("ViewCompat", "top: ${bars.top}")
+            v.updatePadding(top = bars.top)
             insets
         }
 
