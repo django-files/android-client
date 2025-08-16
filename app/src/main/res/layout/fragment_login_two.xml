@@ -4,154 +4,148 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    tools:ignore="HardcodedText">
+<LinearLayout
+    android:id="@+id/scroll_view_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
 
+    <!-- NOTE: Insets are applied to the above layout as padding -->
     <LinearLayout
-        android:id="@+id/scroll_view_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical">
-        <!-- NOTE: Insets are applied to the above layout as padding -->
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp"
+        tools:ignore="UselessParent">
+
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/ic_launcher" />
+        <TextView
+            android:id="@+id/site_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
         <LinearLayout
+            android:id="@+id/login_local"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:padding="24dp"
-            tools:ignore="UselessParent">
-
-            <ImageView
-                android:id="@+id/app_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="@string/app_name"
-                android:src="@mipmap/ic_launcher" />
-
-            <TextView
-                android:id="@+id/site_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/app_name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
-            <LinearLayout
-                android:id="@+id/login_local"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <EditText
-                    android:id="@+id/login_username"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:autofillHints="username"
-                    android:hint="Username"
-                    android:inputType="text"
-                    android:padding="10dp"
-                    android:drawableEnd="@drawable/md_account_circle_24px"
-                    android:drawableTint="?android:attr/textColorTertiary" />
-
-                <EditText
-                    android:id="@+id/login_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:padding="10dp"
-                    android:autofillHints="password"
-                    android:hint="Password"
-                    android:inputType="textPassword"
-                    android:drawableEnd="@drawable/md_key_24"
-                    android:drawableTint="?android:attr/textColorTertiary" />
-
-                <Button
-                    android:id="@+id/add_server_login"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:drawableEnd="@drawable/md_login_24px"
-                    android:paddingEnd="36dp"
-                    android:paddingStart="36dp"
-                    android:text="Local Login"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/login_discord"
+            android:visibility="gone"
+            tools:visibility="visible">
+            <EditText
+                android:id="@+id/login_username"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:drawableEnd="@drawable/fa_discord"
-                android:drawableTint="?attr/colorOnSurface"
-                android:paddingEnd="36dp"
-                android:paddingStart="36dp"
-                android:visibility="gone"
-                android:text="Discord Login"
-                android:tag="discord"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSurface"
-                app:backgroundTint="#7785cc"
-                app:rippleColor="#40FFFFFF"
-                tools:visibility="visible" />
-
-            <Button
-                android:id="@+id/login_github"
+                android:autofillHints="username"
+                android:hint="Username"
+                android:inputType="text"
+                android:padding="10dp"
+                android:drawableEnd="@drawable/md_account_circle_24px"
+                android:drawableTint="?android:attr/textColorTertiary" />
+            <EditText
+                android:id="@+id/login_password"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:drawableEnd="@drawable/fa_github"
-                android:drawableTint="?attr/colorOnSurface"
-                android:paddingEnd="36dp"
-                android:paddingStart="36dp"
-                android:visibility="gone"
-                android:text="GitHub Login"
-                android:tag="github"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSurface"
-                app:backgroundTint="@android:color/transparent"
-                app:rippleColor="@color/github_ripple"
-                app:strokeColor="?attr/colorOnSurface"
-                app:strokeWidth="2dp"
-                tools:visibility="visible" />
-
+                android:padding="10dp"
+                android:autofillHints="password"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:drawableEnd="@drawable/md_key_24"
+                android:drawableTint="?android:attr/textColorTertiary" />
             <Button
-                android:id="@+id/login_google"
+                android:id="@+id/add_server_login"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:drawableEnd="@drawable/fa_google"
-                android:drawableTint="?attr/colorOnSurface"
+                android:drawableEnd="@drawable/md_login_24px"
                 android:paddingEnd="36dp"
                 android:paddingStart="36dp"
-                android:visibility="gone"
-                android:text="Google Login"
-                android:tag="google"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSurface"
-                app:backgroundTint="#4285F4"
-                app:rippleColor="#40FFFFFF"
-                tools:visibility="visible" />
-
-            <Button
-                android:id="@+id/go_back"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="16dp"
-                android:paddingEnd="36dp"
-                android:paddingStart="36dp"
-                android:text="Go Back"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?android:attr/colorActivatedHighlight"
-                android:drawableEnd="@drawable/md_undo_24px"
-                android:drawableTint="?android:attr/colorActivatedHighlight"
-                app:backgroundTint="@android:color/transparent"
-                app:rippleColor="#33FFFF00"
-                app:strokeColor="?android:attr/colorActivatedHighlight"
-                app:strokeWidth="2dp" />
-
+                android:text="Local Login"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/login_discord"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:drawableEnd="@drawable/fa_discord"
+            android:drawableTint="?attr/colorOnSurface"
+            android:paddingEnd="36dp"
+            android:paddingStart="36dp"
+            android:visibility="gone"
+            android:text="Discord Login"
+            android:tag="discord"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?attr/colorOnSurface"
+            app:backgroundTint="#7785cc"
+            app:rippleColor="#40FFFFFF"
+            tools:visibility="visible" />
+        <Button
+            android:id="@+id/login_github"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:drawableEnd="@drawable/fa_github"
+            android:drawableTint="?attr/colorOnSurface"
+            android:paddingEnd="36dp"
+            android:paddingStart="36dp"
+            android:visibility="gone"
+            android:text="GitHub Login"
+            android:tag="github"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?attr/colorOnSurface"
+            app:backgroundTint="@android:color/transparent"
+            app:rippleColor="@color/github_ripple"
+            app:strokeColor="?attr/colorOnSurface"
+            app:strokeWidth="2dp"
+            tools:visibility="visible" />
+        <Button
+            android:id="@+id/login_google"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:drawableEnd="@drawable/fa_google"
+            android:drawableTint="?attr/colorOnSurface"
+            android:paddingEnd="36dp"
+            android:paddingStart="36dp"
+            android:visibility="gone"
+            android:text="Google Login"
+            android:tag="google"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?attr/colorOnSurface"
+            app:backgroundTint="#4285F4"
+            app:rippleColor="#40FFFFFF"
+            tools:visibility="visible" />
+        <Button
+            android:id="@+id/go_back"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:paddingEnd="36dp"
+            android:paddingStart="36dp"
+            android:text="Go Back"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?android:attr/colorActivatedHighlight"
+            android:drawableEnd="@drawable/md_undo_24px"
+            android:drawableTint="?android:attr/colorActivatedHighlight"
+            app:backgroundTint="@android:color/transparent"
+            app:rippleColor="#33FFFF00"
+            app:strokeColor="?android:attr/colorActivatedHighlight"
+            app:strokeWidth="2dp" />
+
     </LinearLayout>
+
+</LinearLayout>
 </ScrollView>

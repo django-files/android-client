@@ -58,8 +58,8 @@ import com.djangofiles.djangofiles.work.DailyWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.File
-import java.net.URL
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -202,12 +202,14 @@ class MainActivity : AppCompatActivity() {
             window.setNavigationBarContrastEnforced(false)
         }
 
-        // Set Nav Header Top Padding
+        // Update Header Padding
         val headerView = binding.navView.getHeaderView(0)
-        ViewCompat.setOnApplyWindowInsetsListener(headerView) { v, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            Log.d("ViewCompat", "top: ${bars.top}")
-            v.updatePadding(top = bars.top)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            Log.d("ViewCompat", "binding.root: top: ${bars.top}")
+            if (bars.top > 0) {
+                headerView.updatePadding(top = bars.top)
+            }
             insets
         }
 
@@ -418,8 +420,8 @@ class MainActivity : AppCompatActivity() {
                 Log.d("onNewIntent", "SEND TEXT DETECTED")
                 //if (extraText.lowercase().startsWith("http")) {
                 //if (Patterns.WEB_URL.matcher(extraText).matches()) {
-                if (isURL(extraText)) {
-                    Log.d("onNewIntent", "URL DETECTED: $extraText")
+                if (isTextUrl(extraText)) {
+                    Log.i("onNewIntent", "URL DETECTED: $extraText")
                     val bundle = Bundle().apply { putString("url", extraText) }
                     navController.navigate(
                         R.id.nav_item_short, bundle, NavOptions.Builder()
@@ -662,6 +664,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun isTextUrl(input: String): Boolean {
+        val url = input.toHttpUrlOrNull() ?: return false
+        if (input != url.toString()) return false
+        if (url.scheme !in listOf("http", "https")) return false
+        if (url.host.isBlank()) return false
+        if (url.toString().length > 2048) return false
+        return true
+    }
+
     fun setDrawerLockMode(enabled: Boolean) {
         Log.d("setDrawerLockMode", "enabled: $enabled")
         val lockMode =
@@ -708,15 +719,4 @@ fun copyToClipboard(context: Context, text: String, msg: String? = null) {
     val clip = ClipData.newPlainText("Text", text)
     clipboard.setPrimaryClip(clip)
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-}
-
-fun isURL(url: String): Boolean {
-    return try {
-        URL(url)
-        Log.d("isURL", "TRUE")
-        true
-    } catch (_: Exception) {
-        Log.d("isURL", "FALSE")
-        false
-    }
 }

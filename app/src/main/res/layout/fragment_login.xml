@@ -4,41 +4,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    tools:ignore="HardcodedText">
+<LinearLayout
+    android:id="@+id/scroll_view_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
 
+    <!-- NOTE: Insets are applied to the above layout as padding -->
     <LinearLayout
-        android:id="@+id/scroll_view_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical">
-        <!-- NOTE: Insets are applied to the above layout as padding -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp"
+        tools:ignore="UselessParent">
+
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:padding="24dp"
-            tools:ignore="UselessParent">
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/ic_launcher" />
+        <TextView
+            android:id="@+id/site_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
-            <ImageView
-                android:id="@+id/app_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="@string/app_name"
-                android:src="@mipmap/ic_launcher" />
-
-            <TextView
-                android:id="@+id/site_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/app_name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/inputs_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/buttons_layout"
+            app:layout_constraintWidth_max="488dp"
+            android:orientation="vertical">
             <EditText
                 android:id="@+id/hostname_text"
                 android:layout_width="match_parent"
@@ -49,7 +62,17 @@
                 android:inputType="textUri"
                 android:drawableEnd="@drawable/md_http_24px"
                 android:drawableTint="?android:attr/textColorTertiary" />
-
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/buttons_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/inputs_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintWidth_max="320dp"
+            android:orientation="vertical">
             <Button
                 android:id="@+id/continue_btn"
                 android:layout_width="match_parent"
@@ -60,7 +83,6 @@
                 android:paddingStart="36dp"
                 android:text="Continue"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-
             <Button
                 android:id="@+id/go_back_btn"
                 android:layout_width="match_parent"
@@ -77,18 +99,21 @@
                 app:rippleColor="#33FFFF00"
                 app:strokeColor="?android:attr/colorActivatedHighlight"
                 app:strokeWidth="2dp" />
-
-            <TextView
-                android:id="@+id/website_link"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="https://django-files.github.io"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@android:color/holo_blue_dark"
-                android:drawablePadding="8dp"
-                app:drawableStartCompat="@drawable/md_captive_portal_24px" />
-
         </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/website_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="https://django-files.github.io"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/holo_blue_dark"
+            android:drawablePadding="8dp"
+            app:drawableStartCompat="@drawable/md_captive_portal_24px" />
+
     </LinearLayout>
+
+</LinearLayout>
 </ScrollView>
