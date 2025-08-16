@@ -30,8 +30,8 @@ import com.djangofiles.djangofiles.databinding.FragmentUploadMultiBinding
 import com.djangofiles.djangofiles.db.AlbumDatabase
 import com.djangofiles.djangofiles.ui.files.AlbumFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
