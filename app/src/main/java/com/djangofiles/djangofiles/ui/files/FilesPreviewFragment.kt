@@ -93,12 +93,6 @@ class FilesPreviewFragment : Fragment() {
         _binding = null
     }
 
-    override fun onStart() {
-        super.onStart()
-        //Log.d("Authorize[onStart]", "onStart - Hide UI")
-        //requireActivity().findViewById<BottomNavigationView>(R.id.bottom_nav).visibility = View.GONE
-    }
-
     override fun onStop() {
         Log.d("Files[onStop]", "1 - ON STOP")
         if (::player.isInitialized) {
