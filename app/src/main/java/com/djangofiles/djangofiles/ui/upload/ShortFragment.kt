@@ -22,8 +22,8 @@ import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentShortBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.analytics.analytics
 import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

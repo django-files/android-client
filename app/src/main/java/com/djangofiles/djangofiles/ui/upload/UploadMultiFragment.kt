@@ -30,8 +30,8 @@ import com.djangofiles.djangofiles.databinding.FragmentUploadMultiBinding
 import com.djangofiles.djangofiles.db.AlbumDatabase
 import com.djangofiles.djangofiles.ui.files.AlbumFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.analytics.analytics
 import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,10 +47,6 @@ class UploadMultiFragment : Fragment() {
 
     private val navController by lazy { findNavController() }
     private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(requireContext()) }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
