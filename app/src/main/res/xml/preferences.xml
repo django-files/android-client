@@ -74,9 +74,16 @@
             android:key="work_interval"
             android:title="Background Update Interval"
             android:defaultValue="1440"
-            android:entries="@array/dropdown_entries"
-            android:entryValues="@array/dropdown_values"
-            android:icon="@drawable/md_timer_24" />
+            android:entries="@array/work_interval_entries"
+            android:entryValues="@array/work_interval_values"
+            android:icon="@drawable/md_timer_24"
+            tools:summary="1 Hour" />
+
+        <SwitchPreferenceCompat
+            android:key="work_metered"
+            android:title="Updates on Metered Connection"
+            android:icon="@drawable/md_signal_cellular_alt_24"
+            android:defaultValue="true" />
 
         <Preference
             android:key="battery_unrestricted"

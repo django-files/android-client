@@ -18,11 +18,11 @@ import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentLoginBinding
-import com.djangofiles.djangofiles.isURL
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class LoginFragment : Fragment() {
 
@@ -92,7 +92,10 @@ class LoginFragment : Fragment() {
                 binding.hostnameText.setSelection(binding.hostnameText.text.length)
             }
             Log.d("loginFunction", "host: $host")
-            if (!isURL(host)) {
+            // TODO: Look into the usage of (host.toHttpUrlOrNull() == null) here.
+            //  NOTE: This seems to be less restrictive so should work and can be improved...
+            //if (!isURL(host)) {
+            if (host.toHttpUrlOrNull() == null) {
                 binding.hostnameText.error = "Invalid Hostname"
                 return@OnClickListener
             }
@@ -190,16 +193,63 @@ class LoginFragment : Fragment() {
     }
 
     private fun parseHost(urlString: String): String {
-        var url = urlString.trim()
-        if (url.isEmpty()) {
+        try {
+            var url = urlString.trim()
+            if (url.isEmpty()) {
+                return ""
+            }
+            if (!url.lowercase().startsWith("http")) {
+                url = "https://$url"
+            }
+            if (url.toHttpUrlOrNull() == null) {
+                return url
+            }
+            val uri = url.toUri()
+            Log.d("parseHost", "uri: $uri")
+            Log.d("parseHost", "uri.scheme: ${uri.scheme}")
+            if (uri.scheme.isNullOrEmpty()) {
+                return "https://"
+            }
+            Log.d("parseHost", "uri.host: ${uri.host}")
+            if (uri.host.isNullOrEmpty()) {
+                return "${uri.scheme}://"
+            }
+            Log.d("parseHost", "uri.path: ${uri.path}")
+            val result = "${uri.scheme}://${uri.host}${uri.path}"
+            Log.i("parseHost", "result: $result")
+            return if (result.endsWith("/")) {
+                result.dropLast(1)
+            } else {
+                result
+            }
+        } catch (e: Throwable) {
+            Log.d("parseHost", "Exception: $e")
             return ""
         }
-        if (!url.lowercase().startsWith("http")) {
-            url = "https://$url"
-        }
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length - 1)
-        }
-        return url
     }
+
+    //private fun parseHost(urlString: String): String {
+    //    var url = urlString.trim()
+    //    if (url.isEmpty()) {
+    //        return ""
+    //    }
+    //    if (!url.lowercase().startsWith("http")) {
+    //        url = "https://$url"
+    //    }
+    //    if (url.endsWith("/")) {
+    //        url = url.substring(0, url.length - 1)
+    //    }
+    //    return url
+    //}
+
+    //private fun isURL(url: String): Boolean {
+    //    return try {
+    //        URL(url)
+    //        Log.d("isURL", "TRUE")
+    //        true
+    //    } catch (_: Exception) {
+    //        Log.d("isURL", "FALSE")
+    //        false
+    //    }
+    //}
 }

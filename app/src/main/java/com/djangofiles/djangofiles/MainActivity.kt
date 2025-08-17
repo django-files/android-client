@@ -45,7 +45,6 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.db.Server
@@ -53,15 +52,13 @@ import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.home.HomeViewModel
 import com.djangofiles.djangofiles.widget.WidgetProvider
-import com.djangofiles.djangofiles.work.DAILY_WORKER_CONSTRAINTS
-import com.djangofiles.djangofiles.work.DailyWorker
+import com.djangofiles.djangofiles.work.enqueueWorkRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.File
-import java.net.URL
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -202,40 +199,34 @@ class MainActivity : AppCompatActivity() {
             window.setNavigationBarContrastEnforced(false)
         }
 
-        // Set Nav Header Top Padding
+        // Update Header Padding
         val headerView = binding.navView.getHeaderView(0)
-        ViewCompat.setOnApplyWindowInsetsListener(headerView) { v, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            Log.d("ViewCompat", "top: ${bars.top}")
-            v.updatePadding(top = bars.top)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            Log.d("ViewCompat", "binding.root: top: ${bars.top}")
+            if (bars.top > 0) {
+                headerView.updatePadding(top = bars.top)
+            }
             insets
         }
 
         // Update Header Text
-        val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
         val versionName = packageInfo.versionName
         Log.d("Main[onCreate]", "versionName: $versionName")
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
 
-        // TODO: Improve initialization of the WorkRequest
+        // Work Manager
         val workInterval = preferences.getString("work_interval", null) ?: "0"
-        Log.i("Main[onCreate]", "workInterval: $workInterval")
+        Log.d("Main[onCreate]", "workInterval: $workInterval")
+        // NOTE: This just ensures work manager is enabled or disabled based on preference
         if (workInterval != "0") {
-            val workRequest =
-                PeriodicWorkRequestBuilder<DailyWorker>(workInterval.toLong(), TimeUnit.MINUTES)
-                    .setConstraints(DAILY_WORKER_CONSTRAINTS)
-                    .build()
-            Log.i("Main[onCreate]", "workRequest: $workRequest")
-            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                "daily_worker",
-                ExistingPeriodicWorkPolicy.KEEP,
-                workRequest
-            )
+            enqueueWorkRequest(workInterval, ExistingPeriodicWorkPolicy.KEEP)
         } else {
             // TODO: Confirm this is necessary...
             Log.i("Main[onCreate]", "Ensuring Work is Disabled")
-            WorkManager.getInstance(this).cancelUniqueWork("app_worker")
+            WorkManager.getInstance(this).cancelUniqueWork("daily_worker")
         }
 
         // Handle Custom Navigation Items
@@ -418,8 +409,8 @@ class MainActivity : AppCompatActivity() {
                 Log.d("onNewIntent", "SEND TEXT DETECTED")
                 //if (extraText.lowercase().startsWith("http")) {
                 //if (Patterns.WEB_URL.matcher(extraText).matches()) {
-                if (isURL(extraText)) {
-                    Log.d("onNewIntent", "URL DETECTED: $extraText")
+                if (isTextUrl(extraText)) {
+                    Log.i("onNewIntent", "URL DETECTED: $extraText")
                     val bundle = Bundle().apply { putString("url", extraText) }
                     navController.navigate(
                         R.id.nav_item_short, bundle, NavOptions.Builder()
@@ -662,6 +653,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun isTextUrl(input: String): Boolean {
+        val url = input.toHttpUrlOrNull() ?: return false
+        if (input != url.toString()) return false
+        if (url.scheme !in listOf("http", "https")) return false
+        if (url.host.isBlank()) return false
+        if (url.toString().length > 2048) return false
+        return true
+    }
+
     fun setDrawerLockMode(enabled: Boolean) {
         Log.d("setDrawerLockMode", "enabled: $enabled")
         val lockMode =
@@ -708,15 +708,4 @@ fun copyToClipboard(context: Context, text: String, msg: String? = null) {
     val clip = ClipData.newPlainText("Text", text)
     clipboard.setPrimaryClip(clip)
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-}
-
-fun isURL(url: String): Boolean {
-    return try {
-        URL(url)
-        Log.d("isURL", "TRUE")
-        true
-    } catch (_: Exception) {
-        Log.d("isURL", "FALSE")
-        false
-    }
 }

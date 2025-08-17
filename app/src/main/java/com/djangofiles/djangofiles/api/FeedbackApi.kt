@@ -29,12 +29,12 @@ class FeedbackApi(val context: Context) {
     }
 
     suspend fun sendFeedback(messageText: String): Response<Unit> {
-        val versionName = context.packageManager.getPackageInfo(context.packageName, 0).versionName
         Log.d("sendFeedback", "messageText: $messageText")
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         val feedbackText = context.getString(
             R.string.feedback_message,
             context.getString(R.string.app_name),
-            versionName,
+            packageInfo.versionName,
             Build.VERSION.SDK_INT.toString(),
             messageText
         )
@@ -51,8 +51,7 @@ class FeedbackApi(val context: Context) {
 
     @JsonClass(generateAdapter = true)
     data class Message(
-        @Json(name = "content")
-        val content: String
+        @param:Json(name = "content") val content: String
     )
 
     interface ApiService {
