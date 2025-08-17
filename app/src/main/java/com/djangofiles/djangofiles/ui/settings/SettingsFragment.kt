@@ -29,16 +29,13 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import androidx.preference.SwitchPreferenceCompat
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.api.FeedbackApi
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
-import com.djangofiles.djangofiles.work.DAILY_WORKER_CONSTRAINTS
-import com.djangofiles.djangofiles.work.DailyWorker
+import com.djangofiles.djangofiles.work.enqueueWorkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Firebase
@@ -47,7 +44,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -115,12 +111,25 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
-        // Background Update Interval
+        // Update Interval
         val workInterval = findPreference<ListPreference>("work_interval")
+        updateWorkIntervalSettings(workInterval?.value)
         workInterval?.summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
         workInterval?.setOnPreferenceChangeListener { _, newValue ->
-            Log.d("work_interval", "newValue: $newValue")
-            ctx.updateWorkManager(workInterval, newValue)
+            Log.d("work_interval", "newValue: ${newValue as String}")
+            updateWorkIntervalSettings(newValue)
+            ctx.updateWorkManager(newValue, workInterval.value)
+        }
+
+        // Updates on Metered Connection
+        val workMeteredPref = findPreference<SwitchPreferenceCompat>("work_metered")
+        workMeteredPref?.setOnPreferenceChangeListener { _, newValue ->
+            Log.d("work_metered", "newValue: $newValue")
+            val result = newValue as Boolean
+            Log.d("work_metered", "result: $result")
+            workMeteredPref.isChecked = result
+            ctx.enqueueWorkRequest()
+            false
         }
 
         // Background Restriction
@@ -248,39 +257,69 @@ class SettingsFragment : PreferenceFragmentCompat() {
         buildServerList()
     }
 
-    fun Context.updateWorkManager(listPref: ListPreference, newValue: Any): Boolean {
-        Log.d("updateWorkManager", "listPref: ${listPref.value} - newValue: $newValue")
-        val value = newValue as? String
-        Log.d("updateWorkManager", "String value: $value")
-        if (value.isNullOrEmpty()) {
-            Log.w("updateWorkManager", "NULL OR EMPTY - false")
+    private fun updateWorkIntervalSettings(selectedValue: String?) {
+        Log.d("updateWorkIntervalSettings", "selectedValue: $selectedValue")
+        if (selectedValue != null) {
+            val enabled = selectedValue != "0"
+            Log.d("updateWorkIntervalSettings", "enabled: $enabled")
+            findPreference<SwitchPreferenceCompat>("work_metered")?.isEnabled = enabled
+        }
+    }
+
+    private fun Context.updateWorkManager(newValue: String?, curValue: String? = null): Boolean {
+        Log.i("updateWorkManager", "newValue: $newValue - curValue: $curValue")
+        if (newValue.isNullOrEmpty()) {
+            Log.w("updateWorkManager", "newValue.isNullOrEmpty() - false")
             return false
-        } else if (listPref.value == value) {
-            Log.i("updateWorkManager", "NO CHANGE - false")
+        } else if (curValue == newValue) {
+            Log.i("updateWorkManager", "curValue == newValue - false")
             return false
         } else {
-            Log.i("updateWorkManager", "RESCHEDULING WORK - true")
-            val interval = value.toLongOrNull()
-            Log.i("updateWorkManager", "interval: $interval")
-            if (interval == null || interval == 0L) {
-                Log.i("updateWorkManager", "DISABLING WORK")
+            Log.d("updateWorkManager", "ELSE - RESCHEDULING WORK - true")
+            if (newValue == "0" || newValue.toLongOrNull() == null) {
+                Log.i("updateWorkManager", "DISABLING WORK - newValue is 0 or null")
                 WorkManager.getInstance(this).cancelUniqueWork("daily_worker")
                 return true
             } else {
-                val newRequest =
-                    PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
-                        .setInitialDelay(1, TimeUnit.MINUTES)
-                        .setConstraints(DAILY_WORKER_CONSTRAINTS)
-                        .build()
-                WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                    "daily_worker",
-                    ExistingPeriodicWorkPolicy.REPLACE,
-                    newRequest
-                )
+                enqueueWorkRequest(newValue)
                 return true
             }
         }
     }
+
+//    fun Context.updateWorkManager(listPref: ListPreference, newValue: Any): Boolean {
+//        Log.d("updateWorkManager", "listPref: ${listPref.value} - newValue: $newValue")
+//        val value = newValue as? String
+//        Log.d("updateWorkManager", "String value: $value")
+//        if (value.isNullOrEmpty()) {
+//            Log.w("updateWorkManager", "NULL OR EMPTY - false")
+//            return false
+//        } else if (listPref.value == value) {
+//            Log.i("updateWorkManager", "NO CHANGE - false")
+//            return false
+//        } else {
+//            Log.i("updateWorkManager", "RESCHEDULING WORK - true")
+//            val interval = value.toLongOrNull()
+//            Log.i("updateWorkManager", "interval: $interval")
+//            if (interval == null || interval == 0L) {
+//                Log.i("updateWorkManager", "DISABLING WORK")
+//                WorkManager.getInstance(this).cancelUniqueWork("daily_worker")
+//                return true
+//            } else {
+//                val newRequest =
+//                    PeriodicWorkRequestBuilder<DailyWorker>(interval, TimeUnit.MINUTES)
+//                        .setInitialDelay(1, TimeUnit.MINUTES)
+//                        .setConstraints(DAILY_WORKER_CONSTRAINTS)
+//                        .build()
+//                WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+//                    "daily_worker",
+//                    ExistingPeriodicWorkPolicy.REPLACE,
+//                    newRequest
+//                )
+//                return true
+//            }
+//        }
+//    }
 
     fun Context.toggleAnalytics(switchPreference: SwitchPreferenceCompat, newValue: Any) {
         Log.d("toggleAnalytics", "newValue: $newValue")

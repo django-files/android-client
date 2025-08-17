@@ -45,7 +45,6 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.db.Server
@@ -53,15 +52,13 @@ import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.home.HomeViewModel
 import com.djangofiles.djangofiles.widget.WidgetProvider
-import com.djangofiles.djangofiles.work.DAILY_WORKER_CONSTRAINTS
-import com.djangofiles.djangofiles.work.DailyWorker
+import com.djangofiles.djangofiles.work.enqueueWorkRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.File
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -214,30 +211,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Update Header Text
-        val packageInfo = packageManager.getPackageInfo(this.packageName, 0)
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
         val versionName = packageInfo.versionName
         Log.d("Main[onCreate]", "versionName: $versionName")
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
 
-        // TODO: Improve initialization of the WorkRequest
+        // Work Manager
         val workInterval = preferences.getString("work_interval", null) ?: "0"
-        Log.i("Main[onCreate]", "workInterval: $workInterval")
+        Log.d("Main[onCreate]", "workInterval: $workInterval")
+        // NOTE: This just ensures work manager is enabled or disabled based on preference
         if (workInterval != "0") {
-            val workRequest =
-                PeriodicWorkRequestBuilder<DailyWorker>(workInterval.toLong(), TimeUnit.MINUTES)
-                    .setConstraints(DAILY_WORKER_CONSTRAINTS)
-                    .build()
-            Log.i("Main[onCreate]", "workRequest: $workRequest")
-            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                "daily_worker",
-                ExistingPeriodicWorkPolicy.KEEP,
-                workRequest
-            )
+            enqueueWorkRequest(workInterval, ExistingPeriodicWorkPolicy.KEEP)
         } else {
             // TODO: Confirm this is necessary...
             Log.i("Main[onCreate]", "Ensuring Work is Disabled")
-            WorkManager.getInstance(this).cancelUniqueWork("app_worker")
+            WorkManager.getInstance(this).cancelUniqueWork("daily_worker")
         }
 
         // Handle Custom Navigation Items

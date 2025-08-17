@@ -42,25 +42,33 @@
         <item>files</item>
     </string-array>
 
-    <string-array name="dropdown_entries">
-        <item>Every 15 Minutes</item>
-        <item>Every 30 Minutes</item>
-        <item>Hourly</item>
-        <item>Every 2 Hours</item>
-        <item>Every 4 Hours</item>
-        <item>Twice a Day</item>
-        <item>Once Daily</item>
-        <item>Never</item>
+    <string-array name="work_interval_entries">
+        <item>Disabled</item>
+        <item>15 Minutes</item>
+        <item>30 Minutes</item>
+        <item>1 Hour</item>
+        <item>2 Hours</item>
+        <item>4 Hours</item>
+        <item>6 Hours</item>
+        <item>12 Hours</item>
+        <item>1 Day</item>
+        <item>2 Days</item>
+        <item>3 Days</item>
+        <item>1 Week</item>
     </string-array>
-    <string-array name="dropdown_values">
+    <string-array name="work_interval_values">
+        <item>0</item>
         <item>15</item>
         <item>30</item>
         <item>60</item>
         <item>120</item>
         <item>240</item>
+        <item>360</item>
         <item>720</item>
         <item>1440</item>
-        <item>0</item>
+        <item>2880</item>
+        <item>4320</item>
+        <item>10080</item>
     </string-array>
 
     <string-array name="widget_color_entries">
