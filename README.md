@@ -1,9 +1,9 @@
-[![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=github)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+[![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=android)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
 [![Lint](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=github&logoColor=white&label=lint)](https://github.com/django-files/android-client/actions/workflows/lint.yaml)
-[![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/graphs/commit-activity)
 [![GitHub Repo Size](https://img.shields.io/github/repo-size/django-files/android-client?logo=bookstack&logoColor=white&label=repo%20size)](https://github.com/django-files/android-client)
+[![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
 [![GitHub Discussions](https://img.shields.io/github/discussions/django-files/android-client)](https://github.com/django-files/android-client/discussions)
 [![GitHub Forks](https://img.shields.io/github/forks/django-files/android-client?style=flat&logo=github)](https://github.com/django-files/android-client/forks)
 [![GitHub Repo Stars](https://img.shields.io/github/stars/django-files/android-client?style=flat&logo=github)](https://github.com/django-files/android-client/stargazers)
@@ -59,15 +59,13 @@ _If you are unsure how to install, [Obtainium](https://github.com/ImranR98/Obtai
 
 </details>
 
-_Note: Until published on the play store, you may need to allow installation of apps from unknown sources._
-
-- Supports Android 8 (API 26) 2017 +
-
-Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
-should take you to the settings area to allow installation if not already enabled.
-For more information, see [Release through a website](https://developer.android.com/studio/publish#publishing-website).
+_Note: If installing directly, you may need to allow installation of apps from unknown sources.  
+For more information, see [Release through a website](https://developer.android.com/studio/publish#publishing-website)._
 
 <details><summary>View Manual Steps to Install from Unknown Sources</summary>
+
+Note: Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+should take you to the settings area to allow installation if not already enabled. Otherwise:
 
 1. Go to your device settings.
 2. Search for "Install unknown apps" or similar.
