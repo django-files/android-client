@@ -65,16 +65,25 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Login[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollViewLayout) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updatePadding(top = bars.top, bottom = bars.bottom)
             insets
         }
 
-        val packageInfo =
-            requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
-        val versionName = packageInfo.versionName
-        Log.d("Login[onViewCreated]", "versionName: $versionName")
+        val ctx = requireContext()
+
+        //val packageInfo = ctx.packageManager.getPackageInfo(ctx.packageName, 0)
+        //val formattedVersion = getString(
+        //    R.string.version_code_string,
+        //    packageInfo.versionName,
+        //    packageInfo.versionCode.toString()
+        //)
+        //Log.d("showAppInfoDialog", "formattedVersion: $formattedVersion")
+        //binding.versionName.text = formattedVersion
+
+        val packageInfo = ctx.packageManager.getPackageInfo(ctx.packageName, 0)
+        binding.versionName.text = packageInfo.versionName
 
         val authUrl = arguments?.getString("authUrl")
         Log.d("Login[onViewCreated]", "authUrl: $authUrl")
@@ -107,7 +116,7 @@ class LoginFragment : Fragment() {
             //sharedPreferences?.edit { putString("saved_url", host) }
 
             Log.d("loginFunction", "Processing URL: $host")
-            val api = ServerApi(requireContext(), host)
+            val api = ServerApi(ctx, host)
             lifecycleScope.launch {
                 try {
                     // TODO: When a session expires the server will be a duplicate...
@@ -160,7 +169,7 @@ class LoginFragment : Fragment() {
                     e.printStackTrace()
                     val msg = e.message ?: "Unknown Error Validating Server."
                     Log.i("loginFunction", "msg: $msg")
-                    binding.hostnameText.error = "Validation Error"
+                    _binding?.hostnameText?.error = "Validation Error"
                     withContext(Dispatchers.Main) {
                         Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                     }
@@ -176,11 +185,10 @@ class LoginFragment : Fragment() {
                 requireActivity().finishAffinity()
             }
         }
-        binding.websiteLink.setOnClickListener {
-            val url = binding.websiteLink.text.toString()
-            Log.d("websiteLink", "url: $url")
-            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-            startActivity(intent)
+
+        binding.websiteLink.paint?.isUnderlineText = true
+        binding.websiteLink.setOnClickListener { v ->
+            startActivity(Intent(Intent.ACTION_VIEW, v.tag.toString().toUri()))
         }
 
         if (authUrl != null) {

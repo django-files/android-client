@@ -17,15 +17,14 @@ import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.work.updateStats
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.Date
 
 class WidgetProvider : AppWidgetProvider() {
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         Log.i("Widget[onReceive]", "intent: $intent")
@@ -46,8 +45,8 @@ class WidgetProvider : AppWidgetProvider() {
             if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
                 return
             }
-            Log.d("Widget[onReceive]", "GlobalScope.launch: START")
-            GlobalScope.launch(Dispatchers.IO) {
+            Log.d("Widget[onReceive]", "CoroutineScope.launch: START")
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                 context.updateStats()
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
@@ -56,7 +55,6 @@ class WidgetProvider : AppWidgetProvider() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -158,7 +156,7 @@ class WidgetProvider : AppWidgetProvider() {
             //views.setOnClickPendingIntent(R.id.file_list_button, pendingIntent3)
 
             // Room Data
-            GlobalScope.launch(Dispatchers.IO) {
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                 val dao: ServerDao = ServerDatabase.Companion.getInstance(context).serverDao()
                 Log.d("Widget[onUpdate]", "dao: $dao")
                 val server = dao.getByUrl(savedUrl)

@@ -51,15 +51,27 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
+        android:id="@+id/website_link"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="?attr/colorPrimary"
+        android:text="Developer Site"
+        android:tag="@string/website_url"
+        android:drawablePadding="8dp"
+        app:drawableStartCompat="@drawable/md_captive_portal_24px" />
+    <TextView
         android:id="@+id/github_link"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_gravity="center"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="?attr/colorPrimary"
+        android:text="View Source Code"
+        android:tag="@string/github_url"
         android:drawablePadding="8dp"
-        app:drawableStartCompat="@drawable/fa_github"
-        android:text="More Info on GitHub"
-        android:tag="More Info on GitHub" />
+        app:drawableStartCompat="@drawable/fa_github" />
 
 </LinearLayout>
 </ScrollView>

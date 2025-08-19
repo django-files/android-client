@@ -76,7 +76,7 @@ class AuthorizeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Authorize[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollViewLayout) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updatePadding(top = bars.top, bottom = bars.bottom)
             insets
@@ -107,6 +107,7 @@ class AuthorizeFragment : Fragment() {
 
         val api = ServerApi(ctx, authUrl)
 
+        // TODO: Cache methodsResponse in viewModel
         lifecycleScope.launch {
             val methodsResponse = api.methods()
             Log.d("Authorize[onViewCreated]", "methodsResponse: $methodsResponse")
@@ -115,10 +116,10 @@ class AuthorizeFragment : Fragment() {
                 Log.d("Authorize[onViewCreated]", "methodsData: $methodsData")
                 if (methodsData != null) {
                     Log.d("Authorize[onViewCreated]", "siteName: ${methodsData.siteName}")
-                    binding.siteName.text = methodsData.siteName
-                    binding.loadingLayout.visibility = View.GONE
-                    binding.gotoLoginBtn.visibility = View.VISIBLE
-                    binding.addServerBtn.visibility = View.VISIBLE
+                    _binding?.siteName?.text = methodsData.siteName
+                    _binding?.loadingLayout?.visibility = View.GONE
+                    _binding?.gotoLoginBtn?.visibility = View.VISIBLE
+                    _binding?.addServerBtn?.visibility = View.VISIBLE
                 }
             }
         }
