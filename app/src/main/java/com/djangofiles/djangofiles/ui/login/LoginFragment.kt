@@ -169,7 +169,7 @@ class LoginFragment : Fragment() {
                     e.printStackTrace()
                     val msg = e.message ?: "Unknown Error Validating Server."
                     Log.i("loginFunction", "msg: $msg")
-                    binding.hostnameText.error = "Validation Error"
+                    _binding?.hostnameText?.error = "Validation Error"
                     withContext(Dispatchers.Main) {
                         Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                     }
