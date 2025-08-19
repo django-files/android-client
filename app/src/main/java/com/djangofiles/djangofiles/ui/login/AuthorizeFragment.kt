@@ -76,7 +76,7 @@ class AuthorizeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Authorize[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.scrollViewLayout) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updatePadding(top = bars.top, bottom = bars.bottom)
             insets
