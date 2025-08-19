@@ -14,7 +14,7 @@
 
 # Django Files Android App
 
-[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=A4C639)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=3ddc84)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 
 - [Install](#Install)
   - [Setup](#Setup)
