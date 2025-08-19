@@ -2,7 +2,7 @@
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/pulse)
 [![Lint](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=github&logoColor=white&label=lint)](https://github.com/django-files/android-client/actions/workflows/lint.yaml)
-[![Release](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=github&logoColor=white&label=release)](https://github.com/django-files/android-client/actions/workflows/release.yaml)
+[![Release](https://img.shields.io/github/actions/workflow/status/django-files/android-client/release.yaml?logo=github&logoColor=white&label=release)](https://github.com/django-files/android-client/actions/workflows/release.yaml)
 [![GitHub Repo Size](https://img.shields.io/github/repo-size/django-files/android-client?logo=bookstack&logoColor=white&label=repo%20size)](https://github.com/django-files/android-client)
 [![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
 [![GitHub Discussions](https://img.shields.io/github/discussions/django-files/android-client?logo=github)](https://github.com/django-files/android-client/discussions)
