@@ -11,37 +11,43 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical">
+<!-- NOTE: Insets are applied to the above layout as padding -->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    tools:ignore="UselessParent">
 
-    <!-- NOTE: Insets are applied to the above layout as padding -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/app_icon"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="24dp"
-        tools:ignore="UselessParent">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="@string/app_name"
+        android:src="@mipmap/ic_launcher" />
+    <TextView
+        android:id="@+id/site_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/app_name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+    <TextView
+        android:id="@+id/version_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="0.0.1" />
 
-        <ImageView
-            android:id="@+id/app_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="8dp"
-            android:contentDescription="@string/app_name"
-            android:src="@mipmap/ic_launcher" />
-        <TextView
-            android:id="@+id/site_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="@string/app_name"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <LinearLayout
             android:id="@+id/inputs_layout"
             android:layout_width="0dp"
@@ -55,9 +61,10 @@
             <EditText
                 android:id="@+id/hostname_text"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:padding="10dp"
-                android:autofillHints="url"
+                android:autofillHints=""
                 android:hint="@string/setup_host_placeholder"
                 android:inputType="textUri"
                 android:drawableEnd="@drawable/md_http_24px"
@@ -77,7 +84,7 @@
                 android:id="@+id/continue_btn"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginVertical="8dp"
                 android:drawableEnd="@drawable/md_login_24px"
                 android:paddingEnd="36dp"
                 android:paddingStart="36dp"
@@ -87,7 +94,7 @@
                 android:id="@+id/go_back_btn"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginVertical="8dp"
                 android:paddingEnd="36dp"
                 android:paddingStart="36dp"
                 android:text="Go Back"
@@ -100,20 +107,24 @@
                 app:strokeColor="?android:attr/colorActivatedHighlight"
                 app:strokeWidth="2dp" />
         </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/website_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="https://django-files.github.io"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@android:color/holo_blue_dark"
-            android:drawablePadding="8dp"
-            app:drawableStartCompat="@drawable/md_captive_portal_24px" />
+    <TextView
+        android:id="@+id/website_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:minHeight="48dp"
+        android:gravity="center_vertical"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/holo_blue_dark"
+        android:text="https://django-files.github.io"
+        android:tag="@string/website_url"
+        android:drawablePadding="8dp"
+        app:drawableStartCompat="@drawable/md_captive_portal_24px" />
 
-    </LinearLayout>
-
+</LinearLayout>
 </LinearLayout>
 </ScrollView>
