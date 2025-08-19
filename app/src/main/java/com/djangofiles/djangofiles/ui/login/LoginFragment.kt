@@ -65,11 +65,11 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Login[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")
 
-        //ViewCompat.setOnApplyWindowInsetsListener(binding.scrollViewLayout) { v, insets ->
-        //    val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-        //    v.updatePadding(top = bars.top, bottom = bars.bottom)
-        //    insets
-        //}
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(top = bars.top, bottom = bars.bottom)
+            insets
+        }
 
         val ctx = requireContext()
 
