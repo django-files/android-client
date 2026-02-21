@@ -235,7 +235,7 @@ class UploadFragment : Fragment() {
             binding.imageOverlayText.text = mimeType
             binding.imageOverlayText.visibility = View.VISIBLE
             // Set Icon Based on Type
-            binding.imagePreview.setImageResource(getGenericIcon(mimeType.toString()))
+            binding.imagePreview.setImageResource(getGenericIcon(mimeType))
         }
 
         binding.shareButton.setOnClickListener {

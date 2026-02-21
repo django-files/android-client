@@ -1,10 +1,10 @@
+import com.android.build.api.dsl.ApplicationExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    //alias(libs.plugins.kotlin.android)
     //alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
@@ -15,7 +15,7 @@ plugins {
     //id("androidx.navigation.safeargs.kotlin") version "2.8.9" // Use the correct version
 }
 
-android {
+configure<ApplicationExtension> {
     namespace = "com.djangofiles.djangofiles"
     compileSdk = 36
 
@@ -66,11 +66,11 @@ android {
     //kotlinOptions {
     //    jvmTarget = "17"
     //}
-    tasks.withType<KotlinJvmCompile>().configureEach {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }
+    //tasks.withType<KotlinJvmCompile>().configureEach {
+    //    compilerOptions {
+    //        jvmTarget.set(JvmTarget.JVM_17)
+    //    }
+    //}
 
     buildFeatures {
         viewBinding = true
@@ -78,6 +78,8 @@ android {
         //dataBinding = true
     }
 }
+
+kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
 
 dependencies {
     implementation(libs.androidx.core.ktx)

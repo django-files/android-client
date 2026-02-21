@@ -72,7 +72,7 @@ data class AlbumEntity(
 )
 
 
-@Database(entities = [AlbumEntity::class], version = 1)
+@Database(entities = [AlbumEntity::class], version = 1, exportSchema = false)
 abstract class AlbumDatabase : RoomDatabase() {
     abstract fun albumDao(): AlbumDao
 

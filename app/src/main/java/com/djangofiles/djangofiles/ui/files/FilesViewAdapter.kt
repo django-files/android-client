@@ -88,7 +88,7 @@ class FilesViewAdapter(
         viewHolder.fileName.text = data.name
 
         // Size
-        viewHolder.fileSize.text = bytesToHuman(data.size.toDouble()).toString()
+        viewHolder.fileSize.text = bytesToHuman(data.size.toDouble())
 
         // Views
         viewHolder.fileView.text = data.view.toString()

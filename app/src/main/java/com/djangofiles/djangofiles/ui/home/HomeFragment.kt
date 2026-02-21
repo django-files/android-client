@@ -252,7 +252,7 @@ class HomeFragment : Fragment() {
                 Log.d("doUpdateVisitedHistory", "AUTHENTICATION URL: $url")
                 //findNavController().navigate(R.id.nav_item_settings_action_login)
                 val bundle = Bundle().apply {
-                    putString("authUrl", currentUrl.toString())
+                    putString("authUrl", currentUrl)
                 }
                 findNavController().navigate(
                     R.id.nav_item_login, bundle, NavOptions.Builder()
