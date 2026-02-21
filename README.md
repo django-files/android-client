@@ -4,12 +4,15 @@
 [![Lint](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=github&logoColor=white&label=lint)](https://github.com/django-files/android-client/actions/workflows/lint.yaml)
 [![Release](https://img.shields.io/github/actions/workflow/status/django-files/android-client/release.yaml?logo=github&logoColor=white&label=release)](https://github.com/django-files/android-client/actions/workflows/release.yaml)
 [![AGP Version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdjango-files%2Fandroid-client%2Frefs%2Fheads%2Fmaster%2Fgradle%2Flibs.versions.toml&query=%24.versions.agp&logo=gradle&label=AGP)](https://github.com/django-files/android-client/blob/master/gradle/libs.versions.toml#L2)
-[![GitHub Repo Size](https://img.shields.io/github/repo-size/django-files/android-client?logo=bookstack&logoColor=white&label=repo%20size)](https://github.com/django-files/android-client)
-[![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=htmx)](https://github.com/django-files/android-client)
-[![GitHub Discussions](https://img.shields.io/github/discussions/django-files/android-client?logo=github)](https://github.com/django-files/android-client/discussions)
-[![GitHub Forks](https://img.shields.io/github/forks/django-files/android-client?style=flat&logo=github)](https://github.com/django-files/android-client/forks)
-[![GitHub Repo Stars](https://img.shields.io/github/stars/django-files/android-client?style=flat&logo=github)](https://github.com/django-files/android-client/stargazers)
-[![GitHub Org Stars](https://img.shields.io/github/stars/django-files?style=flat&logo=github&label=org%20stars)](https://django-files.github.io/)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=listenhub&label=updated)](https://github.com/django-files/android-client/pulse)
+[![GitHub Repo Size](https://img.shields.io/github/repo-size/django-files/android-client?logo=buffer&label=repo%20size)](https://github.com/django-files/android-client?tab=readme-ov-file#readme)
+[![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=devbox)](https://github.com/django-files/android-client?tab=readme-ov-file#readme)
+[![GitHub Contributors](https://img.shields.io/github/contributors-anon/django-files/android-client?logo=southwestairlines)](https://github.com/django-files/android-client/graphs/contributors)
+[![GitHub Issues](https://img.shields.io/github/issues/django-files/android-client?logo=codeforces&logoColor=white)](https://github.com/django-files/android-client/issues)
+[![GitHub Discussions](https://img.shields.io/github/discussions/django-files/android-client?logo=theconversation)](https://github.com/django-files/android-client/discussions)
+[![GitHub Forks](https://img.shields.io/github/forks/django-files/android-client?style=flat&logo=forgejo&logoColor=white)](https://github.com/django-files/android-client/forks)
+[![GitHub Repo Stars](https://img.shields.io/github/stars/django-files/android-client?style=flat&logo=gleam&logoColor=white)](https://github.com/django-files/android-client/stargazers)
+[![GitHub Org Stars](https://img.shields.io/github/stars/django-files?style=flat&logo=apachespark&logoColor=white&label=org%20stars)](https://django-files.github.io/)
 [![Discord](https://img.shields.io/discord/899171661457293343?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/wXy6m2X8wY)
 
 # Django Files Android App
@@ -338,3 +341,11 @@ You can also support other related projects:
 - [Django Files iOS App](https://github.com/django-files/ios-client)
 - [Django Files Android App](https://github.com/django-files/android-client)
 - [Django Files Web Extension](https://github.com/django-files/web-extension)
+
+<a href="https://github.com/django-files/android-client/stargazers">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right" />
+ </picture>
+</a>

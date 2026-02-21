@@ -296,7 +296,7 @@ class FilesPreviewFragment : Fragment() {
             Log.d("FilesPreviewFragment", "OTHER - NO PREVIEW")
 
             binding.previewImageView.visibility = View.VISIBLE
-            binding.previewImageView.setImageResource(getGenericIcon(mimeType.toString()))
+            binding.previewImageView.setImageResource(getGenericIcon(mimeType))
             binding.previewImageView.setOnClickListener {
                 //findNavController().popBackStack()
                 findNavController().navigateUp()
@@ -329,7 +329,7 @@ class FilesPreviewFragment : Fragment() {
             client.newCall(request).execute().use { response ->
                 Log.d("getContent", "response.code: ${response.code}")
                 if (response.isSuccessful) {
-                    return response.body?.string()
+                    return response.body.string()
                 }
                 null
             }

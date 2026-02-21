@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Django Files</string>
     <string name="version_string">v%s</string>
-    <string name="version_code_string">%s (%s)</string>
+    <string name="version_code_string">%1$s (%2$s)</string>
 
     <string name="github_url">https://github.com/django-files/android-client</string>
     <string name="github_link"><![CDATA[<a href="https://github.com/django-files/android-client">%s</a>]]></string>
@@ -33,7 +33,7 @@
     <string name="file_name">File Name</string>
     <string name="shorten_url">Shorten URL</string>
 
-    <string name="feedback_message">**%s** `v%s` API **%s**\n```\n%s\n```</string>
+    <string name="feedback_message">**%1$s** `v%2$s` API **%3$s**\n```\n%4$s\n```</string>
 
     <string name="background_opacity">Background Opacity %d</string>
 
