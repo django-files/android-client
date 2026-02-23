@@ -346,8 +346,8 @@ You can also support other related projects:
 
 <a href="https://django-files.github.io/">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=django-files/django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=django-files/django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=django-files/django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=django-files/django-files%2Cdjango-files/ios-client%2Cdjango-files/android-client%2Cdjango-files/web-extension&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=django-files/django-files%2Cdjango-files/ios-client%2Cdjango-files/android-client%2Cdjango-files/web-extension&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=django-files/django-files%2Cdjango-files/ios-client%2Cdjango-files/android-client%2Cdjango-files/web-extension&type=date&legend=top-left" />
  </picture>
 </a>
