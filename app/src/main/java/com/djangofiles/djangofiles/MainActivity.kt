@@ -16,6 +16,7 @@ import android.util.Log
 import android.webkit.CookieManager
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -101,7 +102,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("Main[onCreate]", "savedInstanceState: ${savedInstanceState?.size()}")
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            //statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+
+            //navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
+        )
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -178,7 +185,7 @@ class MainActivity : AppCompatActivity() {
         //preferences.registerOnSharedPreferenceChangeListener(listener)
 
         // Update Status Bar
-        window.statusBarColor = Color.TRANSPARENT
+        //window.statusBarColor = Color.TRANSPARENT
         //WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
 
         // Set Global Left/Right System Insets
@@ -194,7 +201,7 @@ class MainActivity : AppCompatActivity() {
         //window.decorView.setOnApplyWindowInsetsListener { view, insets -> insets }
 
         // Update Navigation Bar
-        window.navigationBarColor = Color.TRANSPARENT
+        //window.navigationBarColor = Color.TRANSPARENT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.setNavigationBarContrastEnforced(false)
         }

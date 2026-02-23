@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.GsonBuilder
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -65,7 +64,7 @@ class DiscordApi(
             .build()
     }
 
-    inner class SimpleCookieJar : CookieJar {
+    class SimpleCookieJar : CookieJar {
         private val cookieStore = mutableMapOf<String, List<Cookie>>()
 
         override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {

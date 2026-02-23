@@ -85,8 +85,7 @@ class WidgetProvider : AppWidgetProvider() {
         val selectedTextColor = colorMap[textColor] ?: Color.WHITE
         Log.d("Widget[onUpdate]", "selectedTextColor: $selectedTextColor")
 
-        val opacityPercent = bgOpacity
-        val alpha = (opacityPercent * 255 / 100).coerceIn(1, 255)
+        val alpha = (bgOpacity * 255 / 100).coerceIn(1, 255)
         val finalBgColor = ColorUtils.setAlphaComponent(selectedBgColor, alpha)
         Log.d("Widget[onUpdate]", "finalBgColor: $finalBgColor")
 
@@ -157,7 +156,7 @@ class WidgetProvider : AppWidgetProvider() {
 
             // Room Data
             CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                val dao: ServerDao = ServerDatabase.Companion.getInstance(context).serverDao()
+                val dao: ServerDao = ServerDatabase.getInstance(context).serverDao()
                 Log.d("Widget[onUpdate]", "dao: $dao")
                 val server = dao.getByUrl(savedUrl)
                 Log.d("Widget[onUpdate]", "server: $server")

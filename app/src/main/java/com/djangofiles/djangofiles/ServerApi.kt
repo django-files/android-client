@@ -455,7 +455,7 @@ class ServerApi(val context: Context, host: String) {
             .build()
     }
 
-    inner class SimpleCookieJar : CookieJar {
+    class SimpleCookieJar : CookieJar {
         private val cookieStore = mutableMapOf<String, List<Cookie>>()
 
         override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {

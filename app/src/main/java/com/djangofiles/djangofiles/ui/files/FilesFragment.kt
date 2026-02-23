@@ -28,7 +28,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
 import com.bumptech.glide.load.model.GlideUrl
@@ -188,7 +187,7 @@ class FilesFragment : Fragment() {
                 Log.i("File[onViewCreated]", "VIEW KEY MISMATCH - RESET DATA")
                 viewModel.filesData.value = null
                 viewModel.viewKey.value = key
-                viewModel.selected.value = mutableSetOf<Int>()
+                viewModel.selected.value = mutableSetOf()
                 viewModel.atEnd.value = false
                 resetAdapter = true
             }
@@ -197,7 +196,7 @@ class FilesFragment : Fragment() {
             viewModel.viewKey.value = key
         }
 
-        val selected = viewModel.selected.value?.toMutableSet() ?: mutableSetOf<Int>()
+        val selected = viewModel.selected.value?.toMutableSet() ?: mutableSetOf()
         Log.d("File[onViewCreated]", "viewModel.selected -> selected.size: ${selected.size}")
 
         if (!::filesAdapter.isInitialized) {
@@ -212,9 +211,11 @@ class FilesFragment : Fragment() {
         fun updateCheckButton() {
             val selectedSize = viewModel.selected.value?.size ?: 0
             val filesSize = viewModel.filesData.value?.size ?: 0
-            binding.filesTotalText.text = getString(R.string.files_total, filesSize)
+            binding.filesTotalText.text = resources.getQuantityString(R.plurals.files_total, filesSize, filesSize)
             binding.filesSelectedText.text =
-                getString(R.string.files_selected_total, selectedSize, filesSize)
+                resources.getQuantityString(R.plurals.files_selected_total, selectedSize, selectedSize, filesSize)
+            binding.filesSelectedText.text =
+                resources.getQuantityString(R.plurals.files_selected_total, filesSize, selectedSize, filesSize)
             if (selectedSize == filesSize) {
                 //Log.i("filesData[updateCheckButton]", "ALL SELECTED")
                 binding.filesSelectAll.setImageResource(R.drawable.md_check_box_24px)
@@ -225,7 +226,7 @@ class FilesFragment : Fragment() {
         }
 
         Log.d("File[onViewCreated]", "viewModel.selectedUris.value: ${viewModel.selected.value}")
-        if (viewModel.selected.value != null && viewModel.selected.value!!.isEmpty() != true) {
+        if (viewModel.selected.value != null && !viewModel.selected.value!!.isEmpty()) {
             Log.d(
                 "File[onViewCreated]",
                 "viewModel.selectedUris.value: ${viewModel.selected.value}"
@@ -308,54 +309,52 @@ class FilesFragment : Fragment() {
         })
 
         // Setup refresh listener which triggers new data loading
-        binding.refreshLayout.setOnRefreshListener(object : OnRefreshListener {
-            override fun onRefresh() {
-                // TODO: This will be overhauled and possibly disabled until then...
-                Log.d("File[refreshLayout]", "onRefresh")
-                lifecycleScope.launch {
-                    Log.d("File[refreshLayout]", "START")
+        binding.refreshLayout.setOnRefreshListener {
+            // TODO: This will be overhauled and possibly disabled until then...
+            Log.d("File[refreshLayout]", "onRefresh")
+            lifecycleScope.launch {
+                Log.d("File[refreshLayout]", "START")
 
-                    Log.d("File[refreshLayout]", "Get Albums in the Background...")
-                    launch(Dispatchers.IO) {
-                        requireContext().getAlbums(savedUrl)
-                    }
+                Log.d("File[refreshLayout]", "Get Albums in the Background...")
+                launch(Dispatchers.IO) {
+                    requireContext().getAlbums(savedUrl)
+                }
 
-                    //viewModel.selected.value?.clear()
-                    viewModel.selected.value = mutableSetOf<Int>()
-                    filesAdapter.selected.clear()
-                    Log.i("File[refreshLayout]", "3 - getFiles: ON REFRESH")
-                    getFiles(perPage, true)
-                    _binding?.let {
-                        it.refreshLayout.isRefreshing = false
-                        it.refreshLayout.isEnabled = false
-                        Log.d("File[refreshLayout]", "DONE")
-                        // Fade In
-                        it.refreshBanner.post {
-                            it.refreshBanner.translationY = -it.refreshBanner.height.toFloat()
-                            it.refreshBanner.visibility = View.VISIBLE
-                            it.refreshBanner.animate()
-                                .alpha(1f)
-                                .translationY(0f)
-                                .setDuration(400)
-                                .start()
-                        }
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            // Fade Out
-                            it.refreshBanner.animate()
-                                .alpha(0f)
-                                .translationY(-it.refreshBanner.height.toFloat())
-                                .setDuration(400)
-                                .withEndAction {
-                                    it.refreshBanner.visibility = View.GONE
-                                }
-                                .start()
-                        }, 1600)
+                //viewModel.selected.value?.clear()
+                viewModel.selected.value = mutableSetOf()
+                filesAdapter.selected.clear()
+                Log.i("File[refreshLayout]", "3 - getFiles: ON REFRESH")
+                getFiles(perPage, true)
+                _binding?.let {
+                    it.refreshLayout.isRefreshing = false
+                    it.refreshLayout.isEnabled = false
+                    Log.d("File[refreshLayout]", "DONE")
+                    // Fade In
+                    it.refreshBanner.post {
+                        it.refreshBanner.translationY = -it.refreshBanner.height.toFloat()
+                        it.refreshBanner.visibility = View.VISIBLE
+                        it.refreshBanner.animate()
+                            .alpha(1f)
+                            .translationY(0f)
+                            .setDuration(400)
+                            .start()
                     }
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        // Fade Out
+                        it.refreshBanner.animate()
+                            .alpha(0f)
+                            .translationY(-it.refreshBanner.height.toFloat())
+                            .setDuration(400)
+                            .withEndAction {
+                                it.refreshBanner.visibility = View.GONE
+                            }
+                            .start()
+                    }, 1600)
                 }
             }
-        })
+        }
 
-        val filesSelectAll: (View) -> Unit = { view ->
+        val filesSelectAll: (View) -> Unit = { _ ->
             val totalSize = viewModel.filesData.value?.size ?: 0
             Log.d("File[filesSelectAll]", "totalSize: $totalSize")
             val currentSelected = viewModel.selected.value?.toSet()
@@ -365,7 +364,7 @@ class FilesFragment : Fragment() {
                 Log.d("File[filesSelectAll]", "size: ${viewModel.selected.value?.size}")
                 binding.filesSelectedHeader.visibility = View.VISIBLE
                 val positionIds: MutableSet<Int> =
-                    viewModel.filesData.value?.indices?.toMutableSet() ?: mutableSetOf<Int>()
+                    viewModel.filesData.value?.indices?.toMutableSet() ?: mutableSetOf()
                 Log.d("deleteId[observe]", "positionIds: $positionIds")
                 viewModel.selected.value = positionIds
                 filesAdapter.selected.addAll(viewModel.selected.value!!)
@@ -385,7 +384,7 @@ class FilesFragment : Fragment() {
                 }
             } else {
                 Log.i("File[filesSelectAll]", "UNSELECT ALL")
-                viewModel.selected.value = mutableSetOf<Int>()
+                viewModel.selected.value = mutableSetOf()
                 filesAdapter.selected.clear()
                 Log.d(
                     "File[filesSelectAll]",

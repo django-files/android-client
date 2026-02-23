@@ -194,12 +194,10 @@ class FilesViewAdapter(
 
         // Image - Holder
         val radius = context.resources.getDimension(R.dimen.image_preview_small)
-        viewHolder.fileImage.setShapeAppearanceModel(
-            viewHolder.fileImage.shapeAppearanceModel
-                .toBuilder()
-                .setAllCorners(CornerFamily.ROUNDED, radius)
-                .build()
-        )
+        viewHolder.fileImage.shapeAppearanceModel = viewHolder.fileImage.shapeAppearanceModel
+            .toBuilder()
+            .setAllCorners(CornerFamily.ROUNDED, radius)
+            .build()
         //viewHolder.fileImage.transitionName = data.id.toString()
 
         // Image - Glide Listener
