@@ -17,7 +17,8 @@
 
 # Django Files Android App
 
-[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=3ddc84)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+<a title="Django Files" href="https://django-files.github.io/" target="_blank">
+<img alt="Django Files" align="right" width="128" height="auto" src="https://django-files.github.io/images/logo.png"></a>
 
 - [Install](#Install)
   - [Setup](#Setup)
@@ -37,6 +38,8 @@ Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
 Additional screenshots can be found on the website: https://django-files.github.io/android/
+
+[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=3ddc84)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
@@ -341,10 +344,10 @@ You can also support other related projects:
 - [Django Files Android App](https://github.com/django-files/android-client)
 - [Django Files Web Extension](https://github.com/django-files/web-extension)
 
-<a href="https://github.com/django-files/android-client/stargazers">
+<a href="https://django-files.github.io/">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&legend=top-left&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&legend=top-left" />
  </picture>
 </a>
