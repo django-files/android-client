@@ -326,7 +326,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    @Suppress("unused")
     inner class WebAppInterface(private var context: Context) {
 
         @JavascriptInterface

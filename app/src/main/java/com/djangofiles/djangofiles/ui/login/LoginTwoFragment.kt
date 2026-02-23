@@ -190,7 +190,7 @@ class LoginTwoFragment : Fragment() {
             Log.d("OnClickListener", "it: ${it.id}")
             val name = it.tag as? String
             Log.d("OnClickListener", "name: $name")
-            val url = authMethods.firstOrNull { it.name == name }?.url
+            val url = authMethods.firstOrNull { method -> method.name == name }?.url
             Log.d("OnClickListener", "url: $url")
 
             if (url == null) {

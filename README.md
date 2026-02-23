@@ -1,9 +1,9 @@
-[![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=android)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+[![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=android)](https://github.com/django-files/android-client/releases)
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=github&label=updated)](https://github.com/django-files/android-client/pulse)
-[![Lint](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=github&logoColor=white&label=lint)](https://github.com/django-files/android-client/actions/workflows/lint.yaml)
-[![Release](https://img.shields.io/github/actions/workflow/status/django-files/android-client/release.yaml?logo=github&logoColor=white&label=release)](https://github.com/django-files/android-client/actions/workflows/release.yaml)
+[![APK Size](https://badges.cssnr.com/gh/release/django-files/android-client/latest/asset/app-release.apk/size?label=apk&color=darkgreen)](https://github.com/django-files/remote-wallpaper-android/releases/latest/download/app-release.apk)
 [![AGP Version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdjango-files%2Fandroid-client%2Frefs%2Fheads%2Fmaster%2Fgradle%2Flibs.versions.toml&query=%24.versions.agp&logo=gradle&label=AGP)](https://github.com/django-files/android-client/blob/master/gradle/libs.versions.toml#L2)
+[![Workflow Lint](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=norton&logoColor=white&label=lint)](https://github.com/django-files/android-client/actions/workflows/lint.yaml)
+[![Workflow Release](https://img.shields.io/github/actions/workflow/status/django-files/android-client/release.yaml?logo=norton&logoColor=white&label=release)](https://github.com/django-files/android-client/actions/workflows/release.yaml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=listenhub&label=updated)](https://github.com/django-files/android-client/pulse)
 [![GitHub Repo Size](https://img.shields.io/github/repo-size/django-files/android-client?logo=buffer&label=repo%20size)](https://github.com/django-files/android-client?tab=readme-ov-file#readme)
 [![GitHub Top Language](https://img.shields.io/github/languages/top/django-files/android-client?logo=devbox)](https://github.com/django-files/android-client?tab=readme-ov-file#readme)
@@ -17,7 +17,8 @@
 
 # Django Files Android App
 
-[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=3ddc84)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+<a title="Django Files" href="https://django-files.github.io/" target="_blank">
+<img alt="Django Files" align="right" width="128" height="auto" src="https://django-files.github.io/images/logo.png"></a>
 
 - [Install](#Install)
   - [Setup](#Setup)
@@ -37,6 +38,8 @@ Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
 Additional screenshots can be found on the website: https://django-files.github.io/android/
+
+[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=3ddc84)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
@@ -203,7 +206,6 @@ If you are experiencing an issue/bug or getting unexpected results, you can:
 
 - Report an Issue: https://github.com/django-files/android-client/issues
 - Chat with us on Discord: https://discord.gg/wXy6m2X8wY
-- Provide General Feedback: [https://cssnr.github.io/feedback/](https://cssnr.github.io/feedback/?app=Django%20Files%20Android%20App)
 
 # Development
 
@@ -342,10 +344,10 @@ You can also support other related projects:
 - [Django Files Android App](https://github.com/django-files/android-client)
 - [Django Files Web Extension](https://github.com/django-files/web-extension)
 
-<a href="https://github.com/django-files/android-client/stargazers">
+<a href="https://django-files.github.io/">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=django-files/android-client&type=date&legend=bottom-right" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=django-files/django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=django-files/django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=django-files/django-files,django-files/ios-client,django-files/android-client,django-files/web-extension&type=date&legend=top-left" />
  </picture>
 </a>

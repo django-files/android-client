@@ -7,8 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
-import android.text.Html
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -467,7 +466,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val formattedVersion = getString(
             R.string.version_code_string,
             packageInfo.versionName,
-            packageInfo.versionCode.toString()
+            PackageInfoCompat.getLongVersionCode(packageInfo).toString()
         )
         Log.d("showAppInfoDialog", "formattedVersion: $formattedVersion")
 

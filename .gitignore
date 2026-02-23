@@ -1,19 +1,23 @@
+# Generic
 .DS_Store
-
 .idea/
 *.iml
-
-**/build/
+.vscode/
+.*cache*
+node_modules/
+build/
+dist/
+out/
+*.dll
+*.exe
 .gradle/
 .kotlin/
 captures/
 app/debug
 app/release
-
+# App
 local.properties
 *.keystore
 *.logcat
 **/google-services.json
 **/firebase-adminsdk.json
-
-**/dist/

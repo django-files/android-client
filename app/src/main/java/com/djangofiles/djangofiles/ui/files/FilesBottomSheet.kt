@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.app.DownloadManager
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -18,6 +17,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
@@ -60,7 +60,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentFilesBottomBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -78,12 +78,12 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
         dialog.setOnShowListener {
-            dialog.window?.navigationBarColor = Color.TRANSPARENT
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                dialog.window?.setNavigationBarContrastEnforced(false)
+            dialog.window?.let { window ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    window.setNavigationBarContrastEnforced(false)
+                }
+                WindowCompat.setDecorFitsSystemWindows(window, false)
             }
-            dialog.window?.decorView?.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         }
         return dialog
     }
@@ -210,12 +210,10 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
 
         // Image
         val radius = requireContext().resources.getDimension(R.dimen.image_preview_large)
-        binding.imagePreview.setShapeAppearanceModel(
-            binding.imagePreview.shapeAppearanceModel
-                .toBuilder()
-                .setAllCorners(CornerFamily.ROUNDED, radius)
-                .build()
-        )
+        binding.imagePreview.shapeAppearanceModel = binding.imagePreview.shapeAppearanceModel
+            .toBuilder()
+            .setAllCorners(CornerFamily.ROUNDED, radius)
+            .build()
         if (isGlideMime(data.mime)) {
             Log.d("Bottom[onCreateView]", "isGlideMime")
             Glide.with(this)
