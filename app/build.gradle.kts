@@ -111,7 +111,6 @@ dependencies {
     implementation(libs.converter.moshi)
     implementation(libs.glide)
     implementation(libs.okhttp3.integration)
-    //noinspection KaptUsageInsteadOfKsp
     //kapt(libs.glide.compiler)
     ksp(libs.moshi.kotlin.codegen)
     ksp(libs.room.compiler)
