@@ -298,7 +298,7 @@ class FilesFragment : Fragment() {
                 }
 
                 // Only Enable Refresh Layout when At Top
-                if (!rv.canScrollVertically(-1) && rv.scrollState != RecyclerView.SCROLL_STATE_IDLE) {
+                if (!rv.canScrollVertically(-1)) {
                     Log.i("File[onScrolled]", "REFRESH: ON")
                     binding.refreshLayout.isEnabled = true
                 } else if (binding.refreshLayout.isEnabled) {

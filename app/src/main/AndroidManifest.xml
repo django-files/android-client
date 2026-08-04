@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.djangofiles"
         android:usesCleartextTraffic="true"
-        tools:targetApi="35">
+        tools:targetApi="36">
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -95,13 +95,26 @@ suspend fun Context.updateStats(): Boolean {
         Log.d("updateStats", "stats: $stats")
         if (stats != null) {
             val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
+
+            // New stats schema: totals are derived from the per-MIME "types"
+            // breakdown plus the "Short URLs" and "Storage Used" stat cards.
+            val shortsCard = stats.statCards.firstOrNull { it.label == "Short URLs" }
+            val storageCard = stats.statCards.firstOrNull { it.label == "Storage Used" }
+            val shorts = when (val v = shortsCard?.value) {
+                is Double -> v.toInt()
+                is Int -> v
+                is Long -> v.toInt()
+                is String -> v.toIntOrNull() ?: 0
+                else -> 0
+            }
+
             // TODO: Add a helper function for this...
             dao.updateStats(
                 url = savedUrl,
-                size = stats.size,
-                count = stats.count,
-                shorts = stats.shorts,
-                humanSize = stats.humanSize,
+                size = stats.types.sumOf { it.size },
+                count = stats.types.sumOf { it.count },
+                shorts = shorts,
+                humanSize = storageCard?.value as? String ?: "0 B",
             )
             Log.d("updateStats", "dao.addOrUpdate: DONE")
 
