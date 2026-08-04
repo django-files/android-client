@@ -275,7 +275,7 @@ class ServerApi(val context: Context, host: String) {
             @Header("Authorization") token: String,
         ): Response<AlbumResponse>
 
-        @GET("stats/current/")
+        @GET("stats/me/")
         suspend fun getStatsCurrent(
             @Header("Authorization") token: String,
         ): Response<StatsResponse>
@@ -342,10 +342,34 @@ class ServerApi(val context: Context, host: String) {
     )
 
     data class StatsResponse(
-        val size: Long,
+        @SerializedName("has_stats") val hasStats: Boolean,
+        @SerializedName("updated_at") val updatedAt: String?,
+        @SerializedName("stat_cards") val statCards: List<StatCard>,
+        val types: List<TypeStats>,
+        val chart: ChartStats?,
+    )
+
+    data class StatCard(
+        val icon: String,
+        val bg: String,
+        val value: Any?,
+        val label: String,
+        val sublabel: String? = null,
+        val modal: String? = null,
+    )
+
+    data class TypeStats(
+        val mime: String,
         val count: Int,
-        val shorts: Int,
-        @SerializedName("human_size") val humanSize: String
+        val size: Long,
+        @SerializedName("human_size") val humanSize: String,
+    )
+
+    data class ChartStats(
+        val days: List<String>,
+        val files: List<Int>,
+        val size: List<Long>,
+        val shorts: List<Int>,
     )
 
 

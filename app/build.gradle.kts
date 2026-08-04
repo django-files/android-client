@@ -17,7 +17,7 @@ plugins {
 
 configure<ApplicationExtension> {
     namespace = "com.djangofiles.djangofiles"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.djangofiles.djangofiles"
