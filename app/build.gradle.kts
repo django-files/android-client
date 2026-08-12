@@ -86,7 +86,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    implementation(libs.androidx.activity)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -97,7 +98,6 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
     implementation(libs.media3.exoplayer)
-    implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.ui)
 
     implementation(platform(libs.firebase.bom))

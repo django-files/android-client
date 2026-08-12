@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -196,7 +195,9 @@ class UploadMultiFragment : Fragment() {
         // Options Button
         binding.optionsButton.setOnClickListener {
             Log.d("optionsButton", "setOnClickListener: navigate: nav_item_settings")
-            navController.navigate(R.id.nav_item_settings, bundleOf("hide_bottom_nav" to true))
+            navController.navigate(
+                R.id.nav_item_settings, Bundle().apply { putBoolean("hide_bottom_nav", true) }
+            )
         }
 
         // Albums Button
@@ -294,7 +295,7 @@ class UploadMultiFragment : Fragment() {
             Log.d("processMultiUpload", "destUrl: $destUrl")
             val msg = "Uploaded ${results.size} Files."
             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-            val bundle = bundleOf("url" to destUrl)
+            val bundle = Bundle().apply { putString("url", destUrl) }
             navController.navigate(
                 R.id.nav_item_home, bundle, NavOptions.Builder()
                     .setPopUpTo(navController.graph.id, true)
