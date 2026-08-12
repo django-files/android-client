@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -113,7 +112,9 @@ class TextFragment : Fragment() {
 
         binding.optionsButton.setOnClickListener {
             Log.d("optionsButton", "setOnClickListener")
-            navController.navigate(R.id.nav_item_settings, bundleOf("hide_bottom_nav" to true))
+            navController.navigate(
+                R.id.nav_item_settings, Bundle().apply { putBoolean("hide_bottom_nav", true) }
+            )
         }
 
         binding.uploadButton.setOnClickListener {
@@ -178,7 +179,7 @@ class TextFragment : Fragment() {
                                 }
                                 startActivity(Intent.createChooser(shareIntent, null))
                             }
-                            val bundle = bundleOf("url" to uploadResponse.url)
+                            val bundle = Bundle().apply { putString("url", uploadResponse.url) }
                             navController.navigate(
                                 R.id.nav_item_home, bundle, NavOptions.Builder()
                                     .setPopUpTo(navController.graph.id, true)

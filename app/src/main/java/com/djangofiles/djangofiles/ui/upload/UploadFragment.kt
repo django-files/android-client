@@ -19,7 +19,6 @@ import androidx.annotation.OptIn
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -250,7 +249,9 @@ class UploadFragment : Fragment() {
 
         binding.optionsButton.setOnClickListener {
             Log.d("optionsButton", "setOnClickListener")
-            navController.navigate(R.id.nav_item_settings, bundleOf("hide_bottom_nav" to true))
+            navController.navigate(
+                R.id.nav_item_settings, Bundle().apply { putBoolean("hide_bottom_nav", true) }
+            )
         }
 
         binding.openButton.setOnClickListener {
@@ -349,7 +350,7 @@ class UploadFragment : Fragment() {
                                 }
                                 startActivity(Intent.createChooser(shareIntent, null))
                             }
-                            val bundle = bundleOf("url" to uploadResponse.url)
+                            val bundle = Bundle().apply { putString("url", uploadResponse.url) }
                             navController.navigate(
                                 R.id.nav_item_home, bundle, NavOptions.Builder()
                                     .setPopUpTo(navController.graph.id, true)

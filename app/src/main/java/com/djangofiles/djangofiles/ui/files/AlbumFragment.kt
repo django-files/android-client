@@ -3,7 +3,6 @@ package com.djangofiles.djangofiles.ui.files
 import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.preference.PreferenceManager
@@ -55,7 +54,10 @@ class AlbumFragment : DialogFragment() {
                     CoroutineScope(Dispatchers.IO).launch { api.filesEdit(request) }
                 }
                 Log.d("dialog[setButton]", "selectedIds: $selectedIds")
-                setFragmentResult("albums_result", bundleOf("albums" to selectedIds))
+                setFragmentResult(
+                    "albums_result",
+                    Bundle().apply { putIntegerArrayList("albums", ArrayList(selectedIds)) }
+                )
                 dismiss()
             }
         } else {
