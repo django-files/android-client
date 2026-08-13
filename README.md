@@ -1,7 +1,7 @@
 [![GitHub Downloads](https://img.shields.io/github/downloads/django-files/android-client/total?logo=android)](https://github.com/django-files/android-client/releases)
 [![GitHub Release Version](https://img.shields.io/github/v/release/django-files/android-client?logo=github)](https://github.com/django-files/android-client/releases/latest)
-[![APK Size](https://badges.cssnr.com/gh/release/django-files/android-client/latest/asset/app-release.apk/size?label=apk&color=darkgreen)](https://github.com/django-files/remote-wallpaper-android/releases/latest/download/app-release.apk)
-[![AGP Version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdjango-files%2Fandroid-client%2Frefs%2Fheads%2Fmaster%2Fgradle%2Flibs.versions.toml&query=%24.versions.agp&logo=gradle&label=AGP)](https://github.com/django-files/android-client/blob/master/gradle/libs.versions.toml#L2)
+[![APK Size](https://badges.cssnr.com/gh/release/django-files/android-client/latest/asset/app-release.apk/size?label=apk&color=darkgreen)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+[![AGP Version](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdjango-files%2Fandroid-client%2Frefs%2Fheads%2Fmaster%2Fgradle%2Flibs.versions.toml&query=%24.versions.agp&logo=gradle&label=gradle)](https://github.com/django-files/android-client/blob/master/gradle/libs.versions.toml#L2)
 [![Workflow Lint](https://img.shields.io/github/actions/workflow/status/django-files/android-client/lint.yaml?logo=norton&logoColor=white&label=lint)](https://github.com/django-files/android-client/actions/workflows/lint.yaml)
 [![Workflow Release](https://img.shields.io/github/actions/workflow/status/django-files/android-client/release.yaml?logo=norton&logoColor=white&label=release)](https://github.com/django-files/android-client/actions/workflows/release.yaml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/django-files/android-client?logo=listenhub&label=updated)](https://github.com/django-files/android-client/pulse)
@@ -15,13 +15,17 @@
 [![GitHub Org Stars](https://img.shields.io/github/stars/django-files?style=flat&logo=apachespark&logoColor=white&label=org%20stars)](https://django-files.github.io/)
 [![Discord](https://img.shields.io/discord/899171661457293343?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/wXy6m2X8wY)
 
+> [!CAUTION]  
+> :rotating_light: **Free and Open-Source Android is under threat!**  
+> Google will turn Android into a locked-down platform, restricting your essential freedom to install apps of your choice. Make your voice heard – [Keep Android Open](https://keepandroidopen.org/).
+
 # Django Files Android App
 
 <a title="Django Files" href="https://django-files.github.io/" target="_blank">
 <img alt="Django Files" align="right" width="128" height="auto" src="https://django-files.github.io/images/logo.png"></a>
 
 - [Install](#Install)
-  - [Setup](#Setup)
+- [Setup](#Setup)
   - [Usage](#Usage)
 - [Features](#Features)
   - [Planned](#Planned)
@@ -38,8 +42,6 @@ Allows you to Share or Open any file with your Django Files server.
 The URL to the file is automatically copied to the clipboard and the preview is shown in the app.
 
 Additional screenshots can be found on the website: https://django-files.github.io/android/
-
-[![GitHub Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=android&label=Download%20Android%20APK&color=3ddc84)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 
 | Django&nbsp;Files | Link                                          |
 | ----------------- | :-------------------------------------------- |
@@ -61,16 +63,25 @@ _If you are unsure how to install, [Obtainium](https://github.com/ImranR98/Obtai
 
 <details><summary>📲 Click to View QR Codes 📸 Supports Android 8 (API 26) 2017 +</summary>
 
+<br />
+
 [![QR Code GitHub](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/qr-code-github.png)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+
+<br />
 
 [![QR Code Obtainium](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/qr-code-obtainium.png)](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/django-files/android-client)
 
 </details>
 
+[![Latest Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=github&label=latest%20release&color=34A853)](https://github.com/django-files/android-client/releases/latest)
+[![Latest Pre-Release](https://img.shields.io/github/v/release/django-files/android-client?style=for-the-badge&logo=github&include_prereleases&label=pre-release&color=blue)](https://github.com/django-files/android-client/releases)
+
 _Note: If installing directly, you may need to allow installation of apps from unknown sources.  
 For more information, see [Release through a website](https://developer.android.com/studio/publish#publishing-website)._
 
 <details><summary>View Manual Steps to Install from Unknown Sources</summary>
+
+<br />
 
 Note: Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 should take you to the settings area to allow installation if not already enabled. Otherwise:
@@ -85,9 +96,19 @@ should take you to the settings area to allow installation if not already enable
 6. Choose Install and Accept any Play Protect notifications.
 7. The app is now installed. Proceed to the [Setup](#Setup) section below.
 
+---
+
 </details>
 
-### Setup
+_The GitHub APK has been registered with Google's [Android developer verification](https://developer.android.com/developer-verification)._
+
+```
+A0:11:F5:75:CA:69:54:E4:0A:97:A0:C9:85:AC:35:FB:99:3F:DA:73:37:0B:97:EA:23:7D:02:F1:0A:41:2F:D0
+```
+
+[_How to Verify an APK Signature_](https://developer.android.com/tools/apksigner#usage-verify)
+
+## Setup
 
 You can log in via password, OAuth, or QR Code.
 
@@ -140,11 +161,15 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
   - File Options
   - PDF Previews
 
+[![Request Feature](https://img.shields.io/badge/request_feature-brightgreen?style=for-the-badge&logo=rocket&logoColor=white)](https://github.com/django-files/android-client/issues/new?template=1-feature.yaml)
+
 ### Known Issues
 
 - The app gets logged out if the session expires; however, sharing continues to work.
 - Uploading files from the website works; however, taking picture/recording does not.
 - Logging out and deleting servers may have some unexpected results, but should work.
+
+[![Report Issue](https://img.shields.io/badge/report_issue-red?style=for-the-badge&logo=southwestairlines&logoColor=white)](https://github.com/django-files/android-client/issues)
 
 ### Troubleshooting
 
@@ -335,6 +360,8 @@ Only 1 app can be in debug mode at a time and this must be set every restart.
 
 # Contributing
 
+If you would like to submit a PR, please review the [CONTRIBUTING.md](#contributing-ov-file).
+
 Currently, the best way to contribute to this project is to star this project on GitHub.
 
 You can also support other related projects:
@@ -343,11 +370,3 @@ You can also support other related projects:
 - [Django Files iOS App](https://github.com/django-files/ios-client)
 - [Django Files Android App](https://github.com/django-files/android-client)
 - [Django Files Web Extension](https://github.com/django-files/web-extension)
-
-<a href="https://django-files.github.io/">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=django-files/django-files%2Cdjango-files/ios-client%2Cdjango-files/android-client%2Cdjango-files/web-extension&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=django-files/django-files%2Cdjango-files/ios-client%2Cdjango-files/android-client%2Cdjango-files/web-extension&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=django-files/django-files%2Cdjango-files/ios-client%2Cdjango-files/android-client%2Cdjango-files/web-extension&type=date&legend=top-left" />
- </picture>
-</a>
