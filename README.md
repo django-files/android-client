@@ -360,6 +360,8 @@ Only 1 app can be in debug mode at a time and this must be set every restart.
 
 # Contributing
 
+If you would like to submit a PR, please review the [CONTRIBUTING.md](#contributing-ov-file).
+
 Currently, the best way to contribute to this project is to star this project on GitHub.
 
 You can also support other related projects:
