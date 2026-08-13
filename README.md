@@ -15,6 +15,10 @@
 [![GitHub Org Stars](https://img.shields.io/github/stars/django-files?style=flat&logo=apachespark&logoColor=white&label=org%20stars)](https://django-files.github.io/)
 [![Discord](https://img.shields.io/discord/899171661457293343?logo=discord&logoColor=white&label=discord&color=7289da)](https://discord.gg/wXy6m2X8wY)
 
+> [!CAUTION]  
+> :rotating_light: **Free and Open-Source Android is under threat!**  
+> Google will turn Android into a locked-down platform, restricting your essential freedom to install apps of your choice. Make your voice heard – [Keep Android Open](https://keepandroidopen.org/).
+
 # Django Files Android App
 
 <a title="Django Files" href="https://django-files.github.io/" target="_blank">
@@ -61,7 +65,11 @@ _If you are unsure how to install, [Obtainium](https://github.com/ImranR98/Obtai
 
 <details><summary>📲 Click to View QR Codes 📸 Supports Android 8 (API 26) 2017 +</summary>
 
+<br />
+
 [![QR Code GitHub](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/qr-code-github.png)](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
+
+<br />
 
 [![QR Code Obtainium](https://raw.githubusercontent.com/smashedr/repo-images/refs/heads/master/django-files/android/qr-code-obtainium.png)](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/django-files/android-client)
 
@@ -71,6 +79,8 @@ _Note: If installing directly, you may need to allow installation of apps from u
 For more information, see [Release through a website](https://developer.android.com/studio/publish#publishing-website)._
 
 <details><summary>View Manual Steps to Install from Unknown Sources</summary>
+
+<br />
 
 Note: Downloading and Installing the [apk](https://github.com/django-files/android-client/releases/latest/download/app-release.apk)
 should take you to the settings area to allow installation if not already enabled. Otherwise:
@@ -85,7 +95,17 @@ should take you to the settings area to allow installation if not already enable
 6. Choose Install and Accept any Play Protect notifications.
 7. The app is now installed. Proceed to the [Setup](#Setup) section below.
 
+---
+
 </details>
+
+_The GitHub APK has been registered with Google's [Android developer verification](https://developer.android.com/developer-verification)._
+
+```
+A0:11:F5:75:CA:69:54:E4:0A:97:A0:C9:85:AC:35:FB:99:3F:DA:73:37:0B:97:EA:23:7D:02:F1:0A:41:2F:D0
+```
+
+[_How to Verify an APK Signature_](https://developer.android.com/tools/apksigner#usage-verify)
 
 ### Setup
 
@@ -140,11 +160,15 @@ Additionally, the URL is copied to the clipboard and the preview show in the app
   - File Options
   - PDF Previews
 
+[![Request Feature](https://img.shields.io/badge/request_feature-brightgreen?style=for-the-badge&logo=rocket&logoColor=white)](https://github.com/django-files/android-client/issues/new?template=1-feature.yaml)
+
 ### Known Issues
 
 - The app gets logged out if the session expires; however, sharing continues to work.
 - Uploading files from the website works; however, taking picture/recording does not.
 - Logging out and deleting servers may have some unexpected results, but should work.
+
+[![Report Issue](https://img.shields.io/badge/report_issue-red?style=for-the-badge&logo=southwestairlines&logoColor=white)](https://github.com/django-files/android-client/issues)
 
 ### Troubleshooting
 

@@ -1,9 +1,10 @@
 # Agent Guide
 
-Android client for Django Files file sharing server: [django-files/django-files](https://github.com/django-files/django-files)
+Android client for [Django Files Upload Server](https://github.com/django-files/django-files).
 
-- `app/` - Android app source (Kotlin, Gradle)
-- `Taskfile.yml` - task commands (go-task/task)
+- `app/` - Android app source
+- `gradle/libs.versions.toml` - Library versions
+- `Taskfile.yml` - [task](https://github.com/go-task/task) commands
 
 ## Commands
 
@@ -11,9 +12,10 @@ ALWAYS use the `task *` commands
 
 | Command        | Purpose                                             |
 | -------------- | --------------------------------------------------- |
-| `task compile` | Compile Kotlin (quick check)                        |
-| `task build`   | Build all variants (APKs)                           |
+| `task compile` | Compile Kotlin                                      |
+| `task debug`   | Build debug variant (APK)                           |
 | `task release` | Build release variant (APK)                         |
+| `task bundle`  | Build Android App Bundle (AAB)                      |
 | `task lint`    | Prettier check + yamllint + actionlint + shellcheck |
 | `task format`  | Prettier write (format non-kotlin files)            |
 
@@ -21,8 +23,4 @@ Do NOT use `-q` or pipe Gradle output through `Select-Object` — both hide prog
 
 ## Rules
 
-Do NOT run task compile/build/release every turn unless it is REQUIRED!!!
-
-NEVER run task compile/build/release to verify an edit. Verify by re-reading
-the edited code and reasoning about correctness. Only run compile/build/release
-when the user explicitly asks for it.
+Do NOT run task compile/debug/release/bundle after making edits unless it is REQUIRED!!!
