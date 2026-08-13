@@ -25,7 +25,7 @@
 <img alt="Django Files" align="right" width="128" height="auto" src="https://django-files.github.io/images/logo.png"></a>
 
 - [Install](#Install)
-  - [Setup](#Setup)
+- [Setup](#Setup)
   - [Usage](#Usage)
 - [Features](#Features)
   - [Planned](#Planned)
@@ -108,7 +108,7 @@ A0:11:F5:75:CA:69:54:E4:0A:97:A0:C9:85:AC:35:FB:99:3F:DA:73:37:0B:97:EA:23:7D:02
 
 [_How to Verify an APK Signature_](https://developer.android.com/tools/apksigner#usage-verify)
 
-### Setup
+## Setup
 
 You can log in via password, OAuth, or QR Code.
 
