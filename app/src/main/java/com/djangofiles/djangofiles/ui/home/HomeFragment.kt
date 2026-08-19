@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.edit
+import androidx.core.graphics.Insets
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -88,12 +89,19 @@ class HomeFragment : Fragment() {
         //    v.updatePadding(top = top)
         //    insets
         //}
-
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            Log.d("ViewCompat", "top: ${bars.top}")
-            v.updatePadding(top = bars.top)
-            insets
+        //ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+        //    val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        //    Log.d("ViewCompat", "top: ${bars.top}")
+        //    v.updatePadding(top = bars.top)
+        //    insets
+        //}
+        ViewCompat.setOnApplyWindowInsetsListener(view) { view, windowInsets ->
+            val types = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            val insets = windowInsets.getInsets(types)
+            view.updatePadding(top = insets.top)
+            WindowInsetsCompat.Builder(windowInsets)
+                .setInsets(types, Insets.NONE)
+                .build()
         }
 
         Log.d("Home[onViewCreated]", "webViewState: ${webViewState.size()}")
