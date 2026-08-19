@@ -161,7 +161,7 @@ class FilesFragment : Fragment() {
         api = ServerApi(requireContext(), savedUrl)
         checkMetered(previewMetered) // Set isMetered
 
-        val cookie = CookieManager.getInstance().getCookie(savedUrl)
+        val cookie = CookieManager.getInstance().getCookie(savedUrl) ?: ""
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
