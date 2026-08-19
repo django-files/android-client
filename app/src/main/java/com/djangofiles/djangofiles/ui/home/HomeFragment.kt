@@ -89,7 +89,12 @@ class HomeFragment : Fragment() {
         //    v.updatePadding(top = top)
         //    insets
         //}
-
+        //ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+        //    val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        //    Log.d("ViewCompat", "top: ${bars.top}")
+        //    v.updatePadding(top = bars.top)
+        //    insets
+        //}
         ViewCompat.setOnApplyWindowInsetsListener(view) { view, windowInsets ->
             val types = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
             val insets = windowInsets.getInsets(types)
