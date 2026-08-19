@@ -161,7 +161,7 @@ class FilesFragment : Fragment() {
         api = ServerApi(requireContext(), savedUrl)
         checkMetered(previewMetered) // Set isMetered
 
-        val cookie = CookieManager.getInstance().getCookie(savedUrl)
+        val cookie = CookieManager.getInstance().getCookie(savedUrl) ?: ""
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
@@ -761,13 +761,14 @@ suspend fun Context.getAlbums(savedUrl: String) {
     }
 }
 
-fun Context.openUrl(url: String) {
-    val openIntent = Intent(Intent.ACTION_VIEW).apply {
-        setDataAndType(url.toUri(), "text/plain")
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    this.startActivity(Intent.createChooser(openIntent, null))
-}
+// NOTE: Unused — was called from FilesBottomSheet's open button which is now commented out.
+//fun Context.openUrl(url: String) {
+//    val openIntent = Intent(Intent.ACTION_VIEW).apply {
+//        setDataAndType(url.toUri(), "text/plain")
+//        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//    }
+//    this.startActivity(Intent.createChooser(openIntent, null))
+//}
 
 fun Context.shareUrl(url: String) {
     val shareIntent = Intent(Intent.ACTION_SEND).apply {

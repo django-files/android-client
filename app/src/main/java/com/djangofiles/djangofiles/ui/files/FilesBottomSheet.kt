@@ -180,6 +180,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
             }
             requireContext().showExpireDialog(listOf(data.id), ::callback, data.expr)
         }
+        // NOTE: Not sure what this was used for, but the function is now commented out in FilesFragment.kt
         //// Open
         //binding.openButton.setOnClickListener {
         //    requireContext().openUrl(data.url)
