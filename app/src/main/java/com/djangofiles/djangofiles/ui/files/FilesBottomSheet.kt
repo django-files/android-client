@@ -80,7 +80,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         dialog.setOnShowListener {
             dialog.window?.let { window ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    window.setNavigationBarContrastEnforced(false)
+                    window.isNavigationBarContrastEnforced = false
                 }
                 WindowCompat.setDecorFitsSystemWindows(window, false)
             }

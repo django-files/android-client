@@ -27,8 +27,8 @@ moshiKotlinCodegen = "1.15.2"
 glide = "5.0.9"
 
 googleServices = "4.5.0"
-firebaseBom = "34.17.0"
-crashlyticsPlugin = "3.0.7"
+firebaseBom = "34.18.0"
+crashlyticsPlugin = "3.0.8"
 
 # navigationSafeargsVersion = "2.8.9"
 # roomRuntime = "2.6.1"
