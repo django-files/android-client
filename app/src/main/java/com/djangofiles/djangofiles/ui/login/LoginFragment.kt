@@ -61,6 +61,12 @@ class LoginFragment : Fragment() {
         super.onStop()
     }
 
+    override fun onDestroyView() {
+        binding.hostnameText.error = null
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("Login[onViewCreated]", "savedInstanceState: ${savedInstanceState?.size()}")

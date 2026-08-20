@@ -74,6 +74,13 @@ class LoginTwoFragment : Fragment() {
         super.onStop()
     }
 
+    override fun onDestroyView() {
+        binding.loginUsername.error = null
+        binding.loginPassword.error = null
+        super.onDestroyView()
+        _binding = null
+    }
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
