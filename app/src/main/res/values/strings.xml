@@ -41,6 +41,7 @@
     <string name="vanity">Vanity</string>
     <string name="file_name">File Name</string>
     <string name="shorten_url">Shorten URL</string>
+    <string name="url_hint">URL to Shorten</string>
 
     <string name="feedback_message">**%1$s** `v%2$s` API **%3$s**\n```\n%4$s\n```</string>
 

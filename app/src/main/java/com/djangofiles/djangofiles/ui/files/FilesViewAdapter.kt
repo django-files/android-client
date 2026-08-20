@@ -29,6 +29,7 @@ import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.ServerApi.FileResponse
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
+import java.util.Locale
 
 //import android.widget.ImageView
 //import android.net.ConnectivityManager
@@ -91,7 +92,8 @@ class FilesViewAdapter(
         viewHolder.fileSize.text = bytesToHuman(data.size.toDouble())
 
         // Views
-        viewHolder.fileView.text = data.view.toString()
+        //viewHolder.fileView.text = data.view.toString()
+        viewHolder.fileView.text = String.format(Locale.getDefault(), "%d", data.view)
         viewHolder.fileView.compoundDrawableTintList = if (data.view > 0) null else colorOnSecondary
 
         // Private
