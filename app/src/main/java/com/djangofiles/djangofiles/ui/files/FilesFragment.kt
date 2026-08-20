@@ -216,13 +216,6 @@ class FilesFragment : Fragment() {
             binding.filesSelectedText.text =
                 resources.getQuantityString(
                     R.plurals.files_selected_total,
-                    selectedSize,
-                    selectedSize,
-                    filesSize
-                )
-            binding.filesSelectedText.text =
-                resources.getQuantityString(
-                    R.plurals.files_selected_total,
                     filesSize,
                     selectedSize,
                     filesSize

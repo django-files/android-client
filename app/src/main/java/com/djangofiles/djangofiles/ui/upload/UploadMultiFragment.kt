@@ -138,7 +138,8 @@ class UploadMultiFragment : Fragment() {
             Log.i("Multi[onViewCreated]", "INITIALIZE NEW ADAPTER")
             adapter = UploadMultiAdapter(fileUris, selectedUris.toMutableSet()) { updated ->
                 viewModel.selectedUris.value = updated
-                binding.uploadButton.text = getString(R.string.upload_multi, updated.size)
+                binding.uploadButton.text =
+                    resources.getQuantityString(R.plurals.upload_multi, updated.size, updated.size)
             }
         }
 
@@ -179,7 +180,11 @@ class UploadMultiFragment : Fragment() {
         val editRequest = FileEditRequest()
 
         // Upload Button
-        binding.uploadButton.text = getString(R.string.upload_multi, selectedUris.size)
+        binding.uploadButton.text = resources.getQuantityString(
+            R.plurals.upload_multi,
+            selectedUris.size,
+            selectedUris.size
+        )
         binding.uploadButton.setOnClickListener {
             val selectedUris = viewModel.getSelectedUris()
             //Log.d("uploadButton", "selectedUris: $selectedUris")

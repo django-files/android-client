@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Django Files</string>
     <string name="version_string">v%s</string>
     <string name="version_code_string">%1$s (%2$s)</string>
@@ -20,7 +20,10 @@
     <string name="file_list">File List</string>
     <string name="app_settings">App Settings</string>
 
-    <string name="upload_multi" tools:ignore="PluralsCandidate">Upload %1$d Files</string>
+    <plurals name="upload_multi">
+        <item quantity="one">Upload %d File</item>
+        <item quantity="other">Upload %d Files</item>
+    </plurals>
     <plurals name="files_total">
         <item quantity="one">%1$d File</item>
         <item quantity="other">%1$d Files</item>
