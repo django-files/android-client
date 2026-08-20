@@ -1,5 +1,6 @@
 package com.djangofiles.djangofiles
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.content.ClipData
@@ -8,6 +9,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -23,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
@@ -68,6 +71,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var navHostFragment: NavHostFragment
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
+
+    // Local Network Permission (Android 17 / API 37)
+    // https://developer.android.com/privacy-and-security/local-network-permission
+    private val localNetworkPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            Log.i("Main[LocalNetwork]", "ACCESS_LOCAL_NETWORK granted: $granted")
+        }
 
     private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
@@ -304,6 +314,11 @@ class MainActivity : AppCompatActivity() {
 
         MediaCache.initialize(this)
 
+        // Local Network Permission (Android 17 / API 37)
+        // Servers may be hosted on the LAN. Widget refresh and the daily
+        // worker also need this granted, and they cannot prompt for it.
+        checkLocalNetworkPermission()
+
         // Only Handel Intent Once Here after App Start
         if (savedInstanceState?.getBoolean("intentHandled") != true) {
             onNewIntent(intent)
@@ -313,6 +328,21 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("intentHandled", true)
+    }
+
+    // Android 17 (API 37) blocks local network access by default for apps
+    // targeting API 37+. The permission only exists on Android 17+, so the
+    // check is skipped on older versions.
+    // https://developer.android.com/privacy-and-security/local-network-permission
+    private fun checkLocalNetworkPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN) return
+        val permission = Manifest.permission.ACCESS_LOCAL_NETWORK
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+            Log.d("Main[LocalNetwork]", "ACCESS_LOCAL_NETWORK already granted")
+            return
+        }
+        Log.i("Main[LocalNetwork]", "Requesting ACCESS_LOCAL_NETWORK")
+        localNetworkPermissionLauncher.launch(permission)
     }
 
     override fun onNewIntent(intent: Intent) {
