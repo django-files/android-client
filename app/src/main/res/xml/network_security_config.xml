@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Configuration
+    Replaces android:usesCleartextTraffic="true" which has a deprecation
+    plan starting with Android 17 (API 37).
+    Servers are user-configured and may be plain HTTP (self-hosted).
+    https://developer.android.com/privacy-and-security/security-config
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

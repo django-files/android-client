@@ -26,6 +26,8 @@ import com.djangofiles.djangofiles.databinding.FragmentLoginTwoBinding
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.ensureLocalNetworkPermission
+import com.djangofiles.djangofiles.isLocalNetworkUrl
 import com.djangofiles.djangofiles.ui.files.getAlbums
 import com.djangofiles.djangofiles.work.updateStats
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -142,6 +144,23 @@ class LoginTwoFragment : Fragment() {
             if (!valid) return@OnClickListener
 
             lifecycleScope.launch {
+                // Local Network Permission (Android 17 / API 37): must be granted
+                // BEFORE the login request or a local server will time out.
+                if (!hostname.isNullOrEmpty() && hostname.isLocalNetworkUrl()) {
+                    val granted = requireActivity().ensureLocalNetworkPermission()
+                    Log.d("loginFunction", "ACCESS_LOCAL_NETWORK granted: $granted")
+                    if (!granted) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                appContext,
+                                "Local network access is required for this server.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        return@launch
+                    }
+                }
+
                 val api = ServerApi(appContext, hostname!!)
                 val token = api.login(username, password)
                 Log.d("loginFunction", "token: $token")

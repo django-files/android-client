@@ -34,6 +34,8 @@ import com.djangofiles.djangofiles.api.FeedbackApi
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.ensureLocalNetworkPermission
+import com.djangofiles.djangofiles.isLocalNetworkUrl
 import com.djangofiles.djangofiles.work.enqueueWorkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -248,12 +250,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
             Log.d("activateServer", "server ALREADY ACTIVE - RETURN")
             return
         }
-        preferenceManager.sharedPreferences?.edit()?.apply {
-            putString("saved_url", server.url)
-            putString("auth_token", server.token)
-            apply()
+        lifecycleScope.launch {
+            // Local Network Permission (Android 17 / API 37): must be granted
+            // BEFORE Home tries to reach a local server.
+            if (server.url.isLocalNetworkUrl()) {
+                val granted = requireActivity().ensureLocalNetworkPermission()
+                Log.d("activateServer", "ACCESS_LOCAL_NETWORK granted: $granted")
+                if (!granted) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Local network access is required for this server.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@launch
+                }
+            }
+            preferenceManager.sharedPreferences?.edit()?.apply {
+                putString("saved_url", server.url)
+                putString("auth_token", server.token)
+                apply()
+            }
+            buildServerList()
         }
-        buildServerList()
     }
 
     private fun updateWorkIntervalSettings(selectedValue: String?) {

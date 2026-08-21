@@ -304,6 +304,17 @@ class MainActivity : AppCompatActivity() {
 
         MediaCache.initialize(this)
 
+        // Local Network Permission (Android 17 / API 37)
+        // Upgrade path: users already logged in to a LAN-hosted server.
+        // Fresh logins and QR auth request this where the server is added.
+        lifecycleScope.launch {
+            val savedUrl = preferences.getString("saved_url", null)
+            Log.d("Main[onCreate]", "savedUrl: $savedUrl")
+            if (savedUrl != null && savedUrl.isLocalNetworkUrl()) {
+                requestLocalNetworkPermission()
+            }
+        }
+
         // Only Handel Intent Once Here after App Start
         if (savedInstanceState?.getBoolean("intentHandled") != true) {
             onNewIntent(intent)
@@ -586,7 +597,24 @@ class MainActivity : AppCompatActivity() {
             putString("saved_url", oauthUrl)
             putString("auth_token", token)
         }
+
+        // Local Network Permission (Android 17 / API 37): OAuth fresh login.
+        // Awaited BEFORE entering Home so the WebView is not blocked on a
+        // local server while the dialog is still pending.
         lifecycleScope.launch {
+            if (oauthUrl.isLocalNetworkUrl()) {
+                val granted = ensureLocalNetworkPermission()
+                Log.d("processOauth", "ACCESS_LOCAL_NETWORK granted: $granted")
+                if (!granted) {
+                    Log.w("processOauth", "ACCESS_LOCAL_NETWORK DENIED")
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Local network access is required for this server.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
             val dao: ServerDao =
                 ServerDatabase.getInstance(this@MainActivity).serverDao()
             try {
@@ -597,25 +625,25 @@ class MainActivity : AppCompatActivity() {
                 // TODO: This needs to be handled...
                 Log.e("processOauth", "Exception: $e")
             }
+
+            val cookieManager = CookieManager.getInstance()
+            //cookieManager.setAcceptThirdPartyCookies(webView, true)
+            val cookie = "sessionid=$sessionKey; Path=/; HttpOnly; Secure"
+            Log.d("processOauth", "cookie: $cookie")
+
+            val uri = oauthUrl.toUri()
+            val origin = "${uri.scheme}://${uri.authority}"
+            Log.d("processOauth", "origin: $origin")
+            cookieManager.setCookie(origin, cookie) { cookieManager.flush() }
+
+            Log.d("processOauth", "navigate: startDestinationId")
+            setDrawerLockMode(true)
+            navController.navigate(
+                navController.graph.startDestinationId, null, NavOptions.Builder()
+                    .setPopUpTo(navController.graph.id, true)
+                    .build()
+            )
         }
-
-        val cookieManager = CookieManager.getInstance()
-        //cookieManager.setAcceptThirdPartyCookies(webView, true)
-        val cookie = "sessionid=$sessionKey; Path=/; HttpOnly; Secure"
-        Log.d("processOauth", "cookie: $cookie")
-
-        val uri = oauthUrl.toUri()
-        val origin = "${uri.scheme}://${uri.authority}"
-        Log.d("processOauth", "origin: $origin")
-        cookieManager.setCookie(origin, cookie) { cookieManager.flush() }
-
-        Log.d("processOauth", "navigate: startDestinationId")
-        setDrawerLockMode(true)
-        navController.navigate(
-            navController.graph.startDestinationId, null, NavOptions.Builder()
-                .setPopUpTo(navController.graph.id, true)
-                .build()
-        )
     }
 
     private fun processLogout() {

@@ -18,6 +18,8 @@ import androidx.navigation.fragment.findNavController
 import com.djangofiles.djangofiles.R
 import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.databinding.FragmentLoginBinding
+import com.djangofiles.djangofiles.ensureLocalNetworkPermission
+import com.djangofiles.djangofiles.isLocalNetworkUrl
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -124,6 +126,25 @@ class LoginFragment : Fragment() {
             Log.d("loginFunction", "Processing URL: $host")
             val api = ServerApi(ctx, host)
             lifecycleScope.launch {
+                // Local Network Permission (Android 17 / API 37): must be granted
+                // BEFORE the first server contact or every request to a local
+                // server fails while the permission is missing.
+                if (host.isLocalNetworkUrl()) {
+                    val granted = requireActivity().ensureLocalNetworkPermission()
+                    Log.d("loginFunction", "ACCESS_LOCAL_NETWORK granted: $granted")
+                    if (!granted) {
+                        _binding?.hostnameText?.error = "Local Network Access Denied"
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Local network access is required for this server.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        return@launch
+                    }
+                }
+
                 try {
                     // TODO: When a session expires the server will be a duplicate...
                     //val dao: ServerDao = ServerDatabase.getInstance(requireContext()).serverDao()

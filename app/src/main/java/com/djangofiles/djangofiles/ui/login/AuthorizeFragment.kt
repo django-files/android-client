@@ -25,6 +25,8 @@ import com.djangofiles.djangofiles.databinding.FragmentAuthorizeBinding
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.ensureLocalNetworkPermission
+import com.djangofiles.djangofiles.isLocalNetworkUrl
 import com.djangofiles.djangofiles.ui.files.getAlbums
 import com.djangofiles.djangofiles.work.updateStats
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -109,6 +111,18 @@ class AuthorizeFragment : Fragment() {
 
         // TODO: Cache methodsResponse in viewModel
         lifecycleScope.launch {
+            // Local Network Permission (Android 17 / API 37): must be granted
+            // BEFORE the first server contact or every request to a local
+            // server fails while the permission is missing.
+            if (authUrl.isLocalNetworkUrl()) {
+                val granted = requireActivity().ensureLocalNetworkPermission()
+                Log.d("Authorize[onViewCreated]", "ACCESS_LOCAL_NETWORK granted: $granted")
+                if (!granted) {
+                    ctx.authError("Local Network Access Denied.")
+                    return@launch
+                }
+            }
+
             val methodsResponse = api.methods()
             Log.d("Authorize[onViewCreated]", "methodsResponse: $methodsResponse")
             if (methodsResponse.isSuccessful) {
@@ -129,6 +143,17 @@ class AuthorizeFragment : Fragment() {
             binding.loadingLayout.visibility = View.VISIBLE
             lifecycleScope.launch {
                 Log.d("Authorize[addServerBtn]", "api: $api")
+                // Local Network Permission (Android 17 / API 37): must be granted
+                // BEFORE the authorize request or a local server will time out.
+                if (authUrl.isLocalNetworkUrl()) {
+                    val granted = requireActivity().ensureLocalNetworkPermission()
+                    Log.d("Authorize[addServerBtn]", "ACCESS_LOCAL_NETWORK granted: $granted")
+                    if (!granted) {
+                        ctx.authError("Local Network Access Denied.")
+                        return@launch
+                    }
+                }
+
                 // TODO: All Verification BEFORE this, successful auth adds the cookie...
                 val token = api.authorize(signature)
                 Log.d("Authorize[addServerBtn]", "token: $token")
@@ -141,6 +166,7 @@ class AuthorizeFragment : Fragment() {
                     putString("saved_url", authUrl)
                     putString("auth_token", token)
                 }
+
                 val server = Server(url = authUrl, token = token, active = true)
                 Log.d("Authorize[addServerBtn]", "server: $server")
                 val dao: ServerDao = ServerDatabase.getInstance(ctx).serverDao()
