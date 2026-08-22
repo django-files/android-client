@@ -40,6 +40,7 @@ import com.djangofiles.djangofiles.databinding.FragmentFilesBinding
 import com.djangofiles.djangofiles.db.AlbumDao
 import com.djangofiles.djangofiles.db.AlbumDatabase
 import com.djangofiles.djangofiles.getUserAgent
+import com.djangofiles.djangofiles.ui.dialogs.showKeyboard
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -708,7 +709,7 @@ fun Context.showExpireDialog(
 
     val preferences = PreferenceManager.getDefaultSharedPreferences(this)
     val savedUrl = preferences.getString("saved_url", "").toString()
-    MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+    val dialog = MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
         .setView(layout)
         .setTitle("Set Expiration")
         .setIcon(R.drawable.md_timer_24)
@@ -731,7 +732,9 @@ fun Context.showExpireDialog(
                 }
             }
         }
-        .show()
+        .create()
+    dialog.showKeyboard()
+    dialog.show()
 }
 
 suspend fun Context.getAlbums(savedUrl: String) {
