@@ -8,6 +8,9 @@ import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 
 /**
  * Shows the soft keyboard for this dialog window.
@@ -24,9 +27,12 @@ import android.view.inputmethod.InputMethodManager
 fun Dialog.showKeyboard() {
     val window: Window = window ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        slideAboveIme()
         // Same as androidx.preference Api30Impl.showIme(window)
         window.decorView.windowInsetsController?.show(WindowInsets.Type.ime())
     } else {
+        // AI NOTE: Below R, WindowInsetsCompat.Type.ime() carries no data, so fall back to the
+        // legacy system pan behavior there.
         // NOTE: SOFT_INPUT_ADJUST_PAN prevents shrinking the dialog
         window.setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE or
@@ -58,6 +64,63 @@ fun Dialog.showKeyboard() {
         }
 
         tryShow()
+    }
+}
+
+// AI NOTE: The dialog keeps its NATURAL SIZE and while the keyboard is open is TRANSLATED
+// upward so its top edge pins right below the status bar, consuming the ENTIRE empty space
+// between the dialog and the top of the screen. Any leftover room ends up between the
+// dialog's bottom edge and the keyboard - it cannot disappear without resizing the dialog
+// window frame, which squashes the AlertDialog into the leftover strip and makes it
+// unreadable (SOFT_INPUT_ADJUST_RESIZE), and panning (SOFT_INPUT_ADJUST_PAN) only moves
+// the window until the FOCUSED editor clears the top of the keyboard - ViewRootImpl
+// scrollY = focusRect.top - visibleTop - which leaves dead space above the dialog while
+// the bottom buttons stay covered.
+//
+// Mechanics: a Dialog has its own Window with its own softInputMode; the activity manifest
+// setting never applies to it. ADJUST_NOTHING disables both built-in behaviors so nothing
+// fights this manual translation, and setDecorFitsSystemWindows(false) lets the raw ime()
+// insets through to the listener. Per AOSP InsetsState.processSource(), ime() insets are
+// calculated relative to THIS window's frame, so ime.bottom on the dialog = exactly how
+// many pixels of it the keyboard covers.
+private fun Dialog.slideAboveIme() {
+    val window = window ?: return
+    val decor = window.decorView
+    WindowCompat.setDecorFitsSystemWindows(window, false)
+    window.setSoftInputMode(
+        WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE or
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+    )
+    ViewCompat.setOnApplyWindowInsetsListener(decor) { v, insets ->
+        val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+        val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+        val barsTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+        if (!imeVisible || imeBottom <= 0) {
+            if (v.translationY != 0f) v.translationY = 0f
+            return@setOnApplyWindowInsetsListener insets
+        }
+        // Post: getLocationOnScreen() can be stale mid-layout during inset dispatch.
+        // translationY is subtracted back out so repeated callbacks stay anchored to the
+        // window's untranslated position instead of drifting upward every callback.
+        v.post {
+            val location = IntArray(2)
+            v.getLocationOnScreen(location)
+            val baseTop = location[1] - v.translationY.toInt()
+            // Consume the ENTIRE gap above the dialog: pin its top edge right below the
+            // status bar while the keyboard is open.
+            val maxUp = (baseTop - barsTop).coerceAtLeast(0)
+            if (maxUp > 0) {
+                v.translationY = -maxUp.toFloat()
+            } else if (v.translationY != 0f) {
+                v.translationY = 0f
+            }
+        }
+        insets
+    }
+    // Re-evaluate when the dialog's own layout changes (e.g. the multiline feedback
+    // EditText grows between minLines and maxLines while typing).
+    decor.addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+        ViewCompat.requestApplyInsets(view)
     }
 }
 
