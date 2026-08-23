@@ -67,15 +67,14 @@ fun Dialog.showKeyboard() {
     }
 }
 
-// AI NOTE: The dialog keeps its NATURAL SIZE and while the keyboard is open is TRANSLATED
-// upward so its top edge pins right below the status bar, consuming the ENTIRE empty space
-// between the dialog and the top of the screen. Any leftover room ends up between the
-// dialog's bottom edge and the keyboard - it cannot disappear without resizing the dialog
-// window frame, which squashes the AlertDialog into the leftover strip and makes it
-// unreadable (SOFT_INPUT_ADJUST_RESIZE), and panning (SOFT_INPUT_ADJUST_PAN) only moves
-// the window until the FOCUSED editor clears the top of the keyboard - ViewRootImpl
-// scrollY = focusRect.top - visibleTop - which leaves dead space above the dialog while
-// the bottom buttons stay covered.
+// AI NOTE: The dialog keeps its NATURAL SIZE and is TRANSLATED upward into the empty space
+// between its top and the top of the screen, until either its bottom edge clears the
+// keyboard or its top reaches just below the status bar. This fills the gap above instead
+// of shrinking (SOFT_INPUT_ADJUST_RESIZE squashes the whole AlertDialog window frame into
+// the leftover strip and makes it unreadable) and instead of panning
+// (SOFT_INPUT_ADJUST_PAN only moves the window until the FOCUSED editor clears the top of
+// the keyboard - ViewRootImpl scrollY = focusRect.top - visibleTop - which leaves dead
+// space above the dialog while the bottom buttons stay covered).
 //
 // Mechanics: a Dialog has its own Window with its own softInputMode; the activity manifest
 // setting never applies to it. ADJUST_NOTHING disables both built-in behaviors so nothing
@@ -106,11 +105,11 @@ private fun Dialog.slideAboveIme() {
             val location = IntArray(2)
             v.getLocationOnScreen(location)
             val baseTop = location[1] - v.translationY.toInt()
-            // Consume the ENTIRE gap above the dialog: pin its top edge right below the
-            // status bar while the keyboard is open.
+            // Max distance the dialog can move up: down to just below the status bar.
             val maxUp = (baseTop - barsTop).coerceAtLeast(0)
-            if (maxUp > 0) {
-                v.translationY = -maxUp.toFloat()
+            val shift = imeBottom.coerceAtMost(maxUp)
+            if (shift > 0) {
+                v.translationY = -shift.toFloat()
             } else if (v.translationY != 0f) {
                 v.translationY = 0f
             }
