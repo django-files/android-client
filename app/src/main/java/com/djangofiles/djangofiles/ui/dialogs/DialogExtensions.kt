@@ -23,6 +23,9 @@ import androidx.core.view.WindowInsetsCompat
  * AI NOTE: Call AFTER create() and BEFORE show() (like the library calls requestInputMethod
  * in onCreateDialog). The focused editor and window flags must be in place before the
  * dialog window gains focus or the keyboard will not show reliably.
+ *
+ * IMPORTANT: This should probably be reverted to the simplified version:
+ *  https://github.com/cssnr/zipline-android/blob/master/app/src/main/java/org/cssnr/zipline/ui/dialogs/DialogExtensions.kt
  */
 fun Dialog.showKeyboard() {
     val window: Window = window ?: return
