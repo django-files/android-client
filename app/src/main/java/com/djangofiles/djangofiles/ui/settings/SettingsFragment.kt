@@ -34,6 +34,7 @@ import com.djangofiles.djangofiles.api.FeedbackApi
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.ui.dialogs.showKeyboard
 import com.djangofiles.djangofiles.work.enqueueWorkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -439,8 +440,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     input.error = "Feedback is Required"
                 }
             }
-            input.requestFocus()
+            // NOTE: Since were not showing keyboard (below) do not the focus field?
+            // input.requestFocus()
         }
+        // NOTE: Keyboard can cover the bottom of dialog on small (1280px) devices
+        //dialog.showKeyboard()
         dialog.show()
     }
 

@@ -6,6 +6,15 @@ Android client for [Django Files Upload Server](https://github.com/django-files/
 - `gradle/libs.versions.toml` - Library versions
 - `Taskfile.yml` - [task](https://github.com/go-task/task) commands
 
+## Android
+
+- applicationId = "com.djangofiles.djangofiles" Release
+- applicationId = "com.djangofiles.djangofiles.dev" Debug
+
+- minSdk = 26
+- targetSdk = 36
+- compileSdk = 37
+
 ## Commands
 
 ALWAYS use the `task *` commands
