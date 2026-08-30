@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
@@ -75,7 +76,10 @@ class LoginFragment : Fragment() {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(top = bars.top, bottom = bars.bottom)
+            // NOTE: ime() is required since targetSdk 35+ / edge-to-edge, otherwise the
+            //  keyboard covers content. maxOf avoids double-padding when both are visible.
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            v.updatePadding(top = bars.top, bottom = maxOf(bars.bottom, ime.bottom))
             insets
         }
 
@@ -98,6 +102,14 @@ class LoginFragment : Fragment() {
 
         binding.hostnameText.requestFocus()
         binding.hostnameText.setSelection(binding.hostnameText.text.length)
+
+        // TODO: Validate this code and NOTE - This is separate from DialogExtensions.kt
+        // AI NOTE: requestFocus() only places the cursor. The IME must be shown explicitly
+        //  via WindowInsetsController (recommended over InputMethodManager.showSoftInput(),
+        //  which fails silently when the window does not have focus yet). Per docs, show()
+        //  is guaranteed to be scheduled after the window is focused.
+        WindowCompat.getInsetsController(requireActivity().window, binding.hostnameText)
+            .show(WindowInsetsCompat.Type.ime())
 
         val loginFunction = View.OnClickListener {
             Log.d("loginFunction", "it: ${it.id}")

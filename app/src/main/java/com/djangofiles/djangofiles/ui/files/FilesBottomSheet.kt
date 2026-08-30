@@ -30,6 +30,7 @@ import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesBottomBinding
 import com.djangofiles.djangofiles.db.AlbumDatabase
+import com.djangofiles.djangofiles.ui.dialogs.showKeyboard
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -279,7 +280,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         layout.addView(input)
         input.setSelection(0, filePassword.length)
 
-        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
+        val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
             .setView(layout)
             .setTitle("Set Password")
             .setIcon(R.drawable.md_key_24)
@@ -306,6 +307,8 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
                     }
                 }
             }
-            .show()
+            .create()
+        dialog.showKeyboard()
+        dialog.show()
     }
 }

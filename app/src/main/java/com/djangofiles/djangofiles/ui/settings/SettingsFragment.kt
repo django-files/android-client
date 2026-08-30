@@ -457,8 +457,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     input.error = "Feedback is Required"
                 }
             }
-            input.requestFocus()
+            // NOTE: Since were not showing keyboard (below) do not the focus field?
+            // input.requestFocus()
         }
+        // NOTE: Keyboard can cover the bottom of dialog on small (1280px) devices
+        //dialog.showKeyboard()
         dialog.show()
     }
 
