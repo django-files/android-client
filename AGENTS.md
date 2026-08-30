@@ -10,7 +10,6 @@ Android client for [Django Files Upload Server](https://github.com/django-files/
 
 - applicationId = "com.djangofiles.djangofiles" Release
 - applicationId = "com.djangofiles.djangofiles.dev" Debug
-
 - minSdk = 26
 - targetSdk = 36
 - compileSdk = 37
