@@ -19,7 +19,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class WidgetSettingsFragment : PreferenceFragmentCompat() {
 
     // NOTE: The fragment_widget_settings.xml binding and onCreateView/onDestroyView
-    //       are all for the Back Button and Heading on the Widget Settings
+    //  are all ONLY for the Back Button and Heading on the Widget Settings
     private var _binding: FragmentWidgetSettingsBinding? = null
     private val binding get() = _binding!!
 
