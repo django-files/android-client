@@ -20,7 +20,7 @@
             android:layout_height="48dp"
             android:contentDescription="Go Back"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/md_right_panel_open_24px" />
+            android:src="@drawable/md_arrow_back_24px" />
         <TextView
             android:id="@+id/file_name"
             android:layout_width="match_parent"
@@ -51,7 +51,7 @@
         app:layout_constraintStart_toEndOf="@id/top_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
-        <ImageView
+        <io.getstream.photoview.PhotoView
             android:id="@+id/preview_image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

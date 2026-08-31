@@ -111,6 +111,7 @@ dependencies {
     implementation(libs.converter.moshi)
     implementation(libs.glide)
     implementation(libs.okhttp3.integration)
+    implementation(libs.photoview)
     //kapt(libs.glide.compiler)
     ksp(libs.moshi.kotlin.codegen)
     ksp(libs.room.compiler)

@@ -8,9 +8,7 @@ Android client for [Django Files Upload Server](https://github.com/django-files/
 
 ## Android
 
-- applicationId = "com.djangofiles.djangofiles" Release
-- applicationId = "com.djangofiles.djangofiles.dev" Debug
-
+- applicationId = "com.djangofiles.djangofiles.dev"
 - minSdk = 26
 - targetSdk = 36
 - compileSdk = 37
@@ -21,7 +19,7 @@ ALWAYS use the `task *` commands
 
 | Command        | Purpose                                  |
 | -------------- | ---------------------------------------- |
-| `task lint`    | Gradle Lint                              |
+| `task lint`    | Gradle Lint - DO NOT RUN                 |
 | `task compile` | Compile Kotlin                           |
 | `task debug`   | Build debug variant (APK)                |
 | `task release` | Build release variant (APK)              |
