@@ -23,14 +23,14 @@ jobs:
 
       - name: "Draft Latest Release"
         id: draft1
-        uses: cssnr/draft-release-action@master
+        uses: cssnr/draft-release-action@fix
         with:
           semver: patch
           prerelease: false
 
       - name: "Draft Beta Release"
         id: draft2
-        uses: cssnr/draft-release-action@master
+        uses: cssnr/draft-release-action@fix
         with:
           semver: prerelease
           prerelease: true
