@@ -1,7 +1,6 @@
 package com.djangofiles.djangofiles.ui.files
 
 import android.annotation.SuppressLint
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,12 +24,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
-import androidx.transition.TransitionInflater
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.djangofiles.djangofiles.MediaCache
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
@@ -64,8 +58,6 @@ class FilesPreviewFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("FilesPre[onCreate]", "savedInstanceState: ${savedInstanceState?.size()}")
-        sharedElementEnterTransition =
-            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
     }
 
     override fun onCreateView(
@@ -216,31 +208,9 @@ class FilesPreviewFragment : Fragment() {
             //    .load(thumbUrl)
             //    .into(imageView)
 
-            postponeEnterTransition()
             Glide.with(this)
-                .load(thumbUrl)
-                .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Drawable>,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        startPostponedEnterTransition()
-                        return false
-                    }
-
-                    override fun onResourceReady(
-                        resource: Drawable,
-                        model: Any,
-                        target: Target<Drawable>,
-                        dataSource: DataSource,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        startPostponedEnterTransition()
-                        return false
-                    }
-                })
+                .load(viewUrl)
+                .thumbnail(Glide.with(this).load(thumbUrl))
                 .into(binding.previewImageView)
             //binding.previewImageView.setOnClickListener {
             //    Log.d("FilesPreviewFragment", "IMAGE BACK")
