@@ -25,6 +25,7 @@ okhttp = "5.5.0"
 retrofit = "3.0.0"
 moshiKotlinCodegen = "1.15.2"
 glide = "5.0.9"
+photoview = "1.0.3"
 
 googleServices = "4.5.0"
 firebaseBom = "34.18.0"
@@ -72,6 +73,7 @@ moshi-kotlin-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-code
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 # glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 okhttp3-integration = { group = "com.github.bumptech.glide", name = "okhttp3-integration", version.ref = "glide" }
+photoview = { group = "io.getstream", name = "photoview", version.ref = "photoview" }
 
 # androidx-androidx-navigation-safeargs-kotlin-gradle-plugin = { group = "androidx.navigation.safeargs.kotlin", name = "androidx.navigation.safeargs.kotlin.gradle.plugin", version.ref = "androidxNavigationSafeargsKotlinGradlePlugin" }
 # com-google-devtools-ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "comGoogleDevtoolsKspGradlePlugin" }
