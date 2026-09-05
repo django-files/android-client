@@ -236,14 +236,21 @@ class MainActivity : AppCompatActivity() {
         val previousVersionCode = preferences.getLong("previous_version_code", -1L)
         Log.d("Main[onCreate]", "previousVersionCode: $previousVersionCode")
 
+        val savedUrl = preferences.getString("saved_url", null)
+        Log.d("Main[onCreate]", "savedUrl: $savedUrl")
+
         when {
+            savedUrl.isNullOrEmpty() -> {
+                Log.i("Main[onCreate]", "NO SAVED_URL: $previousVersionCode -> $currentVersionCode")
+            }
+
             currentVersionCode > previousVersionCode -> {
-                Log.i("Main[onCreate]", "APP UPGRADE: $previousVersionCode -> $currentVersionCode")
+                Log.i("Main[onCreate]", "UPGRADE: $previousVersionCode -> $currentVersionCode")
                 // TODO: Upgrade - this is where to add upgrade logic...
             }
 
             currentVersionCode < previousVersionCode -> {
-                Log.w("Main[onCreate]", "APP DOWNGRADE: $previousVersionCode -> $currentVersionCode")
+                Log.w("Main[onCreate]", "DOWNGRADE: $previousVersionCode -> $currentVersionCode")
                 // TODO: Downgrade - this will never actually happen and should probably be removed
             }
         }
