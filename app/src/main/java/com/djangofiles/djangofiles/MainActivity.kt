@@ -224,6 +224,36 @@ class MainActivity : AppCompatActivity() {
         val versionTextView = headerView.findViewById<TextView>(R.id.header_version)
         versionTextView.text = "v${versionName}"
 
+        // Version Tracking
+        val currentVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode.toLong()
+        }
+        Log.d("Main[onCreate]", "currentVersionCode: $currentVersionCode")
+
+        val previousVersionCode = preferences.getLong("previous_version_code", -1L)
+        Log.d("Main[onCreate]", "previousVersionCode: $previousVersionCode")
+
+        when {
+            currentVersionCode > previousVersionCode -> {
+                Log.i("Main[onCreate]", "APP UPGRADE: $previousVersionCode -> $currentVersionCode")
+                // TODO: Upgrade - this is where to add upgrade logic...
+            }
+
+            currentVersionCode < previousVersionCode -> {
+                Log.w("Main[onCreate]", "APP DOWNGRADE: $previousVersionCode -> $currentVersionCode")
+                // TODO: Downgrade - this will never actually happen and should probably be removed
+            }
+        }
+
+        if (previousVersionCode != currentVersionCode) {
+            preferences.edit {
+                putLong("previous_version_code", currentVersionCode)
+            }
+        }
+
         // Work Manager
         val workInterval = preferences.getString("work_interval", null) ?: "0"
         Log.d("Main[onCreate]", "workInterval: $workInterval")
