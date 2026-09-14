@@ -20,6 +20,10 @@ Options for persistent authentication are:
 1. Implement secure scoped token authentication.
 2. Dramatically increase session times and let users manage sessions.
 
+## Network
+
+- Handle IO exceptions from network errors...
+
 ## Upload
 
 - Add Upload Options to Previews
@@ -39,6 +43,11 @@ Options for persistent authentication are:
 - Overhaul Server Selector
 - Add Default Upload Options
 - Add Fingerprint Authentication
+
+## Widget
+
+- Show last successful stats update time instead of refresh time:
+  - [WidgetProvider.kt](app/src/main/java/com/djangofiles/djangofiles/widget/WidgetProvider.kt)
 
 ## Retrofit
 

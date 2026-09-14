@@ -47,6 +47,8 @@ class WidgetProvider : AppWidgetProvider() {
             }
             Log.d("Widget[onReceive]", "CoroutineScope.launch: START")
             CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                // TODO: updateStats() returns Boolean: true = success, false = failed
+                //  use this below in onUpdate
                 context.updateStats()
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
@@ -176,6 +178,7 @@ class WidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.files_unit, split.getOrElse(1) { "" })
                 }
 
+                // TODO: Consider only setting time on successful updates...
                 val time = DateFormat.getTimeFormat(context).format(Date())
                 Log.d("Widget[onUpdate]", "time: $time")
                 views.setTextViewText(R.id.update_time, time)
