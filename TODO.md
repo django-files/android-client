@@ -20,6 +20,10 @@ Options for persistent authentication are:
 1. Implement secure scoped token authentication.
 2. Dramatically increase session times and let users manage sessions.
 
+## Network
+
+- Handle IO exceptions from network errors...
+
 ## Upload
 
 - Add Upload Options to Previews

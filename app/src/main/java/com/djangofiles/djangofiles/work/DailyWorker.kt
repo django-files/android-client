@@ -84,54 +84,60 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
 
 suspend fun Context.updateStats(): Boolean {
     Log.d("updateStats", "updateStats")
-    val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-    val savedUrl = preferences.getString("saved_url", null).toString()
-    Log.d("updateStats", "savedUrl: $savedUrl")
-    val api = ServerApi(this, savedUrl)
-    val statsResponse = api.current()
-    Log.d("updateStats", "statsResponse: $statsResponse")
-    if (statsResponse.isSuccessful) {
-        val stats = statsResponse.body()
-        Log.d("updateStats", "stats: $stats")
-        if (stats != null) {
-            val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
+    // TODO: This is the first fix of many for no network errors...
+    try {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val savedUrl = preferences.getString("saved_url", null).toString()
+        Log.d("updateStats", "savedUrl: $savedUrl")
+        val api = ServerApi(this, savedUrl)
+        val statsResponse = api.current()
+        Log.d("updateStats", "statsResponse: $statsResponse")
+        if (statsResponse.isSuccessful) {
+            val stats = statsResponse.body()
+            Log.d("updateStats", "stats: $stats")
+            if (stats != null) {
+                val dao: ServerDao = ServerDatabase.getInstance(this).serverDao()
 
-            // New stats schema: totals are derived from the per-MIME "types"
-            // breakdown plus the "Short URLs" and "Storage Used" stat cards.
-            val shortsCard = stats.statCards.firstOrNull { it.label == "Short URLs" }
-            val storageCard = stats.statCards.firstOrNull { it.label == "Storage Used" }
-            val shorts = when (val v = shortsCard?.value) {
-                is Double -> v.toInt()
-                is Int -> v
-                is Long -> v.toInt()
-                is String -> v.toIntOrNull() ?: 0
-                else -> 0
+                // New stats schema: totals are derived from the per-MIME "types"
+                // breakdown plus the "Short URLs" and "Storage Used" stat cards.
+                val shortsCard = stats.statCards.firstOrNull { it.label == "Short URLs" }
+                val storageCard = stats.statCards.firstOrNull { it.label == "Storage Used" }
+                val shorts = when (val v = shortsCard?.value) {
+                    is Double -> v.toInt()
+                    is Int -> v
+                    is Long -> v.toInt()
+                    is String -> v.toIntOrNull() ?: 0
+                    else -> 0
+                }
+
+                // TODO: Add a helper function for this...
+                dao.updateStats(
+                    url = savedUrl,
+                    size = stats.types.sumOf { it.size },
+                    count = stats.types.sumOf { it.count },
+                    shorts = shorts,
+                    humanSize = storageCard?.value as? String ?: "0 B",
+                )
+                Log.d("updateStats", "dao.addOrUpdate: DONE")
+
+                // TODO: WidgetUpdate: Consolidate to a function...
+                //  This seems to run a double update, disabling until turned into a function
+                //Log.i("updateStats", "Updating Widget")
+                //val appWidgetManager = AppWidgetManager.getInstance(this)
+                //val widgetComponent = ComponentName(this, WidgetProvider::class.java)
+                //val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
+                //val intent = Intent(this, WidgetProvider::class.java).apply {
+                //    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                //    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+                //}
+                //this.sendBroadcast(intent)
+
+                return true
             }
-
-            // TODO: Add a helper function for this...
-            dao.updateStats(
-                url = savedUrl,
-                size = stats.types.sumOf { it.size },
-                count = stats.types.sumOf { it.count },
-                shorts = shorts,
-                humanSize = storageCard?.value as? String ?: "0 B",
-            )
-            Log.d("updateStats", "dao.addOrUpdate: DONE")
-
-            // TODO: WidgetUpdate: Consolidate to a function...
-            //  This seems to run a double update, disabling until turned into a function
-            //Log.i("updateStats", "Updating Widget")
-            //val appWidgetManager = AppWidgetManager.getInstance(this)
-            //val widgetComponent = ComponentName(this, WidgetProvider::class.java)
-            //val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
-            //val intent = Intent(this, WidgetProvider::class.java).apply {
-            //    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-            //    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
-            //}
-            //this.sendBroadcast(intent)
-
-            return true
         }
+        return false
+    } catch (e: Exception) {
+        Log.e("updateStats", "updateStats: Exception: $e")
+        return false
     }
-    return false
 }
