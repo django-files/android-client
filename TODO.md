@@ -44,6 +44,11 @@ Options for persistent authentication are:
 - Add Default Upload Options
 - Add Fingerprint Authentication
 
+## Widget
+
+- Show last successful stats update time instead of refresh time:
+  - [WidgetProvider.kt](app/src/main/java/com/djangofiles/djangofiles/widget/WidgetProvider.kt)
+
 ## Retrofit
 
 - Implement Version Check
