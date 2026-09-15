@@ -1,8 +1,9 @@
 [versions]
-agp = "9.1.1"
-kotlin = "2.4.10"
-ksp = "2.3.11"
+agp = "9.4.0"
+kotlin = "2.4.20"
+ksp = "2.3.12"
 coreKtx = "1.19.0"
+coreSplashscreen = "1.2.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
@@ -14,12 +15,12 @@ constraintlayout = "2.2.2"
 preferenceKtx = "1.2.1"
 lifecycleLivedataKtx = "2.11.0"
 lifecycleViewmodelKtx = "2.11.0"
-navigationFragmentKtx = "2.10.0"
-navigationUiKtx = "2.10.0"
+navigationFragmentKtx = "2.10.1"
+navigationUiKtx = "2.10.1"
 swiperefreshlayout = "1.2.0"
 workRuntimeKtx = "2.11.2"
-room = "2.8.4"
-media3 = "1.11.0"
+room = "2.8.5"
+media3 = "1.11.1"
 
 okhttp = "5.5.0"
 retrofit = "3.0.0"
@@ -28,7 +29,7 @@ glide = "5.0.9"
 photoview = "1.0.3"
 
 googleServices = "4.5.0"
-firebaseBom = "34.18.0"
+firebaseBom = "34.19.0"
 crashlyticsPlugin = "3.0.8"
 
 # navigationSafeargsVersion = "2.8.9"
@@ -39,6 +40,7 @@ crashlyticsPlugin = "3.0.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
