@@ -63,7 +63,7 @@ class WidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        Log.i("Widget[onUpdate]", "BEGIN - appWidgetIds: $appWidgetIds")
+        Log.i("Widget[onUpdate]", "BEGIN - appWidgetIds: ${appWidgetIds.contentToString()}")
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val savedUrl = preferences.getString("saved_url", null).toString()
@@ -82,6 +82,8 @@ class WidgetProvider : AppWidgetProvider() {
         Log.d("Widget[onUpdate]", "showRefresh: $showRefresh")
         val showUpload = preferences.getBoolean("widget_show_upload", true)
         Log.d("Widget[onUpdate]", "showUpload: $showUpload")
+        val showText = preferences.getBoolean("widget_show_text", false)
+        Log.d("Widget[onUpdate]", "showText: $showText")
 
         val colorMap = mapOf(
             "white" to Color.WHITE,
@@ -122,12 +124,17 @@ class WidgetProvider : AppWidgetProvider() {
             //views.setInt(R.id.size_icon, "setColorFilter", selectedTextColor)
 
             views.setInt(R.id.widget_refresh_button, "setColorFilter", selectedTextColor)
+            views.setInt(R.id.widget_text_button, "setColorFilter", selectedTextColor)
             views.setInt(R.id.widget_upload_button, "setColorFilter", selectedTextColor)
             //views.setInt(R.id.file_list_button, "setColorFilter", selectedTextColor)
 
             views.setViewVisibility(
                 R.id.widget_refresh_button,
                 if (showRefresh) View.VISIBLE else View.GONE
+            )
+            views.setViewVisibility(
+                R.id.widget_text_button,
+                if (showText) View.VISIBLE else View.GONE
             )
             views.setViewVisibility(
                 R.id.widget_upload_button,
@@ -159,6 +166,18 @@ class WidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.widget_upload_button, pendingIntent2)
+
+            // Upload Text
+            val intent4 = Intent(context, MainActivity::class.java).apply {
+                action = "UPLOAD_TEXT"
+            }
+            val pendingIntent4 = PendingIntent.getActivity(
+                context,
+                0,
+                intent4,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_text_button, pendingIntent4)
 
             //// File List
             //val intent3 = Intent(context, MainActivity::class.java).apply {

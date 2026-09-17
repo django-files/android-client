@@ -314,6 +314,13 @@ class MainActivity : AppCompatActivity() {
                 filePickerLauncher.launch(arrayOf("*/*"))
                 binding.drawerLayout.closeDrawers()
                 true
+            } else if (menuItem.itemId == R.id.nav_item_text) {
+                Log.d("Drawer", "nav_item_text")
+                if (navController.currentDestination?.id != R.id.nav_item_text) {
+                    navController.navigate(R.id.nav_item_text)
+                }
+                binding.drawerLayout.closeDrawers()
+                true
             } else {
                 val handled = NavigationUI.onNavDestinationSelected(menuItem, navController)
                 Log.d("Drawer", "ELSE - handled: $handled")
@@ -402,21 +409,10 @@ class MainActivity : AppCompatActivity() {
             Log.d("onNewIntent", "ACTION_MAIN")
 
             // TODO: Cleanup the logic for handling MAIN intent...
-            val currentDestinationId = navController.currentDestination?.id
-            Log.d("onNewIntent", "currentDestinationId: $currentDestinationId")
             val fromShortcut = intent.getStringExtra("fromShortcut")
             Log.d("onNewIntent", "fromShortcut: $fromShortcut")
 
-            when (currentDestinationId) {
-                R.id.nav_item_upload, R.id.nav_item_upload_multi, R.id.nav_item_short, R.id.nav_item_text -> {
-                    Log.i("onNewIntent", "Navigating away from preview page...")
-                    navController.navigate(
-                        navController.graph.startDestinationId, null, NavOptions.Builder()
-                            .setPopUpTo(navController.graph.id, true)
-                            .build()
-                    )
-                }
-            }
+            popPreview()
 
             // TODO: Determine if this needs to be in the above if/else
             if (fromShortcut == "upload") {
@@ -427,6 +423,7 @@ class MainActivity : AppCompatActivity() {
         } else if (action == "UPLOAD_FILE") {
             Log.d("onNewIntent", "UPLOAD_FILE")
 
+            popPreview()
             filePickerLauncher.launch(arrayOf("*/*"))
 
         } else if (action == "FILE_LIST") {
@@ -434,6 +431,18 @@ class MainActivity : AppCompatActivity() {
 
             if (navController.currentDestination?.id != R.id.nav_item_files) {
                 navController.navigate(R.id.nav_item_files)
+            }
+
+        } else if (action == "UPLOAD_TEXT") {
+            Log.d("onNewIntent", "UPLOAD_TEXT")
+
+            if (navController.currentDestination?.id != R.id.nav_item_text) {
+                navController.navigate(
+                    R.id.nav_item_text, null, NavOptions.Builder()
+                        .setPopUpTo(navController.graph.id, true)
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
             }
 
         } else if (action == Intent.ACTION_SEND) {
@@ -543,6 +552,21 @@ class MainActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "That's a Bug!", Toast.LENGTH_LONG).show()
             Log.e("onNewIntent", "BUG: UNKNOWN action: $action")
+        }
+    }
+
+    private fun popPreview() {
+        val currentDestinationId = navController.currentDestination?.id
+        Log.d("popPreview", "currentDestinationId: $currentDestinationId")
+        when (currentDestinationId) {
+            R.id.nav_item_upload, R.id.nav_item_upload_multi, R.id.nav_item_short, R.id.nav_item_text -> {
+                Log.i("popPreview", "Navigating away from preview page...")
+                navController.navigate(
+                    navController.graph.startDestinationId, null, NavOptions.Builder()
+                        .setPopUpTo(navController.graph.id, true)
+                        .build()
+                )
+            }
         }
     }
 

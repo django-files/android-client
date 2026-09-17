@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.edit
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
@@ -327,11 +328,24 @@ class SettingsFragment : PreferenceFragmentCompat() {
             Firebase.analytics.setAnalyticsCollectionEnabled(true)
             switchPreference.isChecked = true
         } else {
+            val disableCount =
+                preferenceManager.sharedPreferences?.getInt("analytics_disable_count", 0) ?: 0
+            Log.d("toggleAnalytics", "disableCount: $disableCount")
+            if (disableCount >= 2) {
+                Log.d("toggleAnalytics", "DISABLE Analytics - NO DIALOG")
+                Firebase.analytics.logEvent("disable_analytics", null)
+                Firebase.analytics.setAnalyticsCollectionEnabled(false)
+                switchPreference.isChecked = false
+                return
+            }
             MaterialAlertDialogBuilder(this)
                 .setTitle("Please Reconsider")
                 .setMessage("Analytics are only used to fix bugs and make improvements.")
                 .setPositiveButton("Disable Anyway") { _, _ ->
                     Log.d("toggleAnalytics", "DISABLE Analytics")
+                    preferenceManager.sharedPreferences?.edit {
+                        putInt("analytics_disable_count", disableCount + 1)
+                    }
                     Firebase.analytics.logEvent("disable_analytics", null)
                     Firebase.analytics.setAnalyticsCollectionEnabled(false)
                     switchPreference.isChecked = false
@@ -356,18 +370,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         val newServer = servers.first()
                         Log.d("showDeleteDialog", "newServer: $newServer")
                         dao.activate(newServer.url)
-                        preferenceManager.sharedPreferences!!.edit().apply {
+                        preferenceManager.sharedPreferences?.edit {
                             putString("saved_url", newServer.url)
                             putString("auth_token", newServer.token)
-                            apply()
                         }
                     } else {
                         Log.d("showDeleteDialog", "NO SERVERS - LOCK OUT")
                         // TODO: Confirm this removes history and locks user to login
-                        preferenceManager.sharedPreferences!!.edit().apply {
+                        preferenceManager.sharedPreferences?.edit {
                             putString("saved_url", "")
                             putString("auth_token", "")
-                            apply()
                         }
                         withContext(Dispatchers.Main) {
                             navController.navigate(
