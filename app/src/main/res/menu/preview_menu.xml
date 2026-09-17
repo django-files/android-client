@@ -16,7 +16,4 @@
         android:icon="@drawable/md_lock_24"
         android:checkable="true"
         android:title="Private" />
-    <item android:id="@+id/preview_open"
-        android:icon="@drawable/md_open_in_new_24px"
-        android:title="Open" />
 </menu>

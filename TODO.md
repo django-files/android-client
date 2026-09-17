@@ -38,6 +38,14 @@ Options for persistent authentication are:
 - Add PDF
 - Add File Options
 
+## Downloads
+
+`DownloadManager.Request` has no API for custom headers/cookies, so the
+"Download" actions (preview menu, `FilesBottomSheet.kt`, and `downloadAll` in
+`FilesFragment.kt`) send no auth and will fail (401) on private or
+password-protected files. Fixing this requires reimplementing the download
+(e.g. OkHttp stream to a file) instead of `DownloadManager`.
+
 ## Settings
 
 - Overhaul Server Selector

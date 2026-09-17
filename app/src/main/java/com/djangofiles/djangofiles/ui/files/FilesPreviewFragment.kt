@@ -137,6 +137,10 @@ class FilesPreviewFragment : Fragment() {
         Log.d("FilesPreviewFragment", "thumbUrl: $thumbUrl")
         val viewUrl = arguments?.getString("viewUrl")
         Log.d("FilesPreviewFragment", "viewUrl: $viewUrl")
+        val shareUrl = arguments?.getString("shareUrl")
+        Log.d("FilesPreviewFragment", "shareUrl: $shareUrl")
+        val rawUrl = arguments?.getString("rawUrl")
+        Log.d("FilesPreviewFragment", "rawUrl: $rawUrl")
         isPrivate = arguments?.getBoolean("isPrivate", false) ?: false
         Log.d("FilesPreviewFragment", "isPrivate: $isPrivate")
 
@@ -149,7 +153,7 @@ class FilesPreviewFragment : Fragment() {
         Log.d("FilesPreviewFragment", "savedUrl: $savedUrl")
 
         binding.menuButton.setOnClickListener { anchor ->
-            showPreviewMenu(anchor)
+            showPreviewMenu(anchor, fileId, fileName, mimeType, shareUrl, rawUrl, savedUrl)
         }
 
         binding.playerView.transitionName = fileId.toString()
@@ -291,16 +295,16 @@ class FilesPreviewFragment : Fragment() {
         }
     }
 
-    private fun showPreviewMenu(anchor: View) {
+    private fun showPreviewMenu(
+        anchor: View,
+        fileId: Int?,
+        fileName: String?,
+        mimeType: String?,
+        shareUrl: String?,
+        rawUrl: String?,
+        savedUrl: String?,
+    ) {
         Log.d("FilesPreviewFragment", "showPreviewMenu")
-        val fileId = arguments?.getInt("fileId")
-        val fileName = arguments?.getString("fileName")
-        val mimeType = arguments?.getString("mimeType")
-        val shareUrl = arguments?.getString("shareUrl")
-        val rawUrl = arguments?.getString("rawUrl")
-        val savedUrl = PreferenceManager.getDefaultSharedPreferences(requireContext())
-            .getString("saved_url", null)
-
         val popupMenu = PopupMenu(requireContext(), anchor)
         popupMenu.menuInflater.inflate(R.menu.preview_menu, popupMenu.menu)
         popupMenu.menu.findItem(R.id.preview_private).isChecked = isPrivate
@@ -346,26 +350,21 @@ class FilesPreviewFragment : Fragment() {
                                 isPrivate = newPrivate
                                 viewModel.editRequest.value =
                                     FileEditRequest(id = fileId, private = newPrivate)
-                                val text = if (newPrivate) "Added to" else "Removed from"
+                                val text = if (newPrivate) "marked Private" else "marked Public"
                                 Toast.makeText(
                                     requireContext(),
-                                    "File $text Private.",
+                                    "File $text.",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             } else {
                                 Toast.makeText(
                                     requireContext(),
-                                    "Error Changing File Private.",
+                                    "Error Changing File Privacy.",
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
                         }
                     }
-                    true
-                }
-
-                R.id.preview_open -> {
-                    shareUrl?.let { requireContext().openUrl(it) }
                     true
                 }
 

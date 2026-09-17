@@ -782,13 +782,6 @@ fun Context.shareUrl(url: String) {
     this.startActivity(Intent.createChooser(shareIntent, null))
 }
 
-fun Context.openUrl(url: String) {
-    val openIntent = Intent(Intent.ACTION_VIEW).apply {
-        setData(url.toUri())
-    }
-    this.startActivity(Intent.createChooser(openIntent, null))
-}
-
 fun getDownloadRequest(rawUrl: String, name: String, mimeType: String): DownloadManager.Request {
     Log.d("getDownloadRequest", "$name - $rawUrl")
     return DownloadManager.Request(rawUrl.toUri()).apply {

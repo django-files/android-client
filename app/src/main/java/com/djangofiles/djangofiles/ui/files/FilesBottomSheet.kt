@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -193,16 +191,7 @@ class FilesBottomSheet : BottomSheetDialogFragment() {
         binding.downloadButton.setOnClickListener {
             Log.d("downloadButton", "${data.name} - ${data.raw}")
             binding.downloadButton.isEnabled = false
-            val request = DownloadManager.Request(data.raw.toUri()).apply {
-                setTitle(data.name)
-                setMimeType(data.mime)
-                setDescription("Django Files")
-                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, data.name)
-                setAllowedOverMetered(true)
-                setAllowedOverRoaming(true)
-                setRequiresCharging(false)
-            }
+            val request = getDownloadRequest(data.raw, data.name, data.mime)
 
             val downloadId = downloadManager.enqueue(request)
             Log.d("downloadButton", "Download ID: $downloadId")
