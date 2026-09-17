@@ -63,7 +63,7 @@ class WidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        Log.i("Widget[onUpdate]", "BEGIN - appWidgetIds: $appWidgetIds")
+        Log.i("Widget[onUpdate]", "BEGIN - appWidgetIds: ${appWidgetIds.contentToString()}")
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val savedUrl = preferences.getString("saved_url", null).toString()

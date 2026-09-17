@@ -56,7 +56,7 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         ).apply {
             val ids =
                 AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(componentName)
-            Log.d("DailyWorker", "ids: $ids")
+            Log.d("DailyWorker", "ids: ${ids.contentToString()}")
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         }
         Log.d("DailyWorker", "sendBroadcast: $intent")

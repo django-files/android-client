@@ -120,10 +120,10 @@ class WidgetConfiguration : Activity() {
             Log.i("WidgetConfiguration", "selectedTextColor: $selectedTextColor")
 
             Log.i("WidgetConfiguration", "seekBar.progress: ${seekBar.progress}")
-            Log.i("WidgetConfiguration", "showUpdateTimeSwitch.isChecked: ${showUpdateTimeSwitch.isChecked}")
-            Log.i("WidgetConfiguration", "showRefreshSwitch.isChecked: ${showRefreshSwitch.isChecked}")
-            Log.i("WidgetConfiguration", "showTextSwitch.isChecked: ${showTextSwitch.isChecked}")
-            Log.i("WidgetConfiguration", "showUploadSwitch.isChecked: ${showUploadSwitch.isChecked}")
+            Log.i("WidgetConfiguration", "showUpdateTimeSwitch: ${showUpdateTimeSwitch.isChecked}")
+            Log.i("WidgetConfiguration", "showRefreshSwitch: ${showRefreshSwitch.isChecked}")
+            Log.i("WidgetConfiguration", "showTextSwitch: ${showTextSwitch.isChecked}")
+            Log.i("WidgetConfiguration", "showUploadSwitch: ${showUploadSwitch.isChecked}")
 
             preferences.edit {
                 putString("widget_bg_color", selectedBgColor)
