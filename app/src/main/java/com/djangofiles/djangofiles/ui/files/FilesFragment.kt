@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -521,6 +522,11 @@ class FilesFragment : Fragment() {
         binding.uploadFiles.setOnClickListener {
             Log.d("uploadFiles", "setOnClickListener")
             (requireActivity() as MainActivity).launchFilePicker()
+        }
+
+        binding.textFiles.setOnClickListener {
+            Log.d("textFiles", "setOnClickListener")
+            findNavController().navigate(R.id.nav_item_text)
         }
     }
 
