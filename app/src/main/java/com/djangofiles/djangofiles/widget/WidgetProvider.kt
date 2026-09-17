@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.text.format.DateFormat
 import android.util.Log
+import android.view.View
 import android.widget.RemoteViews
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
@@ -75,6 +76,12 @@ class WidgetProvider : AppWidgetProvider() {
         Log.d("Widget[onUpdate]", "bgOpacity: $bgOpacity")
         val workInterval = preferences.getString("work_interval", null) ?: "0"
         Log.d("Widget[onUpdate]", "workInterval: $workInterval")
+        val showUpdateTime = preferences.getBoolean("widget_show_update_time", true)
+        Log.d("Widget[onUpdate]", "showUpdateTime: $showUpdateTime")
+        val showRefresh = preferences.getBoolean("widget_show_refresh", true)
+        Log.d("Widget[onUpdate]", "showRefresh: $showRefresh")
+        val showUpload = preferences.getBoolean("widget_show_upload", true)
+        Log.d("Widget[onUpdate]", "showUpload: $showUpload")
 
         val colorMap = mapOf(
             "white" to Color.WHITE,
@@ -117,6 +124,15 @@ class WidgetProvider : AppWidgetProvider() {
             views.setInt(R.id.widget_refresh_button, "setColorFilter", selectedTextColor)
             views.setInt(R.id.widget_upload_button, "setColorFilter", selectedTextColor)
             //views.setInt(R.id.file_list_button, "setColorFilter", selectedTextColor)
+
+            views.setViewVisibility(
+                R.id.widget_refresh_button,
+                if (showRefresh) View.VISIBLE else View.GONE
+            )
+            views.setViewVisibility(
+                R.id.widget_upload_button,
+                if (showUpload) View.VISIBLE else View.GONE
+            )
 
             // Refresh
             val intent1 = Intent(context, WidgetProvider::class.java).apply {
@@ -181,6 +197,10 @@ class WidgetProvider : AppWidgetProvider() {
                 // TODO: Consider only setting time on successful updates...
                 val time = DateFormat.getTimeFormat(context).format(Date())
                 Log.d("Widget[onUpdate]", "time: $time")
+                views.setViewVisibility(
+                    R.id.update_time,
+                    if (showUpdateTime) View.VISIBLE else View.GONE
+                )
                 views.setTextViewText(R.id.update_time, time)
 
                 Log.i("Widget[onUpdate]", "appWidgetManager.updateAppWidget: $appWidgetId")
