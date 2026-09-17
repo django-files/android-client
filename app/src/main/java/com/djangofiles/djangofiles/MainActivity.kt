@@ -314,6 +314,13 @@ class MainActivity : AppCompatActivity() {
                 filePickerLauncher.launch(arrayOf("*/*"))
                 binding.drawerLayout.closeDrawers()
                 true
+            } else if (menuItem.itemId == R.id.nav_item_text) {
+                Log.d("Drawer", "nav_item_text")
+                if (navController.currentDestination?.id != R.id.nav_item_text) {
+                    navController.navigate(R.id.nav_item_text)
+                }
+                binding.drawerLayout.closeDrawers()
+                true
             } else {
                 val handled = NavigationUI.onNavDestinationSelected(menuItem, navController)
                 Log.d("Drawer", "ELSE - handled: $handled")
