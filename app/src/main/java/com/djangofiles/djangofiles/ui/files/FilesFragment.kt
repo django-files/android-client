@@ -675,16 +675,7 @@ class FilesFragment : Fragment() {
 
     fun getDownloadRequest(data: FileResponse): DownloadManager.Request {
         Log.d("getDownloadRequest", "${data.name} - ${data.raw}")
-        return DownloadManager.Request(data.raw.toUri()).apply {
-            setTitle(data.name)
-            setMimeType(data.mime)
-            setDescription("Django Files")
-            setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, data.name)
-            setAllowedOverMetered(true)
-            setAllowedOverRoaming(true)
-            setRequiresCharging(false)
-        }
+        return getDownloadRequest(data.raw, data.name, data.mime)
     }
 }
 
@@ -789,6 +780,20 @@ fun Context.shareUrl(url: String) {
         putExtra(Intent.EXTRA_TEXT, url)
     }
     this.startActivity(Intent.createChooser(shareIntent, null))
+}
+
+fun getDownloadRequest(rawUrl: String, name: String, mimeType: String): DownloadManager.Request {
+    Log.d("getDownloadRequest", "$name - $rawUrl")
+    return DownloadManager.Request(rawUrl.toUri()).apply {
+        setTitle(name)
+        setMimeType(mimeType)
+        setDescription("Django Files")
+        setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+        setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, name)
+        setAllowedOverMetered(true)
+        setAllowedOverRoaming(true)
+        setRequiresCharging(false)
+    }
 }
 
 

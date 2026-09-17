@@ -1,6 +1,8 @@
 package com.djangofiles.djangofiles.ui.files
 
 import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,10 +13,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.annotation.OptIn
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
@@ -26,8 +30,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.bumptech.glide.Glide
 import com.djangofiles.djangofiles.MediaCache
+import com.djangofiles.djangofiles.R
+import com.djangofiles.djangofiles.ServerApi
+import com.djangofiles.djangofiles.ServerApi.FileEditRequest
 import com.djangofiles.djangofiles.copyToClipboard
 import com.djangofiles.djangofiles.databinding.FragmentFilesPreviewBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,6 +57,9 @@ class FilesPreviewFragment : Fragment() {
     private var _binding: FragmentFilesPreviewBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: FilesViewModel by activityViewModels()
+
+    private var isPrivate = false
     private var isPlaying: Boolean? = null
     private var currentPosition: Long = 0
 
@@ -126,6 +137,12 @@ class FilesPreviewFragment : Fragment() {
         Log.d("FilesPreviewFragment", "thumbUrl: $thumbUrl")
         val viewUrl = arguments?.getString("viewUrl")
         Log.d("FilesPreviewFragment", "viewUrl: $viewUrl")
+        val shareUrl = arguments?.getString("shareUrl")
+        Log.d("FilesPreviewFragment", "shareUrl: $shareUrl")
+        val rawUrl = arguments?.getString("rawUrl")
+        Log.d("FilesPreviewFragment", "rawUrl: $rawUrl")
+        isPrivate = arguments?.getBoolean("isPrivate", false) ?: false
+        Log.d("FilesPreviewFragment", "isPrivate: $isPrivate")
 
         binding.fileName.text = fileName
 
@@ -134,6 +151,10 @@ class FilesPreviewFragment : Fragment() {
         Log.d("FilesPreviewFragment", "autoPlay: $autoPlay")
         val savedUrl = preferences.getString("saved_url", null)
         Log.d("FilesPreviewFragment", "savedUrl: $savedUrl")
+
+        binding.menuButton.setOnClickListener { anchor ->
+            showPreviewMenu(anchor, fileId, fileName, mimeType, shareUrl, rawUrl, savedUrl)
+        }
 
         binding.playerView.transitionName = fileId.toString()
         //Log.d("FilesPreviewFragment", "transitionName: ${imageView.transitionName}")
@@ -272,6 +293,112 @@ class FilesPreviewFragment : Fragment() {
                 findNavController().navigateUp()
             }
         }
+    }
+
+    private fun showPreviewMenu(
+        anchor: View,
+        fileId: Int?,
+        fileName: String?,
+        mimeType: String?,
+        shareUrl: String?,
+        rawUrl: String?,
+        savedUrl: String?,
+    ) {
+        Log.d("FilesPreviewFragment", "showPreviewMenu")
+        val popupMenu = PopupMenu(requireContext(), anchor)
+        popupMenu.menuInflater.inflate(R.menu.preview_menu, popupMenu.menu)
+        popupMenu.menu.findItem(R.id.preview_private).isChecked = isPrivate
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.preview_share -> {
+                    shareUrl?.let { requireContext().shareUrl(it) }
+                    true
+                }
+
+                R.id.preview_copy_url -> {
+                    shareUrl?.let { copyToClipboard(requireContext(), it) }
+                    true
+                }
+
+                R.id.preview_download -> {
+                    if (rawUrl != null && fileName != null && mimeType != null) {
+                        val dm = requireContext()
+                            .getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                        dm.enqueue(getDownloadRequest(rawUrl, fileName, mimeType))
+                        Toast.makeText(
+                            requireContext(),
+                            "Download Started",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    true
+                }
+
+                R.id.preview_delete -> {
+                    fileId?.let { previewDelete(it, fileName, savedUrl ?: "") }
+                    true
+                }
+
+                R.id.preview_private -> {
+                    if (fileId != null) {
+                        val newPrivate = !isPrivate
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            val api = ServerApi(requireContext(), savedUrl ?: "")
+                            val response =
+                                api.edit(fileId, FileEditRequest(private = newPrivate))
+                            if (response.isSuccessful) {
+                                isPrivate = newPrivate
+                                viewModel.editRequest.value =
+                                    FileEditRequest(id = fileId, private = newPrivate)
+                                val text = if (newPrivate) "marked Private" else "marked Public"
+                                Toast.makeText(
+                                    requireContext(),
+                                    "File $text.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Error Changing File Privacy.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
+                    true
+                }
+
+                else -> false
+            }
+        }
+        popupMenu.show()
+    }
+
+    private fun previewDelete(fileId: Int, fileName: String?, savedUrl: String) {
+        Log.d("FilesPreviewFragment", "previewDelete: $fileId")
+        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
+            .setTitle("Delete File?")
+            .setIcon(R.drawable.md_delete_24px)
+            .setMessage(fileName)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete") { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val response = ServerApi(requireContext(), savedUrl).deleteFile(fileId)
+                    if (response.isSuccessful) {
+                        viewModel.deleteId.value = fileId
+                        Toast.makeText(requireContext(), "File Deleted!", Toast.LENGTH_SHORT)
+                            .show()
+                        findNavController().navigateUp()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error Deleting File!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+            .show()
     }
 
     fun getContent(viewUrl: String): String? {
