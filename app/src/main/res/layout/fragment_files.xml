@@ -60,6 +60,15 @@
             android:background="?attr/selectableItemBackground"
             android:contentDescription="Upload Files"
             android:src="@drawable/md_upload_24px" />
+        <ImageView
+            android:id="@+id/text_files"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:padding="6dp"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Text"
+            android:src="@drawable/md_inbox_text_share_24px" />
     </LinearLayout>
 
     <LinearLayout

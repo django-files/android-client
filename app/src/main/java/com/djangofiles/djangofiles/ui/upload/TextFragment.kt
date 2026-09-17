@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
@@ -93,22 +94,21 @@ class TextFragment : Fragment() {
             return
         }
 
-        val extraText = requireArguments().getString("text")
+        val extraText = arguments?.getString("text")
         Log.d("Text[onViewCreated]", "extraText: $extraText")
-        if (extraText == null) {
-            // TODO: Better Handle this Error
-            Log.e("Text[onViewCreated]", "extraText is null")
-            Toast.makeText(requireContext(), "No extraText to Process!", Toast.LENGTH_LONG).show()
-            return
+        if (extraText != null) {
+            binding.textContent.setText(extraText)
+        } else {
+            binding.textContent.requestFocus()
+            WindowCompat.getInsetsController(requireActivity().window, binding.textContent)
+                .show(WindowInsetsCompat.Type.ime())
         }
-
-        binding.textContent.setText(extraText)
 
         binding.shareButton.setOnClickListener {
             Log.d("shareButton", "setOnClickListener")
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, extraText)
+                putExtra(Intent.EXTRA_TEXT, binding.textContent.text.toString())
             }
             startActivity(Intent.createChooser(shareIntent, null))
         }
@@ -123,6 +123,11 @@ class TextFragment : Fragment() {
         binding.uploadButton.setOnClickListener {
             val finalText = binding.textContent.text.toString().trim()
             Log.d("uploadButton", "finalText: $finalText")
+            if (finalText.isEmpty()) {
+                binding.textContent.error = "Text is Required"
+                binding.textContent.requestFocus()
+                return@setOnClickListener
+            }
             val fileNameInput = binding.vanityName.text.toString().trim()
             Log.d("uploadButton", "fileNameInput: $fileNameInput")
             val fileName = when {
