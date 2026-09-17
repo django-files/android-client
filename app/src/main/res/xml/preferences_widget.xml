@@ -49,7 +49,7 @@
         <SwitchPreferenceCompat
             android:key="widget_show_text"
             android:title="Show Text Button"
-            android:icon="@drawable/md_inbox_text_share_24px"
+            android:icon="@drawable/md_text_snippet_24px"
             android:defaultValue="false" />
 
         <SwitchPreferenceCompat

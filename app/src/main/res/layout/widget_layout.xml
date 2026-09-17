@@ -74,7 +74,7 @@
             android:paddingBottom="20dp"
             android:contentDescription="Text"
             android:background="?android:selectableItemBackgroundBorderless"
-            android:src="@drawable/md_inbox_text_share_24px" />
+            android:src="@drawable/md_text_snippet_24px" />
         <ImageButton
             android:id="@+id/widget_upload_button"
             android:layout_width="48dp"
