@@ -436,6 +436,18 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.nav_item_files)
             }
 
+        } else if (action == "UPLOAD_TEXT") {
+            Log.d("onNewIntent", "UPLOAD_TEXT")
+
+            if (navController.currentDestination?.id != R.id.nav_item_text) {
+                navController.navigate(
+                    R.id.nav_item_text, null, NavOptions.Builder()
+                        .setPopUpTo(navController.graph.id, true)
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            }
+
         } else if (action == Intent.ACTION_SEND) {
             Log.d("onNewIntent", "ACTION_SEND")
 

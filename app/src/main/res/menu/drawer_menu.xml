@@ -16,13 +16,13 @@
         android:title="Settings"
         android:checkable="true" />
     <item
-        android:id="@+id/nav_item_upload"
-        android:icon="@drawable/md_upload_24px"
-        android:title="Upload" />
-    <item
         android:id="@+id/nav_item_text"
         android:icon="@drawable/md_inbox_text_share_24px"
         android:title="Text" />
+    <item
+        android:id="@+id/nav_item_upload"
+        android:icon="@drawable/md_upload_24px"
+        android:title="Upload" />
 
     <item android:title="Site Navigation">
         <menu>
