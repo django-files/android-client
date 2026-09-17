@@ -418,6 +418,16 @@ class MainActivity : AppCompatActivity() {
             if (fromShortcut == "upload") {
                 Log.d("onNewIntent", "filePickerLauncher.launch")
                 filePickerLauncher.launch(arrayOf("*/*"))
+            } else if (fromShortcut == "text") {
+                Log.d("onNewIntent", "navigate: nav_item_text")
+                if (navController.currentDestination?.id != R.id.nav_item_text) {
+                    navController.navigate(
+                        R.id.nav_item_text, null, NavOptions.Builder()
+                            .setPopUpTo(navController.graph.id, true)
+                            .setLaunchSingleTop(true)
+                            .build()
+                    )
+                }
             }
 
         } else if (action == "UPLOAD_FILE") {
