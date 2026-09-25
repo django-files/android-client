@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var navHostFragment: NavHostFragment
     private lateinit var filePickerLauncher: ActivityResultLauncher<Array<String>>
+    private var filePickerFromOutsideApp = false
 
     private val preferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
@@ -334,13 +335,19 @@ class MainActivity : AppCompatActivity() {
         // File Picker for UPLOAD_FILE Intent and Shortcut
         filePickerLauncher =
             registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+                val fromOutsideApp = filePickerFromOutsideApp
+                filePickerFromOutsideApp = false
                 Log.d("filePickerLauncher", "uris: $uris")
+                Log.d("filePickerLauncher", "fromOutsideApp: $fromOutsideApp")
                 if (uris.size > 1) {
                     Log.i("filePickerLauncher", "MULTI!")
-                    showMultiPreview(uris as ArrayList<Uri>, false)
+                    showMultiPreview(uris as ArrayList<Uri>, fromOutsideApp)
                 } else if (uris.size == 1) {
                     Log.i("filePickerLauncher", "SINGLE!")
-                    showPreview(uris[0], false)
+                    showPreview(uris[0], fromOutsideApp)
+                } else if (fromOutsideApp) {
+                    Log.i("filePickerLauncher", "CANCELED - Closing App")
+                    finish()
                 } else {
                     Log.w("filePickerLauncher", "No Files Selected!")
                     //Toast.makeText(this, "No Files Selected!", Toast.LENGTH_SHORT).show()
@@ -417,6 +424,7 @@ class MainActivity : AppCompatActivity() {
             // TODO: Determine if this needs to be in the above if/else
             if (fromShortcut == "upload") {
                 Log.d("onNewIntent", "filePickerLauncher.launch")
+                filePickerFromOutsideApp = true
                 filePickerLauncher.launch(arrayOf("*/*"))
             } else if (fromShortcut == "text") {
                 Log.d("onNewIntent", "navigate: nav_item_text")
@@ -434,6 +442,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("onNewIntent", "UPLOAD_FILE")
 
             popPreview()
+            filePickerFromOutsideApp = true
             filePickerLauncher.launch(arrayOf("*/*"))
 
         } else if (action == "FILE_LIST") {
