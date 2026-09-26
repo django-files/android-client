@@ -20,7 +20,9 @@ import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.preference.ListPreference
@@ -35,12 +37,12 @@ import com.djangofiles.djangofiles.api.FeedbackApi
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.db.ServerRepository
 import com.djangofiles.djangofiles.work.enqueueWorkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,6 +50,8 @@ import kotlinx.coroutines.withContext
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var dao: ServerDao
+
+    private var renderedServers: List<Server>? = null
 
     private val navController by lazy { findNavController() }
 
@@ -70,6 +74,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                ServerRepository.servers.collect { servers ->
+                    Log.d("SettingsFragment", "servers emitted: ${servers.size}")
+                    populateServerList(servers)
+                }
+            }
+        }
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             Log.d("ViewCompat", "top: ${bars.top}")
@@ -170,9 +182,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         // Server List
         dao = ServerDatabase.getInstance(ctx).serverDao()
-        parentFragmentManager.setFragmentResultListener("servers_updated", this) { _, _ ->
-            buildServerList()
-        }
         buildServerList()
 
         // Widget Settings
@@ -216,29 +225,33 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun buildServerList() {
-        lifecycleScope.launch {
-            val servers = withContext(Dispatchers.IO) {
-                dao.getAll()
-            }
-            Log.d("buildServerList", "servers: $servers")
+    private fun buildServerList(force: Boolean = false) {
+        populateServerList(ServerRepository.servers.value, force)
+    }
 
-            val category = findPreference<PreferenceCategory>("server_list") ?: return@launch
-            category.removeAll()
+    private fun populateServerList(servers: List<Server>, force: Boolean = false) {
+        if (!force && servers == renderedServers) {
+            Log.d("populateServerList", "UNCHANGED - SKIP")
+            return
+        }
+        renderedServers = servers
+        Log.d("populateServerList", "servers: $servers")
 
-            val savedUrl = preferenceManager.sharedPreferences?.getString("saved_url", "")
-            Log.d("buildServerList", "savedUrl: $savedUrl")
+        val category = findPreference<PreferenceCategory>("server_list") ?: return
+        category.removeAll()
 
-            servers.forEach { server ->
-                val pref = ServerPreference(
-                    requireContext(),
-                    server = server,
-                    onEdit = { s -> activateServer(s, savedUrl) },
-                    onDelete = { s -> requireContext().showDeleteDialog(s) },
-                    savedUrl = savedUrl
-                )
-                category.addPreference(pref)
-            }
+        val savedUrl = preferenceManager.sharedPreferences?.getString("saved_url", "")
+        Log.d("populateServerList", "savedUrl: $savedUrl")
+
+        servers.forEach { server ->
+            val pref = ServerPreference(
+                requireContext(),
+                server = server,
+                onEdit = { s -> activateServer(s, savedUrl) },
+                onDelete = { s -> requireContext().showDeleteDialog(s) },
+                savedUrl = savedUrl
+            )
+            category.addPreference(pref)
         }
     }
 
@@ -254,7 +267,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             putString("auth_token", server.token)
             apply()
         }
-        buildServerList()
+        // Only SharedPreferences changed here, so Room emits nothing. Force a re-render so
+        // the active highlight and the captured savedUrl in each row move to the new server.
+        buildServerList(force = true)
     }
 
     private fun updateWorkIntervalSettings(selectedValue: String?) {
@@ -362,14 +377,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
             .setMessage("Are you sure you want to delete this server?")
             .setNegativeButton("Cancel", null)
             .setPositiveButton("Delete") { _, _ ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    dao.delete(server)
-                    val servers = dao.getAll()
+                lifecycleScope.launch {
+                    val servers = withContext(Dispatchers.IO) {
+                        dao.delete(server)
+                        dao.getAll()
+                    }
                     if (!servers.isEmpty()) {
                         Log.d("showDeleteDialog", "ACTIVATE FIRST SERVER")
                         val newServer = servers.first()
                         Log.d("showDeleteDialog", "newServer: $newServer")
-                        dao.activate(newServer.url)
+                        withContext(Dispatchers.IO) { dao.activate(newServer.url) }
                         preferenceManager.sharedPreferences?.edit {
                             putString("saved_url", newServer.url)
                             putString("auth_token", newServer.token)
@@ -381,16 +398,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             putString("saved_url", "")
                             putString("auth_token", "")
                         }
-                        withContext(Dispatchers.Main) {
-                            navController.navigate(
-                                R.id.nav_item_login, null, NavOptions.Builder()
-                                    .setPopUpTo(navController.graph.id, true)
-                                    .build()
-                            )
-                        }
+                        navController.navigate(
+                            R.id.nav_item_login, null, NavOptions.Builder()
+                                .setPopUpTo(navController.graph.id, true)
+                                .build()
+                        )
                         return@launch
                     }
-                    buildServerList()
+                    populateServerList(servers, force = true)
                 }
             }
             .show()
