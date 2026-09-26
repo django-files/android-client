@@ -11,6 +11,7 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 
 //import androidx.room.migration.Migration
 //import androidx.sqlite.db.SupportSQLiteDatabase
@@ -20,6 +21,9 @@ import androidx.room.Upsert
 interface ServerDao {
     @Query("SELECT * FROM server")
     fun getAll(): List<Server>
+
+    @Query("SELECT * FROM server")
+    fun observeAll(): Flow<List<Server>>
 
     @Query("SELECT * FROM server WHERE active = 1 LIMIT 1")
     fun getActive(): Server?

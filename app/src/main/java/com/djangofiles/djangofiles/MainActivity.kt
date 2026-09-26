@@ -51,6 +51,7 @@ import com.djangofiles.djangofiles.databinding.ActivityMainBinding
 import com.djangofiles.djangofiles.db.Server
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
+import com.djangofiles.djangofiles.db.ServerRepository
 import com.djangofiles.djangofiles.ui.home.HomeViewModel
 import com.djangofiles.djangofiles.widget.WidgetProvider
 import com.djangofiles.djangofiles.work.enqueueWorkRequest
@@ -355,6 +356,9 @@ class MainActivity : AppCompatActivity() {
             }
 
         MediaCache.initialize(this)
+
+        // Warm the server cache so Settings can render its list in the first frame
+        ServerRepository.initialize(this)
 
         // Only Handel Intent Once Here after App Start
         if (savedInstanceState?.getBoolean("intentHandled") != true) {
