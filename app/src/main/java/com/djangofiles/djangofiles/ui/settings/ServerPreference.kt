@@ -2,6 +2,7 @@ package com.djangofiles.djangofiles.ui.settings
 
 import android.content.Context
 import android.graphics.PorterDuff
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -25,6 +26,7 @@ class ServerPreference(
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         val titleView = holder.findViewById(android.R.id.title) as? TextView
         val deleteButton = holder.findViewById(R.id.delete_button) as? ImageView
+        val highlightView = holder.findViewById(R.id.server_highlight)
 
         deleteButton?.setColorFilter(
             ContextCompat.getColor(context, android.R.color.holo_red_dark),
@@ -33,13 +35,10 @@ class ServerPreference(
 
         titleView?.text = server.url
 
-        if (server.url == savedUrl) {
-            val attrs = intArrayOf(android.R.attr.colorControlHighlight)
-            val typedArray = context.obtainStyledAttributes(attrs)
-            val highlight = typedArray.getColor(0, 0)
-            typedArray.recycle()
-            holder.itemView.setBackgroundColor(highlight)
-        }
+        // Every ServerPreference shares one RecyclerView view type, so a holder that last
+        // bound the active server gets recycled onto the other rows. Toggle a child view
+        // instead of the item background, which is never restored once overwritten.
+        highlightView?.visibility = if (server.url == savedUrl) View.VISIBLE else View.GONE
 
         deleteButton?.setOnClickListener {
             onDelete(server)
