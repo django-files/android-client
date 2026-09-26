@@ -19,19 +19,29 @@ import kotlinx.coroutines.launch
  * issued from onCreatePreferences can never land in the first frame.
  *
  * Warming this from MainActivity.onCreate moves the read to app start, where it
- * overlaps work the main thread is already doing. Callers then read [servers]
- * synchronously and render in the same frame.
+ * overlaps work the main thread is already doing.
+ *
+ * The warm up is asynchronous, so [servers] is not guaranteed to be populated by the
+ * time a screen first asks for it. Callers must observe [servers] and tolerate an
+ * initial emptyList instead of assuming a synchronous read.
  *
  * Room's InvalidationTracker re-runs observeAll on any write to the server table,
  * so the cache cannot go stale and callers need no manual refresh after a write.
+ *
+ * The collecting scope is process scoped on purpose. The cache is only meaningful for
+ * as long as the process lives, and the ServerDatabase it observes is a process
+ * singleton that is never closed, so there is no teardown to hook. initialize is
+ * idempotent and safe to call from any thread.
  */
 object ServerRepository {
 
     private val _servers = MutableStateFlow<List<Server>>(emptyList())
     val servers: StateFlow<List<Server>> = _servers.asStateFlow()
 
+    @Volatile
     private var scope: CoroutineScope? = null
 
+    @Synchronized
     fun initialize(context: Context) {
         if (scope != null) {
             Log.d("ServerRepository", "ALREADY INITIALIZED")

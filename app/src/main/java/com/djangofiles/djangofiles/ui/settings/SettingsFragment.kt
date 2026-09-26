@@ -51,7 +51,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var dao: ServerDao
 
-    private var renderedServers: List<Server>? = null
+    private var renderedUrls: List<String>? = null
+    private var renderedSavedUrl: String? = null
 
     private val navController by lazy { findNavController() }
 
@@ -230,17 +231,21 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun populateServerList(servers: List<Server>, force: Boolean = false) {
-        if (!force && servers == renderedServers) {
+        val savedUrl = preferenceManager.sharedPreferences?.getString("saved_url", "")
+        // Rows only render the url plus the active highlight, so a write that touches
+        // token, stats or active alone must not tear down and rebuild every row.
+        val urls = servers.map { it.url }
+        if (!force && urls == renderedUrls && savedUrl == renderedSavedUrl) {
             Log.d("populateServerList", "UNCHANGED - SKIP")
             return
         }
-        renderedServers = servers
+        renderedUrls = urls
+        renderedSavedUrl = savedUrl
         Log.d("populateServerList", "servers: $servers")
 
         val category = findPreference<PreferenceCategory>("server_list") ?: return
         category.removeAll()
 
-        val savedUrl = preferenceManager.sharedPreferences?.getString("saved_url", "")
         Log.d("populateServerList", "savedUrl: $savedUrl")
 
         servers.forEach { server ->
@@ -257,14 +262,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun activateServer(server: Server, savedUrl: String?) {
         Log.d("activateServer", "server.url: ${server.url}")
-        Log.d("activateServer", "server.token: ${server.token}")
+        // Rows are not rebuilt when only the token changes, so resolve it live instead
+        // of trusting the token captured when this row was rendered.
+        val token = ServerRepository.servers.value.firstOrNull { it.url == server.url }?.token
+            ?: server.token
+        Log.d("activateServer", "server.token: $token")
         if (server.url == savedUrl) {
             Log.d("activateServer", "server ALREADY ACTIVE - RETURN")
             return
         }
         preferenceManager.sharedPreferences?.edit()?.apply {
             putString("saved_url", server.url)
-            putString("auth_token", server.token)
+            putString("auth_token", token)
             apply()
         }
         // Only SharedPreferences changed here, so Room emits nothing. Force a re-render so
@@ -380,18 +389,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 lifecycleScope.launch {
                     val servers = withContext(Dispatchers.IO) {
                         dao.delete(server)
-                        dao.getAll()
+                        val remaining = dao.getAll()
+                        remaining.firstOrNull()?.let { dao.activate(it.url) }
+                        remaining
                     }
-                    if (!servers.isEmpty()) {
-                        Log.d("showDeleteDialog", "ACTIVATE FIRST SERVER")
-                        val newServer = servers.first()
-                        Log.d("showDeleteDialog", "newServer: $newServer")
-                        withContext(Dispatchers.IO) { dao.activate(newServer.url) }
-                        preferenceManager.sharedPreferences?.edit {
-                            putString("saved_url", newServer.url)
-                            putString("auth_token", newServer.token)
-                        }
-                    } else {
+                    if (servers.isEmpty()) {
                         Log.d("showDeleteDialog", "NO SERVERS - LOCK OUT")
                         // TODO: Confirm this removes history and locks user to login
                         preferenceManager.sharedPreferences?.edit {
@@ -405,7 +407,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         )
                         return@launch
                     }
-                    populateServerList(servers, force = true)
+                    Log.d("showDeleteDialog", "ACTIVATE FIRST SERVER")
+                    val newServer = servers.first()
+                    Log.d("showDeleteDialog", "newServer: $newServer")
+                    preferenceManager.sharedPreferences?.edit {
+                        putString("saved_url", newServer.url)
+                        putString("auth_token", newServer.token)
+                    }
+                    // `servers` was read before dao.activate ran, so re-render off the live
+                    // cache instead. This runs after the saved_url write above, so it is the
+                    // last render and cannot be overwritten by an in flight Room emission.
+                    buildServerList(force = true)
                 }
             }
             .show()
