@@ -1,6 +1,6 @@
 [versions]
 agp = "9.4.1"
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 ksp = "2.3.12"
 coreKtx = "1.19.1"
 # coreSplashscreen = "1.2.0"
@@ -29,7 +29,7 @@ glide = "5.0.9"
 photoview = "1.0.3"
 
 googleServices = "4.5.0"
-firebaseBom = "34.19.0"
+firebaseBom = "35.0.0"
 crashlyticsPlugin = "3.0.8"
 
 # navigationSafeargsVersion = "2.8.9"
