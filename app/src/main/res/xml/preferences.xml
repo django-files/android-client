@@ -82,6 +82,7 @@
         <SwitchPreferenceCompat
             android:key="work_metered"
             android:title="Updates on Metered Connection"
+            android:summary="Uses Very Little Data"
             android:icon="@drawable/md_signal_cellular_alt_24"
             android:defaultValue="true" />
 
