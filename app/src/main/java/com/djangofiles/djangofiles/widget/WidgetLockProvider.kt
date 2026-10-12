@@ -190,8 +190,19 @@ class WidgetLockProvider : AppWidgetProvider() {
                             views.setViewVisibility(R.id.lock_chart, View.GONE)
                         }
                     } else {
+                        // Server known but no type breakdown cached yet (sync never
+                        // succeeded on this app variant). Clear stale placeholders.
+                        setLegend(views, emptyList())
                         views.setViewVisibility(R.id.lock_chart, View.GONE)
                     }
+                } else {
+                    // No cached server (fresh install / logged out on this app
+                    // variant): say so instead of showing placeholder values.
+                    views.setTextViewText(R.id.lock_files_summary, "Open app and log in")
+                    views.setTextViewText(R.id.lock_shorts_summary, "")
+                    views.setTextViewText(R.id.lock_albums_summary, "")
+                    setLegend(views, emptyList())
+                    views.setViewVisibility(R.id.lock_chart, View.GONE)
                 }
 
                 val time = DateFormat.getTimeFormat(context).format(Date())

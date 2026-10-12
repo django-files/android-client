@@ -31,11 +31,6 @@
 }
 
 
-## MPAndroidChart (ships no consumer ProGuard rules)
--keep class com.github.mikephil.charting.** { *; }
--dontwarn com.github.mikephil.charting.**
-
-
 ## Retrofit
 -keep class com.djangofiles.djangofiles.ServerApi$* { *; }
 

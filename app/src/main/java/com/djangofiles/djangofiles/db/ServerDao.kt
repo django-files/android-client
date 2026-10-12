@@ -11,10 +11,9 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Upsert
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
-
-//import androidx.room.migration.Migration
-//import androidx.sqlite.db.SupportSQLiteDatabase
 
 
 @Dao
@@ -82,6 +81,13 @@ abstract class ServerDatabase : RoomDatabase() {
         //    }
         //}
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Server ADD COLUMN albums INTEGER")
+                database.execSQL("ALTER TABLE Server ADD COLUMN typesJson TEXT")
+            }
+        }
+
         fun getInstance(context: Context): ServerDatabase =
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
@@ -89,7 +95,7 @@ abstract class ServerDatabase : RoomDatabase() {
                     ServerDatabase::class.java,
                     "server-database"
                 )
-                    //.addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_3_4)
                     .fallbackToDestructiveMigration(true) // Destructive Operation
                     .build().also { instance = it }
             }
