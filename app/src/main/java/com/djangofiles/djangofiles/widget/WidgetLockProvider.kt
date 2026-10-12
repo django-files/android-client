@@ -372,6 +372,11 @@ class WidgetLockProvider : AppWidgetProvider() {
                 chart.toBitmap()
             } catch (e: Exception) {
                 Log.e("LockWidget", "renderPieBitmap failed: ${e.message}")
+                try {
+                    com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance()
+                        .recordException(e)
+                } catch (_: Exception) {
+                }
                 null
             }
         }
