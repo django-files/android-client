@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:minWidth="180dp"
+    android:maxWidth="400dp"
+    android:minHeight="120dp"
+    android:maxHeight="300dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="3"
+    android:updatePeriodMillis="1800000"
+    android:configure="com.djangofiles.djangofiles.widget.WidgetConfiguration"
+    android:initialLayout="@layout/widget_lock_layout"
+    android:initialKeyguardLayout="@layout/widget_lock_layout"
+    android:previewLayout="@layout/widget_lock_layout"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen|keyguard"
+    android:widgetFeatures="reconfigurable"
+    tools:ignore="UnusedAttribute" />

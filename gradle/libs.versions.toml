@@ -27,6 +27,7 @@ retrofit = "3.0.0"
 moshiKotlinCodegen = "1.15.2"
 glide = "5.0.9"
 photoview = "1.0.3"
+mpandroidchart = "v4.0.1"
 
 googleServices = "4.5.0"
 firebaseBom = "35.0.0"
@@ -76,6 +77,7 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 # glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 okhttp3-integration = { group = "com.github.bumptech.glide", name = "okhttp3-integration", version.ref = "glide" }
 photoview = { group = "io.getstream", name = "photoview", version.ref = "photoview" }
+mpchart-lib = { group = "com.github.PhilJay.MPAndroidChart", name = "MPChartLib", version.ref = "mpandroidchart" }
 
 # androidx-androidx-navigation-safeargs-kotlin-gradle-plugin = { group = "androidx.navigation.safeargs.kotlin", name = "androidx.navigation.safeargs.kotlin.gradle.plugin", version.ref = "androidxNavigationSafeargsKotlinGradlePlugin" }
 # com-google-devtools-ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "comGoogleDevtoolsKspGradlePlugin" }

@@ -12,7 +12,9 @@ import com.djangofiles.djangofiles.ServerApi
 import com.djangofiles.djangofiles.db.ServerDao
 import com.djangofiles.djangofiles.db.ServerDatabase
 import com.djangofiles.djangofiles.ui.files.getAlbums
+import com.djangofiles.djangofiles.widget.WidgetLockProvider
 import com.djangofiles.djangofiles.widget.WidgetProvider
+import com.google.gson.GsonBuilder
 
 class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
@@ -45,22 +47,29 @@ class DailyWorker(appContext: Context, workerParams: WorkerParameters) :
         //val remoteViews = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
         //appWidgetManager.updateAppWidget(componentName, remoteViews)
 
-        // Update Widget
+        // Update Widgets (home + lock)
         // TODO: WidgetUpdate: Consolidate to a function...
-        Log.d("DailyWorker", "--- Update Widget")
-        val componentName = ComponentName(applicationContext, WidgetProvider::class.java)
-        Log.d("DailyWorker", "componentName: $componentName")
-        val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).setClassName(
-            applicationContext.packageName,
-            "com.djangofiles.djangofiles.widget.WidgetProvider"
-        ).apply {
-            val ids =
-                AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(componentName)
-            Log.d("DailyWorker", "ids: ${ids.contentToString()}")
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        Log.d("DailyWorker", "--- Update Widgets")
+        val widgetProviders = listOf(
+            ComponentName(applicationContext, WidgetProvider::class.java) to
+                "com.djangofiles.djangofiles.widget.WidgetProvider",
+            ComponentName(applicationContext, WidgetLockProvider::class.java) to
+                "com.djangofiles.djangofiles.widget.WidgetLockProvider",
+        )
+        for ((componentName, className) in widgetProviders) {
+            Log.d("DailyWorker", "componentName: $componentName")
+            val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).setClassName(
+                applicationContext.packageName,
+                className
+            ).apply {
+                val ids =
+                    AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(componentName)
+                Log.d("DailyWorker", "ids: ${ids.contentToString()}")
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+            }
+            Log.d("DailyWorker", "sendBroadcast: $intent")
+            applicationContext.sendBroadcast(intent)
         }
-        Log.d("DailyWorker", "sendBroadcast: $intent")
-        applicationContext.sendBroadcast(intent)
 
         //// Debugging Only
         //Log.d("DailyWorker", "--- Send Discord Message")
@@ -102,6 +111,7 @@ suspend fun Context.updateStats(): Boolean {
                 // breakdown plus the "Short URLs" and "Storage Used" stat cards.
                 val shortsCard = stats.statCards.firstOrNull { it.label == "Short URLs" }
                 val storageCard = stats.statCards.firstOrNull { it.label == "Storage Used" }
+                val albumsCard = stats.statCards.firstOrNull { it.label == "Albums" }
                 val shorts = when (val v = shortsCard?.value) {
                     is Double -> v.toInt()
                     is Int -> v
@@ -109,6 +119,14 @@ suspend fun Context.updateStats(): Boolean {
                     is String -> v.toIntOrNull() ?: 0
                     else -> 0
                 }
+                val albums = when (val v = albumsCard?.value) {
+                    is Double -> v.toInt()
+                    is Int -> v
+                    is Long -> v.toInt()
+                    is String -> v.toIntOrNull() ?: 0
+                    else -> 0
+                }
+                val typesJson = GsonBuilder().create().toJson(stats.types)
 
                 // TODO: Add a helper function for this...
                 dao.updateStats(
@@ -117,6 +135,8 @@ suspend fun Context.updateStats(): Boolean {
                     count = stats.types.sumOf { it.count },
                     shorts = shorts,
                     humanSize = storageCard?.value as? String ?: "0 B",
+                    albums = albums,
+                    typesJson = typesJson,
                 )
                 Log.d("updateStats", "dao.addOrUpdate: DONE")
 

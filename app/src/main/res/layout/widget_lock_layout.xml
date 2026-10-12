@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_lock_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:theme="@style/WidgetStyle"
+    tools:layout_width="320dp"
+    tools:layout_height="240dp"
+    tools:ignore="HardcodedText">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/lock_files_summary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="14sp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Files: 0"
+                tools:text="Files: 109 (66.6 MB)" />
+
+            <TextView
+                android:id="@+id/lock_shorts_summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="14sp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="none"
+                android:text="Shorts: 0"
+                tools:text="Shorts: 8" />
+
+            <TextView
+                android:id="@+id/lock_separator_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="14sp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text=" - " />
+
+            <TextView
+                android:id="@+id/lock_albums_summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="14sp"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Albums: 0"
+                tools:text="Albums: 3" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/lock_chart"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:contentDescription="Storage by type"
+                tools:src="@drawable/md_dashboard_24px" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="8dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/lock_legend0_color"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Legend color" />
+                    <TextView
+                        android:id="@+id/lock_legend0_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="13sp"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="mp4" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/lock_legend1_color"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Legend color" />
+                    <TextView
+                        android:id="@+id/lock_legend1_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="13sp"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="jpeg" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/lock_legend2_color"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Legend color" />
+                    <TextView
+                        android:id="@+id/lock_legend2_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="13sp"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="png" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/lock_legend3_color"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Legend color" />
+                    <TextView
+                        android:id="@+id/lock_legend3_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="13sp"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="Other" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/lock_legend4_color"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Legend color" />
+                    <TextView
+                        android:id="@+id/lock_legend4_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="13sp"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="Other" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:id="@+id/lock_legend5_color"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:contentDescription="Legend color" />
+                    <TextView
+                        android:id="@+id/lock_legend5_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                        android:textSize="13sp"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="Other" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:id="@+id/lock_text_pill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_lock_pill_white">
+
+                <ImageView
+                    android:id="@+id/lock_text_button"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Upload Text"
+                    android:src="@drawable/md_text_snippet_24px" />
+
+                <TextView
+                    android:id="@+id/lock_text_pill_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:maxLines="1"
+                    android:text="Text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lock_upload_pill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_lock_pill_white">
+
+                <ImageView
+                    android:id="@+id/lock_upload_button"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Upload File"
+                    android:src="@drawable/md_upload_24px" />
+
+                <TextView
+                    android:id="@+id/lock_upload_pill_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:maxLines="1"
+                    android:text="File" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/lock_update_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                android:maxLines="1"
+                android:text="Updated: --:--"
+                tools:text="Updated: 23:59" />
+
+            <ImageButton
+                android:id="@+id/lock_refresh_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Refresh stats"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:src="@drawable/md_refresh_24px" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>
