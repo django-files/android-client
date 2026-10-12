@@ -232,14 +232,6 @@ class WidgetLockProvider : AppWidgetProvider() {
             }
         }
 
-        fun shortMime(mime: String): String {
-            if (mime == "Other") return "Other"
-            if (mime == "unknown" || mime.isBlank()) return "other"
-            // Return the full MIME so the legend matches the API table exactly.
-            // RemoteViews TextView uses ellipsize="end" for overflow.
-            return mime
-        }
-
         data class LegendItem(val color: Int, val name: String)
 
         fun centerLabel(mime: String): String {
@@ -274,7 +266,8 @@ class WidgetLockProvider : AppWidgetProvider() {
                     )
                 )
             }
-            val entries: List<PieEntry<Nothing>> = slices.map { PieEntry(it.count.toFloat().coerceAtLeast(1f), "") }
+            val entries: List<PieEntry<Nothing>> =
+                slices.map { PieEntry(it.count.toFloat().coerceAtLeast(1f), "") }
             val legend = slices.mapIndexed { index, t ->
                 val label = if (t.mime == "Other") "other" else legendLabel(t.mime)
                 LegendItem(
@@ -282,7 +275,6 @@ class WidgetLockProvider : AppWidgetProvider() {
                     name = label
                 )
             }
-            Log.d("LockWidget", "pieModel top=${sorted.take(6).map { "${it.mime}=${it.count}" }} rest=${rest.size}")
             return entries to legend
         }
 
@@ -334,7 +326,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                 } else {
                     ""
                 }
-                val dataSet = PieDataSet<Nothing>(entries, "").apply {
+                val dataSet = PieDataSet(entries, "").apply {
                     colors = CHART_COLORS
                     sliceSpace = 3f
                     selectionShift = 0f
@@ -372,6 +364,11 @@ class WidgetLockProvider : AppWidgetProvider() {
                 chart.toBitmap()
             } catch (e: Exception) {
                 Log.e("LockWidget", "renderPieBitmap failed: ${e.message}")
+                try {
+                    com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance()
+                        .recordException(e)
+                } catch (_: Exception) {
+                }
                 null
             }
         }
