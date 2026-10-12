@@ -300,8 +300,8 @@
                 android:gravity="center_horizontal"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                 android:maxLines="1"
-                android:text="Update: --:--"
-                tools:text="Update: 23:59" />
+                android:text="Updated: --:--"
+                tools:text="Updated: 23:59" />
 
             <ImageButton
                 android:id="@+id/lock_refresh_button"
