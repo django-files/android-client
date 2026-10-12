@@ -135,11 +135,16 @@ class WidgetConfiguration : Activity() {
                 putBoolean("widget_show_upload", showUploadSwitch.isChecked)
             }
 
+            val appWidgetInfo = AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId)
+            val providerComponent = appWidgetInfo?.provider ?: android.content.ComponentName(
+                this,
+                WidgetProvider::class.java
+            )
             val updateIntent = Intent(
                 AppWidgetManager.ACTION_APPWIDGET_UPDATE,
                 null,
                 this,
-                WidgetProvider::class.java
+                Class.forName(providerComponent.className)
             )
             updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(appWidgetId))
             sendBroadcast(updateIntent)

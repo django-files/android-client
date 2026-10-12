@@ -40,8 +40,8 @@ interface ServerDao {
     @Upsert
     fun addOrUpdate(server: Server)
 
-    @Query("UPDATE server SET size = :size, count = :count, shorts = :shorts, humanSize = :humanSize WHERE url = :url")
-    fun updateStats(url: String, size: Long, count: Int, shorts: Int, humanSize: String)
+    @Query("UPDATE server SET size = :size, count = :count, shorts = :shorts, humanSize = :humanSize, albums = :albums, typesJson = :typesJson WHERE url = :url")
+    fun updateStats(url: String, size: Long, count: Int, shorts: Int, humanSize: String, albums: Int, typesJson: String)
 
     @Query("UPDATE server SET active = 1 WHERE url = :url")
     fun activate(url: String)
@@ -60,10 +60,12 @@ data class Server(
     val count: Int? = null,
     val shorts: Int? = null,
     val humanSize: String? = null,
+    val albums: Int? = null,
+    val typesJson: String? = null,
 )
 
 
-@Database(entities = [Server::class], version = 3, exportSchema = false)
+@Database(entities = [Server::class], version = 4, exportSchema = false)
 abstract class ServerDatabase : RoomDatabase() {
     abstract fun serverDao(): ServerDao
 

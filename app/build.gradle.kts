@@ -114,6 +114,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.okhttp3.integration)
     implementation(libs.photoview)
+    implementation(libs.mpchart.lib)
     //kapt(libs.glide.compiler)
     ksp(libs.moshi.kotlin.codegen)
     ksp(libs.room.compiler)
