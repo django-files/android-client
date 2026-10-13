@@ -225,14 +225,14 @@ class WidgetLockProvider : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.djangofiles.djangofiles.REFRESH_LOCK_WIDGET"
 
         // Nightfall palette from the README gallery (MPChartExample Nightfall.kt):
-        // liberty indigo first, then teal, coral, amber, violet, green.
+        // liberty indigo first, then teal, coral, amber, pink, green.
         // Slate 7th for the grouped "other" slice.
         private val CHART_COLORS = listOf(
             "#565AA9".toColorInt(),
             "#2FB4B6".toColorInt(),
             "#F97066".toColorInt(),
             "#F5B041".toColorInt(),
-            "#8B7CF6".toColorInt(),
+            "#EC4899".toColorInt(),
             "#5DD39E".toColorInt(),
             "#94A3B8".toColorInt(),
         )
@@ -358,6 +358,11 @@ class WidgetLockProvider : AppWidgetProvider() {
                     isDrawValuesEnabled = false
                 }
                 val pieData = PieData(dataSet)
+                // Square raw-px canvas (~810KB, under the ~1MB RemoteViews
+                // bitmap budget). Square so no dead space is baked into
+                // the left/right.
+                val width = 450
+                val height = 450
                 val chart = PieChart(context).apply {
                     data = pieData
                     description.isEnabled = false
@@ -369,7 +374,9 @@ class WidgetLockProvider : AppWidgetProvider() {
                     isDrawRoundedSlicesEnabled = true
                     isDrawCenterTextEnabled = holeText.isNotEmpty()
                     centerText = holeText
-                    centerTextSize = 42f
+                    // Raw px as a fraction of the canvas (not dp) so the text
+                    // renders the same size on all densities and font scales.
+                    centerTextPaint.textSize = width * 0.15f
                     centerTextColor = textColor
                     holeColor = Color.TRANSPARENT
                     setBackgroundColor(Color.TRANSPARENT)
@@ -377,11 +384,6 @@ class WidgetLockProvider : AppWidgetProvider() {
                     isHighlightPerTapEnabled = false
                     setExtraOffsets(0f, 0f, 0f, 0f)
                 }
-                // 450x450 (~810KB) stays under the ~1MB RemoteViews bitmap budget
-                // while supersampling the displayed size for crisper edges.
-                // Square so no dead space is baked into the left/right.
-                val width = 450
-                val height = 450
                 chart.measure(
                     View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
