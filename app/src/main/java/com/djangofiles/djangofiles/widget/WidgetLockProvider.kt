@@ -261,14 +261,15 @@ class WidgetLockProvider : AppWidgetProvider() {
         }
 
         fun legendLabel(mime: String): String {
-            val length = 14
+            val length = 16
             if (mime == "Other") return "other"
             if (mime == "unknown" || mime.isBlank()) return "other"
-            val sub = mime.substringAfter("/", mime)
-            if (sub.startsWith("vnd.") || sub.startsWith("x-") || sub.length > length) {
-                return mime.substringBefore("/", mime).take(length)
-            }
-            return sub.take(length)
+            if ("/" !in mime || mime.length <= length) return mime.take(length)
+            // Long mime: keep the subtype readable, ellipsize the type:
+            // application/x-python -> appl.../x-python
+            val subShown = mime.substringAfter("/").take(10)
+            val typeBudget = (length - 4 - subShown.length).coerceAtLeast(1)
+            return mime.substringBefore("/").take(typeBudget) + ".../" + subShown
         }
 
         fun buildPieModel(types: List<ServerApi.TypeStats>): Pair<List<PieEntry<Nothing>>, List<LegendItem>> {
