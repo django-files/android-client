@@ -48,6 +48,11 @@
 
     <string name="background_opacity">Background Opacity %d</string>
 
+    <string name="widget_label">Text Stats</string>
+    <string name="widget_description">Small, customizable Home Screen widget</string>
+    <string name="widget_lock_label">Chart Stats</string>
+    <string name="widget_lock_description">Large widget designed for the Lock Screen</string>
+
     <string-array name="launcher_entries">
         <item>Home Web View</item>
         <item>Show File List</item>
