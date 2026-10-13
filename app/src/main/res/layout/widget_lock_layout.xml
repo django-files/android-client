@@ -76,7 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:paddingVertical="4dp"
+            android:layout_marginVertical="8dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
@@ -93,6 +93,7 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -260,7 +261,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:maxWidth="112dp"
-                        android:text="Other/really/fucking/long/mime" />
+                        android:text="Other/really/long/mime" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

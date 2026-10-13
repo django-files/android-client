@@ -368,17 +368,19 @@ class WidgetLockProvider : AppWidgetProvider() {
                     isDrawRoundedSlicesEnabled = true
                     isDrawCenterTextEnabled = holeText.isNotEmpty()
                     centerText = holeText
-                    centerTextSize = 24f
+                    centerTextSize = 42f
                     centerTextColor = textColor
                     holeColor = Color.TRANSPARENT
                     setBackgroundColor(Color.TRANSPARENT)
                     isRotationEnabled = false
                     isHighlightPerTapEnabled = false
+                    setExtraOffsets(0f, 0f, 0f, 0f)
                 }
-                // 600x375 (~900KB) stays under the ~1MB RemoteViews bitmap budget
+                // 450x450 (~810KB) stays under the ~1MB RemoteViews bitmap budget
                 // while supersampling the displayed size for crisper edges.
-                val width = 600
-                val height = 375
+                // Square so no dead space is baked into the left/right.
+                val width = 450
+                val height = 450
                 chart.measure(
                     View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
