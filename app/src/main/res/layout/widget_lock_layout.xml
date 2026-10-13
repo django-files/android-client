@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="12dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,6 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:paddingVertical="4dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
@@ -297,16 +298,16 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center_horizontal"
+                android:gravity="end"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                 android:maxLines="1"
-                android:text="Updated: --:--"
-                tools:text="Updated: 23:59" />
+                android:text="Updated --:--"
+                tools:text="Updated 23:59" />
 
             <ImageButton
                 android:id="@+id/lock_refresh_button"
                 android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_height="32dp"
                 android:contentDescription="Refresh stats"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:src="@drawable/md_refresh_24px" />
