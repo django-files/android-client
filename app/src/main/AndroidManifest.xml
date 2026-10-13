@@ -84,6 +84,7 @@
         </activity>
         
         <receiver android:name=".widget.WidgetProvider"
+            android:label="@string/widget_label"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -93,6 +94,7 @@
         </receiver>
 
         <receiver android:name=".widget.WidgetLockProvider"
+            android:label="@string/widget_lock_label"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

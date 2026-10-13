@@ -323,7 +323,11 @@ class FilesFragment : Fragment() {
 
                 Log.d("File[refreshLayout]", "Get Albums in the Background...")
                 launch(Dispatchers.IO) {
-                    requireContext().getAlbums(savedUrl)
+                    try {
+                        requireContext().getAlbums(savedUrl)
+                    } catch (e: Exception) {
+                        Log.e("File[refreshLayout]", "getAlbums Exception: $e")
+                    }
                 }
 
                 //viewModel.selected.value?.clear()
@@ -736,32 +740,38 @@ fun Context.showExpireDialog(
 
 suspend fun Context.getAlbums(savedUrl: String) {
     Log.d("getAlbums", "getAlbums: $savedUrl")
-    val api = ServerApi(this, savedUrl)
-    val response = api.albums()
-    Log.d("getAlbums", "response: $response")
-    if (response.isSuccessful) {
-        val dao: AlbumDao = AlbumDatabase.getInstance(this, savedUrl).albumDao()
-        val albumResponse = response.body()
-        Log.d("getAlbums", "albumResponse: $albumResponse")
-        if (albumResponse != null) {
-            dao.syncAlbums(albumResponse.albums)
-            //for (album in albumResponse.albums) {
-            //    Log.d("getAlbums", "album: $album")
-            //    val albumEntry = AlbumEntity(
-            //        id = album.id,
-            //        name = album.name,
-            //        password = album.password,
-            //        private = album.private,
-            //        info = album.info,
-            //        expr = album.expr,
-            //        date = album.date,
-            //        url = album.url,
-            //    )
-            //    Log.d("getAlbums", "albumEntry: $albumEntry")
-            //    dao.addOrUpdate(album = albumEntry)
-            //}
-            Log.d("getAlbums", "DONE")
+    try {
+        val api = ServerApi(this, savedUrl)
+        val response = api.albums()
+        Log.d("getAlbums", "response: $response")
+        if (response.isSuccessful) {
+            val dao: AlbumDao = AlbumDatabase.getInstance(this, savedUrl).albumDao()
+            val albumResponse = response.body()
+            Log.d("getAlbums", "albumResponse: $albumResponse")
+            if (albumResponse != null) {
+                dao.syncAlbums(albumResponse.albums)
+                //for (album in albumResponse.albums) {
+                //    Log.d("getAlbums", "album: $album")
+                //    val albumEntry = AlbumEntity(
+                //        id = album.id,
+                //        name = album.name,
+                //        password = album.password,
+                //        private = album.private,
+                //        info = album.info,
+                //        expr = album.expr,
+                //        date = album.date,
+                //        url = album.url,
+                //    )
+                //    Log.d("getAlbums", "albumEntry: $albumEntry")
+                //    dao.addOrUpdate(album = albumEntry)
+                //}
+                Log.d("getAlbums", "DONE")
+            }
+        } else {
+            Log.w("getAlbums", "Unsuccessful: ${response.code()}")
         }
+    } catch (e: Exception) {
+        Log.e("getAlbums", "Exception: $e")
     }
 }
 
