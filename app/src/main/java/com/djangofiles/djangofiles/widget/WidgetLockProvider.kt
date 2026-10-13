@@ -102,9 +102,7 @@ class WidgetLockProvider : AppWidgetProvider() {
             views.setInt(R.id.lock_refresh_pill, "setBackgroundResource", pillBackground)
 
             views.setTextColor(R.id.lock_files_summary, selectedTextColor)
-            views.setTextColor(R.id.lock_shorts_summary, selectedTextColor)
-            views.setTextColor(R.id.lock_separator_text, selectedTextColor)
-            views.setTextColor(R.id.lock_albums_summary, selectedTextColor)
+            views.setTextColor(R.id.lock_right_summary, selectedTextColor)
             views.setTextColor(R.id.lock_update_time, selectedTextColor)
             views.setTextColor(R.id.lock_text_pill_label, selectedTextColor)
             views.setTextColor(R.id.lock_upload_pill_label, selectedTextColor)
@@ -175,9 +173,8 @@ class WidgetLockProvider : AppWidgetProvider() {
                     val humanSize = server.humanSize ?: "0 B"
                     val shorts = server.shorts ?: 0
                     val albums = server.albums ?: 0
-                    views.setTextViewText(R.id.lock_files_summary, "Files: $count ($humanSize)")
-                    views.setTextViewText(R.id.lock_shorts_summary, "Shorts: $shorts")
-                    views.setTextViewText(R.id.lock_albums_summary, "Albums: $albums")
+                    views.setTextViewText(R.id.lock_files_summary, "Files ${formatCount(count)} • $humanSize")
+                    views.setTextViewText(R.id.lock_right_summary, "Shorts ${formatCount(shorts)} · Albums ${formatCount(albums)}")
 
                     val types = parseTypes(server.typesJson)
                     if (types.isNotEmpty()) {
@@ -202,8 +199,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                     // No cached server (fresh install / logged out on this app
                     // variant): say so instead of showing placeholder values.
                     views.setTextViewText(R.id.lock_files_summary, "Open app and log in")
-                    views.setTextViewText(R.id.lock_shorts_summary, "")
-                    views.setTextViewText(R.id.lock_albums_summary, "")
+                    views.setTextViewText(R.id.lock_right_summary, "")
                     setLegend(views, emptyList())
                     views.setViewVisibility(R.id.lock_chart, View.GONE)
                 }
@@ -249,6 +245,10 @@ class WidgetLockProvider : AppWidgetProvider() {
         }
 
         data class LegendItem(val color: Int, val name: String)
+
+        fun formatCount(value: Number): String =
+            java.text.NumberFormat.getNumberInstance(java.util.Locale.US)
+                .format(value.toLong())
 
         fun centerLabel(mime: String): String {
             if (mime == "Other") return "other"

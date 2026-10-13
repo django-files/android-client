@@ -23,53 +23,30 @@
 
             <TextView
                 android:id="@+id/lock_files_summary"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="start"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textSize="14sp"
                 android:includeFontPadding="false"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:text="Files: 0"
-                tools:text="Files: 109 (66.6 MB)" />
+                android:text="Files 0"
+                tools:text="Files 109 • 66.6 MB" />
 
             <TextView
-                android:id="@+id/lock_shorts_summary"
-                android:layout_width="wrap_content"
+                android:id="@+id/lock_right_summary"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:gravity="end"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textSize="14sp"
                 android:includeFontPadding="false"
                 android:maxLines="1"
-                android:ellipsize="none"
-                android:text="Shorts: 0"
-                tools:text="Shorts: 8" />
-
-            <TextView
-                android:id="@+id/lock_separator_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textSize="14sp"
-                android:includeFontPadding="false"
-                android:maxLines="1"
-                android:text=" · " />
-
-            <TextView
-                android:id="@+id/lock_albums_summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textSize="14sp"
-                android:includeFontPadding="false"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:text="Albums: 0"
-                tools:text="Albums: 3" />
+                android:ellipsize="start"
+                android:text="Shorts 0 · Albums 0"
+                tools:text="Shorts 8 · Albums 3" />
         </LinearLayout>
 
         <LinearLayout
@@ -117,7 +94,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:maxWidth="112dp"
-                        android:text="mp4" />
+                        android:text="jpeg" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -141,7 +118,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:maxWidth="112dp"
-                        android:text="jpeg" />
+                        android:text="png" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -165,7 +142,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:maxWidth="112dp"
-                        android:text="png" />
+                        android:text="mp4" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -189,7 +166,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:maxWidth="112dp"
-                        android:text="Other" />
+                        android:text="gif" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -213,7 +190,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:maxWidth="112dp"
-                        android:text="Other" />
+                        android:text="txt" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -237,7 +214,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:maxWidth="112dp"
-                        android:text="Other" />
+                        android:text="zip" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -261,7 +238,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:maxWidth="112dp"
-                        android:text="Other/really/long/mime" />
+                        android:text="Other" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -331,6 +308,7 @@
                 android:gravity="end"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
                 android:maxLines="1"
+                android:ellipsize="start"
                 android:text="Updated --:--"
                 tools:text="Updated 23:59" />
 

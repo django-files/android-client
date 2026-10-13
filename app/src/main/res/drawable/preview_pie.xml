@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static fake pie for the widget picker preview (previewLayout is never
+    bound by the provider, so runtime fills this in on the real widget).
+    Ring sized to ~64% hole like the real donut; 2-degree trims fake the
+    sliceSpace gaps. Butt caps: round caps would swallow thin gaps since a
+    cap extends half the stroke width past each arc end. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#565AA9"
+        android:strokeWidth="12"
+        android:strokeLineCap="butt"
+        android:pathData="M51.2,15.5 A34.5,34.5 0 0 1 71.2,77.2" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#2FB4B6"
+        android:strokeWidth="12"
+        android:strokeLineCap="butt"
+        android:pathData="M69.3,78.6 A34.5,34.5 0 0 1 17.6,61.8" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F97066"
+        android:strokeWidth="12"
+        android:strokeLineCap="butt"
+        android:pathData="M16.8,59.5 A34.5,34.5 0 0 1 28.8,22.8" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#F5B041"
+        android:strokeWidth="12"
+        android:strokeLineCap="butt"
+        android:pathData="M30.7,21.4 A34.5,34.5 0 0 1 48.8,15.5" />
+</vector>
