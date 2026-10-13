@@ -225,14 +225,14 @@ class WidgetLockProvider : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.djangofiles.djangofiles.REFRESH_LOCK_WIDGET"
 
         // Nightfall palette from the README gallery (MPChartExample Nightfall.kt):
-        // liberty indigo first, then teal, coral, amber, violet, green.
+        // liberty indigo first, then teal, coral, amber, pink, green.
         // Slate 7th for the grouped "other" slice.
         private val CHART_COLORS = listOf(
             "#565AA9".toColorInt(),
             "#2FB4B6".toColorInt(),
             "#F97066".toColorInt(),
             "#F5B041".toColorInt(),
-            "#8B7CF6".toColorInt(),
+            "#EC4899".toColorInt(),
             "#5DD39E".toColorInt(),
             "#94A3B8".toColorInt(),
         )
