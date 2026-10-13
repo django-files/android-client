@@ -93,12 +93,13 @@ class WidgetLockProvider : AppWidgetProvider() {
             views.setInt(R.id.widget_lock_root, "setBackgroundColor", finalBgColor)
 
             val pillBackground = when (textColor) {
-                "black" -> R.drawable.bg_lock_pill_black
-                "liberty" -> R.drawable.bg_lock_pill_liberty
-                else -> R.drawable.bg_lock_pill_white
+                "black" -> R.drawable.bg_lock_ripple_black
+                "liberty" -> R.drawable.bg_lock_ripple_liberty
+                else -> R.drawable.bg_lock_ripple_white
             }
             views.setInt(R.id.lock_text_pill, "setBackgroundResource", pillBackground)
             views.setInt(R.id.lock_upload_pill, "setBackgroundResource", pillBackground)
+            views.setInt(R.id.lock_refresh_pill, "setBackgroundResource", pillBackground)
 
             views.setTextColor(R.id.lock_files_summary, selectedTextColor)
             views.setTextColor(R.id.lock_shorts_summary, selectedTextColor)
@@ -119,7 +120,7 @@ class WidgetLockProvider : AppWidgetProvider() {
             views.setInt(R.id.lock_upload_button, "setColorFilter", selectedTextColor)
 
             views.setViewVisibility(
-                R.id.lock_refresh_button,
+                R.id.lock_refresh_pill,
                 if (showRefresh) View.VISIBLE else View.GONE
             )
             views.setViewVisibility(
@@ -142,6 +143,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.lock_refresh_button, refreshPending)
+            views.setOnClickPendingIntent(R.id.lock_refresh_pill, refreshPending)
             appWidgetManager.updateAppWidget(appWidgetId, views)
 
             val uploadIntent = Intent(context, MainActivity::class.java).apply {
@@ -210,7 +212,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                     R.id.lock_update_time,
                     if (showUpdateTime) View.VISIBLE else View.GONE
                 )
-                views.setTextViewText(R.id.lock_update_time, "Update: $time")
+                views.setTextViewText(R.id.lock_update_time, "Updated $time")
 
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }

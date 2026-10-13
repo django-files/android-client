@@ -248,7 +248,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_lock_pill_white">
+                android:background="@drawable/bg_lock_ripple_white">
 
                 <ImageView
                     android:id="@+id/lock_text_button"
@@ -274,7 +274,7 @@
                 android:layout_marginStart="8dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_lock_pill_white">
+                android:background="@drawable/bg_lock_ripple_white">
 
                 <ImageView
                     android:id="@+id/lock_upload_button"
@@ -304,13 +304,22 @@
                 android:text="Updated --:--"
                 tools:text="Updated 23:59" />
 
-            <ImageButton
-                android:id="@+id/lock_refresh_button"
-                android:layout_width="48dp"
-                android:layout_height="32dp"
-                android:contentDescription="Refresh stats"
-                android:background="?android:selectableItemBackgroundBorderless"
-                android:src="@drawable/md_refresh_24px" />
+            <LinearLayout
+                android:id="@+id/lock_refresh_pill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/bg_lock_ripple_white">
+
+                <ImageView
+                    android:id="@+id/lock_refresh_button"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Refresh stats"
+                    android:src="@drawable/md_refresh_24px" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
