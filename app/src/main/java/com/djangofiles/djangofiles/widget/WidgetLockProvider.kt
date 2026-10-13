@@ -114,6 +114,7 @@ class WidgetLockProvider : AppWidgetProvider() {
             views.setTextColor(R.id.lock_legend3_name, selectedTextColor)
             views.setTextColor(R.id.lock_legend4_name, selectedTextColor)
             views.setTextColor(R.id.lock_legend5_name, selectedTextColor)
+            views.setTextColor(R.id.lock_legend6_name, selectedTextColor)
 
             views.setInt(R.id.lock_refresh_button, "setColorFilter", selectedTextColor)
             views.setInt(R.id.lock_text_button, "setColorFilter", selectedTextColor)
@@ -224,8 +225,10 @@ class WidgetLockProvider : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.djangofiles.djangofiles.REFRESH_LOCK_WIDGET"
 
         // Nightfall palette from the README gallery (MPChartExample Nightfall.kt):
-        // teal, coral, amber, violet, green. Slate 6th for the grouped "other" slice.
+        // liberty indigo first, then teal, coral, amber, violet, green.
+        // Slate 7th for the grouped "other" slice.
         private val CHART_COLORS = listOf(
+            "#565AA9".toColorInt(),
             "#2FB4B6".toColorInt(),
             "#F97066".toColorInt(),
             "#F5B041".toColorInt(),
@@ -258,15 +261,21 @@ class WidgetLockProvider : AppWidgetProvider() {
         }
 
         fun legendLabel(mime: String): String {
+            val length = 14
             if (mime == "Other") return "other"
-            return mime
+            if (mime == "unknown" || mime.isBlank()) return "other"
+            val sub = mime.substringAfter("/", mime)
+            if (sub.startsWith("vnd.") || sub.startsWith("x-") || sub.length > length) {
+                return mime.substringBefore("/", mime).take(length)
+            }
+            return sub.take(length)
         }
 
         fun buildPieModel(types: List<ServerApi.TypeStats>): Pair<List<PieEntry<Nothing>>, List<LegendItem>> {
             val sorted = types.sortedByDescending { it.count }.filter { it.count > 0 }
             if (sorted.isEmpty()) return emptyList<PieEntry<Nothing>>() to emptyList()
-            val top = sorted.take(5)
-            val rest = sorted.drop(5)
+            val top = sorted.take(6)
+            val rest = sorted.drop(6)
             val restCount = rest.sumOf { it.count }
             val slices = top.toMutableList()
             if (restCount > 0) {
@@ -299,6 +308,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                 R.id.lock_legend3_color,
                 R.id.lock_legend4_color,
                 R.id.lock_legend5_color,
+                R.id.lock_legend6_color,
             )
             val nameIds = listOf(
                 R.id.lock_legend0_name,
@@ -307,6 +317,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                 R.id.lock_legend3_name,
                 R.id.lock_legend4_name,
                 R.id.lock_legend5_name,
+                R.id.lock_legend6_name,
             )
             for (i in colorIds.indices) {
                 val item = legend.getOrNull(i)
