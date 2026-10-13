@@ -93,12 +93,13 @@ class WidgetLockProvider : AppWidgetProvider() {
             views.setInt(R.id.widget_lock_root, "setBackgroundColor", finalBgColor)
 
             val pillBackground = when (textColor) {
-                "black" -> R.drawable.bg_lock_pill_black
-                "liberty" -> R.drawable.bg_lock_pill_liberty
-                else -> R.drawable.bg_lock_pill_white
+                "black" -> R.drawable.bg_lock_ripple_black
+                "liberty" -> R.drawable.bg_lock_ripple_liberty
+                else -> R.drawable.bg_lock_ripple_white
             }
             views.setInt(R.id.lock_text_pill, "setBackgroundResource", pillBackground)
             views.setInt(R.id.lock_upload_pill, "setBackgroundResource", pillBackground)
+            views.setInt(R.id.lock_refresh_pill, "setBackgroundResource", pillBackground)
 
             views.setTextColor(R.id.lock_files_summary, selectedTextColor)
             views.setTextColor(R.id.lock_shorts_summary, selectedTextColor)
@@ -113,13 +114,14 @@ class WidgetLockProvider : AppWidgetProvider() {
             views.setTextColor(R.id.lock_legend3_name, selectedTextColor)
             views.setTextColor(R.id.lock_legend4_name, selectedTextColor)
             views.setTextColor(R.id.lock_legend5_name, selectedTextColor)
+            views.setTextColor(R.id.lock_legend6_name, selectedTextColor)
 
             views.setInt(R.id.lock_refresh_button, "setColorFilter", selectedTextColor)
             views.setInt(R.id.lock_text_button, "setColorFilter", selectedTextColor)
             views.setInt(R.id.lock_upload_button, "setColorFilter", selectedTextColor)
 
             views.setViewVisibility(
-                R.id.lock_refresh_button,
+                R.id.lock_refresh_pill,
                 if (showRefresh) View.VISIBLE else View.GONE
             )
             views.setViewVisibility(
@@ -142,6 +144,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.lock_refresh_button, refreshPending)
+            views.setOnClickPendingIntent(R.id.lock_refresh_pill, refreshPending)
             appWidgetManager.updateAppWidget(appWidgetId, views)
 
             val uploadIntent = Intent(context, MainActivity::class.java).apply {
@@ -210,7 +213,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                     R.id.lock_update_time,
                     if (showUpdateTime) View.VISIBLE else View.GONE
                 )
-                views.setTextViewText(R.id.lock_update_time, "Update: $time")
+                views.setTextViewText(R.id.lock_update_time, "Updated $time")
 
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
@@ -222,8 +225,10 @@ class WidgetLockProvider : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.djangofiles.djangofiles.REFRESH_LOCK_WIDGET"
 
         // Nightfall palette from the README gallery (MPChartExample Nightfall.kt):
-        // teal, coral, amber, violet, green. Slate 6th for the grouped "other" slice.
+        // liberty indigo first, then teal, coral, amber, violet, green.
+        // Slate 7th for the grouped "other" slice.
         private val CHART_COLORS = listOf(
+            "#565AA9".toColorInt(),
             "#2FB4B6".toColorInt(),
             "#F97066".toColorInt(),
             "#F5B041".toColorInt(),
@@ -256,15 +261,22 @@ class WidgetLockProvider : AppWidgetProvider() {
         }
 
         fun legendLabel(mime: String): String {
+            val length = 16
             if (mime == "Other") return "other"
-            return mime
+            if (mime == "unknown" || mime.isBlank()) return "other"
+            if ("/" !in mime || mime.length <= length) return mime.take(length)
+            // Long mime: keep the subtype readable, ellipsize the type:
+            // application/x-python -> appl.../x-python
+            val subShown = mime.substringAfter("/").take(10)
+            val typeBudget = (length - 4 - subShown.length).coerceAtLeast(1)
+            return mime.substringBefore("/").take(typeBudget) + ".../" + subShown
         }
 
         fun buildPieModel(types: List<ServerApi.TypeStats>): Pair<List<PieEntry<Nothing>>, List<LegendItem>> {
             val sorted = types.sortedByDescending { it.count }.filter { it.count > 0 }
             if (sorted.isEmpty()) return emptyList<PieEntry<Nothing>>() to emptyList()
-            val top = sorted.take(5)
-            val rest = sorted.drop(5)
+            val top = sorted.take(6)
+            val rest = sorted.drop(6)
             val restCount = rest.sumOf { it.count }
             val slices = top.toMutableList()
             if (restCount > 0) {
@@ -297,6 +309,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                 R.id.lock_legend3_color,
                 R.id.lock_legend4_color,
                 R.id.lock_legend5_color,
+                R.id.lock_legend6_color,
             )
             val nameIds = listOf(
                 R.id.lock_legend0_name,
@@ -305,6 +318,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                 R.id.lock_legend3_name,
                 R.id.lock_legend4_name,
                 R.id.lock_legend5_name,
+                R.id.lock_legend6_name,
             )
             for (i in colorIds.indices) {
                 val item = legend.getOrNull(i)
@@ -355,17 +369,19 @@ class WidgetLockProvider : AppWidgetProvider() {
                     isDrawRoundedSlicesEnabled = true
                     isDrawCenterTextEnabled = holeText.isNotEmpty()
                     centerText = holeText
-                    centerTextSize = 24f
+                    centerTextSize = 42f
                     centerTextColor = textColor
                     holeColor = Color.TRANSPARENT
                     setBackgroundColor(Color.TRANSPARENT)
                     isRotationEnabled = false
                     isHighlightPerTapEnabled = false
+                    setExtraOffsets(0f, 0f, 0f, 0f)
                 }
-                // 600x375 (~900KB) stays under the ~1MB RemoteViews bitmap budget
+                // 450x450 (~810KB) stays under the ~1MB RemoteViews bitmap budget
                 // while supersampling the displayed size for crisper edges.
-                val width = 600
-                val height = 375
+                // Square so no dead space is baked into the left/right.
+                val width = 450
+                val height = 450
                 chart.measure(
                     View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
