@@ -369,7 +369,7 @@ class WidgetLockProvider : AppWidgetProvider() {
                     isDrawRoundedSlicesEnabled = true
                     isDrawCenterTextEnabled = holeText.isNotEmpty()
                     centerText = holeText
-                    centerTextSize = 42f
+                    centerTextSize = 24f
                     centerTextColor = textColor
                     holeColor = Color.TRANSPARENT
                     setBackgroundColor(Color.TRANSPARENT)
